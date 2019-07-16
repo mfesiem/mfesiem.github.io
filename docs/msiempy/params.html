@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
 <title>msiempy.params API documentation</title>
-<meta name="description" content="msiem.params
-~~~~~~~~~~~~~ …" />
+<meta name="description" content="This module imports a dict into the msiem core class to provide
+a central place to aggregate methods and parameters. The params
+are stored as …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -21,8 +22,6 @@
 <h1 class="title">Module <code>msiempy.params</code></h1>
 </header>
 <section id="section-intro">
-<p>msiem.params
-~~~~~~~~~~~~~</p>
 <p>This module imports a dict into the msiem core class to provide
 a central place to aggregate methods and parameters. The params
 are stored as docstrings to support string replacement.</p>
@@ -46,37 +45,10 @@ are stored as docstrings to support string replacement.</p>
 <p>interpolated as documented in the Attributes.</p>
 <h2 id="example">Example</h2>
 <p>method, params = params['login'].format(username, password)</p>
-<h2 id="attributes">Attributes</h2>
-<dl>
-<dt><strong><code>login</code></strong></dt>
-<dd>Function to login
-vars:
-username
-password
-callback vars:
-Cookie
-X-Xsrf-Token</dd>
-<dt><strong><code>devtree</code></strong></dt>
-<dd>Get top level device tree string</dd>
-<dt><strong><code>client_grp</code></strong></dt>
-<dd>Get clients for a specific group
-vars:
-id
-callback vars:
-ftoken</dd>
-<dt><strong><code>results</code></strong></dt>
-<dd>Get results from earlier call
-vars:
-ftoken</dd>
-</dl>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
-&#34;&#34;&#34;
-    msiem.params
-    ~~~~~~~~~~~~~
-
-    This module imports a dict into the msiem core class to provide
+&#34;&#34;&#34;This module imports a dict into the msiem core class to provide
     a central place to aggregate methods and parameters. The params
     are stored as docstrings to support string replacement.
 
@@ -94,28 +66,6 @@ ftoken</dd>
 
     Example:
         method, params = params[&#39;login&#39;].format(username, password)
-
-    Attributes:
-        login: Function to login
-            vars:
-                username
-                password
-            callback vars:
-                Cookie
-                X-Xsrf-Token
-
-        devtree: Get top level device tree string
-
-        client_grp: Get clients for a specific group
-            vars:
-                id
-            callback vars:
-                ftoken
-
-        results: Get results from earlier call
-            vars:
-                ftoken
-
 &#34;&#34;&#34;
 
 PARAMS = {

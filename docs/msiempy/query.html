@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
 <title>msiempy.query API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Module that provide time ranged filtered query wrapper. QueryManager is an abstract object." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,16 +20,20 @@
 <h1 class="title">Module <code>msiempy.query</code></h1>
 </header>
 <section id="section-intro">
+<p>Module that provide time ranged filtered query wrapper. QueryManager is an abstract object.</p>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">import datetime
+<pre><code class="python">&#34;&#34;&#34;Module that provide time ranged filtered query wrapper. QueryManager is an abstract object.
+&#34;&#34;&#34;
+
+import datetime
 import abc
 import copy
 import json
 import logging
 log = logging.getLogger(&#39;msiempy&#39;)
 
-from .base import Manager, NitroError, NitroObject
+from . import Manager, NitroError, NitroObject
 from .utils import format_esm_time, convert_to_time_obj, timerange_gettimes, parse_timedelta, divide_times
 
 class QueryManager(Manager):
@@ -64,7 +68,24 @@ class QueryManager(Manager):
             &#34;PREVIOUS_YEAR&#34;
     ]
     &#34;&#34;&#34;
-    List of possible time ranges
+    List of possible time ranges : &#34;CUSTOM&#34;,
+            &#34;LAST_MINUTE&#34;,
+            &#34;LAST_10_MINUTES&#34;,
+            &#34;LAST_30_MINUTES&#34;,
+            &#34;LAST_HOUR&#34;,
+            &#34;CURRENT_DAY&#34;,
+            &#34;PREVIOUS_DAY&#34;,
+            &#34;LAST_24_HOURS&#34;,
+            &#34;LAST_2_DAYS&#34;,
+            &#34;LAST_3_DAYS&#34;,
+            &#34;CURRENT_WEEK&#34;,
+            &#34;PREVIOUS_WEEK&#34;,
+            &#34;CURRENT_MONTH&#34;,
+            &#34;PREVIOUS_MONTH&#34;,
+            &#34;CURRENT_QUARTER&#34;,
+            &#34;PREVIOUS_QUARTER&#34;,
+            &#34;CURRENT_YEAR&#34;,
+            &#34;PREVIOUS_YEAR&#34;
     &#34;&#34;&#34;
 
     def __init__(self, time_range=None, start_time=None, end_time=None, filters=None, 
@@ -74,7 +95,7 @@ class QueryManager(Manager):
         Abstract base class that handles the time ranges operations, loading data from the SIEM.
 
         Params
-        ======
+        `
             time_range : Query time range. String representation of a time range. 
                 See `msiempy.base.QueryManager.POSSIBLE_TIME_RANGE`
             start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
@@ -84,8 +105,7 @@ class QueryManager(Manager):
                 Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
                 the list is (500*5)*(500*5)*(500*5) = 15625000000
             load_async : Load asynchonously the sub-queries. Defaulted to True.
-            
-           
+        `
         &#34;&#34;&#34;
 
         super().__init__(*arg, **kwargs)
@@ -122,6 +142,9 @@ class QueryManager(Manager):
 
     @property
     def __root_parent__(self):
+        &#34;&#34;&#34;
+        Internal method that return the first query of the query tree
+        &#34;&#34;&#34;
         if self.__parent__==None:
             return self
         else :
@@ -221,14 +244,13 @@ class QueryManager(Manager):
     def filters(self):
         &#34;&#34;&#34; 
         Filter propertie getter. Returns a list of filters.
-        #TODO find a better solution to integrate the filter propertie
+        TODO find a better solution to integrate the filter propertie
         &#34;&#34;&#34;
         raise NotImplementedError()
 
     @filters.setter
     def filters(self, filters):
-        &#34;&#34;&#34;
-        Query filters property : can be a list of tuple(field, [values]) 
+        &#34;&#34;&#34;Query filters property : can be a list of tuple(field, [values]) 
             or just a tuple. None value will call `msiempy.query.QueryManager.clear_filters()`
         Throws AttributeError if type not supported.
         &#34;&#34;&#34;
@@ -249,15 +271,13 @@ class QueryManager(Manager):
     
     @abc.abstractmethod
     def add_filter(self, filter):
-        &#34;&#34;&#34;
-        Method that figures out the way to add a filter to the query.
+        &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
     def clear_filters(self):
-        &#34;&#34;&#34;
-        Method that fiures out the way to remove all filters to the query.
+        &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
         &#34;&#34;&#34;
         pass 
 
@@ -270,7 +290,7 @@ class QueryManager(Manager):
         pass
 
     @abc.abstractmethod
-    def load_data(self, workers=15, slots=24, delta=None):
+    def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
         &#34;&#34;&#34;
         Method to load the data from the SIEM
         Split the query in defferents time slots if the query apprears not to be completed.
@@ -281,18 +301,21 @@ class QueryManager(Manager):
         If you&#39;re looking foe `max_query_depth`, it&#39;s define at the creation of the query manager
 
         Returns a QueryManager.
+        
+        Note :
+            IF you looking for load_async = True/False, you should pass thid to the constructor method `msiempy.query.QueryManager`
+                or by setting the attribute manually like `manager.load_asynch=True`
+            Only the first query is loaded asynchronously.
 
         Params
-        -----
+        `
             requests_size : size (in items) for the individual requests.
             workers : numbre of parrallels task
-           
             slots : number of time slots the query can be divided. The loading bar is 
                 divided according to the number of slots
-            delta : exemple : &#39;24hrs&#39;, the query will be firstly divided in chuncks according to the time delta read
+            delta : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
                 with dateutil.
-
-
+        `
         #
         &#34;&#34;&#34;
 
@@ -310,8 +333,11 @@ class QueryManager(Manager):
                     start, end = self.start_time, self.end_time
 
                 if self.__parent__ == None and isinstance(delta, str) :
+                    #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
                     times=divide_times(start, end, delta=parse_timedelta(delta))
-                else :times=divide_times(start, end, slots=slots)#  IGONORING THE CONFIG ### : self.nitro.config.slots)
+                    
+                else :times=divide_times(start, end, slots=slots)
+                        #IGONORING THE CONFIG ### : self.nitro.config.slots)
                 
                 sub_queries=list()
 
@@ -333,10 +359,11 @@ class QueryManager(Manager):
 
             
                 results = self.perform(QueryManager.load_data, sub_queries, 
-                    asynch=False if not self.load_async else (self.__parent__==None), progress=self.__parent__==None, 
+                    #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
+                    asynch=False if not self.load_async else (self.__parent__==None),
+                    progress=self.__parent__==None, 
                     message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
                     func_args=dict(slots=slots),
-                        #IGONORING THE CONFIG ### : self.nitro.config.slots)
                     workers=workers)
 
                 #Flatten the list of lists in a list
@@ -349,9 +376,6 @@ class QueryManager(Manager):
 
         self.data=items
         return(Manager(alist=items)) #return self ?
-
-class TestQueryManager(QueryManager):
-    pass
 
 class QueryFilter(NitroObject):
 
@@ -787,7 +811,7 @@ orperator : string representing</p></section>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="msiempy.query.QueryFilter" href="#msiempy.query.QueryFilter">QueryFilter</a></li>
-<li><a title="msiempy.base.NitroObject" href="base.html#msiempy.base.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Class variables</h3>
@@ -925,8 +949,7 @@ values=['.*']}</p></section>
 <ul class="hlist">
 <li><code><b><a title="msiempy.query.QueryFilter" href="#msiempy.query.QueryFilter">QueryFilter</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.query.QueryFilter.NitroJSONEncoder" href="base.html#msiempy.base.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.query.QueryFilter.action_refresh" href="base.html#msiempy.base.NitroObject.action_refresh">action_refresh</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 <li><code><a title="msiempy.query.QueryFilter.config_dict" href="#msiempy.query.QueryFilter.config_dict">config_dict</a></code></li>
 <li><code><a title="msiempy.query.QueryFilter.get_possible_filters" href="#msiempy.query.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
 <li><code><a title="msiempy.query.QueryFilter.json" href="#msiempy.query.QueryFilter.json">json</a></code></li>
@@ -980,7 +1003,7 @@ logic : 'AND' or 'OR' (i think)</p></section>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="msiempy.query.QueryFilter" href="#msiempy.query.QueryFilter">QueryFilter</a></li>
-<li><a title="msiempy.base.NitroObject" href="base.html#msiempy.base.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Instance variables</h3>
@@ -1009,8 +1032,7 @@ def config_dict(self):
 <ul class="hlist">
 <li><code><b><a title="msiempy.query.QueryFilter" href="#msiempy.query.QueryFilter">QueryFilter</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.query.QueryFilter.NitroJSONEncoder" href="base.html#msiempy.base.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.query.QueryFilter.action_refresh" href="base.html#msiempy.base.NitroObject.action_refresh">action_refresh</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 <li><code><a title="msiempy.query.QueryFilter.get_possible_filters" href="#msiempy.query.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
 <li><code><a title="msiempy.query.QueryFilter.json" href="#msiempy.query.QueryFilter.json">json</a></code></li>
 <li><code><a title="msiempy.query.QueryFilter.refresh" href="#msiempy.query.QueryFilter.refresh">refresh</a></code></li>
@@ -1024,8 +1046,8 @@ def config_dict(self):
 </code></dt>
 <dd>
 <section class="desc"><p>Base class for all nitro objects. All objects have a reference the single
-NitroSession object that handle the esm requests</p>
-<p>self.nitro.request('esm-get-times')</p></section>
+NitroSession object that handle the esm requests.</p>
+<p>Creates the object session.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class QueryFilter(NitroObject):
@@ -1075,7 +1097,7 @@ NitroSession object that handle the esm requests</p>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.base.NitroObject" href="base.html#msiempy.base.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Subclasses</h3>
@@ -1158,10 +1180,9 @@ def text(self):
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.base.NitroObject" href="base.html#msiempy.base.NitroObject">NitroObject</a></b></code>:
+<li><code><b><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.base.NitroObject.NitroJSONEncoder" href="base.html#msiempy.base.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.base.NitroObject.action_refresh" href="base.html#msiempy.base.NitroObject.action_refresh">action_refresh</a></code></li>
+<li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1174,17 +1195,15 @@ def text(self):
 <section class="desc"><p>Base class for query based managers : AlarmManager, EventManager
 QueryManager object can handle time_ranges and time splitting.</p>
 <p>Abstract base class that handles the time ranges operations, loading data from the SIEM.</p>
-<h1 id="params">Params</h1>
-<pre><code>time_range : Query time range. String representation of a time range. 
-    See `msiempy.base.QueryManager.POSSIBLE_TIME_RANGE`
-start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
+<p>Params
+<code>time_range : Query time range. String representation of a time range.
+See</code>msiempy.base.QueryManager.POSSIBLE_TIME_RANGE<code>start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
 end_time : Query endding time, can be a string or a datetime object. Parsed with dateutil.
 filters : List of filters applied to the query
 max_query_depth : maximum number of supplement reccursions of division of the query times
-    Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
-    the list is (500*5)*(500*5)*(500*5) = 15625000000
-load_async : Load asynchonously the sub-queries. Defaulted to True.
-</code></pre></section>
+Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of
+the list is (500*5)*(500*5)*(500*5) = 15625000000
+load_async : Load asynchonously the sub-queries. Defaulted to True.</code></p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class QueryManager(Manager):
@@ -1219,7 +1238,24 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
             &#34;PREVIOUS_YEAR&#34;
     ]
     &#34;&#34;&#34;
-    List of possible time ranges
+    List of possible time ranges : &#34;CUSTOM&#34;,
+            &#34;LAST_MINUTE&#34;,
+            &#34;LAST_10_MINUTES&#34;,
+            &#34;LAST_30_MINUTES&#34;,
+            &#34;LAST_HOUR&#34;,
+            &#34;CURRENT_DAY&#34;,
+            &#34;PREVIOUS_DAY&#34;,
+            &#34;LAST_24_HOURS&#34;,
+            &#34;LAST_2_DAYS&#34;,
+            &#34;LAST_3_DAYS&#34;,
+            &#34;CURRENT_WEEK&#34;,
+            &#34;PREVIOUS_WEEK&#34;,
+            &#34;CURRENT_MONTH&#34;,
+            &#34;PREVIOUS_MONTH&#34;,
+            &#34;CURRENT_QUARTER&#34;,
+            &#34;PREVIOUS_QUARTER&#34;,
+            &#34;CURRENT_YEAR&#34;,
+            &#34;PREVIOUS_YEAR&#34;
     &#34;&#34;&#34;
 
     def __init__(self, time_range=None, start_time=None, end_time=None, filters=None, 
@@ -1229,7 +1265,7 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
         Abstract base class that handles the time ranges operations, loading data from the SIEM.
 
         Params
-        ======
+        `
             time_range : Query time range. String representation of a time range. 
                 See `msiempy.base.QueryManager.POSSIBLE_TIME_RANGE`
             start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
@@ -1239,8 +1275,7 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
                 Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
                 the list is (500*5)*(500*5)*(500*5) = 15625000000
             load_async : Load asynchonously the sub-queries. Defaulted to True.
-            
-           
+        `
         &#34;&#34;&#34;
 
         super().__init__(*arg, **kwargs)
@@ -1277,6 +1312,9 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
 
     @property
     def __root_parent__(self):
+        &#34;&#34;&#34;
+        Internal method that return the first query of the query tree
+        &#34;&#34;&#34;
         if self.__parent__==None:
             return self
         else :
@@ -1376,14 +1414,13 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
     def filters(self):
         &#34;&#34;&#34; 
         Filter propertie getter. Returns a list of filters.
-        #TODO find a better solution to integrate the filter propertie
+        TODO find a better solution to integrate the filter propertie
         &#34;&#34;&#34;
         raise NotImplementedError()
 
     @filters.setter
     def filters(self, filters):
-        &#34;&#34;&#34;
-        Query filters property : can be a list of tuple(field, [values]) 
+        &#34;&#34;&#34;Query filters property : can be a list of tuple(field, [values]) 
             or just a tuple. None value will call `msiempy.query.QueryManager.clear_filters()`
         Throws AttributeError if type not supported.
         &#34;&#34;&#34;
@@ -1404,15 +1441,13 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
     
     @abc.abstractmethod
     def add_filter(self, filter):
-        &#34;&#34;&#34;
-        Method that figures out the way to add a filter to the query.
+        &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
     def clear_filters(self):
-        &#34;&#34;&#34;
-        Method that fiures out the way to remove all filters to the query.
+        &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
         &#34;&#34;&#34;
         pass 
 
@@ -1425,7 +1460,7 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
         pass
 
     @abc.abstractmethod
-    def load_data(self, workers=15, slots=24, delta=None):
+    def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
         &#34;&#34;&#34;
         Method to load the data from the SIEM
         Split the query in defferents time slots if the query apprears not to be completed.
@@ -1436,18 +1471,21 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
         If you&#39;re looking foe `max_query_depth`, it&#39;s define at the creation of the query manager
 
         Returns a QueryManager.
+        
+        Note :
+            IF you looking for load_async = True/False, you should pass thid to the constructor method `msiempy.query.QueryManager`
+                or by setting the attribute manually like `manager.load_asynch=True`
+            Only the first query is loaded asynchronously.
 
         Params
-        -----
+        `
             requests_size : size (in items) for the individual requests.
             workers : numbre of parrallels task
-           
             slots : number of time slots the query can be divided. The loading bar is 
                 divided according to the number of slots
-            delta : exemple : &#39;24hrs&#39;, the query will be firstly divided in chuncks according to the time delta read
+            delta : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
                 with dateutil.
-
-
+        `
         #
         &#34;&#34;&#34;
 
@@ -1465,8 +1503,11 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
                     start, end = self.start_time, self.end_time
 
                 if self.__parent__ == None and isinstance(delta, str) :
+                    #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
                     times=divide_times(start, end, delta=parse_timedelta(delta))
-                else :times=divide_times(start, end, slots=slots)#  IGONORING THE CONFIG ### : self.nitro.config.slots)
+                    
+                else :times=divide_times(start, end, slots=slots)
+                        #IGONORING THE CONFIG ### : self.nitro.config.slots)
                 
                 sub_queries=list()
 
@@ -1488,10 +1529,11 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
 
             
                 results = self.perform(QueryManager.load_data, sub_queries, 
-                    asynch=False if not self.load_async else (self.__parent__==None), progress=self.__parent__==None, 
+                    #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
+                    asynch=False if not self.load_async else (self.__parent__==None),
+                    progress=self.__parent__==None, 
                     message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
                     func_args=dict(slots=slots),
-                        #IGONORING THE CONFIG ### : self.nitro.config.slots)
                     workers=workers)
 
                 #Flatten the list of lists in a list
@@ -1507,7 +1549,7 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.base.Manager" href="base.html#msiempy.base.Manager">Manager</a></li>
+<li><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></li>
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
 <li>collections.abc.Sequence</li>
@@ -1516,12 +1558,11 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
-<li><a title="msiempy.base.NitroObject" href="base.html#msiempy.base.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="msiempy.query.TestQueryManager" href="#msiempy.query.TestQueryManager">TestQueryManager</a></li>
 <li><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></li>
 <li><a title="msiempy.alarm.AlarmManager" href="alarm.html#msiempy.alarm.AlarmManager">AlarmManager</a></li>
 </ul>
@@ -1533,7 +1574,24 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
 </dd>
 <dt id="msiempy.query.QueryManager.POSSIBLE_TIME_RANGE"><code class="name">var <span class="ident">POSSIBLE_TIME_RANGE</span></code></dt>
 <dd>
-<section class="desc"><p>List of possible time ranges</p></section>
+<section class="desc"><p>List of possible time ranges : "CUSTOM",
+"LAST_MINUTE",
+"LAST_10_MINUTES",
+"LAST_30_MINUTES",
+"LAST_HOUR",
+"CURRENT_DAY",
+"PREVIOUS_DAY",
+"LAST_24_HOURS",
+"LAST_2_DAYS",
+"LAST_3_DAYS",
+"CURRENT_WEEK",
+"PREVIOUS_WEEK",
+"CURRENT_MONTH",
+"PREVIOUS_MONTH",
+"CURRENT_QUARTER",
+"PREVIOUS_QUARTER",
+"CURRENT_YEAR",
+"PREVIOUS_YEAR"</p></section>
 </dd>
 </dl>
 <h3>Instance variables</h3>
@@ -1557,15 +1615,15 @@ def end_time(self):
 </dd>
 <dt id="msiempy.query.QueryManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
-<section class="desc"><p>Filter propertie getter. Returns a list of filters.</p>
-<h1 id="todo-find-a-better-solution-to-integrate-the-filter-propertie">TODO find a better solution to integrate the filter propertie</h1></section>
+<section class="desc"><p>Filter propertie getter. Returns a list of filters.
+TODO find a better solution to integrate the filter propertie</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractproperty
 def filters(self):
     &#34;&#34;&#34; 
     Filter propertie getter. Returns a list of filters.
-    #TODO find a better solution to integrate the filter propertie
+    TODO find a better solution to integrate the filter propertie
     &#34;&#34;&#34;
     raise NotImplementedError()</code></pre>
 </details>
@@ -1617,8 +1675,7 @@ def time_range(self):
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractmethod
 def add_filter(self, filter):
-    &#34;&#34;&#34;
-    Method that figures out the way to add a filter to the query.
+    &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
     &#34;&#34;&#34;
     pass</code></pre>
 </details>
@@ -1632,14 +1689,13 @@ def add_filter(self, filter):
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractmethod
 def clear_filters(self):
-    &#34;&#34;&#34;
-    Method that fiures out the way to remove all filters to the query.
+    &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
     &#34;&#34;&#34;
     pass </code></pre>
 </details>
 </dd>
 <dt id="msiempy.query.QueryManager.load_data"><code class="name flex">
-<span>def <span class="ident">load_data</span></span>(<span>self, workers=15, slots=24, delta=None)</span>
+<span>def <span class="ident">load_data</span></span>(<span>self, workers=15, slots=4, delta='24h')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Method to load the data from the SIEM
@@ -1650,20 +1706,22 @@ in [performance] section of the config and launch asynchronously in queue of len
 Secondly, if the sub queries are not completed, divide them in the number of <code>slots</code>, this step is
 If you're looking foe <code>max_query_depth</code>, it's define at the creation of the query manager</p>
 <p>Returns a QueryManager.</p>
-<h2 id="params">Params</h2>
-<pre><code>requests_size : size (in items) for the individual requests.
+<p>Note :
+IF you looking for load_async = True/False, you should pass thid to the constructor method <a title="msiempy.query.QueryManager" href="#msiempy.query.QueryManager"><code>QueryManager</code></a>
+or by setting the attribute manually like <code>manager.load_asynch=True</code>
+Only the first query is loaded asynchronously.</p>
+<p>Params
+<code>requests_size : size (in items) for the individual requests.
 workers : numbre of parrallels task
-
-slots : number of time slots the query can be divided. The loading bar is 
-    divided according to the number of slots
-delta : exemple : '24hrs', the query will be firstly divided in chuncks according to the time delta read
-    with dateutil.
-</code></pre>
+slots : number of time slots the query can be divided. The loading bar is
+divided according to the number of slots
+delta : exemple : '24h', the query will be firstly divided in chuncks according to the time delta read
+with dateutil.</code></p>
 <h1 id="_1"></h1></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractmethod
-def load_data(self, workers=15, slots=24, delta=None):
+def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
     &#34;&#34;&#34;
     Method to load the data from the SIEM
     Split the query in defferents time slots if the query apprears not to be completed.
@@ -1674,18 +1732,21 @@ def load_data(self, workers=15, slots=24, delta=None):
     If you&#39;re looking foe `max_query_depth`, it&#39;s define at the creation of the query manager
 
     Returns a QueryManager.
+    
+    Note :
+        IF you looking for load_async = True/False, you should pass thid to the constructor method `msiempy.query.QueryManager`
+            or by setting the attribute manually like `manager.load_asynch=True`
+        Only the first query is loaded asynchronously.
 
     Params
-    -----
+    `
         requests_size : size (in items) for the individual requests.
         workers : numbre of parrallels task
-       
         slots : number of time slots the query can be divided. The loading bar is 
             divided according to the number of slots
-        delta : exemple : &#39;24hrs&#39;, the query will be firstly divided in chuncks according to the time delta read
+        delta : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
             with dateutil.
-
-
+    `
     #
     &#34;&#34;&#34;
 
@@ -1703,8 +1764,11 @@ def load_data(self, workers=15, slots=24, delta=None):
                 start, end = self.start_time, self.end_time
 
             if self.__parent__ == None and isinstance(delta, str) :
+                #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
                 times=divide_times(start, end, delta=parse_timedelta(delta))
-            else :times=divide_times(start, end, slots=slots)#  IGONORING THE CONFIG ### : self.nitro.config.slots)
+                
+            else :times=divide_times(start, end, slots=slots)
+                    #IGONORING THE CONFIG ### : self.nitro.config.slots)
             
             sub_queries=list()
 
@@ -1726,10 +1790,11 @@ def load_data(self, workers=15, slots=24, delta=None):
 
         
             results = self.perform(QueryManager.load_data, sub_queries, 
-                asynch=False if not self.load_async else (self.__parent__==None), progress=self.__parent__==None, 
+                #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
+                asynch=False if not self.load_async else (self.__parent__==None),
+                progress=self.__parent__==None, 
                 message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
                 func_args=dict(slots=slots),
-                    #IGONORING THE CONFIG ### : self.nitro.config.slots)
                 workers=workers)
 
             #Flatten the list of lists in a list
@@ -1747,86 +1812,17 @@ def load_data(self, workers=15, slots=24, delta=None):
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.base.Manager" href="base.html#msiempy.base.Manager">Manager</a></b></code>:
+<li><code><b><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.base.Manager.NitroJSONEncoder" href="base.html#msiempy.base.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.base.Manager.SELECTED" href="base.html#msiempy.base.Manager.SELECTED">SELECTED</a></code></li>
-<li><code><a title="msiempy.base.Manager.action_refresh" href="base.html#msiempy.base.NitroObject.action_refresh">action_refresh</a></code></li>
-<li><code><a title="msiempy.base.Manager.clear" href="base.html#msiempy.base.Manager.clear">clear</a></code></li>
-<li><code><a title="msiempy.base.Manager.get_text" href="base.html#msiempy.base.Manager.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.base.Manager.json" href="base.html#msiempy.base.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.base.Manager.perform" href="base.html#msiempy.base.Manager.perform">perform</a></code></li>
-<li><code><a title="msiempy.base.Manager.refresh" href="base.html#msiempy.base.Manager.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.base.Manager.search" href="base.html#msiempy.base.Manager.search">search</a></code></li>
-<li><code><a title="msiempy.base.Manager.selected_items" href="base.html#msiempy.base.Manager.selected_items">selected_items</a></code></li>
-<li><code><a title="msiempy.base.Manager.text" href="base.html#msiempy.base.NitroObject.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="msiempy.query.TestQueryManager"><code class="flex name class">
-<span>class <span class="ident">TestQueryManager</span></span>
-<span>(</span><span>time_range=None, start_time=None, end_time=None, filters=None, load_async=True, requests_size=500, max_query_depth=0, *arg, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Base class for query based managers : AlarmManager, EventManager
-QueryManager object can handle time_ranges and time splitting.</p>
-<p>Abstract base class that handles the time ranges operations, loading data from the SIEM.</p>
-<h1 id="params">Params</h1>
-<pre><code>time_range : Query time range. String representation of a time range. 
-    See `msiempy.base.QueryManager.POSSIBLE_TIME_RANGE`
-start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
-end_time : Query endding time, can be a string or a datetime object. Parsed with dateutil.
-filters : List of filters applied to the query
-max_query_depth : maximum number of supplement reccursions of division of the query times
-    Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
-    the list is (500*5)*(500*5)*(500*5) = 15625000000
-load_async : Load asynchonously the sub-queries. Defaulted to True.
-</code></pre></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">class TestQueryManager(QueryManager):
-    pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.query.QueryManager" href="#msiempy.query.QueryManager">QueryManager</a></li>
-<li><a title="msiempy.base.Manager" href="base.html#msiempy.base.Manager">Manager</a></li>
-<li>collections.UserList</li>
-<li>collections.abc.MutableSequence</li>
-<li>collections.abc.Sequence</li>
-<li>collections.abc.Reversible</li>
-<li>collections.abc.Collection</li>
-<li>collections.abc.Sized</li>
-<li>collections.abc.Iterable</li>
-<li>collections.abc.Container</li>
-<li><a title="msiempy.base.NitroObject" href="base.html#msiempy.base.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.query.QueryManager" href="#msiempy.query.QueryManager">QueryManager</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.query.QueryManager.DEFAULT_TIME_RANGE" href="#msiempy.query.QueryManager.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.NitroJSONEncoder" href="base.html#msiempy.base.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.POSSIBLE_TIME_RANGE" href="#msiempy.query.QueryManager.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.SELECTED" href="base.html#msiempy.base.Manager.SELECTED">SELECTED</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.action_refresh" href="base.html#msiempy.base.NitroObject.action_refresh">action_refresh</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.add_filter" href="#msiempy.query.QueryManager.add_filter">add_filter</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.clear" href="base.html#msiempy.base.Manager.clear">clear</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.clear_filters" href="#msiempy.query.QueryManager.clear_filters">clear_filters</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.end_time" href="#msiempy.query.QueryManager.end_time">end_time</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.filters" href="#msiempy.query.QueryManager.filters">filters</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.get_text" href="base.html#msiempy.base.Manager.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.json" href="base.html#msiempy.base.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.load_data" href="#msiempy.query.QueryManager.load_data">load_data</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.perform" href="base.html#msiempy.base.Manager.perform">perform</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.refresh" href="base.html#msiempy.base.Manager.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.search" href="base.html#msiempy.base.Manager.search">search</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.selected_items" href="base.html#msiempy.base.Manager.selected_items">selected_items</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.start_time" href="#msiempy.query.QueryManager.start_time">start_time</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.text" href="base.html#msiempy.base.NitroObject.text">text</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.time_range" href="#msiempy.query.QueryManager.time_range">time_range</a></code></li>
+<li><code><a title="msiempy.Manager.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.Manager.get_text" href="index.html#msiempy.Manager.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.Manager.json" href="index.html#msiempy.Manager.json">json</a></code></li>
+<li><code><a title="msiempy.Manager.keys" href="index.html#msiempy.Manager.keys">keys</a></code></li>
+<li><code><a title="msiempy.Manager.perform" href="index.html#msiempy.Manager.perform">perform</a></code></li>
+<li><code><a title="msiempy.Manager.refresh" href="index.html#msiempy.Manager.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.Manager.search" href="index.html#msiempy.Manager.search">search</a></code></li>
+<li><code><a title="msiempy.Manager.table_colums" href="index.html#msiempy.Manager.table_colums">table_colums</a></code></li>
+<li><code><a title="msiempy.Manager.text" href="index.html#msiempy.Manager.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1888,9 +1884,6 @@ load_async : Load asynchonously the sub-queries. Defaulted to True.
 <li><code><a title="msiempy.query.QueryManager.start_time" href="#msiempy.query.QueryManager.start_time">start_time</a></code></li>
 <li><code><a title="msiempy.query.QueryManager.time_range" href="#msiempy.query.QueryManager.time_range">time_range</a></code></li>
 </ul>
-</li>
-<li>
-<h4><code><a title="msiempy.query.TestQueryManager" href="#msiempy.query.TestQueryManager">TestQueryManager</a></code></h4>
 </li>
 </ul>
 </li>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
 <title>msiempy.alarm API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Module that provide alarm management, acknowledgement, filtering, etc..." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,14 +20,18 @@
 <h1 class="title">Module <code>msiempy.alarm</code></h1>
 </header>
 <section id="section-intro">
+<p>Module that provide alarm management, acknowledgement, filtering, etc&hellip;</p>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">import collections
+<pre><code class="python">&#34;&#34;&#34;Module that provide alarm management, acknowledgement, filtering, etc...
+&#34;&#34;&#34;
+
+import collections
 import datetime
 import logging
 log = logging.getLogger(&#39;msiempy&#39;)
 
-from .base import Item, Manager
+from . import Item, Manager
 from .query import QueryManager
 from .event import EventManager, Event
 from .utils import regex_match, convert_to_time_obj
@@ -42,7 +46,7 @@ class AlarmManager(QueryManager):
 
         &#34;&#34;&#34;
         Params
-        ======
+        
             status_filter : status of the alarms to query
             page_size : max number of rows per query, by default takes the value in config `default_rows` option.
             page_number : defaulted to 1.
@@ -51,7 +55,7 @@ class AlarmManager(QueryManager):
             *args, **kwargs : Parameters passed to `msiempy.base.QueryManager.__init__()`
             
         Examples
-        ========
+        
             ```
             &gt;&gt;&gt;em=AlarmManager(status_filter=&#39;unacknowledged&#39;,
                 filters=[(&#39;sourceIp&#39;,&#39;^10.*&#39;), (&#39;ruleMessage&#39;,&#39;Wordpress&#39;)]).load_data()
@@ -257,40 +261,41 @@ class AlarmManager(QueryManager):
 class Alarm(Item):
     &#34;&#34;&#34;
     Alarm
-
-        id Description: The ID of the triggered alarm
-        summary  Description: The summary of the triggered alarm
-        assignee Description: The assignee for this triggered alarm
-        severity Description: The severity for this triggered alarm
-        triggeredDate Description: The date this alarm was triggered
-        acknowledgedDate Description: The date this triggered alarm was acknowledged
-        acknowledgedUsername Description: The user that acknowledged this triggered alarm
-        alarmName Description: The name of the alarm that was triggered
-        conditionType Description: The condition type of the alarm
-        filters Description: The filters for this user
-        queryId Description: The queryId for this user
-        alretRateMin Description: The alretRateMin for this user
-        alertRateCount Description: The alertRateCount for this user
-        percentAbove Description: The percentAbove for this user
-        percentBelow Description: The percentBelow for this user
-        offsetMinutes Description: The offsetMinutes for this user
-        timeFilter Description: The timeFilter for this user
-        maximumConditionTriggerFrequency Description: The maximumConditionTriggerFrequency for this user
-        useWatchlist Description: The useWatchlist for this user
-        matchField Description: The matchField for this user
-        matchValue  Description: The matchValue for this user
-        healthMonStatus Description: The healthMonStatus for this user
-        assigneeId Description: The assigneeId for this user
-        escalatedDate Description: The escalatedDate for this user
-        caseId Description: The caseId for this user
-        caseName Description: The caseName for this user
-        iocName Description: The iocName for this user
-        iocId Description: The iocId for this user
-        description Description: The description for this user
-        actions Description: The actions for this user
-        events Description: The events for this user
-
+    `
+        id : The ID of the triggered alarm
+        summary  : The summary of the triggered alarm
+        assignee : The assignee for this triggered alarm
+        severity : The severity for this triggered alarm
+        triggeredDate : The date this alarm was triggered
+        acknowledgedDate : The date this triggered alarm was acknowledged
+        acknowledgedUsername : The user that acknowledged this triggered alarm
+        alarmName : The name of the alarm that was triggered
+        conditionType : The condition type of the alarm
+        filters : The filters for this user
+        queryId : The queryId for this user
+        alretRateMin : The alretRateMin for this user
+        alertRateCount : The alertRateCount for this user
+        percentAbove : The percentAbove for this user
+        percentBelow : The percentBelow for this user
+        offsetMinutes : The offsetMinutes for this user
+        timeFilter : The timeFilter for this user
+        maximumConditionTriggerFrequency : The maximumConditionTriggerFrequency for this user
+        useWatchlist : The useWatchlist for this user
+        matchField : The matchField for this user
+        matchValue  : The matchValue for this user
+        healthMonStatus : The healthMonStatus for this user
+        assigneeId : The assigneeId for this user
+        escalatedDate : The escalatedDate for this user
+        caseId : The caseId for this user
+        caseName : The caseName for this user
+        iocName : The iocName for this user
+        iocId : The iocId for this user
+        description : The description for this user
+        actions : The actions for this user
+        events : The events for this user
+    `
     &#34;&#34;&#34;
+
     &#34;&#34;&#34;@property
     def status(self):
         return(&#39;acknowledged&#39; 
@@ -304,7 +309,7 @@ class Alarm(Item):
         [&#39;&#39;, &#39;all&#39;, &#39;both&#39;]
     ]
     &#34;&#34;&#34;
-    Possible alarm statuses
+    Possible alarm statuses : &#39;acknowledged&#39;, &#39;unacknowledged&#39; or &#39;&#39;
     &#34;&#34;&#34;
 
     ALARM_FILTER_FIELDS = [(&#39;id&#39;,),
@@ -317,7 +322,8 @@ class Alarm(Item):
     (&#39;alarmName&#39;,&#39;name&#39;),
     ]
     &#34;&#34;&#34;
-    Possible fields usable in a alarm filter
+    Possible fields usable in a alarm filter : &#39;id&#39;, &#39;summary&#39;, &#39;assignee&#39;, &#39;severity&#39;, &#39;triggeredDate&#39;, &#39;acknowledgedDate&#39;, &#39;acknowledgedUsername&#39;, &#39;alarmName&#39;.
+    Some synonims can also be used, see source code.
     &#34;&#34;&#34;
 
     ALARM_EVENT_FILTER_FIELDS=[(&#34;eventId&#34;,),
@@ -331,47 +337,43 @@ class Alarm(Item):
     (&#34;lastTime&#34;,&#39;date&#39;),
     (&#34;eventSubType&#34;,&#39;subtype&#39;)]
     &#34;&#34;&#34;
-    Possible fields usable in a event filter
+    Possible fields usable in a event filter : &#39;eventID&#39;, &#39;ruleMessage&#39;, &#39;eventCount&#39;, &#39;sourceIp&#39;, &#39;destIp&#39;, &#39;protocol&#39;, &#39;lastTime&#39;, &#39;eventSubType&#39;.
+    Some synonims can also be used, see source code.
+
     &#34;&#34;&#34;
 
     ALARM_DEFAULT_FIELDS=[&#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39;]
-    &#34;&#34;&#34;
-    
+    &#34;&#34;&#34;Defaulfs fields : &#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39; (not used, may be for printing ?)
     &#34;&#34;&#34;
 
     def __init__(self, *arg, **kwargs):
-        &#34;&#34;&#34;
-    
+        &#34;&#34;&#34;Creates a empty AlarmManager.
         &#34;&#34;&#34;
         super().__init__(*arg, **kwargs)
 
     def acknowledge(self):
-        &#34;&#34;&#34;
-    
+        &#34;&#34;&#34;Mark the alarm as acknowledged.
         &#34;&#34;&#34;
         self.nitro.request(&#39;ack_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])
 
     def unacknowledge(self):
-        &#34;&#34;&#34;
-    
+        &#34;&#34;&#34;Mark the alarm as unacknowledge.    
         &#34;&#34;&#34;
         self.nitro.request(&#39;unack_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])
 
     def delete(self):
-        &#34;&#34;&#34;
-    
+        &#34;&#34;&#34;Destructive action!
+        Delete the alarm.
         &#34;&#34;&#34;
         self.nitro.request(&#39;delete_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])
 
     def ceate_case(self):
-        &#34;&#34;&#34;
-    
+        &#34;&#34;&#34;Not implemented : TODO
         &#34;&#34;&#34;
         raise NotImplementedError()
 
     def load_details(self):
-        &#34;&#34;&#34;
-        Update the alarm with detailled data loaded from the SIEM.
+        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
         &#34;&#34;&#34;
         the_id = self.data[&#39;id&#39;]
         self.data.update(self.data_from_id(the_id))
@@ -379,15 +381,16 @@ class Alarm(Item):
         return self
 
     def refresh(self):
+        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.
         &#34;&#34;&#34;
-    
-        &#34;&#34;&#34;
-        super().refresh()
+        self.load_details()
 
     def load_events(self, extra_fields=None, by_id=False):
         &#34;&#34;&#34;
-        This is clearly a workarround to retreive the genuine Event object from an Alarm.
-        @TODO find a better way to do it.
+        Retreive the genuine Event object from an Alarm.
+        extra_fields : list of extra fields. Reminder, defaul fields : `msiempy.event.Event.DEFAULTS_EVENT_FIELDS`
+        by_id : will seek for event data using the getAlertData SIEM api call. (doesn&#39;t work TODO )
+                If not, will use qryExecuteDetails and with a timedeal +-1second and some ip source/dest filter...
         &#34;&#34;&#34;
         events=self.data[&#39;events&#39;]
         filters = list()
@@ -426,6 +429,9 @@ class Alarm(Item):
         return events
 
     def data_from_id(self, id):
+        &#34;&#34;&#34;
+
+        &#34;&#34;&#34;
         return self.nitro.request(&#39;get_alarm_details&#39;, id=str(id))
 
     &#34;&#34;&#34;
@@ -454,78 +460,81 @@ class Alarm(Item):
 <span>(</span><span>*arg, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Alarm</p>
-<pre><code>id Description: The ID of the triggered alarm
-summary  Description: The summary of the triggered alarm
-assignee Description: The assignee for this triggered alarm
-severity Description: The severity for this triggered alarm
-triggeredDate Description: The date this alarm was triggered
-acknowledgedDate Description: The date this triggered alarm was acknowledged
-acknowledgedUsername Description: The user that acknowledged this triggered alarm
-alarmName Description: The name of the alarm that was triggered
-conditionType Description: The condition type of the alarm
-filters Description: The filters for this user
-queryId Description: The queryId for this user
-alretRateMin Description: The alretRateMin for this user
-alertRateCount Description: The alertRateCount for this user
-percentAbove Description: The percentAbove for this user
-percentBelow Description: The percentBelow for this user
-offsetMinutes Description: The offsetMinutes for this user
-timeFilter Description: The timeFilter for this user
-maximumConditionTriggerFrequency Description: The maximumConditionTriggerFrequency for this user
-useWatchlist Description: The useWatchlist for this user
-matchField Description: The matchField for this user
-matchValue  Description: The matchValue for this user
-healthMonStatus Description: The healthMonStatus for this user
-assigneeId Description: The assigneeId for this user
-escalatedDate Description: The escalatedDate for this user
-caseId Description: The caseId for this user
-caseName Description: The caseName for this user
-iocName Description: The iocName for this user
-iocId Description: The iocId for this user
-description Description: The description for this user
-actions Description: The actions for this user
-events Description: The events for this user
-</code></pre></section>
+<section class="desc"><p>Alarm
+<code>id : The ID of the triggered alarm
+summary
+: The summary of the triggered alarm
+assignee : The assignee for this triggered alarm
+severity : The severity for this triggered alarm
+triggeredDate : The date this alarm was triggered
+acknowledgedDate : The date this triggered alarm was acknowledged
+acknowledgedUsername : The user that acknowledged this triggered alarm
+alarmName : The name of the alarm that was triggered
+conditionType : The condition type of the alarm
+filters : The filters for this user
+queryId : The queryId for this user
+alretRateMin : The alretRateMin for this user
+alertRateCount : The alertRateCount for this user
+percentAbove : The percentAbove for this user
+percentBelow : The percentBelow for this user
+offsetMinutes : The offsetMinutes for this user
+timeFilter : The timeFilter for this user
+maximumConditionTriggerFrequency : The maximumConditionTriggerFrequency for this user
+useWatchlist : The useWatchlist for this user
+matchField : The matchField for this user
+matchValue
+: The matchValue for this user
+healthMonStatus : The healthMonStatus for this user
+assigneeId : The assigneeId for this user
+escalatedDate : The escalatedDate for this user
+caseId : The caseId for this user
+caseName : The caseName for this user
+iocName : The iocName for this user
+iocId : The iocId for this user
+description : The description for this user
+actions : The actions for this user
+events : The events for this user</code></p>
+<p>Creates a empty AlarmManager.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Alarm(Item):
     &#34;&#34;&#34;
     Alarm
-
-        id Description: The ID of the triggered alarm
-        summary  Description: The summary of the triggered alarm
-        assignee Description: The assignee for this triggered alarm
-        severity Description: The severity for this triggered alarm
-        triggeredDate Description: The date this alarm was triggered
-        acknowledgedDate Description: The date this triggered alarm was acknowledged
-        acknowledgedUsername Description: The user that acknowledged this triggered alarm
-        alarmName Description: The name of the alarm that was triggered
-        conditionType Description: The condition type of the alarm
-        filters Description: The filters for this user
-        queryId Description: The queryId for this user
-        alretRateMin Description: The alretRateMin for this user
-        alertRateCount Description: The alertRateCount for this user
-        percentAbove Description: The percentAbove for this user
-        percentBelow Description: The percentBelow for this user
-        offsetMinutes Description: The offsetMinutes for this user
-        timeFilter Description: The timeFilter for this user
-        maximumConditionTriggerFrequency Description: The maximumConditionTriggerFrequency for this user
-        useWatchlist Description: The useWatchlist for this user
-        matchField Description: The matchField for this user
-        matchValue  Description: The matchValue for this user
-        healthMonStatus Description: The healthMonStatus for this user
-        assigneeId Description: The assigneeId for this user
-        escalatedDate Description: The escalatedDate for this user
-        caseId Description: The caseId for this user
-        caseName Description: The caseName for this user
-        iocName Description: The iocName for this user
-        iocId Description: The iocId for this user
-        description Description: The description for this user
-        actions Description: The actions for this user
-        events Description: The events for this user
-
+    `
+        id : The ID of the triggered alarm
+        summary  : The summary of the triggered alarm
+        assignee : The assignee for this triggered alarm
+        severity : The severity for this triggered alarm
+        triggeredDate : The date this alarm was triggered
+        acknowledgedDate : The date this triggered alarm was acknowledged
+        acknowledgedUsername : The user that acknowledged this triggered alarm
+        alarmName : The name of the alarm that was triggered
+        conditionType : The condition type of the alarm
+        filters : The filters for this user
+        queryId : The queryId for this user
+        alretRateMin : The alretRateMin for this user
+        alertRateCount : The alertRateCount for this user
+        percentAbove : The percentAbove for this user
+        percentBelow : The percentBelow for this user
+        offsetMinutes : The offsetMinutes for this user
+        timeFilter : The timeFilter for this user
+        maximumConditionTriggerFrequency : The maximumConditionTriggerFrequency for this user
+        useWatchlist : The useWatchlist for this user
+        matchField : The matchField for this user
+        matchValue  : The matchValue for this user
+        healthMonStatus : The healthMonStatus for this user
+        assigneeId : The assigneeId for this user
+        escalatedDate : The escalatedDate for this user
+        caseId : The caseId for this user
+        caseName : The caseName for this user
+        iocName : The iocName for this user
+        iocId : The iocId for this user
+        description : The description for this user
+        actions : The actions for this user
+        events : The events for this user
+    `
     &#34;&#34;&#34;
+
     &#34;&#34;&#34;@property
     def status(self):
         return(&#39;acknowledged&#39; 
@@ -539,7 +548,7 @@ events Description: The events for this user
         [&#39;&#39;, &#39;all&#39;, &#39;both&#39;]
     ]
     &#34;&#34;&#34;
-    Possible alarm statuses
+    Possible alarm statuses : &#39;acknowledged&#39;, &#39;unacknowledged&#39; or &#39;&#39;
     &#34;&#34;&#34;
 
     ALARM_FILTER_FIELDS = [(&#39;id&#39;,),
@@ -552,7 +561,8 @@ events Description: The events for this user
     (&#39;alarmName&#39;,&#39;name&#39;),
     ]
     &#34;&#34;&#34;
-    Possible fields usable in a alarm filter
+    Possible fields usable in a alarm filter : &#39;id&#39;, &#39;summary&#39;, &#39;assignee&#39;, &#39;severity&#39;, &#39;triggeredDate&#39;, &#39;acknowledgedDate&#39;, &#39;acknowledgedUsername&#39;, &#39;alarmName&#39;.
+    Some synonims can also be used, see source code.
     &#34;&#34;&#34;
 
     ALARM_EVENT_FILTER_FIELDS=[(&#34;eventId&#34;,),
@@ -566,47 +576,43 @@ events Description: The events for this user
     (&#34;lastTime&#34;,&#39;date&#39;),
     (&#34;eventSubType&#34;,&#39;subtype&#39;)]
     &#34;&#34;&#34;
-    Possible fields usable in a event filter
+    Possible fields usable in a event filter : &#39;eventID&#39;, &#39;ruleMessage&#39;, &#39;eventCount&#39;, &#39;sourceIp&#39;, &#39;destIp&#39;, &#39;protocol&#39;, &#39;lastTime&#39;, &#39;eventSubType&#39;.
+    Some synonims can also be used, see source code.
+
     &#34;&#34;&#34;
 
     ALARM_DEFAULT_FIELDS=[&#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39;]
-    &#34;&#34;&#34;
-    
+    &#34;&#34;&#34;Defaulfs fields : &#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39; (not used, may be for printing ?)
     &#34;&#34;&#34;
 
     def __init__(self, *arg, **kwargs):
-        &#34;&#34;&#34;
-    
+        &#34;&#34;&#34;Creates a empty AlarmManager.
         &#34;&#34;&#34;
         super().__init__(*arg, **kwargs)
 
     def acknowledge(self):
-        &#34;&#34;&#34;
-    
+        &#34;&#34;&#34;Mark the alarm as acknowledged.
         &#34;&#34;&#34;
         self.nitro.request(&#39;ack_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])
 
     def unacknowledge(self):
-        &#34;&#34;&#34;
-    
+        &#34;&#34;&#34;Mark the alarm as unacknowledge.    
         &#34;&#34;&#34;
         self.nitro.request(&#39;unack_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])
 
     def delete(self):
-        &#34;&#34;&#34;
-    
+        &#34;&#34;&#34;Destructive action!
+        Delete the alarm.
         &#34;&#34;&#34;
         self.nitro.request(&#39;delete_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])
 
     def ceate_case(self):
-        &#34;&#34;&#34;
-    
+        &#34;&#34;&#34;Not implemented : TODO
         &#34;&#34;&#34;
         raise NotImplementedError()
 
     def load_details(self):
-        &#34;&#34;&#34;
-        Update the alarm with detailled data loaded from the SIEM.
+        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
         &#34;&#34;&#34;
         the_id = self.data[&#39;id&#39;]
         self.data.update(self.data_from_id(the_id))
@@ -614,15 +620,16 @@ events Description: The events for this user
         return self
 
     def refresh(self):
+        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.
         &#34;&#34;&#34;
-    
-        &#34;&#34;&#34;
-        super().refresh()
+        self.load_details()
 
     def load_events(self, extra_fields=None, by_id=False):
         &#34;&#34;&#34;
-        This is clearly a workarround to retreive the genuine Event object from an Alarm.
-        @TODO find a better way to do it.
+        Retreive the genuine Event object from an Alarm.
+        extra_fields : list of extra fields. Reminder, defaul fields : `msiempy.event.Event.DEFAULTS_EVENT_FIELDS`
+        by_id : will seek for event data using the getAlertData SIEM api call. (doesn&#39;t work TODO )
+                If not, will use qryExecuteDetails and with a timedeal +-1second and some ip source/dest filter...
         &#34;&#34;&#34;
         events=self.data[&#39;events&#39;]
         filters = list()
@@ -661,6 +668,9 @@ events Description: The events for this user
         return events
 
     def data_from_id(self, id):
+        &#34;&#34;&#34;
+
+        &#34;&#34;&#34;
         return self.nitro.request(&#39;get_alarm_details&#39;, id=str(id))
 
     &#34;&#34;&#34;
@@ -676,7 +686,7 @@ events Description: The events for this user
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.base.Item" href="base.html#msiempy.base.Item">Item</a></li>
+<li><a title="msiempy.Item" href="index.html#msiempy.Item">Item</a></li>
 <li>collections.UserDict</li>
 <li>collections.abc.MutableMapping</li>
 <li>collections.abc.Mapping</li>
@@ -684,26 +694,28 @@ events Description: The events for this user
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
-<li><a title="msiempy.base.NitroObject" href="base.html#msiempy.base.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Class variables</h3>
 <dl>
 <dt id="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS"><code class="name">var <span class="ident">ALARM_DEFAULT_FIELDS</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Defaulfs fields : 'triggeredDate','alarmName','status','sourceIp','destIp','ruleMessage' (not used, may be for printing ?)</p></section>
 </dd>
 <dt id="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_EVENT_FILTER_FIELDS</span></code></dt>
 <dd>
-<section class="desc"><p>Possible fields usable in a event filter</p></section>
+<section class="desc"><p>Possible fields usable in a event filter : 'eventID', 'ruleMessage', 'eventCount', 'sourceIp', 'destIp', 'protocol', 'lastTime', 'eventSubType'.
+Some synonims can also be used, see source code.</p></section>
 </dd>
 <dt id="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_FILTER_FIELDS</span></code></dt>
 <dd>
-<section class="desc"><p>Possible fields usable in a alarm filter</p></section>
+<section class="desc"><p>Possible fields usable in a alarm filter : 'id', 'summary', 'assignee', 'severity', 'triggeredDate', 'acknowledgedDate', 'acknowledgedUsername', 'alarmName'.
+Some synonims can also be used, see source code.</p></section>
 </dd>
 <dt id="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS"><code class="name">var <span class="ident">POSSIBLE_ALARM_STATUS</span></code></dt>
 <dd>
-<section class="desc"><p>Possible alarm statuses</p></section>
+<section class="desc"><p>Possible alarm statuses : 'acknowledged', 'unacknowledged' or ''</p></section>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -712,12 +724,11 @@ events Description: The events for this user
 <span>def <span class="ident">acknowledge</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Mark the alarm as acknowledged.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def acknowledge(self):
-    &#34;&#34;&#34;
-
+    &#34;&#34;&#34;Mark the alarm as acknowledged.
     &#34;&#34;&#34;
     self.nitro.request(&#39;ack_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])</code></pre>
 </details>
@@ -726,37 +737,26 @@ events Description: The events for this user
 <span>def <span class="ident">ceate_case</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Not implemented : TODO</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def ceate_case(self):
-    &#34;&#34;&#34;
-
+    &#34;&#34;&#34;Not implemented : TODO
     &#34;&#34;&#34;
     raise NotImplementedError()</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.Alarm.data_from_id"><code class="name flex">
-<span>def <span class="ident">data_from_id</span></span>(<span>self, id)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def data_from_id(self, id):
-    return self.nitro.request(&#39;get_alarm_details&#39;, id=str(id))</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.Alarm.delete"><code class="name flex">
 <span>def <span class="ident">delete</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Destructive action!
+Delete the alarm.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def delete(self):
-    &#34;&#34;&#34;
-
+    &#34;&#34;&#34;Destructive action!
+    Delete the alarm.
     &#34;&#34;&#34;
     self.nitro.request(&#39;delete_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])</code></pre>
 </details>
@@ -769,8 +769,7 @@ events Description: The events for this user
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def load_details(self):
-    &#34;&#34;&#34;
-    Update the alarm with detailled data loaded from the SIEM.
+    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
     &#34;&#34;&#34;
     the_id = self.data[&#39;id&#39;]
     self.data.update(self.data_from_id(the_id))
@@ -782,14 +781,18 @@ events Description: The events for this user
 <span>def <span class="ident">load_events</span></span>(<span>self, extra_fields=None, by_id=False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>This is clearly a workarround to retreive the genuine Event object from an Alarm.
-@TODO find a better way to do it.</p></section>
+<section class="desc"><p>Retreive the genuine Event object from an Alarm.
+extra_fields : list of extra fields. Reminder, defaul fields : <a title="msiempy.event.Event.DEFAULTS_EVENT_FIELDS" href="event.html#msiempy.event.Event.DEFAULTS_EVENT_FIELDS"><code>Event.DEFAULTS_EVENT_FIELDS</code></a>
+by_id : will seek for event data using the getAlertData SIEM api call. (doesn't work TODO )
+If not, will use qryExecuteDetails and with a timedeal +-1second and some ip source/dest filter&hellip;</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def load_events(self, extra_fields=None, by_id=False):
     &#34;&#34;&#34;
-    This is clearly a workarround to retreive the genuine Event object from an Alarm.
-    @TODO find a better way to do it.
+    Retreive the genuine Event object from an Alarm.
+    extra_fields : list of extra fields. Reminder, defaul fields : `msiempy.event.Event.DEFAULTS_EVENT_FIELDS`
+    by_id : will seek for event data using the getAlertData SIEM api call. (doesn&#39;t work TODO )
+            If not, will use qryExecuteDetails and with a timedeal +-1second and some ip source/dest filter...
     &#34;&#34;&#34;
     events=self.data[&#39;events&#39;]
     filters = list()
@@ -828,16 +831,28 @@ events Description: The events for this user
     return events</code></pre>
 </details>
 </dd>
+<dt id="msiempy.alarm.Alarm.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def refresh(self):
+    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.
+    &#34;&#34;&#34;
+    self.load_details()</code></pre>
+</details>
+</dd>
 <dt id="msiempy.alarm.Alarm.unacknowledge"><code class="name flex">
 <span>def <span class="ident">unacknowledge</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Mark the alarm as unacknowledge.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def unacknowledge(self):
-    &#34;&#34;&#34;
-
+    &#34;&#34;&#34;Mark the alarm as unacknowledge.    
     &#34;&#34;&#34;
     self.nitro.request(&#39;unack_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])</code></pre>
 </details>
@@ -845,13 +860,12 @@ events Description: The events for this user
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.base.Item" href="base.html#msiempy.base.Item">Item</a></b></code>:
+<li><code><b><a title="msiempy.Item" href="index.html#msiempy.Item">Item</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.base.Item.NitroJSONEncoder" href="base.html#msiempy.base.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.base.Item.action_refresh" href="base.html#msiempy.base.NitroObject.action_refresh">action_refresh</a></code></li>
-<li><code><a title="msiempy.base.Item.json" href="base.html#msiempy.base.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.base.Item.refresh" href="base.html#msiempy.base.NitroObject.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.base.Item.text" href="base.html#msiempy.base.NitroObject.text">text</a></code></li>
+<li><code><a title="msiempy.Item.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.Item.data_from_id" href="index.html#msiempy.Item.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.Item.json" href="index.html#msiempy.Item.json">json</a></code></li>
+<li><code><a title="msiempy.Item.text" href="index.html#msiempy.Item.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -864,7 +878,7 @@ events Description: The events for this user
 <section class="desc"><p>AlarmManager class.
 Interface to query and manage Alarms.
 Inherits from QueryManager.</p>
-<h1 id="params">Params</h1>
+<p>Params</p>
 <pre><code>status_filter : status of the alarms to query
 page_size : max number of rows per query, by default takes the value in config `default_rows` option.
 page_number : defaulted to 1.
@@ -872,7 +886,7 @@ filters : [(field, [values]), (field, [values])]
 fields : list of strings. Can be an EsmTriggeredAlarm or an EsmTriggeredAlarmEvent field, or any synonims. See 
 *args, **kwargs : Parameters passed to `msiempy.base.QueryManager.__init__()`
 </code></pre>
-<h1 id="examples">Examples</h1>
+<p>Examples</p>
 <pre><code>```
 &gt;&gt;&gt;em=AlarmManager(status_filter='unacknowledged',
     filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()
@@ -890,7 +904,7 @@ fields : list of strings. Can be an EsmTriggeredAlarm or an EsmTriggeredAlarmEve
 
         &#34;&#34;&#34;
         Params
-        ======
+        
             status_filter : status of the alarms to query
             page_size : max number of rows per query, by default takes the value in config `default_rows` option.
             page_number : defaulted to 1.
@@ -899,7 +913,7 @@ fields : list of strings. Can be an EsmTriggeredAlarm or an EsmTriggeredAlarmEve
             *args, **kwargs : Parameters passed to `msiempy.base.QueryManager.__init__()`
             
         Examples
-        ========
+        
             ```
             &gt;&gt;&gt;em=AlarmManager(status_filter=&#39;unacknowledged&#39;,
                 filters=[(&#39;sourceIp&#39;,&#39;^10.*&#39;), (&#39;ruleMessage&#39;,&#39;Wordpress&#39;)]).load_data()
@@ -1105,7 +1119,7 @@ fields : list of strings. Can be an EsmTriggeredAlarm or an EsmTriggeredAlarmEve
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="msiempy.query.QueryManager" href="query.html#msiempy.query.QueryManager">QueryManager</a></li>
-<li><a title="msiempy.base.Manager" href="base.html#msiempy.base.Manager">Manager</a></li>
+<li><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></li>
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
 <li>collections.abc.Sequence</li>
@@ -1114,7 +1128,7 @@ fields : list of strings. Can be an EsmTriggeredAlarm or an EsmTriggeredAlarmEve
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
-<li><a title="msiempy.base.NitroObject" href="base.html#msiempy.base.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Instance variables</h3>
@@ -1149,16 +1163,6 @@ def status_filter(self):
     for synonims in Alarm.POSSIBLE_ALARM_STATUS :
         if self._status_filter in synonims :
             return synonims[0]&#34;&#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.AlarmManager.table_colums"><code class="name">var <span class="ident">table_colums</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@property
-def table_colums(self):
-    return [&#39;id&#39;,&#39;alarmName&#39;, &#39;triggeredDate&#39;, &#39;events&#39;]</code></pre>
 </details>
 </dd>
 </dl>
@@ -1259,20 +1263,18 @@ kwargs are passed to super().load_data()</p></section>
 <li><code><b><a title="msiempy.query.QueryManager" href="query.html#msiempy.query.QueryManager">QueryManager</a></b></code>:
 <ul class="hlist">
 <li><code><a title="msiempy.query.QueryManager.DEFAULT_TIME_RANGE" href="query.html#msiempy.query.QueryManager.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.NitroJSONEncoder" href="base.html#msiempy.base.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.query.QueryManager.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 <li><code><a title="msiempy.query.QueryManager.POSSIBLE_TIME_RANGE" href="query.html#msiempy.query.QueryManager.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.SELECTED" href="base.html#msiempy.base.Manager.SELECTED">SELECTED</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.action_refresh" href="base.html#msiempy.base.NitroObject.action_refresh">action_refresh</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.clear" href="base.html#msiempy.base.Manager.clear">clear</a></code></li>
 <li><code><a title="msiempy.query.QueryManager.end_time" href="query.html#msiempy.query.QueryManager.end_time">end_time</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.get_text" href="base.html#msiempy.base.Manager.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.json" href="base.html#msiempy.base.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.perform" href="base.html#msiempy.base.Manager.perform">perform</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.refresh" href="base.html#msiempy.base.Manager.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.search" href="base.html#msiempy.base.Manager.search">search</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.selected_items" href="base.html#msiempy.base.Manager.selected_items">selected_items</a></code></li>
+<li><code><a title="msiempy.query.QueryManager.get_text" href="index.html#msiempy.Manager.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.query.QueryManager.json" href="index.html#msiempy.Manager.json">json</a></code></li>
+<li><code><a title="msiempy.query.QueryManager.keys" href="index.html#msiempy.Manager.keys">keys</a></code></li>
+<li><code><a title="msiempy.query.QueryManager.perform" href="index.html#msiempy.Manager.perform">perform</a></code></li>
+<li><code><a title="msiempy.query.QueryManager.refresh" href="index.html#msiempy.Manager.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.query.QueryManager.search" href="index.html#msiempy.Manager.search">search</a></code></li>
 <li><code><a title="msiempy.query.QueryManager.start_time" href="query.html#msiempy.query.QueryManager.start_time">start_time</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.text" href="base.html#msiempy.base.NitroObject.text">text</a></code></li>
+<li><code><a title="msiempy.query.QueryManager.table_colums" href="index.html#msiempy.Manager.table_colums">table_colums</a></code></li>
+<li><code><a title="msiempy.query.QueryManager.text" href="index.html#msiempy.Manager.text">text</a></code></li>
 <li><code><a title="msiempy.query.QueryManager.time_range" href="query.html#msiempy.query.QueryManager.time_range">time_range</a></code></li>
 </ul>
 </li>
@@ -1303,10 +1305,10 @@ kwargs are passed to super().load_data()</p></section>
 <li><code><a title="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS" href="#msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS">POSSIBLE_ALARM_STATUS</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.acknowledge" href="#msiempy.alarm.Alarm.acknowledge">acknowledge</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.ceate_case" href="#msiempy.alarm.Alarm.ceate_case">ceate_case</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.data_from_id" href="#msiempy.alarm.Alarm.data_from_id">data_from_id</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.delete" href="#msiempy.alarm.Alarm.delete">delete</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.load_details" href="#msiempy.alarm.Alarm.load_details">load_details</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.load_events" href="#msiempy.alarm.Alarm.load_events">load_events</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.refresh" href="#msiempy.alarm.Alarm.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.unacknowledge" href="#msiempy.alarm.Alarm.unacknowledge">unacknowledge</a></code></li>
 </ul>
 </li>
@@ -1319,7 +1321,6 @@ kwargs are passed to super().load_data()</p></section>
 <li><code><a title="msiempy.alarm.AlarmManager.load_data" href="#msiempy.alarm.AlarmManager.load_data">load_data</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.load_events" href="#msiempy.alarm.AlarmManager.load_events">load_events</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.status_filter" href="#msiempy.alarm.AlarmManager.status_filter">status_filter</a></code></li>
-<li><code><a title="msiempy.alarm.AlarmManager.table_colums" href="#msiempy.alarm.AlarmManager.table_colums">table_colums</a></code></li>
 </ul>
 </li>
 </ul>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
 <title>msiempy.watchlist API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Watchlist module offers a whatchlist management." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,13 +20,17 @@
 <h1 class="title">Module <code>msiempy.watchlist</code></h1>
 </header>
 <section id="section-intro">
+<p>Watchlist module offers a whatchlist management.</p>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">import logging
+<pre><code class="python"># -*- coding: utf-8 -*-
+&#34;&#34;&#34;Watchlist module offers a whatchlist management.&#34;&#34;&#34;
+
+import logging
 import collections
 log = logging.getLogger(&#39;msiempy&#39;)
+from . import Item, Manager
 
-from .base import Item, Manager
 class WatchlistManager(Manager):
 
     def __init__(self, *args, **kwargs):
@@ -42,6 +46,9 @@ class WatchlistManager(Manager):
 
 class Watchlist(Item):
     &#34;&#34;&#34;
+
+    Complete list of watchlist fields (not values) once load with load_details()
+    `
         name: The name of the watchlist
         type: The watchlist type
         customType: The watchlist custom type (custom field)
@@ -87,6 +94,7 @@ class Watchlist(Item):
         delimitRegex: If the watchlist is populated from an enrichment source, this will hold the enrichment delimit regex setting. See the enrichment configuration documentation for more details on this setting.
         groups: If the watchlist is populated from an enrichment source, this will hold the enrichment groups setting. See the enrichment configuration documentation for more details on this setting.
         values: values
+    `
     &#34;&#34;&#34;
 
     def __init__(self, *args, **kwargs):
@@ -125,7 +133,8 @@ class Watchlist(Item):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>name: The name of the watchlist
+<section class="desc"><p>Complete list of watchlist fields (not values) once load with load_details()
+<code>name: The name of the watchlist
 type: The watchlist type
 customType: The watchlist custom type (custom field)
 dynamic: Whether this watchlist is dynamic
@@ -170,11 +179,16 @@ matchRegex: If the watchlist is populated from an enrichment source, this will h
 lineSkip: If the watchlist is populated from an enrichment source, this will hold the enrichment line skip setting. See the enrichment configuration documentation for more details on this setting.
 delimitRegex: If the watchlist is populated from an enrichment source, this will hold the enrichment delimit regex setting. See the enrichment configuration documentation for more details on this setting.
 groups: If the watchlist is populated from an enrichment source, this will hold the enrichment groups setting. See the enrichment configuration documentation for more details on this setting.
-values: values</p></section>
+values: values</code></p>
+<p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
+and update dict values accordingly.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Watchlist(Item):
     &#34;&#34;&#34;
+
+    Complete list of watchlist fields (not values) once load with load_details()
+    `
         name: The name of the watchlist
         type: The watchlist type
         customType: The watchlist custom type (custom field)
@@ -220,6 +234,7 @@ values: values</p></section>
         delimitRegex: If the watchlist is populated from an enrichment source, this will hold the enrichment delimit regex setting. See the enrichment configuration documentation for more details on this setting.
         groups: If the watchlist is populated from an enrichment source, this will hold the enrichment groups setting. See the enrichment configuration documentation for more details on this setting.
         values: values
+    `
     &#34;&#34;&#34;
 
     def __init__(self, *args, **kwargs):
@@ -245,7 +260,7 @@ values: values</p></section>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.base.Item" href="base.html#msiempy.base.Item">Item</a></li>
+<li><a title="msiempy.Item" href="index.html#msiempy.Item">Item</a></li>
 <li>collections.UserDict</li>
 <li>collections.abc.MutableMapping</li>
 <li>collections.abc.Mapping</li>
@@ -253,7 +268,7 @@ values: values</p></section>
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
-<li><a title="msiempy.base.NitroObject" href="base.html#msiempy.base.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
@@ -267,18 +282,6 @@ values: values</p></section>
 <summary>Source code</summary>
 <pre><code class="python">def add_values(self, values):
     self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.watchlist.Watchlist.data_from_id"><code class="name flex">
-<span>def <span class="ident">data_from_id</span></span>(<span>self, id)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def data_from_id(self, id):
-    info=self.nitro.request(&#39;get_watchlist_details&#39;, id=id)
-    return info</code></pre>
 </details>
 </dd>
 <dt id="msiempy.watchlist.Watchlist.load_details"><code class="name flex">
@@ -311,13 +314,13 @@ values: values</p></section>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.base.Item" href="base.html#msiempy.base.Item">Item</a></b></code>:
+<li><code><b><a title="msiempy.Item" href="index.html#msiempy.Item">Item</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.base.Item.NitroJSONEncoder" href="base.html#msiempy.base.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.base.Item.action_refresh" href="base.html#msiempy.base.NitroObject.action_refresh">action_refresh</a></code></li>
-<li><code><a title="msiempy.base.Item.json" href="base.html#msiempy.base.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.base.Item.refresh" href="base.html#msiempy.base.NitroObject.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.base.Item.text" href="base.html#msiempy.base.NitroObject.text">text</a></code></li>
+<li><code><a title="msiempy.Item.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.Item.data_from_id" href="index.html#msiempy.Item.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.Item.json" href="index.html#msiempy.Item.json">json</a></code></li>
+<li><code><a title="msiempy.Item.refresh" href="index.html#msiempy.Item.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.Item.text" href="index.html#msiempy.Item.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -349,7 +352,7 @@ it will be added as such.</p></section>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.base.Manager" href="base.html#msiempy.base.Manager">Manager</a></li>
+<li><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></li>
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
 <li>collections.abc.Sequence</li>
@@ -358,7 +361,7 @@ it will be added as such.</p></section>
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
-<li><a title="msiempy.base.NitroObject" href="base.html#msiempy.base.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
@@ -377,19 +380,17 @@ it will be added as such.</p></section>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.base.Manager" href="base.html#msiempy.base.Manager">Manager</a></b></code>:
+<li><code><b><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.base.Manager.NitroJSONEncoder" href="base.html#msiempy.base.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.base.Manager.SELECTED" href="base.html#msiempy.base.Manager.SELECTED">SELECTED</a></code></li>
-<li><code><a title="msiempy.base.Manager.action_refresh" href="base.html#msiempy.base.NitroObject.action_refresh">action_refresh</a></code></li>
-<li><code><a title="msiempy.base.Manager.clear" href="base.html#msiempy.base.Manager.clear">clear</a></code></li>
-<li><code><a title="msiempy.base.Manager.get_text" href="base.html#msiempy.base.Manager.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.base.Manager.json" href="base.html#msiempy.base.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.base.Manager.perform" href="base.html#msiempy.base.Manager.perform">perform</a></code></li>
-<li><code><a title="msiempy.base.Manager.refresh" href="base.html#msiempy.base.Manager.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.base.Manager.search" href="base.html#msiempy.base.Manager.search">search</a></code></li>
-<li><code><a title="msiempy.base.Manager.selected_items" href="base.html#msiempy.base.Manager.selected_items">selected_items</a></code></li>
-<li><code><a title="msiempy.base.Manager.text" href="base.html#msiempy.base.NitroObject.text">text</a></code></li>
+<li><code><a title="msiempy.Manager.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.Manager.get_text" href="index.html#msiempy.Manager.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.Manager.json" href="index.html#msiempy.Manager.json">json</a></code></li>
+<li><code><a title="msiempy.Manager.keys" href="index.html#msiempy.Manager.keys">keys</a></code></li>
+<li><code><a title="msiempy.Manager.perform" href="index.html#msiempy.Manager.perform">perform</a></code></li>
+<li><code><a title="msiempy.Manager.refresh" href="index.html#msiempy.Manager.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.Manager.search" href="index.html#msiempy.Manager.search">search</a></code></li>
+<li><code><a title="msiempy.Manager.table_colums" href="index.html#msiempy.Manager.table_colums">table_colums</a></code></li>
+<li><code><a title="msiempy.Manager.text" href="index.html#msiempy.Manager.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -414,7 +415,6 @@ it will be added as such.</p></section>
 <h4><code><a title="msiempy.watchlist.Watchlist" href="#msiempy.watchlist.Watchlist">Watchlist</a></code></h4>
 <ul class="">
 <li><code><a title="msiempy.watchlist.Watchlist.add_values" href="#msiempy.watchlist.Watchlist.add_values">add_values</a></code></li>
-<li><code><a title="msiempy.watchlist.Watchlist.data_from_id" href="#msiempy.watchlist.Watchlist.data_from_id">data_from_id</a></code></li>
 <li><code><a title="msiempy.watchlist.Watchlist.load_details" href="#msiempy.watchlist.Watchlist.load_details">load_details</a></code></li>
 <li><code><a title="msiempy.watchlist.Watchlist.load_values" href="#msiempy.watchlist.Watchlist.load_values">load_values</a></code></li>
 </ul>

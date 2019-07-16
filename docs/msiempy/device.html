@@ -29,7 +29,19 @@
 import logging
 log = logging.getLogger(&#39;msiempy&#39;)
 
-from . import NitroObject, Item, Manager
+import csv
+import ipaddress
+import inspect
+import json
+import logging
+import re
+import sys
+from itertools import chain
+from io import StringIO
+from functools import partial
+
+from . import Item, Manager, NitroError, NitroObject
+from .utils import dehexify
 
 class Device(NitroObject):
     pass
@@ -40,11 +52,868 @@ class EntrepriseSecurityManager(Device):
 class EventReceiver(Device):
     pass
 
-class DataSource(Item):
-    pass
+# -*- coding: utf-8 -*-
+&#34;&#34;&#34;
+    mfe_saw.datasource
+    ~~~~~~~~~~~~~
 
+    This module imports into the mfe_saw core class to
+    provide &#39;DevTree&#39; and &#39;DataSource&#39; objects.
+&#34;&#34;&#34;
+
+
+class DataSource(Item):
+    &#34;&#34;&#34;
+    A DataSource object represents a validated datasource configuration.
+    
+    This object represents current datasources as well and acts as a 
+    validation template for new datasources 
+    
+    Public Methods:
+        add()       Adds the datasource object to the ESM.
+        
+        edit()      Edits a datasource parameter - Not yet implemented.
+        
+        delete()    Deletes the datasource and ALL associated data.
+        
+        props()     Returns a JSON string of datasource properties.
+        
+        __len__     Returns the number of properties set.
+        
+        __repr__    Print the datasource, returns props()
+        
+    &#34;&#34;&#34;
+
+    def __len__(self):
+        &#34;&#34;&#34;
+        Count up the datasource attributes
+        
+        Returns:
+            int: Number of DataSource attributes set
+        &#34;&#34;&#34;
+        return len(self.props())
+            
+    def __repr__(self):
+        &#34;&#34;&#34;
+        Dumps the datasource settings in json
+        
+        Returns:
+            str: Datasource attributes as JSON
+        &#34;&#34;&#34;        
+        return json.dumps(self.props())
+    
+    def __init__(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        Inits the datasource
+        
+        Args: 
+            kwargs:
+            
+                Can represent any valid datasource attribute, but at 
+                a mininum, the following arguments are required to 
+                init the object:
+            
+                name (str): datasource name
+                type_id (str): datasource type_id
+                parent_id (str): datasource parent_id
+                ds_ip (str): unique IP address of datasource*
+                hostname (str): unique hostname*
+                
+                + Any additional valid params...
+                            
+            Note:
+            * Both hostname and ip can be set, but at least one of them
+              MUST be set.
+            
+        &#34;&#34;&#34;
+        
+        super().__init__(*args)#, **kwargs)
+                
+        self._devtree = DevTree()
+
+        self.name=&#39;&#39;
+        self.parent_id=None
+
+        self.ds_ip = &#39;&#39;
+        self.child_enabled = &#34;false&#34;
+        self.child_count = &#34;0&#34;
+        self.child_type = &#34;0&#34;
+        self.zone_id = &#34;0&#34;
+        self.url = None
+        self.enabled = &#39;true&#39;
+        self.idm_id = &#34;0&#34;
+        self.hostname = None
+        self.tz_id = None
+        self.dorder = None
+        self.maskflag = None
+        self.port = None
+        self.syslog_tls = None
+        self.vendor = None
+        self.model = None
+        self.client_groups = None
+        self._prop = None
+        self._pval = None
+        self.__dict__.update(kwargs)
+        
+        self._dsfields = [&#39;parent_id&#39;, &#39;name&#39;,&#39;ds_id&#39;, &#39;type_id&#39;, &#39;rec_ip&#39;,
+                           &#39;child_enabled&#39;, &#39;child_count&#39;, &#39;child_type&#39;,
+                           &#39;ds_ip&#39;, &#39;zone_id&#39;, &#39;url&#39;, &#39;enabled&#39;, &#39;idm_id&#39;]
+
+        self.parameters = [{key: val 
+                            for key, val in kwargs.items()
+                            if key not in self._dsfields}]
+
+    def _validate_name(self, name):
+        &#34;&#34;&#34;
+        Returns:
+            None
+        
+        Raises:
+            KeyError: if name is missing or invalid
+        &#34;&#34;&#34;
+        try:
+            if re.search(&#39;^[a-zA-Z0-9_-]{1,100}$&#39;, self.name):
+                pass
+            else:
+                raise KeyError(&#39;Valid name required for DataSource&#39;)
+        except KeyError:
+            raise KeyError(&#39;Valid name required for DataSource&#39;)
+    
+    def props(self):
+        &#34;&#34;&#34;
+        Dumps the datasource settings
+        
+        Returns:
+            str: Datasource attributes as JSON
+        &#34;&#34;&#34;        
+        return {self._prop: self._pval
+            for self._prop, self._pval in self.__dict__.items()
+            if not self._prop.startswith(&#39;_&#39;)}
+
+                    
+    def add(self, client=False):
+        &#34;&#34;&#34;
+        Adds a datasource
+        
+        Returns:
+            None 
+        
+        Raises:
+            ESMException: Will be raised if trying to add a duplicate
+            datasource or if something else goes wrong.
+        &#34;&#34;&#34;
+        self._search_dups = partial(self._devtree.search, rec_id=self.parent_id)
+        if self._search_dups(self.name, zone_id=self.zone_id):
+            raise NitroError(&#39;Datasource name already exists.&#39;
+                                &#39;Cannot add datasource: {}&#39;.format(self.name))
+        if self._search_dups(self.ds_ip, zone_id=self.zone_id):
+            raise NitroError(&#39;Datasource IP already exists.&#39; 
+                                &#39;Cannot add datasource: {}&#39;.format(self.ds_ip))
+        if client:
+            #self._method, self._data = self._get_params(&#39;add_client&#39;)
+            self._resp=self.nitro.request(&#39;add_client&#39;,
+                                    parent_id=self.parent_id,
+                                    name=self.name, 
+                                    enabled=self.enabled, 
+                                    ds_ip=self.ds_ip,
+                                    hostname=self.hostname, 
+                                    type_id=self.type_id, 
+                                    tz_id=self.tz_id, 
+                                    dorder=self.dorder, 
+                                    maskflag=self.maskflag, 
+                                    port=self.port, 
+                                    syslog_tls=self.syslog_tls)
+        else:
+            self._resp=self.nitro.request(&#39;add_ds&#39;, 
+                                    parent_id=self.parent_id,
+                                    name=self.name, 
+                                    ds_id=self._ds_id, 
+                                    type_id=self.type_id, 
+                                    child_enabled=self.child_enabled, 
+                                    child_count=self.child_count, 
+                                    child_type=self.child_type, 
+                                    ds_ip=self.ds_ip, 
+                                    zone_id=self.zone_id, 
+                                    url=self.url, 
+                                    enabled=self.enabled, 
+                                    idm_id=self.idm_id, 
+                                    parameters=self.parameters)
+            #self._method, self._data = self._get_params(&#39;add_ds&#39;)
+
+        #self._resp = self.post(self._method, self._data)
+
+        if client:
+            try:
+                self._err_code = self._resp[&#39;EC&#39;]
+                if self._err_code == &#39;0&#39;:
+                    return None
+            except KeyError:
+                raise NitroError(&#39;Unexpected error occured. &#39; 
+                                    &#39;DS may not have been added.&#39;)
+        try:
+            self._ds_id = self._resp.get(&#39;id&#39;)
+            return None
+        except (KeyError, AttributeError):
+            pass
+        
+    def delete(self):
+        &#34;&#34;&#34;
+        Deletes a datasource
+        
+        Args:
+            ds_id (str). DataSource ID
+            rec_id (str). Receiver ID / DataSource parent_id
+            
+        Warning:
+            This really does delete the datasource and ALL data
+            ever collected for that datasource.
+        
+        Returns:
+            None
+        
+        Raises:
+            ESMException: If the datasource to be deleted is 
+                still in the tree after being deleted an Exception 
+                will be raised.
+        &#34;&#34;&#34;
+        #self._method, self._data = self._get_params(&#39;del_ds&#39;)
+        #self._resp = self.post(self._method, self._data)
+
+        self._resp=self.nitro.request(&#39;del_ds&#39;, parent_id=self.parent_id, ds_id=self._ds_id)
+        
+    def _ds_details(self):
+        &#34;&#34;&#34;
+        Queries the ESM for datasource details
+        
+        Returns:
+            dict (str, str) with some subdicts 
+        
+        Warning:
+            Don&#39;t create a situation where this gets called for every
+            datasource as it will not scale.
+        &#34;&#34;&#34;
+        #self._method, self._data = self._get_params(&#39;ds_details&#39;)
+        #return self.post(self._method, self._data)
+        return self.data_from_id(id=self._ds_id)
+
+    def data_from_id(self, id):
+        return self.nitro.request(&#39;ds_details&#39;, ds_id=id)
+
+
+    @staticmethod
+    def valid_ip(ipaddr):
+        &#34;&#34;&#34;
+        Validates IPv4/v6 address or raises ValueError.
+
+        Args:
+            ipaddr (str): IP address
+
+        Returns:
+            True if valid, False if not.
+            
+        Raises:
+            ValueError: It&#39;s the wrong value if it&#39;s not valid.
+        &#34;&#34;&#34;
+        try:
+            ipaddr = str(ipaddress.ip_address(ipaddr))
+            return True
+        except ValueError:
+            return False
+     
 class DevTree(Manager):
-    pass</code></pre>
+    &#34;&#34;&#34;
+    Interface to the ESM device tree.
+    
+    Public Methods:
+    
+        search(&#39;term&#39;)      Returns a DataSource object matching the name,
+                        IPv4/IPv6 address, hostname or device ID.
+
+        search_group(field=&#39;term&#39;)    Returns a list of DataSource objects that match 
+                                  the given term for the given field. 
+                                  Valid field options include:
+                                    - parent_id = &#39;144119615532826624&#39;
+                                    - type_id = &#39;65&#39;
+                                    - vendor = &#39;Intersect Alliance&#39;
+                                    - model = &#39;Snare for Windows&#39;
+                                    - syslog_tls = &#39;T&#39;
+                                    - port = &#39;514&#39;
+                                    - tz_id = &#39;51&#39;
+                                    - tz_name = &#39;Darwin&#39;
+                                    - zone_id = &#39;7&#39;
+                                    
+        steptree()  Returns an ordered list of lists representing the 
+                       default &#39;Physical Display&#39; device tree on the ESM.
+                       This is useful to recreate a graphical representation
+                       of the device tree.
+                    
+                       Inner list fields: [tree_id, ds_name, ds_ip, depth]
+
+                       tree_id: The order in which the datasource 
+                                 appears in the ESM &#39;Physical Display&#39;
+                                 
+                       name:   Datasource name
+                        
+                       IP:     Datasource IP
+                        
+                       depth:  1 = ESM
+                                2 = ERC/ADM/DEM/ACE/ELM/ELS
+                                3 = Datasources including EPO/NSM
+                                4 = Children and Clients
+                        
+        last_times(days=,       Returns a list of DataSource objects that 
+                   hours=,      the ESM has NOT heard from since the
+                   minutes=)    provided timeframe.
+                                  args are cummulative, 
+                               e.g. (days=30, hours=5) will added together
+
+
+        refresh()   Rebuilds the tree
+                            
+        __len__     Returns the total number of devices in the tree
+        
+        __iter__    Interates through each DataSource object in the tree. 
+        
+        __contains__    Returns bool as to whether a datasource name, IP,
+                        hostname or ds_id exist in the device tree.
+                        
+    &#34;&#34;&#34;
+    _DevTree = []
+
+    def __init__(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        Initalize the DevTree object
+        &#34;&#34;&#34;
+        super().__init__(*args, **kwargs)
+        if not DevTree._DevTree:
+            self._build_devtree()
+
+    def __len__(self):
+        &#34;&#34;&#34;
+        Returns the count of devices in the device tree.
+        &#34;&#34;&#34;
+        return len(DevTree._DevTree)
+        
+    def __iter__(self):
+        &#34;&#34;&#34;
+        Returns:
+            Generator with datasource objects.
+        &#34;&#34;&#34;
+        self._ds_desc_ids = [&#39;3&#39;, &#39;256&#39;]
+        for self._ds in DevTree._DevTree:
+            if self._ds[&#39;desc_id&#39;] in self._ds_desc_ids:
+                yield DataSource(**self._ds)
+
+    def __contains__(self, term):
+        &#34;&#34;&#34;
+        Returns:
+            bool: True/False the name or IP matches the provided search term.
+        &#34;&#34;&#34;
+        self._cterm = term
+        if self.search(self._cterm):
+            return True
+        else:
+            return None
+            
+    def search(self, term, rec_id=None, zone_id=&#39;0&#39;):
+        &#34;&#34;&#34;
+        Args:
+            term (str): Datasource name, IP, hostname or ds_id
+            
+            zone_id (int): Provide zone_id to limit search to a specific zone
+
+        Returns:
+            Datasource object that matches the provided search term or None.
+
+        &#34;&#34;&#34;
+        self._term = term.lower()
+        self._rec_id = rec_id
+        self._zone_id = zone_id
+
+        self._search_fields = [&#39;ds_ip&#39;, &#39;name&#39;, &#39;hostname&#39;, &#39;ds_id&#39;]
+
+        self._found = [self._ds for self._ds in DevTree._DevTree 
+                            for self._field in self._search_fields 
+                            if self._ds[self._field].lower() == self._term 
+                            if self._ds[&#39;zone_id&#39;] == self._zone_id]
+
+        if self._rec_id and len(self._found) &gt; 1:
+            self._found = [self._ds for self._ds in self._found 
+                            if self._ds[&#39;parent_id&#39;] == self._rec_id]
+        
+        if self._found:
+            return DataSource(**self._found[0])
+        else:
+            return None
+
+    def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
+        &#34;&#34;&#34;
+        Args:
+            field (str): Valid DS config field to search
+            term (str): Data to search for in specified field
+            
+        Returns:
+            Generator containing any matching DataSource objects or None
+            Result must be iterated through.
+            
+        Raises:
+            ValueError: if field or term are None
+        &#34;&#34;&#34;
+        self._field = field
+        self._term = term
+        self._zone_id = zone_id
+        
+        if not self._field:
+            raise ValueError(&#39;DataSource field required&#39;)
+
+        if not self._term:
+            raise ValueError(&#39;DataSource field value required&#39;)
+
+        return (DataSource(self._ds) for self._ds in DevTree._DevTree
+                        if self._ds.get(self._field) == self._term)
+                       
+    def steptree(self):
+        &#34;&#34;&#34;
+        Summarizes the devtree into names and IPs. 
+        
+        Includes depth count to indicate how many steps from the root 
+        of the tree the device would be if this data were presented 
+        graphically. 
+        
+        Also includes parent_id as another method to group datasources 
+        under another device.
+        
+        Returns:
+            List of tuples (int,str,str,str) (step, name, ip, parent_id)        
+        &#34;&#34;&#34;
+        self._steptree = []
+        self._ones = [&#39;14&#39;]
+        self._twos = [&#39;2&#39;, &#39;4&#39;, &#39;10&#39;, &#39;12&#39;, &#39;15&#39;, &#39;25&#39;]
+        self._threes = [&#39;3&#39;, &#39;5&#39;, &#39;7&#39;, &#39;17&#39;, &#39;19&#39;, &#39;20&#39;, &#39;21&#39;, &#39;24&#39;, &#39;254&#39;]
+        self._fours = [&#39;7&#39;,&#39;17&#39;, &#39;23&#39;, &#39;256&#39;]
+
+        for self._ds in DevTree._DevTree:
+            if self._ds[&#39;desc_id&#39;] in self._ones:
+                self._ds[&#39;depth&#39;] = &#39;1&#39;
+            elif self._ds[&#39;desc_id&#39;] in self._twos:
+                self._ds[&#39;depth&#39;] = &#39;2&#39;
+            elif self._ds[&#39;desc_id&#39;] in self._threes:
+                self._ds[&#39;depth&#39;] = &#39;3&#39;
+            else:
+                self._ds[&#39;depth&#39;] = &#39;4&#39;
+            self._steptree.append((self._ds[&#39;idx&#39;], self._ds[&#39;name&#39;], 
+                                    self._ds[&#39;ds_ip&#39;], self._ds[&#39;depth&#39;],))
+        return self._steptree
+
+                    
+    def refresh(self):
+        &#34;&#34;&#34;
+        Rebuilds the devtree
+        &#34;&#34;&#34;
+        self._build_devtree()
+        
+    def get_ds_times(self):
+        &#34;&#34;&#34;
+        &#34;&#34;&#34;
+        self._last_times = self._get_last_event_times()
+        self._insert_ds_last_times(self._last_times)
+        
+    def recs(self):
+        &#34;&#34;&#34;
+        Returns:
+            list of Receiver dicts (str:str)
+        &#34;&#34;&#34;
+        return [self._rec for self._rec in DevTree._DevTree 
+                    if self._rec[&#39;desc_id&#39;] == &#39;2&#39;]
+    
+    def _build_devtree(self):
+        &#34;&#34;&#34;
+        Coordinates assembly of the devtree object
+        &#34;&#34;&#34;
+        self._devtree = self._get_devtree()
+        self._devtree = self._devtree_to_lod()
+        self._devtree = self._insert_rec_info()
+        self._client_containers = self._get_client_containers()
+
+        &#34;&#34;&#34;
+        This next bit of code gets and formats the clients for each
+        container and inserts them back into the devtree.
+        
+        The tricky part is keeping the devtree in order and keeping 
+        index labels consistent for all of the devices while 
+        inserting new devices into the middle with their own index
+        labels. Kind of like changing a tire on a moving car...
+        
+        pidx - parent idx is the original index value of the parent
+                this does not increment
+                
+        cidx - client idx is incremented starting after the pidx
+        
+        didx - stores the delta between different containers to 
+               keep it all in sync.
+        &#34;&#34;&#34;
+        self._cidx = 0
+        self._didx = 0
+        for self._container in self._client_containers:
+            self._raw_clients = self._get_raw_clients(self._container[&#39;ds_id&#39;])
+            self._clients_lod = self._clients_to_lod(self._raw_clients)
+            self._container[&#39;idx&#39;] = self._container[&#39;idx&#39;] + self._didx
+            self._pidx = self._container[&#39;idx&#39;]
+            self._cidx = self._pidx + 1 
+            for self._client in self._clients_lod:
+                self._client[&#39;parent_id&#39;] = self._container[&#39;ds_id&#39;]
+                self._client[&#39;idx&#39;] = self._cidx 
+                self._cidx += 1 
+                self._didx += 1
+            self._devtree[self._pidx:self._pidx] = self._clients_lod 
+            
+        self._zonetree = self._get_zonetree()
+        self._devtree = self._insert_zone_names()
+        self._zone_map = self._get_zone_map()
+        self._devtree = self._insert_zone_ids()            
+        self._devtree = self._insert_venmods()
+        self._devtree = self._insert_desc_names()
+        self._last_times = self._get_last_event_times()
+        self._insert_ds_last_times()
+        DevTree._DevTree = self._devtree
+               
+    def _get_devtree(self):
+        &#34;&#34;&#34;
+        Returns:
+            ESM device tree; raw, but ordered, string.
+            Does not include client datasources.
+        &#34;&#34;&#34;
+        #self._method, self._data = self._get_params(&#39;get_devtree&#39;)
+        #self._resp = self.post(self._method, self._data)
+        self._resp=self.nitro.request(&#39;get_devtree&#39;, **self.__dict__)
+        return dehexify(self._resp[&#39;ITEMS&#39;])
+
+    def _devtree_to_lod(self):
+        &#34;&#34;&#34;
+        Parse key fields from raw device strings into datasource dicts
+        
+        Returns: 
+            List of datasource dicts
+        &#34;&#34;&#34;
+        self._devtree_io = StringIO(self._devtree)
+        self._devtree_csv = csv.reader(self._devtree_io, delimiter=&#39;,&#39;)
+        self._devtree_lod = []
+
+        for self._idx, self._row in enumerate(self._devtree_csv, start=1):
+            if len(self._row) == 0:
+                continue
+            
+            if self._row[0] == &#39;16&#39;:  # Get rid of duplicate &#39;asset&#39; devices
+                continue
+            
+            if self._row[2] == &#34;3&#34;:  # Client group datasource group containers
+                self._row.pop(0)     # are fake datasources that seemingly have
+                self._row.pop(0)     # two uneeded fields at the beginning.
+
+            if self._row[16] == &#39;TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT&#39;:
+                self._row[16] = &#39;0&#39;  # Get rid of weird type-id for N/A devices
+                
+            self._ds_fields = {&#39;idx&#39;: self._idx,
+                                &#39;desc_id&#39;: self._row[0],
+                                &#39;name&#39;: self._row[1],
+                                &#39;ds_id&#39;: self._row[2],
+                                &#39;enabled&#39;: self._row[15],
+                                &#39;ds_ip&#39;: self._row[27],
+                                &#39;hostname&#39; : self._row[28],
+                                &#39;type_id&#39;: self._row[16],
+                                &#39;vendor&#39;: &#39;&#39;,
+                                &#39;model&#39;: &#39;&#39;,
+                                &#39;tz_id&#39;: &#39;&#39;,
+                                &#39;date_order&#39;: &#39;&#39;,
+                                &#39;port&#39;: &#39;&#39;,
+                                &#39;syslog_tls&#39;: &#39;&#39;,
+                                &#39;client_groups&#39;: self._row[29],
+                                &#39;zone_name&#39;: &#39;&#39;,
+                                &#39;zone_id&#39;: &#39;&#39;,
+                                &#39;client&#39;: False
+                              }
+            self._devtree_lod.append(self._ds_fields)
+        return self._devtree_lod
+
+    def _insert_rec_info(self):
+        &#34;&#34;&#34;
+        Adds parent_ids to datasources in the tree based upon the 
+        ordered list provided by the ESM. All the datasources below
+        a Receiver row have it&#39;s id set as their parent ID.
+        
+        Returns:
+            List of datasource dicts
+        &#34;&#34;&#34;
+        self._pid = &#39;0&#39;
+        self._rec_name = &#39;&#39;
+        for self._ds in self._devtree:
+            if self._ds[&#39;desc_id&#39;] in [&#39;2&#39;, &#39;4&#39;, &#39;15&#39;]:
+                self._pid = self._ds[&#39;ds_id&#39;]
+                self._rec_name = self._ds[&#39;name&#39;]
+                continue
+            
+            if self._ds[&#39;desc_id&#39;] in [&#39;3&#39;, &#39;5&#39;, &#39;7&#39;, &#39;17&#39;]:
+                self._ds[&#39;parent_id&#39;] = self._pid
+                self._ds[&#39;rec_name&#39;] = self._rec_name
+        return self._devtree
+
+    def _get_client_containers(self):
+        &#34;&#34;&#34;
+        Filters DevTree for datasources that have client datasources.
+        
+        Returns:
+            List of datasource dicts that have clients
+        &#34;&#34;&#34;
+        return [self._ds for self._ds in self._devtree
+                                if self._ds[&#39;desc_id&#39;] == &#34;3&#34; 
+                                if int(self._ds[&#39;client_groups&#39;]) &gt; 0]
+        
+    def _get_raw_clients(self, ds_id):
+        &#34;&#34;&#34;
+        Get list of raw client strings.
+        
+        Args:
+            ds_id (str): Parent ds_id(s) are collected on init
+            ftoken (str): Set and used after requesting clients for ds_id
+            
+        Returns:
+            List of strings representing unparsed client datasources
+        &#34;&#34;&#34;
+        self._ds_id = ds_id
+        #self._method, self._data = self._get_params(&#39;req_client_str&#39;)
+        #self._resp = self.post(self._method, self._data)
+
+        self._resp = self.nitro.request(&#39;req_client_str&#39;, _ds_id=ds_id)
+
+        self._ftoken = self._resp[&#39;FTOKEN&#39;]
+        return self._get_file(self._ftoken)
+
+    def _get_client_list(self, group_id):
+        &#34;&#34;&#34;
+        Finds client group
+        
+        Args:
+            DSID (str): Parent datasource ID set to self._ds_id
+        
+        Returns:
+            Response dict with FTOKEN required to get the data file
+        
+        &#34;&#34;&#34;
+        self.group_id = group_id
+
+        #self._method, self._data = self._get_params(&#39;req_client_str&#39;)
+        #self._resp = self.post(self._method, self._data)
+        self._resp = self.nitro.request(&#39;req_client_str&#39;, _ds_id=self._ds_id)
+
+        return self._resp
+
+    def _get_file(self, ftoken):
+        &#34;&#34;&#34;
+        Exchanges token for file
+        
+        Args:
+            ftoken (str): instance name set by 
+        
+        &#34;&#34;&#34;
+        self.ftoken = ftoken
+
+        #self._method, self._data = self._get_params(&#39;get_rfile&#39;)
+        #self._resp = self.post(self._method, self._data)
+        
+        self._resp = self.nitro.request(&#39;get_rfile&#39;, _ftoken=ftoken)
+
+        self._resp = dehexify(self._resp[&#39;DATA&#39;])
+        return self._resp
+
+    def _clients_to_lod(self, clients):
+        &#34;&#34;&#34;
+        Parse key fields from _get_clients() output.
+        
+        Returns:
+            list of dicts
+        &#34;&#34;&#34;
+        self._clients = clients
+
+        self._clients_io = StringIO(self._clients)
+        self._clients_csv = csv.reader(self._clients_io, delimiter=&#39;,&#39;)
+
+        self._clients_lod = []
+        for self._row in self._clients_csv:
+            if len(self._row) &lt; 2:
+                continue
+
+            self._ds_fields = {&#39;desc_id&#39;: &#34;256&#34;,
+                              &#39;name&#39;: self._row[1],
+                              &#39;ds_id&#39;: self._row[0],
+                              &#39;enabled&#39;: self._row[2],
+                              &#39;ds_ip&#39;: self._row[3],
+                              &#39;hostname&#39; : self._row[4],
+                              &#39;type_id&#39;: self._row[5],
+                              &#39;vendor&#39;: self._row[6],
+                              &#39;model&#39;: self._row[7],
+                              &#39;tz_id&#39;: self._row[8],
+                              &#39;date_order&#39;: self._row[9],
+                              &#39;port&#39;: self._row[11],
+                              &#39;syslog_tls&#39;: self._row[12],
+                              &#39;client_groups&#39;: &#34;0&#34;,
+                              &#39;zone_name&#39;: &#39;&#39;,
+                              &#39;zone_id&#39;: &#39;&#39;,
+                              &#39;client&#39;: True
+                              }
+            self._clients_lod.append(self._ds_fields)
+        return self._clients_lod
+            
+    def _get_zonetree(self):
+        &#34;&#34;&#34;
+        Abuses the device tree for zone data.
+        
+        Returns:
+            str: device tree string sorted by zones
+        &#34;&#34;&#34;
+        
+        #self._method, self._data = self._get_params(&#39;get_zones_devtree&#39;)
+        #self._resp = self.post(self._method, self._data)
+        self._resp=self.nitro.request(&#39;get_zones_devtree&#39;)
+        
+        return dehexify(self._resp[&#39;ITEMS&#39;])
+        
+    def _insert_zone_names(self):
+        &#34;&#34;&#34;
+        Args:
+            _zonetree (str): set in __init__
+        
+        Returns:
+            List of dicts (str: str) devices by zone
+        &#34;&#34;&#34;
+        self._zone_name = None
+        self._zonetree_io = StringIO(self._zonetree)
+        self._zonetree_csv = csv.reader(self._zonetree_io, delimiter=&#39;,&#39;)
+        self._zonetree_lod = []
+
+        for self._row in self._zonetree_csv:
+            if self._row[0] == &#39;1&#39;:
+                self._zone_name = self._row[1]
+                if self._zone_name == &#39;Undefined&#39;:
+                    self._zone_name = &#39;&#39;
+                continue
+            for self._dev in self._devtree:
+                if self._dev[&#39;ds_id&#39;] == self._row[2]:
+                    self._dev[&#39;zone_name&#39;] = self._zone_name
+        return self._devtree
+
+    def _get_zone_map(self):
+        &#34;&#34;&#34;
+        Builds a table of zone names to zone ids.
+        
+        Returns:
+            dict (str: str) zone name : zone ids
+        &#34;&#34;&#34;
+        self._zone_map = {}
+
+        #self._method, self._data = self._get_params(&#39;zonetree&#39;)
+        #self._resp = self.post(self._method, self._data)
+
+        self._resp=self.nitro.request(&#39;zonetree&#39;)
+
+        for self._zone in self._resp:
+            self._zone_map[self._zone[&#39;name&#39;]] = self._zone[&#39;id&#39;][&#39;value&#39;]
+            for self._szone in self._zone[&#39;subZones&#39;]:
+                self._zone_map[self._szone[&#39;name&#39;]] = self._szone[&#39;id&#39;][&#39;value&#39;]
+        return self._zone_map
+        
+    def _insert_zone_ids(self):
+        &#34;&#34;&#34;
+        &#34;&#34;&#34;
+        for self._dev in self._devtree:
+            if self._dev[&#39;zone_name&#39;] in self._zone_map.keys():
+                self._dev[&#39;zone_id&#39;] = self._zone_map.get(self._dev[&#39;zone_name&#39;])
+            else:
+                self._dev[&#39;zone_id&#39;] = &#39;0&#39;
+        return self._devtree
+        
+    def _insert_venmods(self):
+        &#34;&#34;&#34;
+        Populates vendor/model fields for any datasources 
+        
+        Returns:
+            List of datasource dicts - devtree
+        &#34;&#34;&#34;
+        for self._ds in self._devtree:
+            if not self._ds[&#39;vendor&#39;] and self._ds[&#39;desc_id&#39;] == &#39;3&#39;: 
+                self._ds[&#39;vendor&#39;], self._ds[&#39;model&#39;] = self._esm.type_id_to_venmod(self._ds[&#39;type_id&#39;])
+        return self._devtree_lod
+    
+    def _insert_desc_names(self):
+        &#34;&#34;&#34;
+        Populates the devtree with desc_names matching the desc_ids
+        
+        Returns:
+            List of datasource dicts - devtree
+        
+        &#34;&#34;&#34;
+        self._type_map = {&#39;1&#39;: &#39;zone&#39;,
+                        &#39;2&#39;: &#39;ERC&#39;,
+                        &#39;3&#39;: &#39;datasource&#39;,
+                        &#39;4&#39;: &#39;Database Event Monitor (DBM)&#39;,
+                        &#39;5&#39;: &#39;DBM Database&#39;,
+                        &#39;7&#39;: &#39;Policy Auditor&#39;,
+                        &#39;10&#39;: &#39;Application Data Monitor (ADM)&#39;,
+                        &#39;12&#39;: &#39;ELM&#39;,
+                        &#39;14&#39;: &#39;Local ESM&#39;,
+                        &#39;15&#39;: &#39;Advanced Correlation Engine (ACE)&#39;,
+                        &#39;16&#39;: &#39;Asset datasource&#39;,
+                        &#39;17&#39;: &#39;Score-based Correlation&#39;,
+                        &#39;19&#39;: &#39;McAfee ePolicy Orchestrator (ePO)&#39;,
+                        &#39;20&#39;: &#39;EPO&#39;,
+                        &#39;21&#39;: &#39;McAfee Network Security Manager (NSM)&#39;,
+                        &#39;22&#39;: &#39;McAfee Network Security Platform (NSP)&#39;,
+                        &#39;23&#39;: &#39;NSP Port&#39;,
+                        &#39;24&#39;: &#39;McAfee Vulnerability Manager (MVM)&#39;,
+                        &#39;25&#39;: &#39;Enterprise Log Search (ELS)&#39;,
+                        &#39;254&#39;: &#39;client_group&#39;,
+                        &#39;256&#39;: &#39;client&#39;}
+                        
+        for self._ds in self._devtree:
+            if self._ds[&#39;desc_id&#39;] in self._type_map:
+                self._ds[&#39;desc&#39;] = self._type_map[self._ds[&#39;desc_id&#39;]]
+        return self._devtree
+        
+    def _get_client_grps(self):
+        &#34;&#34;&#34;
+        Returns:
+            dict (str:str) fake datasource dicts that represent client 
+            containers on the device tree.
+        &#34;&#34;&#34;
+        return [self._dev for self._dev in DevTree._DevTree 
+                        if int(self._dev[&#39;client_groups&#39;]) &gt; 0 
+                        and self._dev[&#39;desc_id&#39;] == &#39;3&#39;]
+                        
+    def _get_last_event_times(self):
+        &#34;&#34;&#34;
+        Returns:
+            string with datasource names and last event times.
+        &#34;&#34;&#34;
+        #self._method, self._data = self._get_params(&#39;ds_last_times&#39;)
+        #self._resp = self.post(self._method, self._data)
+
+        self._resp = self.nitro.request(&#39;ds_last_times&#39;)
+        return dehexify(self._resp[&#39;ITEMS&#39;])
+
+    def _insert_ds_last_times(self):
+        &#34;&#34;&#34;
+        Parse event times str and insert it into the _devtree
+        
+        Returns: 
+            List of datasource dicts - the devtree
+        &#34;&#34;&#34;
+        self._last_times_io = StringIO(self._last_times)
+        self._last_times_csv = csv.reader(self._last_times_io, delimiter=&#39;,&#39;)
+        for self._row in self._last_times_csv:
+            for self._ds in self._devtree:
+                self._ds[&#39;last_time&#39;] = self._row[3]
+            else: 
+                self._ds[&#39;last_time&#39;] = &#39;&#39;
+        return self._devtree</code></pre>
 </details>
 </section>
 <section>
@@ -58,18 +927,303 @@ class DevTree(Manager):
 <dl>
 <dt id="msiempy.device.DataSource"><code class="flex name class">
 <span>class <span class="ident">DataSource</span></span>
-<span>(</span><span>adict=None, id=None)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class that represent any SIEM data that can be represented as a item of a manager.
-Exemple : Event, Alarm, etc&hellip;
-Inherits from dict.</p>
-<p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
-and update dict values accordingly.</p></section>
+<section class="desc"><p>A DataSource object represents a validated datasource configuration.</p>
+<p>This object represents current datasources as well and acts as a
+validation template for new datasources </p>
+<p>Public Methods:
+add()
+Adds the datasource object to the ESM.</p>
+<pre><code>edit()      Edits a datasource parameter - Not yet implemented.
+
+delete()    Deletes the datasource and ALL associated data.
+
+props()     Returns a JSON string of datasource properties.
+
+__len__     Returns the number of properties set.
+
+__repr__    Print the datasource, returns props()
+</code></pre>
+<p>Inits the datasource</p>
+<p>Args:
+kwargs:</p>
+<pre><code>    Can represent any valid datasource attribute, but at 
+    a mininum, the following arguments are required to 
+    init the object:
+
+    name (str): datasource name
+    type_id (str): datasource type_id
+    parent_id (str): datasource parent_id
+    ds_ip (str): unique IP address of datasource*
+    hostname (str): unique hostname*
+
+    + Any additional valid params...
+
+Note:
+* Both hostname and ip can be set, but at least one of them
+  MUST be set.
+</code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class DataSource(Item):
-    pass</code></pre>
+    &#34;&#34;&#34;
+    A DataSource object represents a validated datasource configuration.
+    
+    This object represents current datasources as well and acts as a 
+    validation template for new datasources 
+    
+    Public Methods:
+        add()       Adds the datasource object to the ESM.
+        
+        edit()      Edits a datasource parameter - Not yet implemented.
+        
+        delete()    Deletes the datasource and ALL associated data.
+        
+        props()     Returns a JSON string of datasource properties.
+        
+        __len__     Returns the number of properties set.
+        
+        __repr__    Print the datasource, returns props()
+        
+    &#34;&#34;&#34;
+
+    def __len__(self):
+        &#34;&#34;&#34;
+        Count up the datasource attributes
+        
+        Returns:
+            int: Number of DataSource attributes set
+        &#34;&#34;&#34;
+        return len(self.props())
+            
+    def __repr__(self):
+        &#34;&#34;&#34;
+        Dumps the datasource settings in json
+        
+        Returns:
+            str: Datasource attributes as JSON
+        &#34;&#34;&#34;        
+        return json.dumps(self.props())
+    
+    def __init__(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        Inits the datasource
+        
+        Args: 
+            kwargs:
+            
+                Can represent any valid datasource attribute, but at 
+                a mininum, the following arguments are required to 
+                init the object:
+            
+                name (str): datasource name
+                type_id (str): datasource type_id
+                parent_id (str): datasource parent_id
+                ds_ip (str): unique IP address of datasource*
+                hostname (str): unique hostname*
+                
+                + Any additional valid params...
+                            
+            Note:
+            * Both hostname and ip can be set, but at least one of them
+              MUST be set.
+            
+        &#34;&#34;&#34;
+        
+        super().__init__(*args)#, **kwargs)
+                
+        self._devtree = DevTree()
+
+        self.name=&#39;&#39;
+        self.parent_id=None
+
+        self.ds_ip = &#39;&#39;
+        self.child_enabled = &#34;false&#34;
+        self.child_count = &#34;0&#34;
+        self.child_type = &#34;0&#34;
+        self.zone_id = &#34;0&#34;
+        self.url = None
+        self.enabled = &#39;true&#39;
+        self.idm_id = &#34;0&#34;
+        self.hostname = None
+        self.tz_id = None
+        self.dorder = None
+        self.maskflag = None
+        self.port = None
+        self.syslog_tls = None
+        self.vendor = None
+        self.model = None
+        self.client_groups = None
+        self._prop = None
+        self._pval = None
+        self.__dict__.update(kwargs)
+        
+        self._dsfields = [&#39;parent_id&#39;, &#39;name&#39;,&#39;ds_id&#39;, &#39;type_id&#39;, &#39;rec_ip&#39;,
+                           &#39;child_enabled&#39;, &#39;child_count&#39;, &#39;child_type&#39;,
+                           &#39;ds_ip&#39;, &#39;zone_id&#39;, &#39;url&#39;, &#39;enabled&#39;, &#39;idm_id&#39;]
+
+        self.parameters = [{key: val 
+                            for key, val in kwargs.items()
+                            if key not in self._dsfields}]
+
+    def _validate_name(self, name):
+        &#34;&#34;&#34;
+        Returns:
+            None
+        
+        Raises:
+            KeyError: if name is missing or invalid
+        &#34;&#34;&#34;
+        try:
+            if re.search(&#39;^[a-zA-Z0-9_-]{1,100}$&#39;, self.name):
+                pass
+            else:
+                raise KeyError(&#39;Valid name required for DataSource&#39;)
+        except KeyError:
+            raise KeyError(&#39;Valid name required for DataSource&#39;)
+    
+    def props(self):
+        &#34;&#34;&#34;
+        Dumps the datasource settings
+        
+        Returns:
+            str: Datasource attributes as JSON
+        &#34;&#34;&#34;        
+        return {self._prop: self._pval
+            for self._prop, self._pval in self.__dict__.items()
+            if not self._prop.startswith(&#39;_&#39;)}
+
+                    
+    def add(self, client=False):
+        &#34;&#34;&#34;
+        Adds a datasource
+        
+        Returns:
+            None 
+        
+        Raises:
+            ESMException: Will be raised if trying to add a duplicate
+            datasource or if something else goes wrong.
+        &#34;&#34;&#34;
+        self._search_dups = partial(self._devtree.search, rec_id=self.parent_id)
+        if self._search_dups(self.name, zone_id=self.zone_id):
+            raise NitroError(&#39;Datasource name already exists.&#39;
+                                &#39;Cannot add datasource: {}&#39;.format(self.name))
+        if self._search_dups(self.ds_ip, zone_id=self.zone_id):
+            raise NitroError(&#39;Datasource IP already exists.&#39; 
+                                &#39;Cannot add datasource: {}&#39;.format(self.ds_ip))
+        if client:
+            #self._method, self._data = self._get_params(&#39;add_client&#39;)
+            self._resp=self.nitro.request(&#39;add_client&#39;,
+                                    parent_id=self.parent_id,
+                                    name=self.name, 
+                                    enabled=self.enabled, 
+                                    ds_ip=self.ds_ip,
+                                    hostname=self.hostname, 
+                                    type_id=self.type_id, 
+                                    tz_id=self.tz_id, 
+                                    dorder=self.dorder, 
+                                    maskflag=self.maskflag, 
+                                    port=self.port, 
+                                    syslog_tls=self.syslog_tls)
+        else:
+            self._resp=self.nitro.request(&#39;add_ds&#39;, 
+                                    parent_id=self.parent_id,
+                                    name=self.name, 
+                                    ds_id=self._ds_id, 
+                                    type_id=self.type_id, 
+                                    child_enabled=self.child_enabled, 
+                                    child_count=self.child_count, 
+                                    child_type=self.child_type, 
+                                    ds_ip=self.ds_ip, 
+                                    zone_id=self.zone_id, 
+                                    url=self.url, 
+                                    enabled=self.enabled, 
+                                    idm_id=self.idm_id, 
+                                    parameters=self.parameters)
+            #self._method, self._data = self._get_params(&#39;add_ds&#39;)
+
+        #self._resp = self.post(self._method, self._data)
+
+        if client:
+            try:
+                self._err_code = self._resp[&#39;EC&#39;]
+                if self._err_code == &#39;0&#39;:
+                    return None
+            except KeyError:
+                raise NitroError(&#39;Unexpected error occured. &#39; 
+                                    &#39;DS may not have been added.&#39;)
+        try:
+            self._ds_id = self._resp.get(&#39;id&#39;)
+            return None
+        except (KeyError, AttributeError):
+            pass
+        
+    def delete(self):
+        &#34;&#34;&#34;
+        Deletes a datasource
+        
+        Args:
+            ds_id (str). DataSource ID
+            rec_id (str). Receiver ID / DataSource parent_id
+            
+        Warning:
+            This really does delete the datasource and ALL data
+            ever collected for that datasource.
+        
+        Returns:
+            None
+        
+        Raises:
+            ESMException: If the datasource to be deleted is 
+                still in the tree after being deleted an Exception 
+                will be raised.
+        &#34;&#34;&#34;
+        #self._method, self._data = self._get_params(&#39;del_ds&#39;)
+        #self._resp = self.post(self._method, self._data)
+
+        self._resp=self.nitro.request(&#39;del_ds&#39;, parent_id=self.parent_id, ds_id=self._ds_id)
+        
+    def _ds_details(self):
+        &#34;&#34;&#34;
+        Queries the ESM for datasource details
+        
+        Returns:
+            dict (str, str) with some subdicts 
+        
+        Warning:
+            Don&#39;t create a situation where this gets called for every
+            datasource as it will not scale.
+        &#34;&#34;&#34;
+        #self._method, self._data = self._get_params(&#39;ds_details&#39;)
+        #return self.post(self._method, self._data)
+        return self.data_from_id(id=self._ds_id)
+
+    def data_from_id(self, id):
+        return self.nitro.request(&#39;ds_details&#39;, ds_id=id)
+
+
+    @staticmethod
+    def valid_ip(ipaddr):
+        &#34;&#34;&#34;
+        Validates IPv4/v6 address or raises ValueError.
+
+        Args:
+            ipaddr (str): IP address
+
+        Returns:
+            True if valid, False if not.
+            
+        Raises:
+            ValueError: It&#39;s the wrong value if it&#39;s not valid.
+        &#34;&#34;&#34;
+        try:
+            ipaddr = str(ipaddress.ip_address(ipaddr))
+            return True
+        except ValueError:
+            return False</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -84,6 +1238,211 @@ and update dict values accordingly.</p></section>
 <li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="msiempy.device.DataSource.valid_ip"><code class="name flex">
+<span>def <span class="ident">valid_ip</span></span>(<span>ipaddr)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Validates IPv4/v6 address or raises ValueError.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>ipaddr</code></strong> :&ensp;<code>str</code></dt>
+<dd>IP address</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>True if valid, False if not.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>ValueError</code></strong></dt>
+<dd>It's the wrong value if it's not valid.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@staticmethod
+def valid_ip(ipaddr):
+    &#34;&#34;&#34;
+    Validates IPv4/v6 address or raises ValueError.
+
+    Args:
+        ipaddr (str): IP address
+
+    Returns:
+        True if valid, False if not.
+        
+    Raises:
+        ValueError: It&#39;s the wrong value if it&#39;s not valid.
+    &#34;&#34;&#34;
+    try:
+        ipaddr = str(ipaddress.ip_address(ipaddr))
+        return True
+    except ValueError:
+        return False</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.device.DataSource.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>self, client=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Adds a datasource</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>ESMException</code></strong></dt>
+<dd>Will be raised if trying to add a duplicate</dd>
+</dl>
+<p>datasource or if something else goes wrong.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def add(self, client=False):
+    &#34;&#34;&#34;
+    Adds a datasource
+    
+    Returns:
+        None 
+    
+    Raises:
+        ESMException: Will be raised if trying to add a duplicate
+        datasource or if something else goes wrong.
+    &#34;&#34;&#34;
+    self._search_dups = partial(self._devtree.search, rec_id=self.parent_id)
+    if self._search_dups(self.name, zone_id=self.zone_id):
+        raise NitroError(&#39;Datasource name already exists.&#39;
+                            &#39;Cannot add datasource: {}&#39;.format(self.name))
+    if self._search_dups(self.ds_ip, zone_id=self.zone_id):
+        raise NitroError(&#39;Datasource IP already exists.&#39; 
+                            &#39;Cannot add datasource: {}&#39;.format(self.ds_ip))
+    if client:
+        #self._method, self._data = self._get_params(&#39;add_client&#39;)
+        self._resp=self.nitro.request(&#39;add_client&#39;,
+                                parent_id=self.parent_id,
+                                name=self.name, 
+                                enabled=self.enabled, 
+                                ds_ip=self.ds_ip,
+                                hostname=self.hostname, 
+                                type_id=self.type_id, 
+                                tz_id=self.tz_id, 
+                                dorder=self.dorder, 
+                                maskflag=self.maskflag, 
+                                port=self.port, 
+                                syslog_tls=self.syslog_tls)
+    else:
+        self._resp=self.nitro.request(&#39;add_ds&#39;, 
+                                parent_id=self.parent_id,
+                                name=self.name, 
+                                ds_id=self._ds_id, 
+                                type_id=self.type_id, 
+                                child_enabled=self.child_enabled, 
+                                child_count=self.child_count, 
+                                child_type=self.child_type, 
+                                ds_ip=self.ds_ip, 
+                                zone_id=self.zone_id, 
+                                url=self.url, 
+                                enabled=self.enabled, 
+                                idm_id=self.idm_id, 
+                                parameters=self.parameters)
+        #self._method, self._data = self._get_params(&#39;add_ds&#39;)
+
+    #self._resp = self.post(self._method, self._data)
+
+    if client:
+        try:
+            self._err_code = self._resp[&#39;EC&#39;]
+            if self._err_code == &#39;0&#39;:
+                return None
+        except KeyError:
+            raise NitroError(&#39;Unexpected error occured. &#39; 
+                                &#39;DS may not have been added.&#39;)
+    try:
+        self._ds_id = self._resp.get(&#39;id&#39;)
+        return None
+    except (KeyError, AttributeError):
+        pass</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DataSource.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Deletes a datasource</p>
+<h2 id="args">Args</h2>
+<p>ds_id (str). DataSource ID
+rec_id (str). Receiver ID / DataSource parent_id</p>
+<h2 id="warning">Warning</h2>
+<p>This really does delete the datasource and ALL data
+ever collected for that datasource.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>ESMException</code></strong></dt>
+<dd>If the datasource to be deleted is
+still in the tree after being deleted an Exception
+will be raised.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def delete(self):
+    &#34;&#34;&#34;
+    Deletes a datasource
+    
+    Args:
+        ds_id (str). DataSource ID
+        rec_id (str). Receiver ID / DataSource parent_id
+        
+    Warning:
+        This really does delete the datasource and ALL data
+        ever collected for that datasource.
+    
+    Returns:
+        None
+    
+    Raises:
+        ESMException: If the datasource to be deleted is 
+            still in the tree after being deleted an Exception 
+            will be raised.
+    &#34;&#34;&#34;
+    #self._method, self._data = self._get_params(&#39;del_ds&#39;)
+    #self._resp = self.post(self._method, self._data)
+
+    self._resp=self.nitro.request(&#39;del_ds&#39;, parent_id=self.parent_id, ds_id=self._ds_id)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DataSource.props"><code class="name flex">
+<span>def <span class="ident">props</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Dumps the datasource settings</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>str</code></strong></dt>
+<dd>Datasource attributes as JSON</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def props(self):
+    &#34;&#34;&#34;
+    Dumps the datasource settings
+    
+    Returns:
+        str: Datasource attributes as JSON
+    &#34;&#34;&#34;        
+    return {self._prop: self._pval
+        for self._prop, self._pval in self.__dict__.items()
+        if not self._prop.startswith(&#39;_&#39;)}</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="msiempy.Item" href="index.html#msiempy.Item">Item</a></b></code>:
@@ -99,19 +1458,659 @@ and update dict values accordingly.</p></section>
 </dd>
 <dt id="msiempy.device.DevTree"><code class="flex name class">
 <span>class <span class="ident">DevTree</span></span>
-<span>(</span><span>alist=None)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for Managers objects.
-Inherits from list</p>
-<p>Ignore nested lists. Meaning that if alist if a list of lists
-it will we be ignored.
-Nevertheless, if a list is present as a key value in a dict,
-it will be added as such.</p></section>
+<section class="desc"><p>Interface to the ESM device tree.</p>
+<p>Public Methods:</p>
+<pre><code>search('term')      Returns a DataSource object matching the name,
+                IPv4/IPv6 address, hostname or device ID.
+
+search_group(field='term')    Returns a list of DataSource objects that match 
+                          the given term for the given field. 
+                          Valid field options include:
+                            - parent_id = '144119615532826624'
+                            - type_id = '65'
+                            - vendor = 'Intersect Alliance'
+                            - model = 'Snare for Windows'
+                            - syslog_tls = 'T'
+                            - port = '514'
+                            - tz_id = '51'
+                            - tz_name = 'Darwin'
+                            - zone_id = '7'
+
+steptree()  Returns an ordered list of lists representing the 
+               default 'Physical Display' device tree on the ESM.
+               This is useful to recreate a graphical representation
+               of the device tree.
+
+               Inner list fields: [tree_id, ds_name, ds_ip, depth]
+
+               tree_id: The order in which the datasource 
+                         appears in the ESM 'Physical Display'
+
+               name:   Datasource name
+
+               IP:     Datasource IP
+
+               depth:  1 = ESM
+                        2 = ERC/ADM/DEM/ACE/ELM/ELS
+                        3 = Datasources including EPO/NSM
+                        4 = Children and Clients
+
+last_times(days=,       Returns a list of DataSource objects that 
+           hours=,      the ESM has NOT heard from since the
+           minutes=)    provided timeframe.
+                          args are cummulative, 
+                       e.g. (days=30, hours=5) will added together
+
+
+refresh()   Rebuilds the tree
+
+__len__     Returns the total number of devices in the tree
+
+__iter__    Interates through each DataSource object in the tree.
+
+__contains__    Returns bool as to whether a datasource name, IP,
+                hostname or ds_id exist in the device tree.
+</code></pre>
+<p>Initalize the DevTree object</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class DevTree(Manager):
-    pass</code></pre>
+    &#34;&#34;&#34;
+    Interface to the ESM device tree.
+    
+    Public Methods:
+    
+        search(&#39;term&#39;)      Returns a DataSource object matching the name,
+                        IPv4/IPv6 address, hostname or device ID.
+
+        search_group(field=&#39;term&#39;)    Returns a list of DataSource objects that match 
+                                  the given term for the given field. 
+                                  Valid field options include:
+                                    - parent_id = &#39;144119615532826624&#39;
+                                    - type_id = &#39;65&#39;
+                                    - vendor = &#39;Intersect Alliance&#39;
+                                    - model = &#39;Snare for Windows&#39;
+                                    - syslog_tls = &#39;T&#39;
+                                    - port = &#39;514&#39;
+                                    - tz_id = &#39;51&#39;
+                                    - tz_name = &#39;Darwin&#39;
+                                    - zone_id = &#39;7&#39;
+                                    
+        steptree()  Returns an ordered list of lists representing the 
+                       default &#39;Physical Display&#39; device tree on the ESM.
+                       This is useful to recreate a graphical representation
+                       of the device tree.
+                    
+                       Inner list fields: [tree_id, ds_name, ds_ip, depth]
+
+                       tree_id: The order in which the datasource 
+                                 appears in the ESM &#39;Physical Display&#39;
+                                 
+                       name:   Datasource name
+                        
+                       IP:     Datasource IP
+                        
+                       depth:  1 = ESM
+                                2 = ERC/ADM/DEM/ACE/ELM/ELS
+                                3 = Datasources including EPO/NSM
+                                4 = Children and Clients
+                        
+        last_times(days=,       Returns a list of DataSource objects that 
+                   hours=,      the ESM has NOT heard from since the
+                   minutes=)    provided timeframe.
+                                  args are cummulative, 
+                               e.g. (days=30, hours=5) will added together
+
+
+        refresh()   Rebuilds the tree
+                            
+        __len__     Returns the total number of devices in the tree
+        
+        __iter__    Interates through each DataSource object in the tree. 
+        
+        __contains__    Returns bool as to whether a datasource name, IP,
+                        hostname or ds_id exist in the device tree.
+                        
+    &#34;&#34;&#34;
+    _DevTree = []
+
+    def __init__(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        Initalize the DevTree object
+        &#34;&#34;&#34;
+        super().__init__(*args, **kwargs)
+        if not DevTree._DevTree:
+            self._build_devtree()
+
+    def __len__(self):
+        &#34;&#34;&#34;
+        Returns the count of devices in the device tree.
+        &#34;&#34;&#34;
+        return len(DevTree._DevTree)
+        
+    def __iter__(self):
+        &#34;&#34;&#34;
+        Returns:
+            Generator with datasource objects.
+        &#34;&#34;&#34;
+        self._ds_desc_ids = [&#39;3&#39;, &#39;256&#39;]
+        for self._ds in DevTree._DevTree:
+            if self._ds[&#39;desc_id&#39;] in self._ds_desc_ids:
+                yield DataSource(**self._ds)
+
+    def __contains__(self, term):
+        &#34;&#34;&#34;
+        Returns:
+            bool: True/False the name or IP matches the provided search term.
+        &#34;&#34;&#34;
+        self._cterm = term
+        if self.search(self._cterm):
+            return True
+        else:
+            return None
+            
+    def search(self, term, rec_id=None, zone_id=&#39;0&#39;):
+        &#34;&#34;&#34;
+        Args:
+            term (str): Datasource name, IP, hostname or ds_id
+            
+            zone_id (int): Provide zone_id to limit search to a specific zone
+
+        Returns:
+            Datasource object that matches the provided search term or None.
+
+        &#34;&#34;&#34;
+        self._term = term.lower()
+        self._rec_id = rec_id
+        self._zone_id = zone_id
+
+        self._search_fields = [&#39;ds_ip&#39;, &#39;name&#39;, &#39;hostname&#39;, &#39;ds_id&#39;]
+
+        self._found = [self._ds for self._ds in DevTree._DevTree 
+                            for self._field in self._search_fields 
+                            if self._ds[self._field].lower() == self._term 
+                            if self._ds[&#39;zone_id&#39;] == self._zone_id]
+
+        if self._rec_id and len(self._found) &gt; 1:
+            self._found = [self._ds for self._ds in self._found 
+                            if self._ds[&#39;parent_id&#39;] == self._rec_id]
+        
+        if self._found:
+            return DataSource(**self._found[0])
+        else:
+            return None
+
+    def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
+        &#34;&#34;&#34;
+        Args:
+            field (str): Valid DS config field to search
+            term (str): Data to search for in specified field
+            
+        Returns:
+            Generator containing any matching DataSource objects or None
+            Result must be iterated through.
+            
+        Raises:
+            ValueError: if field or term are None
+        &#34;&#34;&#34;
+        self._field = field
+        self._term = term
+        self._zone_id = zone_id
+        
+        if not self._field:
+            raise ValueError(&#39;DataSource field required&#39;)
+
+        if not self._term:
+            raise ValueError(&#39;DataSource field value required&#39;)
+
+        return (DataSource(self._ds) for self._ds in DevTree._DevTree
+                        if self._ds.get(self._field) == self._term)
+                       
+    def steptree(self):
+        &#34;&#34;&#34;
+        Summarizes the devtree into names and IPs. 
+        
+        Includes depth count to indicate how many steps from the root 
+        of the tree the device would be if this data were presented 
+        graphically. 
+        
+        Also includes parent_id as another method to group datasources 
+        under another device.
+        
+        Returns:
+            List of tuples (int,str,str,str) (step, name, ip, parent_id)        
+        &#34;&#34;&#34;
+        self._steptree = []
+        self._ones = [&#39;14&#39;]
+        self._twos = [&#39;2&#39;, &#39;4&#39;, &#39;10&#39;, &#39;12&#39;, &#39;15&#39;, &#39;25&#39;]
+        self._threes = [&#39;3&#39;, &#39;5&#39;, &#39;7&#39;, &#39;17&#39;, &#39;19&#39;, &#39;20&#39;, &#39;21&#39;, &#39;24&#39;, &#39;254&#39;]
+        self._fours = [&#39;7&#39;,&#39;17&#39;, &#39;23&#39;, &#39;256&#39;]
+
+        for self._ds in DevTree._DevTree:
+            if self._ds[&#39;desc_id&#39;] in self._ones:
+                self._ds[&#39;depth&#39;] = &#39;1&#39;
+            elif self._ds[&#39;desc_id&#39;] in self._twos:
+                self._ds[&#39;depth&#39;] = &#39;2&#39;
+            elif self._ds[&#39;desc_id&#39;] in self._threes:
+                self._ds[&#39;depth&#39;] = &#39;3&#39;
+            else:
+                self._ds[&#39;depth&#39;] = &#39;4&#39;
+            self._steptree.append((self._ds[&#39;idx&#39;], self._ds[&#39;name&#39;], 
+                                    self._ds[&#39;ds_ip&#39;], self._ds[&#39;depth&#39;],))
+        return self._steptree
+
+                    
+    def refresh(self):
+        &#34;&#34;&#34;
+        Rebuilds the devtree
+        &#34;&#34;&#34;
+        self._build_devtree()
+        
+    def get_ds_times(self):
+        &#34;&#34;&#34;
+        &#34;&#34;&#34;
+        self._last_times = self._get_last_event_times()
+        self._insert_ds_last_times(self._last_times)
+        
+    def recs(self):
+        &#34;&#34;&#34;
+        Returns:
+            list of Receiver dicts (str:str)
+        &#34;&#34;&#34;
+        return [self._rec for self._rec in DevTree._DevTree 
+                    if self._rec[&#39;desc_id&#39;] == &#39;2&#39;]
+    
+    def _build_devtree(self):
+        &#34;&#34;&#34;
+        Coordinates assembly of the devtree object
+        &#34;&#34;&#34;
+        self._devtree = self._get_devtree()
+        self._devtree = self._devtree_to_lod()
+        self._devtree = self._insert_rec_info()
+        self._client_containers = self._get_client_containers()
+
+        &#34;&#34;&#34;
+        This next bit of code gets and formats the clients for each
+        container and inserts them back into the devtree.
+        
+        The tricky part is keeping the devtree in order and keeping 
+        index labels consistent for all of the devices while 
+        inserting new devices into the middle with their own index
+        labels. Kind of like changing a tire on a moving car...
+        
+        pidx - parent idx is the original index value of the parent
+                this does not increment
+                
+        cidx - client idx is incremented starting after the pidx
+        
+        didx - stores the delta between different containers to 
+               keep it all in sync.
+        &#34;&#34;&#34;
+        self._cidx = 0
+        self._didx = 0
+        for self._container in self._client_containers:
+            self._raw_clients = self._get_raw_clients(self._container[&#39;ds_id&#39;])
+            self._clients_lod = self._clients_to_lod(self._raw_clients)
+            self._container[&#39;idx&#39;] = self._container[&#39;idx&#39;] + self._didx
+            self._pidx = self._container[&#39;idx&#39;]
+            self._cidx = self._pidx + 1 
+            for self._client in self._clients_lod:
+                self._client[&#39;parent_id&#39;] = self._container[&#39;ds_id&#39;]
+                self._client[&#39;idx&#39;] = self._cidx 
+                self._cidx += 1 
+                self._didx += 1
+            self._devtree[self._pidx:self._pidx] = self._clients_lod 
+            
+        self._zonetree = self._get_zonetree()
+        self._devtree = self._insert_zone_names()
+        self._zone_map = self._get_zone_map()
+        self._devtree = self._insert_zone_ids()            
+        self._devtree = self._insert_venmods()
+        self._devtree = self._insert_desc_names()
+        self._last_times = self._get_last_event_times()
+        self._insert_ds_last_times()
+        DevTree._DevTree = self._devtree
+               
+    def _get_devtree(self):
+        &#34;&#34;&#34;
+        Returns:
+            ESM device tree; raw, but ordered, string.
+            Does not include client datasources.
+        &#34;&#34;&#34;
+        #self._method, self._data = self._get_params(&#39;get_devtree&#39;)
+        #self._resp = self.post(self._method, self._data)
+        self._resp=self.nitro.request(&#39;get_devtree&#39;, **self.__dict__)
+        return dehexify(self._resp[&#39;ITEMS&#39;])
+
+    def _devtree_to_lod(self):
+        &#34;&#34;&#34;
+        Parse key fields from raw device strings into datasource dicts
+        
+        Returns: 
+            List of datasource dicts
+        &#34;&#34;&#34;
+        self._devtree_io = StringIO(self._devtree)
+        self._devtree_csv = csv.reader(self._devtree_io, delimiter=&#39;,&#39;)
+        self._devtree_lod = []
+
+        for self._idx, self._row in enumerate(self._devtree_csv, start=1):
+            if len(self._row) == 0:
+                continue
+            
+            if self._row[0] == &#39;16&#39;:  # Get rid of duplicate &#39;asset&#39; devices
+                continue
+            
+            if self._row[2] == &#34;3&#34;:  # Client group datasource group containers
+                self._row.pop(0)     # are fake datasources that seemingly have
+                self._row.pop(0)     # two uneeded fields at the beginning.
+
+            if self._row[16] == &#39;TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT&#39;:
+                self._row[16] = &#39;0&#39;  # Get rid of weird type-id for N/A devices
+                
+            self._ds_fields = {&#39;idx&#39;: self._idx,
+                                &#39;desc_id&#39;: self._row[0],
+                                &#39;name&#39;: self._row[1],
+                                &#39;ds_id&#39;: self._row[2],
+                                &#39;enabled&#39;: self._row[15],
+                                &#39;ds_ip&#39;: self._row[27],
+                                &#39;hostname&#39; : self._row[28],
+                                &#39;type_id&#39;: self._row[16],
+                                &#39;vendor&#39;: &#39;&#39;,
+                                &#39;model&#39;: &#39;&#39;,
+                                &#39;tz_id&#39;: &#39;&#39;,
+                                &#39;date_order&#39;: &#39;&#39;,
+                                &#39;port&#39;: &#39;&#39;,
+                                &#39;syslog_tls&#39;: &#39;&#39;,
+                                &#39;client_groups&#39;: self._row[29],
+                                &#39;zone_name&#39;: &#39;&#39;,
+                                &#39;zone_id&#39;: &#39;&#39;,
+                                &#39;client&#39;: False
+                              }
+            self._devtree_lod.append(self._ds_fields)
+        return self._devtree_lod
+
+    def _insert_rec_info(self):
+        &#34;&#34;&#34;
+        Adds parent_ids to datasources in the tree based upon the 
+        ordered list provided by the ESM. All the datasources below
+        a Receiver row have it&#39;s id set as their parent ID.
+        
+        Returns:
+            List of datasource dicts
+        &#34;&#34;&#34;
+        self._pid = &#39;0&#39;
+        self._rec_name = &#39;&#39;
+        for self._ds in self._devtree:
+            if self._ds[&#39;desc_id&#39;] in [&#39;2&#39;, &#39;4&#39;, &#39;15&#39;]:
+                self._pid = self._ds[&#39;ds_id&#39;]
+                self._rec_name = self._ds[&#39;name&#39;]
+                continue
+            
+            if self._ds[&#39;desc_id&#39;] in [&#39;3&#39;, &#39;5&#39;, &#39;7&#39;, &#39;17&#39;]:
+                self._ds[&#39;parent_id&#39;] = self._pid
+                self._ds[&#39;rec_name&#39;] = self._rec_name
+        return self._devtree
+
+    def _get_client_containers(self):
+        &#34;&#34;&#34;
+        Filters DevTree for datasources that have client datasources.
+        
+        Returns:
+            List of datasource dicts that have clients
+        &#34;&#34;&#34;
+        return [self._ds for self._ds in self._devtree
+                                if self._ds[&#39;desc_id&#39;] == &#34;3&#34; 
+                                if int(self._ds[&#39;client_groups&#39;]) &gt; 0]
+        
+    def _get_raw_clients(self, ds_id):
+        &#34;&#34;&#34;
+        Get list of raw client strings.
+        
+        Args:
+            ds_id (str): Parent ds_id(s) are collected on init
+            ftoken (str): Set and used after requesting clients for ds_id
+            
+        Returns:
+            List of strings representing unparsed client datasources
+        &#34;&#34;&#34;
+        self._ds_id = ds_id
+        #self._method, self._data = self._get_params(&#39;req_client_str&#39;)
+        #self._resp = self.post(self._method, self._data)
+
+        self._resp = self.nitro.request(&#39;req_client_str&#39;, _ds_id=ds_id)
+
+        self._ftoken = self._resp[&#39;FTOKEN&#39;]
+        return self._get_file(self._ftoken)
+
+    def _get_client_list(self, group_id):
+        &#34;&#34;&#34;
+        Finds client group
+        
+        Args:
+            DSID (str): Parent datasource ID set to self._ds_id
+        
+        Returns:
+            Response dict with FTOKEN required to get the data file
+        
+        &#34;&#34;&#34;
+        self.group_id = group_id
+
+        #self._method, self._data = self._get_params(&#39;req_client_str&#39;)
+        #self._resp = self.post(self._method, self._data)
+        self._resp = self.nitro.request(&#39;req_client_str&#39;, _ds_id=self._ds_id)
+
+        return self._resp
+
+    def _get_file(self, ftoken):
+        &#34;&#34;&#34;
+        Exchanges token for file
+        
+        Args:
+            ftoken (str): instance name set by 
+        
+        &#34;&#34;&#34;
+        self.ftoken = ftoken
+
+        #self._method, self._data = self._get_params(&#39;get_rfile&#39;)
+        #self._resp = self.post(self._method, self._data)
+        
+        self._resp = self.nitro.request(&#39;get_rfile&#39;, _ftoken=ftoken)
+
+        self._resp = dehexify(self._resp[&#39;DATA&#39;])
+        return self._resp
+
+    def _clients_to_lod(self, clients):
+        &#34;&#34;&#34;
+        Parse key fields from _get_clients() output.
+        
+        Returns:
+            list of dicts
+        &#34;&#34;&#34;
+        self._clients = clients
+
+        self._clients_io = StringIO(self._clients)
+        self._clients_csv = csv.reader(self._clients_io, delimiter=&#39;,&#39;)
+
+        self._clients_lod = []
+        for self._row in self._clients_csv:
+            if len(self._row) &lt; 2:
+                continue
+
+            self._ds_fields = {&#39;desc_id&#39;: &#34;256&#34;,
+                              &#39;name&#39;: self._row[1],
+                              &#39;ds_id&#39;: self._row[0],
+                              &#39;enabled&#39;: self._row[2],
+                              &#39;ds_ip&#39;: self._row[3],
+                              &#39;hostname&#39; : self._row[4],
+                              &#39;type_id&#39;: self._row[5],
+                              &#39;vendor&#39;: self._row[6],
+                              &#39;model&#39;: self._row[7],
+                              &#39;tz_id&#39;: self._row[8],
+                              &#39;date_order&#39;: self._row[9],
+                              &#39;port&#39;: self._row[11],
+                              &#39;syslog_tls&#39;: self._row[12],
+                              &#39;client_groups&#39;: &#34;0&#34;,
+                              &#39;zone_name&#39;: &#39;&#39;,
+                              &#39;zone_id&#39;: &#39;&#39;,
+                              &#39;client&#39;: True
+                              }
+            self._clients_lod.append(self._ds_fields)
+        return self._clients_lod
+            
+    def _get_zonetree(self):
+        &#34;&#34;&#34;
+        Abuses the device tree for zone data.
+        
+        Returns:
+            str: device tree string sorted by zones
+        &#34;&#34;&#34;
+        
+        #self._method, self._data = self._get_params(&#39;get_zones_devtree&#39;)
+        #self._resp = self.post(self._method, self._data)
+        self._resp=self.nitro.request(&#39;get_zones_devtree&#39;)
+        
+        return dehexify(self._resp[&#39;ITEMS&#39;])
+        
+    def _insert_zone_names(self):
+        &#34;&#34;&#34;
+        Args:
+            _zonetree (str): set in __init__
+        
+        Returns:
+            List of dicts (str: str) devices by zone
+        &#34;&#34;&#34;
+        self._zone_name = None
+        self._zonetree_io = StringIO(self._zonetree)
+        self._zonetree_csv = csv.reader(self._zonetree_io, delimiter=&#39;,&#39;)
+        self._zonetree_lod = []
+
+        for self._row in self._zonetree_csv:
+            if self._row[0] == &#39;1&#39;:
+                self._zone_name = self._row[1]
+                if self._zone_name == &#39;Undefined&#39;:
+                    self._zone_name = &#39;&#39;
+                continue
+            for self._dev in self._devtree:
+                if self._dev[&#39;ds_id&#39;] == self._row[2]:
+                    self._dev[&#39;zone_name&#39;] = self._zone_name
+        return self._devtree
+
+    def _get_zone_map(self):
+        &#34;&#34;&#34;
+        Builds a table of zone names to zone ids.
+        
+        Returns:
+            dict (str: str) zone name : zone ids
+        &#34;&#34;&#34;
+        self._zone_map = {}
+
+        #self._method, self._data = self._get_params(&#39;zonetree&#39;)
+        #self._resp = self.post(self._method, self._data)
+
+        self._resp=self.nitro.request(&#39;zonetree&#39;)
+
+        for self._zone in self._resp:
+            self._zone_map[self._zone[&#39;name&#39;]] = self._zone[&#39;id&#39;][&#39;value&#39;]
+            for self._szone in self._zone[&#39;subZones&#39;]:
+                self._zone_map[self._szone[&#39;name&#39;]] = self._szone[&#39;id&#39;][&#39;value&#39;]
+        return self._zone_map
+        
+    def _insert_zone_ids(self):
+        &#34;&#34;&#34;
+        &#34;&#34;&#34;
+        for self._dev in self._devtree:
+            if self._dev[&#39;zone_name&#39;] in self._zone_map.keys():
+                self._dev[&#39;zone_id&#39;] = self._zone_map.get(self._dev[&#39;zone_name&#39;])
+            else:
+                self._dev[&#39;zone_id&#39;] = &#39;0&#39;
+        return self._devtree
+        
+    def _insert_venmods(self):
+        &#34;&#34;&#34;
+        Populates vendor/model fields for any datasources 
+        
+        Returns:
+            List of datasource dicts - devtree
+        &#34;&#34;&#34;
+        for self._ds in self._devtree:
+            if not self._ds[&#39;vendor&#39;] and self._ds[&#39;desc_id&#39;] == &#39;3&#39;: 
+                self._ds[&#39;vendor&#39;], self._ds[&#39;model&#39;] = self._esm.type_id_to_venmod(self._ds[&#39;type_id&#39;])
+        return self._devtree_lod
+    
+    def _insert_desc_names(self):
+        &#34;&#34;&#34;
+        Populates the devtree with desc_names matching the desc_ids
+        
+        Returns:
+            List of datasource dicts - devtree
+        
+        &#34;&#34;&#34;
+        self._type_map = {&#39;1&#39;: &#39;zone&#39;,
+                        &#39;2&#39;: &#39;ERC&#39;,
+                        &#39;3&#39;: &#39;datasource&#39;,
+                        &#39;4&#39;: &#39;Database Event Monitor (DBM)&#39;,
+                        &#39;5&#39;: &#39;DBM Database&#39;,
+                        &#39;7&#39;: &#39;Policy Auditor&#39;,
+                        &#39;10&#39;: &#39;Application Data Monitor (ADM)&#39;,
+                        &#39;12&#39;: &#39;ELM&#39;,
+                        &#39;14&#39;: &#39;Local ESM&#39;,
+                        &#39;15&#39;: &#39;Advanced Correlation Engine (ACE)&#39;,
+                        &#39;16&#39;: &#39;Asset datasource&#39;,
+                        &#39;17&#39;: &#39;Score-based Correlation&#39;,
+                        &#39;19&#39;: &#39;McAfee ePolicy Orchestrator (ePO)&#39;,
+                        &#39;20&#39;: &#39;EPO&#39;,
+                        &#39;21&#39;: &#39;McAfee Network Security Manager (NSM)&#39;,
+                        &#39;22&#39;: &#39;McAfee Network Security Platform (NSP)&#39;,
+                        &#39;23&#39;: &#39;NSP Port&#39;,
+                        &#39;24&#39;: &#39;McAfee Vulnerability Manager (MVM)&#39;,
+                        &#39;25&#39;: &#39;Enterprise Log Search (ELS)&#39;,
+                        &#39;254&#39;: &#39;client_group&#39;,
+                        &#39;256&#39;: &#39;client&#39;}
+                        
+        for self._ds in self._devtree:
+            if self._ds[&#39;desc_id&#39;] in self._type_map:
+                self._ds[&#39;desc&#39;] = self._type_map[self._ds[&#39;desc_id&#39;]]
+        return self._devtree
+        
+    def _get_client_grps(self):
+        &#34;&#34;&#34;
+        Returns:
+            dict (str:str) fake datasource dicts that represent client 
+            containers on the device tree.
+        &#34;&#34;&#34;
+        return [self._dev for self._dev in DevTree._DevTree 
+                        if int(self._dev[&#39;client_groups&#39;]) &gt; 0 
+                        and self._dev[&#39;desc_id&#39;] == &#39;3&#39;]
+                        
+    def _get_last_event_times(self):
+        &#34;&#34;&#34;
+        Returns:
+            string with datasource names and last event times.
+        &#34;&#34;&#34;
+        #self._method, self._data = self._get_params(&#39;ds_last_times&#39;)
+        #self._resp = self.post(self._method, self._data)
+
+        self._resp = self.nitro.request(&#39;ds_last_times&#39;)
+        return dehexify(self._resp[&#39;ITEMS&#39;])
+
+    def _insert_ds_last_times(self):
+        &#34;&#34;&#34;
+        Parse event times str and insert it into the _devtree
+        
+        Returns: 
+            List of datasource dicts - the devtree
+        &#34;&#34;&#34;
+        self._last_times_io = StringIO(self._last_times)
+        self._last_times_csv = csv.reader(self._last_times_io, delimiter=&#39;,&#39;)
+        for self._row in self._last_times_csv:
+            for self._ds in self._devtree:
+                self._ds[&#39;last_time&#39;] = self._row[3]
+            else: 
+                self._ds[&#39;last_time&#39;] = &#39;&#39;
+        return self._devtree</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -127,6 +2126,206 @@ it will be added as such.</p></section>
 <li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.device.DevTree.get_ds_times"><code class="name flex">
+<span>def <span class="ident">get_ds_times</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_ds_times(self):
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    self._last_times = self._get_last_event_times()
+    self._insert_ds_last_times(self._last_times)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DevTree.recs"><code class="name flex">
+<span>def <span class="ident">recs</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="returns">Returns</h2>
+<dl>
+<dt><code>list</code> of <code>Receiver</code> <code>dicts</code> (<code>str</code>:<code>str</code>)</dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def recs(self):
+    &#34;&#34;&#34;
+    Returns:
+        list of Receiver dicts (str:str)
+    &#34;&#34;&#34;
+    return [self._rec for self._rec in DevTree._DevTree 
+                if self._rec[&#39;desc_id&#39;] == &#39;2&#39;]</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DevTree.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Rebuilds the devtree</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def refresh(self):
+    &#34;&#34;&#34;
+    Rebuilds the devtree
+    &#34;&#34;&#34;
+    self._build_devtree()</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DevTree.search"><code class="name flex">
+<span>def <span class="ident">search</span></span>(<span>self, term, rec_id=None, zone_id='0')</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>term</code></strong> :&ensp;<code>str</code></dt>
+<dd>Datasource name, IP, hostname or ds_id</dd>
+<dt><strong><code>zone_id</code></strong> :&ensp;<code>int</code></dt>
+<dd>Provide zone_id to limit search to a specific zone</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Datasource object that matches the provided search term or None.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def search(self, term, rec_id=None, zone_id=&#39;0&#39;):
+    &#34;&#34;&#34;
+    Args:
+        term (str): Datasource name, IP, hostname or ds_id
+        
+        zone_id (int): Provide zone_id to limit search to a specific zone
+
+    Returns:
+        Datasource object that matches the provided search term or None.
+
+    &#34;&#34;&#34;
+    self._term = term.lower()
+    self._rec_id = rec_id
+    self._zone_id = zone_id
+
+    self._search_fields = [&#39;ds_ip&#39;, &#39;name&#39;, &#39;hostname&#39;, &#39;ds_id&#39;]
+
+    self._found = [self._ds for self._ds in DevTree._DevTree 
+                        for self._field in self._search_fields 
+                        if self._ds[self._field].lower() == self._term 
+                        if self._ds[&#39;zone_id&#39;] == self._zone_id]
+
+    if self._rec_id and len(self._found) &gt; 1:
+        self._found = [self._ds for self._ds in self._found 
+                        if self._ds[&#39;parent_id&#39;] == self._rec_id]
+    
+    if self._found:
+        return DataSource(**self._found[0])
+    else:
+        return None</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DevTree.search_ds_group"><code class="name flex">
+<span>def <span class="ident">search_ds_group</span></span>(<span>self, field, term, zone_id='0')</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>field</code></strong> :&ensp;<code>str</code></dt>
+<dd>Valid DS config field to search</dd>
+<dt><strong><code>term</code></strong> :&ensp;<code>str</code></dt>
+<dd>Data to search for in specified field</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Generator</code> <code>containing</code> <code>any</code> <code>matching</code> <a title="msiempy.device.DataSource" href="#msiempy.device.DataSource"><code>DataSource</code></a> <code>objects</code> or <code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<p>Result must be iterated through.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>ValueError</code></strong></dt>
+<dd>if field or term are None</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
+    &#34;&#34;&#34;
+    Args:
+        field (str): Valid DS config field to search
+        term (str): Data to search for in specified field
+        
+    Returns:
+        Generator containing any matching DataSource objects or None
+        Result must be iterated through.
+        
+    Raises:
+        ValueError: if field or term are None
+    &#34;&#34;&#34;
+    self._field = field
+    self._term = term
+    self._zone_id = zone_id
+    
+    if not self._field:
+        raise ValueError(&#39;DataSource field required&#39;)
+
+    if not self._term:
+        raise ValueError(&#39;DataSource field value required&#39;)
+
+    return (DataSource(self._ds) for self._ds in DevTree._DevTree
+                    if self._ds.get(self._field) == self._term)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DevTree.steptree"><code class="name flex">
+<span>def <span class="ident">steptree</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Summarizes the devtree into names and IPs. </p>
+<p>Includes depth count to indicate how many steps from the root
+of the tree the device would be if this data were presented
+graphically. </p>
+<p>Also includes parent_id as another method to group datasources
+under another device.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>List</code> of <code>tuples</code> (<code>int</code>,<code>str</code>,<code>str</code>,<code>str</code>) (<code>step</code>, <code>name</code>, <code>ip</code>, <code>parent_id</code>)</dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def steptree(self):
+    &#34;&#34;&#34;
+    Summarizes the devtree into names and IPs. 
+    
+    Includes depth count to indicate how many steps from the root 
+    of the tree the device would be if this data were presented 
+    graphically. 
+    
+    Also includes parent_id as another method to group datasources 
+    under another device.
+    
+    Returns:
+        List of tuples (int,str,str,str) (step, name, ip, parent_id)        
+    &#34;&#34;&#34;
+    self._steptree = []
+    self._ones = [&#39;14&#39;]
+    self._twos = [&#39;2&#39;, &#39;4&#39;, &#39;10&#39;, &#39;12&#39;, &#39;15&#39;, &#39;25&#39;]
+    self._threes = [&#39;3&#39;, &#39;5&#39;, &#39;7&#39;, &#39;17&#39;, &#39;19&#39;, &#39;20&#39;, &#39;21&#39;, &#39;24&#39;, &#39;254&#39;]
+    self._fours = [&#39;7&#39;,&#39;17&#39;, &#39;23&#39;, &#39;256&#39;]
+
+    for self._ds in DevTree._DevTree:
+        if self._ds[&#39;desc_id&#39;] in self._ones:
+            self._ds[&#39;depth&#39;] = &#39;1&#39;
+        elif self._ds[&#39;desc_id&#39;] in self._twos:
+            self._ds[&#39;depth&#39;] = &#39;2&#39;
+        elif self._ds[&#39;desc_id&#39;] in self._threes:
+            self._ds[&#39;depth&#39;] = &#39;3&#39;
+        else:
+            self._ds[&#39;depth&#39;] = &#39;4&#39;
+        self._steptree.append((self._ds[&#39;idx&#39;], self._ds[&#39;name&#39;], 
+                                self._ds[&#39;ds_ip&#39;], self._ds[&#39;depth&#39;],))
+    return self._steptree</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></b></code>:
@@ -136,8 +2335,6 @@ it will be added as such.</p></section>
 <li><code><a title="msiempy.Manager.json" href="index.html#msiempy.Manager.json">json</a></code></li>
 <li><code><a title="msiempy.Manager.keys" href="index.html#msiempy.Manager.keys">keys</a></code></li>
 <li><code><a title="msiempy.Manager.perform" href="index.html#msiempy.Manager.perform">perform</a></code></li>
-<li><code><a title="msiempy.Manager.refresh" href="index.html#msiempy.Manager.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.Manager.search" href="index.html#msiempy.Manager.search">search</a></code></li>
 <li><code><a title="msiempy.Manager.table_colums" href="index.html#msiempy.Manager.table_colums">table_colums</a></code></li>
 <li><code><a title="msiempy.Manager.text" href="index.html#msiempy.Manager.text">text</a></code></li>
 </ul>
@@ -256,9 +2453,23 @@ NitroSession object that handle the esm requests.</p>
 <ul>
 <li>
 <h4><code><a title="msiempy.device.DataSource" href="#msiempy.device.DataSource">DataSource</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.device.DataSource.add" href="#msiempy.device.DataSource.add">add</a></code></li>
+<li><code><a title="msiempy.device.DataSource.delete" href="#msiempy.device.DataSource.delete">delete</a></code></li>
+<li><code><a title="msiempy.device.DataSource.props" href="#msiempy.device.DataSource.props">props</a></code></li>
+<li><code><a title="msiempy.device.DataSource.valid_ip" href="#msiempy.device.DataSource.valid_ip">valid_ip</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="msiempy.device.DevTree" href="#msiempy.device.DevTree">DevTree</a></code></h4>
+<ul class="two-column">
+<li><code><a title="msiempy.device.DevTree.get_ds_times" href="#msiempy.device.DevTree.get_ds_times">get_ds_times</a></code></li>
+<li><code><a title="msiempy.device.DevTree.recs" href="#msiempy.device.DevTree.recs">recs</a></code></li>
+<li><code><a title="msiempy.device.DevTree.refresh" href="#msiempy.device.DevTree.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.device.DevTree.search" href="#msiempy.device.DevTree.search">search</a></code></li>
+<li><code><a title="msiempy.device.DevTree.search_ds_group" href="#msiempy.device.DevTree.search_ds_group">search_ds_group</a></code></li>
+<li><code><a title="msiempy.device.DevTree.steptree" href="#msiempy.device.DevTree.steptree">steptree</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="msiempy.device.Device" href="#msiempy.device.Device">Device</a></code></h4>

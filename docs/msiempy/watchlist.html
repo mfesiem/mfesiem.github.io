@@ -29,26 +29,26 @@
 import logging
 import collections
 log = logging.getLogger(&#39;msiempy&#39;)
-from . import Item, Manager
+from . import NitroDict, NitroList
 
-class WatchlistManager(Manager):
+class WatchlistManager(NitroList):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data=self.nitro.request(&#39;get_watchlists_no_filters&#39;, hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
 
         #Casting all data to Watchlist objects, better way to do it ?
-        collections.UserList.__init__(self, [Watchlist(adict=item) for item in self.data if isinstance(item, (dict, Item))])
+        collections.UserList.__init__(self, [Watchlist(adict=item) for item in self.data if isinstance(item, (dict, NitroDict))])
 
     def load_details(self):
         self.perform(Watchlist.load_details, asynch=False, progress=True)
 
 
-class Watchlist(Item):
+class Watchlist(NitroDict):
     &#34;&#34;&#34;
 
     Complete list of watchlist fields (not values) once load with load_details()
-    `
+    Dict keys :
         name: The name of the watchlist
         type: The watchlist type
         customType: The watchlist custom type (custom field)
@@ -94,7 +94,7 @@ class Watchlist(Item):
         delimitRegex: If the watchlist is populated from an enrichment source, this will hold the enrichment delimit regex setting. See the enrichment configuration documentation for more details on this setting.
         groups: If the watchlist is populated from an enrichment source, this will hold the enrichment groups setting. See the enrichment configuration documentation for more details on this setting.
         values: values
-    `
+    
     &#34;&#34;&#34;
 
     def __init__(self, *args, **kwargs):
@@ -114,7 +114,7 @@ class Watchlist(Item):
 
     def load_values(self, count=50):
         &#34;&#34;&#34;
-        Doesn&#39;t work yet
+        Not properly tested yet.
         &#34;&#34;&#34;
         self.data[&#39;values&#39;]=self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;], pos=0, count=count)</code></pre>
 </details>
@@ -134,7 +134,8 @@ class Watchlist(Item):
 </code></dt>
 <dd>
 <section class="desc"><p>Complete list of watchlist fields (not values) once load with load_details()
-<code>name: The name of the watchlist
+Dict keys :
+name: The name of the watchlist
 type: The watchlist type
 customType: The watchlist custom type (custom field)
 dynamic: Whether this watchlist is dynamic
@@ -179,16 +180,16 @@ matchRegex: If the watchlist is populated from an enrichment source, this will h
 lineSkip: If the watchlist is populated from an enrichment source, this will hold the enrichment line skip setting. See the enrichment configuration documentation for more details on this setting.
 delimitRegex: If the watchlist is populated from an enrichment source, this will hold the enrichment delimit regex setting. See the enrichment configuration documentation for more details on this setting.
 groups: If the watchlist is populated from an enrichment source, this will hold the enrichment groups setting. See the enrichment configuration documentation for more details on this setting.
-values: values</code></p>
+values: values</p>
 <p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
 and update dict values accordingly.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class Watchlist(Item):
+<pre><code class="python">class Watchlist(NitroDict):
     &#34;&#34;&#34;
 
     Complete list of watchlist fields (not values) once load with load_details()
-    `
+    Dict keys :
         name: The name of the watchlist
         type: The watchlist type
         customType: The watchlist custom type (custom field)
@@ -234,7 +235,7 @@ and update dict values accordingly.</p></section>
         delimitRegex: If the watchlist is populated from an enrichment source, this will hold the enrichment delimit regex setting. See the enrichment configuration documentation for more details on this setting.
         groups: If the watchlist is populated from an enrichment source, this will hold the enrichment groups setting. See the enrichment configuration documentation for more details on this setting.
         values: values
-    `
+    
     &#34;&#34;&#34;
 
     def __init__(self, *args, **kwargs):
@@ -254,13 +255,13 @@ and update dict values accordingly.</p></section>
 
     def load_values(self, count=50):
         &#34;&#34;&#34;
-        Doesn&#39;t work yet
+        Not properly tested yet.
         &#34;&#34;&#34;
         self.data[&#39;values&#39;]=self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;], pos=0, count=count)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.Item" href="index.html#msiempy.Item">Item</a></li>
+<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
 <li>collections.UserDict</li>
 <li>collections.abc.MutableMapping</li>
 <li>collections.abc.Mapping</li>
@@ -301,12 +302,12 @@ and update dict values accordingly.</p></section>
 <span>def <span class="ident">load_values</span></span>(<span>self, count=50)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Doesn't work yet</p></section>
+<section class="desc"><p>Not properly tested yet.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def load_values(self, count=50):
     &#34;&#34;&#34;
-    Doesn&#39;t work yet
+    Not properly tested yet.
     &#34;&#34;&#34;
     self.data[&#39;values&#39;]=self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;], pos=0, count=count)</code></pre>
 </details>
@@ -314,13 +315,13 @@ and update dict values accordingly.</p></section>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.Item" href="index.html#msiempy.Item">Item</a></b></code>:
+<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.Item.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.Item.data_from_id" href="index.html#msiempy.Item.data_from_id">data_from_id</a></code></li>
-<li><code><a title="msiempy.Item.json" href="index.html#msiempy.Item.json">json</a></code></li>
-<li><code><a title="msiempy.Item.refresh" href="index.html#msiempy.Item.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.Item.text" href="index.html#msiempy.Item.text">text</a></code></li>
+<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroDict.data_from_id" href="index.html#msiempy.NitroDict.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
+<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -330,7 +331,7 @@ and update dict values accordingly.</p></section>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for Managers objects.
+<section class="desc"><p>Base class for NitroLists objects.
 Inherits from list</p>
 <p>Ignore nested lists. Meaning that if alist if a list of lists
 it will we be ignored.
@@ -338,21 +339,21 @@ Nevertheless, if a list is present as a key value in a dict,
 it will be added as such.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class WatchlistManager(Manager):
+<pre><code class="python">class WatchlistManager(NitroList):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data=self.nitro.request(&#39;get_watchlists_no_filters&#39;, hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
 
         #Casting all data to Watchlist objects, better way to do it ?
-        collections.UserList.__init__(self, [Watchlist(adict=item) for item in self.data if isinstance(item, (dict, Item))])
+        collections.UserList.__init__(self, [Watchlist(adict=item) for item in self.data if isinstance(item, (dict, NitroDict))])
 
     def load_details(self):
         self.perform(Watchlist.load_details, asynch=False, progress=True)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></li>
+<li><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></li>
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
 <li>collections.abc.Sequence</li>
@@ -380,17 +381,17 @@ it will be added as such.</p></section>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></b></code>:
+<li><code><b><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.Manager.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.Manager.get_text" href="index.html#msiempy.Manager.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.Manager.json" href="index.html#msiempy.Manager.json">json</a></code></li>
-<li><code><a title="msiempy.Manager.keys" href="index.html#msiempy.Manager.keys">keys</a></code></li>
-<li><code><a title="msiempy.Manager.perform" href="index.html#msiempy.Manager.perform">perform</a></code></li>
-<li><code><a title="msiempy.Manager.refresh" href="index.html#msiempy.Manager.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.Manager.search" href="index.html#msiempy.Manager.search">search</a></code></li>
-<li><code><a title="msiempy.Manager.table_colums" href="index.html#msiempy.Manager.table_colums">table_colums</a></code></li>
-<li><code><a title="msiempy.Manager.text" href="index.html#msiempy.Manager.text">text</a></code></li>
+<li><code><a title="msiempy.NitroList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.NitroList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
+<li><code><a title="msiempy.NitroList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.NitroList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
+<li><code><a title="msiempy.NitroList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
+<li><code><a title="msiempy.NitroList.table_colums" href="index.html#msiempy.NitroList.table_colums">table_colums</a></code></li>
+<li><code><a title="msiempy.NitroList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
 </ul>
 </li>
 </ul>

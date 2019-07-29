@@ -30,7 +30,7 @@ are stored as docstrings to support string replacement.</p>
 <dt><strong><code>method</code></strong> :&ensp;<code>str</code></dt>
 <dd>Dict key associated with desired function</dd>
 </dl>
-<p>Use normal dict access, ['method'], or .pop('method')</p>
+<p>Use normal dict access, ["method"], or .pop("method")</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><strong><code>tuple</code></strong></dt>
@@ -44,7 +44,8 @@ are stored as docstrings to support string replacement.</p>
 </dl>
 <p>interpolated as documented in the Attributes.</p>
 <h2 id="example">Example</h2>
-<p>method, params = params['login'].format(username, password)</p>
+<p>method, params = params["login"].format(username, password)
+Important note : Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
@@ -54,7 +55,7 @@ are stored as docstrings to support string replacement.</p>
 
     Args:
         method (str): Dict key associated with desired function
-        Use normal dict access, [&#39;method&#39;], or .pop(&#39;method&#39;)
+        Use normal dict access, [&#34;method&#34;], or .pop(&#34;method&#34;)
 
     Returns:
         tuple: (string, string)
@@ -65,181 +66,175 @@ are stored as docstrings to support string replacement.</p>
         interpolated as documented in the Attributes.
 
     Example:
-        method, params = params[&#39;login&#39;].format(username, password)
+        method, params = params[&#34;login&#34;].format(username, password)
+
+    Important note : Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 &#34;&#34;&#34;
 
 PARAMS = {
-    &#39;login&#39;: (&#34;login&#34;,
-              &#34;&#34;&#34;{&#39;username&#39;: &#39;%(username)s&#39;,
-                 &#39;password&#39; : &#39;%(password)s&#39;,
-                 &#39;locale&#39;: &#39;en_US&#39;,
-                 &#39;os&#39;: &#39;Win32&#39;}
+    &#34;login&#34;: (&#34;login&#34;,
+              &#34;&#34;&#34;{&#34;username&#34;: &#34;%(username)s&#34;,
+                 &#34;password&#34; : &#34;%(password)s&#34;,
+                 &#34;locale&#34;: &#34;en_US&#34;,
+                 &#34;os&#34;: &#34;Win32&#34;}
                  &#34;&#34;&#34;),
 
-    &#39;get_devtree&#39;: (&#34;GRP_GETVIRTUALGROUPIPSLISTDATA&#34;,
-                    &#34;&#34;&#34;{&#39;ITEMS&#39;: &#39;#{DC1 + DC2}&#39;,
-                        &#39;DID&#39;: &#39;1&#39;,
-                        &#39;HD&#39;: &#39;F&#39;,
-                        &#39;NS&#39;: &#39;0&#39;}
+    &#34;get_devtree&#34;: (&#34;GRP_GETVIRTUALGROUPIPSLISTDATA&#34;,
+                    &#34;&#34;&#34;{&#34;ITEMS&#34;: &#34;#{DC1 + DC2}&#34;,
+                        &#34;DID&#34;: &#34;1&#34;,
+                        &#34;HD&#34;: &#34;F&#34;,
+                        &#34;NS&#34;: &#34;0&#34;}
                     &#34;&#34;&#34;),
 
-    &#39;get_zones_devtree&#39;: (&#34;GRP_GETVIRTUALGROUPIPSLISTDATA&#34;,
-                    &#34;&#34;&#34;{&#39;ITEMS&#39;: &#39;#{DC1 + DC2}&#39;,
-                        &#39;DID&#39;: &#39;3&#39;,
-                        &#39;HD&#39;: &#39;F&#39;,
-                        &#39;NS&#39;: &#39;0&#39;}
+    &#34;get_zones_devtree&#34;: (&#34;GRP_GETVIRTUALGROUPIPSLISTDATA&#34;,
+                    &#34;&#34;&#34;{&#34;ITEMS&#34;: &#34;#{DC1 + DC2}&#34;,
+                        &#34;DID&#34;: &#34;3&#34;,
+                        &#34;HD&#34;: &#34;F&#34;,
+                        &#34;NS&#34;: &#34;0&#34;}
                     &#34;&#34;&#34;),
 
-    &#39;req_client_str&#39;: (&#34;DS_GETDSCLIENTLIST&#34;,
-                          &#34;&#34;&#34;{&#39;DSID&#39;: &#39;%(_ds_id)s&#39;,
-                              &#39;SEARCH&#39;: &#39;&#39;}
+    &#34;req_client_str&#34;: (&#34;DS_GETDSCLIENTLIST&#34;,
+                          &#34;&#34;&#34;{&#34;DSID&#34;: &#34;%(_ds_id)s&#34;,
+                              &#34;SEARCH&#34;: &#34;&#34;}
                           &#34;&#34;&#34;),
 
-    &#39;get_rfile&#39;: (&#34;MISC_READFILE&#34;,
-                 &#34;&#34;&#34;{&#39;FNAME&#39;: &#39;%(_ftoken)s&#39;,
-                 &#39;SPOS&#39;: &#39;0&#39;,
-                 &#39;NBYTES&#39;: &#39;0&#39;}
+    &#34;get_rfile&#34;: (&#34;MISC_READFILE&#34;,
+                 &#34;&#34;&#34;{&#34;FNAME&#34;: &#34;%(_ftoken)s&#34;,
+                 &#34;SPOS&#34;: &#34;0&#34;,
+                 &#34;NBYTES&#34;: &#34;0&#34;}
                  &#34;&#34;&#34;),
 
-    &#39;get_wfile&#39;: (&#34;MISC_WRITEFILE&#34;,
-                 &#34;&#34;&#34;{&#39;DATA1&#39;: &#39;%(_ds_id)s&#39;,
+    &#34;get_wfile&#34;: (&#34;MISC_WRITEFILE&#34;,
+                 &#34;&#34;&#34;{&#34;DATA1&#34;: &#34;%(_ds_id)s&#34;,
                  &#34;&#34;&#34;),
 
                  
                  
-    &#39;map_dtree&#39;: (&#34;map_dtree&#34;,
-                  &#34;&#34;&#34;{&#39;dev_type&#39;: &#39;%(dev_type)s&#39;,
-                  &#39;name&#39;: &#39;%(ds_name)s&#39;,
-                  &#39;ds_id&#39;: &#39;%(ds_id)s&#39;,
-                  &#39;enabled&#39;: &#39;%(enabled)s&#39;,
-                  &#39;ds_ip&#39;: &#39;%(ds_ip)s&#39;,
-                  &#39;hostname&#39; : &#39;%(hostname)s&#39;,
-                  &#39;typeID&#39;: &#39;%(type_id)s&#39;,
-                  &#39;vendor&#39;: &#39;&#39;,
-                  &#39;model&#39;: &#39;&#39;,
-                  &#39;tz_id&#39;: &#39;&#39;,
-                  &#39;date_order&#39;: &#39;&#39;,
-                  &#39;port&#39;: &#39;&#39;,
-                  &#39;syslog_tls&#39;: &#39;&#39;,
-                  &#39;client_groups&#39;: &#39;%(client_groups)s&#39;
+    &#34;map_dtree&#34;: (&#34;map_dtree&#34;,
+                  &#34;&#34;&#34;{&#34;dev_type&#34;: &#34;%(dev_type)s&#34;,
+                  &#34;name&#34;: &#34;%(ds_name)s&#34;,
+                  &#34;ds_id&#34;: &#34;%(ds_id)s&#34;,
+                  &#34;enabled&#34;: &#34;%(enabled)s&#34;,
+                  &#34;ds_ip&#34;: &#34;%(ds_ip)s&#34;,
+                  &#34;hostname&#34; : &#34;%(hostname)s&#34;,
+                  &#34;typeID&#34;: &#34;%(type_id)s&#34;,
+                  &#34;vendor&#34;: &#34;&#34;,
+                  &#34;model&#34;: &#34;&#34;,
+                  &#34;tz_id&#34;: &#34;&#34;,
+                  &#34;date_order&#34;: &#34;&#34;,
+                  &#34;port&#34;: &#34;&#34;,
+                  &#34;syslog_tls&#34;: &#34;&#34;,
+                  &#34;client_groups&#34;: &#34;%(client_groups)s&#34;
                   }
                   &#34;&#34;&#34;),
                  
-    &#39;add_ds&#39;: (&#34;dsAddDataSource&#34;, 
-                &#34;&#34;&#34;{&#39;datasource&#39;: {
-                        &#39;parentId&#39;: {&#39;id&#39;: &#39;%(parent_id)s&#39;},
-                        &#39;name&#39;: &#39;%(name)s&#39;,
-                        &#39;id&#39;: {&#39;id&#39;: &#39;%(ds_id)s&#39;},
-                        &#39;typeId&#39;: {&#39;id&#39;: &#39;%(type_id)s&#39;},
-                        &#39;childEnabled&#39;: &#39;%(child_enabled)s&#39;,
-                        &#39;childCount&#39;: &#39;%(child_count)s&#39;,
-                        &#39;childType&#39;: &#39;%(child_type)s&#39;,
-                        &#39;ipAddress&#39;: &#39;%(ds_ip)s&#39;,
-                        &#39;zoneId&#39;: &#39;%(zone_id)s&#39;,
-                        &#39;url&#39;: &#39;%(url)s&#39;,
-                        &#39;enabled&#39;: &#39;%(enabled)s&#39;,
-                        &#39;idmId&#39;: &#39;%(idm_id)s&#39;,
-                        &#39;parameters&#39;: %(parameters)s
+    &#34;add_ds&#34;: (&#34;dsAddDataSource&#34;, 
+                &#34;&#34;&#34;{&#34;datasource&#34;: {
+                        &#34;parentId&#34;: {&#34;id&#34;: &#34;%(parent_id)s&#34;},
+                        &#34;name&#34;: &#34;%(name)s&#34;,
+                        &#34;id&#34;: {&#34;id&#34;: &#34;%(ds_id)s&#34;},
+                        &#34;typeId&#34;: {&#34;id&#34;: &#34;%(type_id)s&#34;},
+                        &#34;childEnabled&#34;: &#34;%(child_enabled)s&#34;,
+                        &#34;childCount&#34;: &#34;%(child_count)s&#34;,
+                        &#34;childType&#34;: &#34;%(child_type)s&#34;,
+                        &#34;ipAddress&#34;: &#34;%(ds_ip)s&#34;,
+                        &#34;zoneId&#34;: &#34;%(zone_id)s&#34;,
+                        &#34;url&#34;: &#34;%(url)s&#34;,
+                        &#34;enabled&#34;: &#34;%(enabled)s&#34;,
+                        &#34;idmId&#34;: &#34;%(idm_id)s&#34;,
+                        &#34;parameters&#34;: %(parameters)s
                     }}&#34;&#34;&#34;),
 
-    &#39;add_client&#39;: (&#34;DS_ADDDSCLIENT&#34;, 
-                     &#34;&#34;&#34;{&#39;PID&#39;: &#39;%(parent_id)s&#39;,
-                     &#39;NAME&#39;: &#39;%(name)s&#39;,
-                     &#39;ENABLED&#39;: &#39;%(enabled)s&#39;,
-                     &#39;IP&#39;: &#39;%(ds_ip)s&#39;,
-                     &#39;HOST&#39;: &#39;%(hostname)s&#39;,
-                     &#39;TYPE&#39;: &#39;%(type_id)s&#39;,
-                     &#39;TZID&#39;: &#39;%(tz_id)s&#39;,
-                     &#39;DORDER&#39;: &#39;%(dorder)s&#39;,
-                     &#39;MASKFLAG&#39;: &#39;%(maskflag)s&#39;,
-                     &#39;PORT&#39;: &#39;%(port)s&#39;,
-                     &#39;USETLS&#39;: &#39;%(syslog_tls)s&#39;
+    &#34;add_client&#34;: (&#34;DS_ADDDSCLIENT&#34;, 
+                     &#34;&#34;&#34;{&#34;PID&#34;: &#34;%(parent_id)s&#34;,
+                     &#34;NAME&#34;: &#34;%(name)s&#34;,
+                     &#34;ENABLED&#34;: &#34;%(enabled)s&#34;,
+                     &#34;IP&#34;: &#34;%(ds_ip)s&#34;,
+                     &#34;HOST&#34;: &#34;%(hostname)s&#34;,
+                     &#34;TYPE&#34;: &#34;%(type_id)s&#34;,
+                     &#34;TZID&#34;: &#34;%(tz_id)s&#34;,
+                     &#34;DORDER&#34;: &#34;%(dorder)s&#34;,
+                     &#34;MASKFLAG&#34;: &#34;%(maskflag)s&#34;,
+                     &#34;PORT&#34;: &#34;%(port)s&#34;,
+                     &#34;USETLS&#34;: &#34;%(syslog_tls)s&#34;
                     }&#34;&#34;&#34;),
                     
-    &#39;get_recs&#39;: (&#34;devGetDeviceList?filterByRights=false&#34;,
-                     &#34;&#34;&#34;{&#39;types&#39;: [&#39;RECEIVER&#39;]}
+    &#34;get_recs&#34;: (&#34;devGetDeviceList?filterByRights=false&#34;,
+                     &#34;&#34;&#34;{&#34;types&#34;: [&#34;RECEIVER&#34;]}
                      &#34;&#34;&#34;),
 
-    &#39;get_dstypes&#39;: (&#34;dsGetDataSourceTypes&#34;,
-                     &#34;&#34;&#34;{&#39;receiverId&#39;: {&#39;id&#39;: &#39;%(rec_id)s&#39;}
+    &#34;get_dstypes&#34;: (&#34;dsGetDataSourceTypes&#34;,
+                     &#34;&#34;&#34;{&#34;receiverId&#34;: {&#34;id&#34;: &#34;%(rec_id)s&#34;}
                         }
                      &#34;&#34;&#34;),
                      
-    &#39;del_ds&#39;: (&#34;dsDeleteDataSource&#34;,
-                &#34;&#34;&#34;{&#39;receiverId&#39;: {&#39;id&#39;: &#39;%(parent_id)s&#39;},
-                    &#39;datasourceId&#39;: {&#39;id&#39;: &#39;%(ds_id)s&#39;}}
+    &#34;del_ds&#34;: (&#34;dsDeleteDataSource&#34;,
+                &#34;&#34;&#34;{&#34;receiverId&#34;: {&#34;id&#34;: &#34;%(parent_id)s&#34;},
+                    &#34;datasourceId&#34;: {&#34;id&#34;: &#34;%(ds_id)s&#34;}}
                  &#34;&#34;&#34;),
                  
-    &#39;del_client&#39;: (&#34;DS_DELETEDSCLIENTS&#34;,
-                    &#34;&#34;&#34;{}
-                    &#34;&#34;&#34;
+    &#34;del_client&#34;: (&#34;DS_DELETEDSCLIENTS&#34;,None
                     ),
                     
-    &#39;ds_last_times&#39;: (&#34;QRY%5FGETDEVICELASTALERTTIME&#34;,
-                      &#34;&#34;&#34;{}
-                      &#34;&#34;&#34;),
+    &#34;ds_last_times&#34;: (&#34;QRY%5FGETDEVICELASTALERTTIME&#34;,&#34;&#34;&#34;{}&#34;&#34;&#34;),
                       
-    &#39;zonetree&#39;: (&#34;zoneGetZoneTree&#34;,
-                      &#34;&#34;&#34;{}
-                      &#34;&#34;&#34;),
+    &#34;zonetree&#34;: (&#34;zoneGetZoneTree&#34;,None),
                       
-    &#39;ds_by_type&#39;: (&#34;QRY_GETDEVICECOUNTBYTYPE&#34;,
-                      &#34;&#34;&#34;{}
-                      &#34;&#34;&#34;),
+    &#34;ds_by_type&#34;: (&#34;QRY_GETDEVICECOUNTBYTYPE&#34;,None),
 
-   &#39;_dev_types&#39;:  (&#34;dev_type_map&#34;,
-                    &#34;&#34;&#34;{&#39;1&#39;: &#39;zone&#39;,
-                        &#39;2&#39;: &#39;ERC&#39;,
-                        &#39;3&#39;: &#39;datasource&#39;,
-                        &#39;4&#39;: &#39;Database Event Monitor (DBM)&#39;,
-                        &#39;5&#39;: &#39;DBM Database&#39;,
-                        &#39;7&#39;: &#39;Policy Auditor&#39;,
-                        &#39;10&#39;: &#39;Application Data Monitor (ADM)&#39;,
-                        &#39;12&#39;: &#39;ELM&#39;,
-                        &#39;14&#39;: &#39;Local ESM&#39;,
-                        &#39;15&#39;: &#39;Advanced Correlation Engine (ACE)&#39;,
-                        &#39;16&#39;: &#39;Asset datasource&#39;,
-                        &#39;17&#39;: &#39;Score-based Correlation&#39;,
-                        &#39;19&#39;: &#39;McAfee ePolicy Orchestrator (ePO)&#39;,
-                        &#39;20&#39;: &#39;EPO&#39;,
-                        &#39;21&#39;: &#39;McAfee Network Security Manager (NSM)&#39;,
-                        &#39;22&#39;: &#39;McAfee Network Security Platform (NSP)&#39;,
-                        &#39;23&#39;: &#39;NSP Port&#39;,
-                        &#39;24&#39;: &#39;McAfee Vulnerability Manager (MVM)&#39;,
-                        &#39;25&#39;: &#39;Enterprise Log Search (ELS)&#39;,
-                        &#39;254&#39;: &#39;client_group&#39;,
-                        &#39;256&#39;: &#39;client&#39;}
+   &#34;_dev_types&#34;:  (&#34;dev_type_map&#34;,
+                    &#34;&#34;&#34;{&#34;1&#34;: &#34;zone&#34;,
+                        &#34;2&#34;: &#34;ERC&#34;,
+                        &#34;3&#34;: &#34;datasource&#34;,
+                        &#34;4&#34;: &#34;Database Event Monitor (DBM)&#34;,
+                        &#34;5&#34;: &#34;DBM Database&#34;,
+                        &#34;7&#34;: &#34;Policy Auditor&#34;,
+                        &#34;10&#34;: &#34;Application Data Monitor (ADM)&#34;,
+                        &#34;12&#34;: &#34;ELM&#34;,
+                        &#34;14&#34;: &#34;Local ESM&#34;,
+                        &#34;15&#34;: &#34;Advanced Correlation Engine (ACE)&#34;,
+                        &#34;16&#34;: &#34;Asset datasource&#34;,
+                        &#34;17&#34;: &#34;Score-based Correlation&#34;,
+                        &#34;19&#34;: &#34;McAfee ePolicy Orchestrator (ePO)&#34;,
+                        &#34;20&#34;: &#34;EPO&#34;,
+                        &#34;21&#34;: &#34;McAfee Network Security Manager (NSM)&#34;,
+                        &#34;22&#34;: &#34;McAfee Network Security Platform (NSP)&#34;,
+                        &#34;23&#34;: &#34;NSP Port&#34;,
+                        &#34;24&#34;: &#34;McAfee Vulnerability Manager (MVM)&#34;,
+                        &#34;25&#34;: &#34;Enterprise Log Search (ELS)&#34;,
+                        &#34;254&#34;: &#34;client_group&#34;,
+                        &#34;256&#34;: &#34;client&#34;}
                     &#34;&#34;&#34;),
                     
-    &#39;ds_details&#39;: (&#34;dsGetDataSourceDetail&#34;,
-                    &#34;&#34;&#34;{&#39;datasourceId&#39;: 
-                        {&#39;id&#39;: &#39;%(ds_id)s&#39;}}
+    &#34;ds_details&#34;: (&#34;dsGetDataSourceDetail&#34;,
+                    &#34;&#34;&#34;{&#34;datasourceId&#34;: 
+                        {&#34;id&#34;: &#34;%(ds_id)s&#34;}}
                     &#34;&#34;&#34;),
 
-    &#39;get_alarms_custom_time&#39;: (&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;customStart=%(start_time)s&amp;customEnd=%(end_time)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s&#34;&#34;&#34;,
+    &#34;get_alarms_custom_time&#34;: (&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;customStart=%(start_time)s&amp;customEnd=%(end_time)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s&#34;&#34;&#34;,
                    None),
 
-    &#39;get_alarms&#39;: (&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s&#34;&#34;&#34;, None),
+    &#34;get_alarms&#34;: (&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s&#34;&#34;&#34;, None),
 
-    &#39;get_alarm_details&#39;: (&#34;&#34;&#34;notifyGetTriggeredNotification&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;id&#34;:%(id)s}&#34;&#34;&#34;),
+    &#34;get_alarm_details&#34;: (&#34;&#34;&#34;notifyGetTriggeredNotification&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;id&#34;:%(id)s}&#34;&#34;&#34;),
 
-    &#39;ack_alarms&#39;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
+    &#34;ack_alarms&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
 
-    &#39;unack_alarms&#39;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
+    &#34;unack_alarms&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
 
-    &#39;delete_alarms&#39;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
+    &#34;delete_alarms&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
     
-    &#39;get_possible_filters&#39; : ( &#34;&#34;&#34;qryGetFilterFields&#34;&#34;&#34;, None ),
+    &#34;get_possible_filters&#34; : ( &#34;&#34;&#34;qryGetFilterFields&#34;&#34;&#34;, None ),
 
-    &#39;get_possible_fields&#39; : ( &#34;&#34;&#34;qryGetSelectFields?type=%(type)s&amp;groupType=%(groupType)s&#34;&#34;&#34;, None ),
+    &#34;get_possible_fields&#34; : ( &#34;&#34;&#34;qryGetSelectFields?type=%(type)s&amp;groupType=%(groupType)s&#34;&#34;&#34;, None ),
 
-    &#39;get_esm_time&#39; : ( &#34;&#34;&#34;essmgtGetESSTime&#34;&#34;&#34;,None),
+    &#34;get_esm_time&#34; : ( &#34;&#34;&#34;essmgtGetESSTime&#34;&#34;&#34;,None),
 
-    &#39;logout&#39; : ( &#34;&#34;&#34;userLogout&#34;&#34;&#34;, None ),
+    &#34;logout&#34; : ( &#34;&#34;&#34;userLogout&#34;&#34;&#34;, None ),
 
-    &#39;get_user_locale&#39; : ( &#34;&#34;&#34;getUserLocale&#34;&#34;&#34;, None ),
+    &#34;get_user_locale&#34; : ( &#34;&#34;&#34;getUserLocale&#34;&#34;&#34;, None ),
 
-    &#39;event_query_custom_time&#39; : (&#34;&#34;&#34;qryExecuteDetail?type=EVENT&amp;reverse=false&#34;&#34;&#34;, &#34;&#34;&#34;{
+    &#34;event_query_custom_time&#34; : (&#34;&#34;&#34;qryExecuteDetail?type=EVENT&amp;reverse=false&#34;&#34;&#34;, &#34;&#34;&#34;{
             &#34;config&#34;: {
                 &#34;timeRange&#34;: &#34;%(time_range)s&#34;,
                 &#34;customStart&#34;: &#34;%(start_time)s&#34;,
@@ -251,7 +246,7 @@ PARAMS = {
                 }
                 }&#34;&#34;&#34;),
 
-    &#39;event_query&#39; : (&#34;&#34;&#34;qryExecuteDetail?type=EVENT&amp;reverse=false&#34;&#34;&#34;, &#34;&#34;&#34;{
+    &#34;event_query&#34; : (&#34;&#34;&#34;qryExecuteDetail?type=EVENT&amp;reverse=false&#34;&#34;&#34;, &#34;&#34;&#34;{
             &#34;config&#34;: {
                 &#34;timeRange&#34;:&#34;%(time_range)s&#34;,
                 &#34;fields&#34;:%(fields)s,
@@ -261,36 +256,36 @@ PARAMS = {
                 }
                 }&#34;&#34;&#34;),
 
-    &#39;query_status&#39; : (&#34;&#34;&#34;qryGetStatus&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;resultID&#34;: %(resultID)s}&#34;&#34;&#34;),
+    &#34;query_status&#34; : (&#34;&#34;&#34;qryGetStatus&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;resultID&#34;: %(resultID)s}&#34;&#34;&#34;),
 
-    &#39;query_result&#39; : (&#34;&#34;&#34;qryGetResults?startPos=%(startPos)s&amp;numRows=%(numRows)s&amp;reverse=false&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;resultID&#34;: %(resultID)s}&#34;&#34;&#34;),
+    &#34;query_result&#34; : (&#34;&#34;&#34;qryGetResults?startPos=%(startPos)s&amp;numRows=%(numRows)s&amp;reverse=false&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;resultID&#34;: %(resultID)s}&#34;&#34;&#34;),
     
-    &#39;time_zones&#39; : (&#34;&#34;&#34;userGetTimeZones&#34;&#34;&#34;, None),
+    &#34;time_zones&#34; : (&#34;&#34;&#34;userGetTimeZones&#34;&#34;&#34;, None),
 
-    &#39;logout&#39; : (&#34;&#34;&#34;logout&#34;&#34;&#34;, None),
+    &#34;logout&#34; : (&#34;&#34;&#34;logout&#34;&#34;&#34;, None),
     
-    &#39;add_note_to_event&#39; : (&#34;&#34;&#34;ipsAddAlertNote&#34;&#34;&#34;, &#34;&#34;&#34;{
+    &#34;add_note_to_event&#34; : (&#34;&#34;&#34;ipsAddAlertNote&#34;&#34;&#34;, &#34;&#34;&#34;{
         &#34;id&#34;: {&#34;value&#34;: &#34;%(id)s&#34;},
         &#34;note&#34;: {&#34;note&#34;: &#34;%(note)s&#34;}
     }&#34;&#34;&#34;),
 
-    &#39;get_watchlists_no_filters&#39; : (&#34;&#34;&#34;sysGetWatchlists?hidden=%(hidden)s&amp;dynamic=%(dynamic)s&amp;writeOnly=%(writeOnly)s&amp;indexedOnly=%(indexedOnly)s&#34;&#34;&#34;, 
+    &#34;get_watchlists_no_filters&#34; : (&#34;&#34;&#34;sysGetWatchlists?hidden=%(hidden)s&amp;dynamic=%(dynamic)s&amp;writeOnly=%(writeOnly)s&amp;indexedOnly=%(indexedOnly)s&#34;&#34;&#34;, 
           None),
 
-    &#39;get_watchlist_details&#39;: (&#34;&#34;&#34;sysGetWatchlistDetails&#34;&#34;&#34;,&#34;&#34;&#34;{&#34;id&#34;: %(id)s}&#34;&#34;&#34;),
+    &#34;get_watchlist_details&#34;: (&#34;&#34;&#34;sysGetWatchlistDetails&#34;&#34;&#34;,&#34;&#34;&#34;{&#34;id&#34;: %(id)s}&#34;&#34;&#34;),
 
-    &#39;add_watchlist_values&#39;: (&#34;&#34;&#34;sysAddWatchlistValues&#34;&#34;&#34;,&#34;&#34;&#34;{
+    &#34;add_watchlist_values&#34;: (&#34;&#34;&#34;sysAddWatchlistValues&#34;&#34;&#34;,&#34;&#34;&#34;{
         &#34;watchlist&#34;: %(id)s,
         &#34;values&#34;: %(values)s,
         }&#34;&#34;&#34;),
 
-    &#39;get_watchlist_values&#39;: (&#34;&#34;&#34;sysGetWatchlistValues?pos=%(pos)s&amp;count=%(count)s&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;file&#34;: {&#34;id&#34;: &#34;%(id)s&#34;}}&#34;&#34;&#34;),
+    &#34;get_watchlist_values&#34;: (&#34;&#34;&#34;sysGetWatchlistValues?pos=%(pos)s&amp;count=%(count)s&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;file&#34;: {&#34;id&#34;: &#34;%(id)s&#34;}}&#34;&#34;&#34;),
 
-    &#39;get_alert_data&#39;: (&#34;&#34;&#34;ipsGetAlertData&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;id&#34;: &#34;%(id)s&#34;}&#34;&#34;&#34;),
+    &#34;get_alert_data&#34;: (&#34;&#34;&#34;ipsGetAlertData&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;id&#34;: &#34;%(id)s&#34;}&#34;&#34;&#34;),
     
-    &#39;get_sys_info&#39;  : (&#39;sysGetSysInfo&#39;,None),
+    &#34;get_sys_info&#34;  : (&#34;sysGetSysInfo&#34;,None),
     
-    &#39;build_stamp&#39; : (&#39;essmgtGetBuildStamp&#39;,None)
+    &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
 }</code></pre>
 </details>
 </section>

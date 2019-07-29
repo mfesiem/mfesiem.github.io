@@ -31,15 +31,15 @@ import datetime
 import logging
 log = logging.getLogger(&#39;msiempy&#39;)
 
-from . import Item, NitroError
-from .query import QueryManager, FieldFilter, GroupFilter, QueryFilter
+from . import NitroDict, NitroError
+from .query import FilteredQueryList, FieldFilter, GroupFilter, QueryFilter
 from .utils import timerange_gettimes, parse_query_result, format_fields_for_query
 
-class EventManager(QueryManager):
+class EventManager(FilteredQueryList):
     &#34;&#34;&#34;
     EventManager class.
     Interface to query and manage events.
-    Inherits from QueryManager.
+    Inherits from FilteredQueryList.
     &#34;&#34;&#34; 
 
     #Constants
@@ -75,7 +75,7 @@ class EventManager(QueryManager):
             filters : list of tuple (field [values])
             compute_time_range : False if you want to send the actualy time_range in parameter for the initial query.
                 Defaulted to True cause the query splitting implies computing the time_range anyway.
-            *args, **kwargs : Parameters passed to `msiempy.base.QueryManager.__init__()`
+            *args, **kwargs : Parameters passed to `msiempy.base.FilteredQueryList.__init__()`
            
             
             Examples
@@ -197,7 +197,7 @@ class EventManager(QueryManager):
 
     def add_filter(self, afilter):
         &#34;&#34;&#34;
-        Concrete description of the QueryManager method.
+        Concrete description of the FilteredQueryList method.
         It can take a tuple(fiels, [values]) or a QueryFilter sub class.
         &#34;&#34;&#34;
         if isinstance(afilter, tuple) :
@@ -357,7 +357,7 @@ class EventManager(QueryManager):
         #log.debug(&#34;Events parsed : &#34;+str(events))
         return events
           
-class Event(Item):
+class Event(NitroDict):
     &#34;&#34;&#34;
     Event.
     You can see all the requested fields and have some 
@@ -470,13 +470,19 @@ class Event(Item):
         Desctructive action. It&#39;s actually going to replace the note !
         Add a new note in the note field.
         &#34;&#34;&#34;
-        self.nitro.request(&#34;add_note_to_event&#34;, id=self.data[&#34;Alert.IPSIDAlertID&#34;], note=&#34;msiempy note at {} : {}&#34;.format(str(datetime.datetime.now()),note))
+        if len(note) &gt;= 4000:
+            log.warning(&#34;The note is longer than 4000 characters, only the first 4000 characters will be kept. The maximum accepted by the SIEM is 4096 characters.&#34;)
+            note=note[:4000]+&#39;\n\n----- MAXIMUM NOTE LENGHT REACHED, THE NOTE HAS BEEN TRUNCATED (sorry) -----&#39;
+
+        self.nitro.request(&#34;add_note_to_event&#34;, 
+            id=self.data[&#34;Alert.IPSIDAlertID&#34;],
+            note=&#34;NOTE (msiempy-{}) : \\n{}&#34;.format(
+                str(datetime.datetime.now()),
+                note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)))
         
     def data_from_id(self, id):
         &#34;&#34;&#34;EsmAlertData wrapper&#34;&#34;&#34;
-        return self.nitro.request(&#39;get_alert_data&#39;, id=id)
-        
-    </code></pre>
+        return self.nitro.request(&#39;get_alert_data&#39;, id=id)</code></pre>
 </details>
 </section>
 <section>
@@ -513,7 +519,7 @@ interaction - note only - with the events</p>
 and update dict values accordingly.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class Event(Item):
+<pre><code class="python">class Event(NitroDict):
     &#34;&#34;&#34;
     Event.
     You can see all the requested fields and have some 
@@ -626,7 +632,15 @@ and update dict values accordingly.</p></section>
         Desctructive action. It&#39;s actually going to replace the note !
         Add a new note in the note field.
         &#34;&#34;&#34;
-        self.nitro.request(&#34;add_note_to_event&#34;, id=self.data[&#34;Alert.IPSIDAlertID&#34;], note=&#34;msiempy note at {} : {}&#34;.format(str(datetime.datetime.now()),note))
+        if len(note) &gt;= 4000:
+            log.warning(&#34;The note is longer than 4000 characters, only the first 4000 characters will be kept. The maximum accepted by the SIEM is 4096 characters.&#34;)
+            note=note[:4000]+&#39;\n\n----- MAXIMUM NOTE LENGHT REACHED, THE NOTE HAS BEEN TRUNCATED (sorry) -----&#39;
+
+        self.nitro.request(&#34;add_note_to_event&#34;, 
+            id=self.data[&#34;Alert.IPSIDAlertID&#34;],
+            note=&#34;NOTE (msiempy-{}) : \\n{}&#34;.format(
+                str(datetime.datetime.now()),
+                note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)))
         
     def data_from_id(self, id):
         &#34;&#34;&#34;EsmAlertData wrapper&#34;&#34;&#34;
@@ -634,7 +648,7 @@ and update dict values accordingly.</p></section>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.Item" href="index.html#msiempy.Item">Item</a></li>
+<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
 <li>collections.UserDict</li>
 <li>collections.abc.MutableMapping</li>
 <li>collections.abc.Mapping</li>
@@ -671,7 +685,15 @@ Add a new note in the note field.</p></section>
     Desctructive action. It&#39;s actually going to replace the note !
     Add a new note in the note field.
     &#34;&#34;&#34;
-    self.nitro.request(&#34;add_note_to_event&#34;, id=self.data[&#34;Alert.IPSIDAlertID&#34;], note=&#34;msiempy note at {} : {}&#34;.format(str(datetime.datetime.now()),note))</code></pre>
+    if len(note) &gt;= 4000:
+        log.warning(&#34;The note is longer than 4000 characters, only the first 4000 characters will be kept. The maximum accepted by the SIEM is 4096 characters.&#34;)
+        note=note[:4000]+&#39;\n\n----- MAXIMUM NOTE LENGHT REACHED, THE NOTE HAS BEEN TRUNCATED (sorry) -----&#39;
+
+    self.nitro.request(&#34;add_note_to_event&#34;, 
+        id=self.data[&#34;Alert.IPSIDAlertID&#34;],
+        note=&#34;NOTE (msiempy-{}) : \\n{}&#34;.format(
+            str(datetime.datetime.now()),
+            note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)))</code></pre>
 </details>
 </dd>
 <dt id="msiempy.event.Event.clear_notes"><code class="name flex">
@@ -705,12 +727,12 @@ Replace the notes by an empty string.</p></section>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.Item" href="index.html#msiempy.Item">Item</a></b></code>:
+<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.Item.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.Item.json" href="index.html#msiempy.Item.json">json</a></code></li>
-<li><code><a title="msiempy.Item.refresh" href="index.html#msiempy.Item.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.Item.text" href="index.html#msiempy.Item.text">text</a></code></li>
+<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
+<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -722,7 +744,7 @@ Replace the notes by an empty string.</p></section>
 <dd>
 <section class="desc"><p>EventManager class.
 Interface to query and manage events.
-Inherits from QueryManager.</p>
+Inherits from FilteredQueryList.</p>
 <h1 id="params">Params</h1>
 <p>fields : list of strings representing all fields you want to apprear in the Events records.
 Get the list of possible fields by calling EventManager.get_possible_fields() method.
@@ -739,7 +761,7 @@ Structure must be in correct format</p>
 filters : list of tuple (field [values])
 compute_time_range : False if you want to send the actualy time_range in parameter for the initial query.
 Defaulted to True cause the query splitting implies computing the time_range anyway.
-<em>args, </em>*kwargs : Parameters passed to <code>msiempy.base.QueryManager.__init__()</code></p>
+<em>args, </em>*kwargs : Parameters passed to <code>msiempy.base.FilteredQueryList.__init__()</code></p>
 <p>Examples
 ========</p>
 <p>(1) To delete a default field
@@ -761,11 +783,11 @@ Equlas :
 &gt;&gt;&gt;em.load_data()</code></p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class EventManager(QueryManager):
+<pre><code class="python">class EventManager(FilteredQueryList):
     &#34;&#34;&#34;
     EventManager class.
     Interface to query and manage events.
-    Inherits from QueryManager.
+    Inherits from FilteredQueryList.
     &#34;&#34;&#34; 
 
     #Constants
@@ -801,7 +823,7 @@ Equlas :
             filters : list of tuple (field [values])
             compute_time_range : False if you want to send the actualy time_range in parameter for the initial query.
                 Defaulted to True cause the query splitting implies computing the time_range anyway.
-            *args, **kwargs : Parameters passed to `msiempy.base.QueryManager.__init__()`
+            *args, **kwargs : Parameters passed to `msiempy.base.FilteredQueryList.__init__()`
            
             
             Examples
@@ -923,7 +945,7 @@ Equlas :
 
     def add_filter(self, afilter):
         &#34;&#34;&#34;
-        Concrete description of the QueryManager method.
+        Concrete description of the FilteredQueryList method.
         It can take a tuple(fiels, [values]) or a QueryFilter sub class.
         &#34;&#34;&#34;
         if isinstance(afilter, tuple) :
@@ -1085,8 +1107,8 @@ Equlas :
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.query.QueryManager" href="query.html#msiempy.query.QueryManager">QueryManager</a></li>
-<li><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></li>
+<li><a title="msiempy.query.FilteredQueryList" href="query.html#msiempy.query.FilteredQueryList">FilteredQueryList</a></li>
+<li><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></li>
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
 <li>collections.abc.Sequence</li>
@@ -1162,13 +1184,13 @@ def time_range(self):
 <span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Concrete description of the QueryManager method.
+<section class="desc"><p>Concrete description of the FilteredQueryList method.
 It can take a tuple(fiels, [values]) or a QueryFilter sub class.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def add_filter(self, afilter):
     &#34;&#34;&#34;
-    Concrete description of the QueryManager method.
+    Concrete description of the FilteredQueryList method.
     It can take a tuple(fiels, [values]) or a QueryFilter sub class.
     &#34;&#34;&#34;
     if isinstance(afilter, tuple) :
@@ -1256,21 +1278,21 @@ kwargs are passed to super().load_data()</p></section>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.query.QueryManager" href="query.html#msiempy.query.QueryManager">QueryManager</a></b></code>:
+<li><code><b><a title="msiempy.query.FilteredQueryList" href="query.html#msiempy.query.FilteredQueryList">FilteredQueryList</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.query.QueryManager.DEFAULT_TIME_RANGE" href="query.html#msiempy.query.QueryManager.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.POSSIBLE_TIME_RANGE" href="query.html#msiempy.query.QueryManager.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.end_time" href="query.html#msiempy.query.QueryManager.end_time">end_time</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.get_text" href="index.html#msiempy.Manager.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.json" href="index.html#msiempy.Manager.json">json</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.keys" href="index.html#msiempy.Manager.keys">keys</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.perform" href="index.html#msiempy.Manager.perform">perform</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.refresh" href="index.html#msiempy.Manager.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.search" href="index.html#msiempy.Manager.search">search</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.start_time" href="query.html#msiempy.query.QueryManager.start_time">start_time</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.table_colums" href="index.html#msiempy.Manager.table_colums">table_colums</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.text" href="index.html#msiempy.Manager.text">text</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE" href="query.html#msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="query.html#msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.end_time" href="query.html#msiempy.query.FilteredQueryList.end_time">end_time</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.start_time" href="query.html#msiempy.query.FilteredQueryList.start_time">start_time</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.table_colums" href="index.html#msiempy.NitroList.table_colums">table_colums</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
 </ul>
 </li>
 </ul>

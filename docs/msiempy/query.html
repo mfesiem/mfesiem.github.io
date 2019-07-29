@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
 <title>msiempy.query API documentation</title>
-<meta name="description" content="Module that provide time ranged filtered query wrapper. QueryManager is an abstract object." />
+<meta name="description" content="Module that provide time ranged filtered query wrapper. FilteredQueryList is an abstract object." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,10 +20,10 @@
 <h1 class="title">Module <code>msiempy.query</code></h1>
 </header>
 <section id="section-intro">
-<p>Module that provide time ranged filtered query wrapper. QueryManager is an abstract object.</p>
+<p>Module that provide time ranged filtered query wrapper. FilteredQueryList is an abstract object.</p>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">&#34;&#34;&#34;Module that provide time ranged filtered query wrapper. QueryManager is an abstract object.
+<pre><code class="python">&#34;&#34;&#34;Module that provide time ranged filtered query wrapper. FilteredQueryList is an abstract object.
 &#34;&#34;&#34;
 
 import datetime
@@ -33,13 +33,13 @@ import json
 import logging
 log = logging.getLogger(&#39;msiempy&#39;)
 
-from . import Manager, NitroError, NitroObject
+from . import NitroList, NitroError, NitroObject
 from .utils import format_esm_time, convert_to_time_obj, timerange_gettimes, parse_timedelta, divide_times
 
-class QueryManager(Manager):
+class FilteredQueryList(NitroList):
     &#34;&#34;&#34;
     Base class for query based managers : AlarmManager, EventManager
-    QueryManager object can handle time_ranges and time splitting.
+    FilteredQueryList object can handle time_ranges and time splitting.
     &#34;&#34;&#34;
     
     DEFAULT_TIME_RANGE=&#34;CURRENT_DAY&#34;
@@ -97,7 +97,7 @@ class QueryManager(Manager):
         Params
         `
             time_range : Query time range. String representation of a time range. 
-                See `msiempy.base.QueryManager.POSSIBLE_TIME_RANGE`
+                See `msiempy.base.FilteredQueryList.POSSIBLE_TIME_RANGE`
             start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
             end_time : Query endding time, can be a string or a datetime object. Parsed with dateutil.
             filters : List of filters applied to the query
@@ -153,7 +153,7 @@ class QueryManager(Manager):
     @property
     def time_range(self):
         &#34;&#34;&#34;
-        Returns the query time range. See `msiempy.query.QueryManager.POSSIBLE_TIME_RANGE`.
+        Returns the query time range. See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
         Return &#39;CUSTOM&#39; if internal _time_range is None and start_time annd end_time are set.
         &#34;&#34;&#34;
         &#34;&#34;&#34;if self.start_time is not None and self.end_time is not None :
@@ -183,7 +183,7 @@ class QueryManager(Manager):
     def time_range(self, time_range):
         &#34;&#34;&#34;
         Set the time range of the query to the specified string value. 
-        Defaulf `msiempy.queryQueryManager.DEFAULT_TIME_RANGE`.
+        Defaulf `msiempy.queryFilteredQueryList.DEFAULT_TIME_RANGE`.
         Note : the time range is upper cased automatically.
         Throw VallueError if unrecognized time range.
         &#34;&#34;&#34;
@@ -251,7 +251,7 @@ class QueryManager(Manager):
     @filters.setter
     def filters(self, filters):
         &#34;&#34;&#34;Query filters property : can be a list of tuple(field, [values]) 
-            or just a tuple. None value will call `msiempy.query.QueryManager.clear_filters()`
+            or just a tuple. None value will call `msiempy.query.FilteredQueryList.clear_filters()`
         Throws AttributeError if type not supported.
         &#34;&#34;&#34;
         
@@ -300,10 +300,10 @@ class QueryManager(Manager):
         Secondly, if the sub queries are not completed, divide them in the number of `slots`, this step is
         If you&#39;re looking foe `max_query_depth`, it&#39;s define at the creation of the query manager
 
-        Returns a QueryManager.
+        Returns a FilteredQueryList.
         
         Note :
-            IF you looking for load_async = True/False, you should pass thid to the constructor method `msiempy.query.QueryManager`
+            IF you looking for load_async = True/False, you should pass thid to the constructor method `msiempy.query.FilteredQueryList`
                 or by setting the attribute manually like `manager.load_asynch=True`
             Only the first query is loaded asynchronously.
 
@@ -358,7 +358,7 @@ class QueryManager(Manager):
                     sub_queries.append(sub_query)
 
             
-                results = self.perform(QueryManager.load_data, sub_queries, 
+                results = self.perform(FilteredQueryList.load_data, sub_queries, 
                     #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
                     asynch=False if not self.load_async else (self.__parent__==None),
                     progress=self.__parent__==None, 
@@ -375,7 +375,7 @@ class QueryManager(Manager):
                     self.__root_parent__.not_completed=True
 
         self.data=items
-        return(Manager(alist=items)) #return self ?
+        return(NitroList(alist=items)) #return self ?
 
 class QueryFilter(NitroObject):
 
@@ -959,6 +959,646 @@ values=['.*']}</p></section>
 </li>
 </ul>
 </dd>
+<dt id="msiempy.query.FilteredQueryList"><code class="flex name class">
+<span>class <span class="ident">FilteredQueryList</span></span>
+<span>(</span><span>time_range=None, start_time=None, end_time=None, filters=None, load_async=True, requests_size=500, max_query_depth=0, *arg, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class for query based managers : AlarmManager, EventManager
+FilteredQueryList object can handle time_ranges and time splitting.</p>
+<p>Abstract base class that handles the time ranges operations, loading data from the SIEM.</p>
+<p>Params
+<code>time_range : Query time range. String representation of a time range.
+See</code>msiempy.base.FilteredQueryList.POSSIBLE_TIME_RANGE<code>start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
+end_time : Query endding time, can be a string or a datetime object. Parsed with dateutil.
+filters : List of filters applied to the query
+max_query_depth : maximum number of supplement reccursions of division of the query times
+Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of
+the list is (500*5)*(500*5)*(500*5) = 15625000000
+load_async : Load asynchonously the sub-queries. Defaulted to True.</code></p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class FilteredQueryList(NitroList):
+    &#34;&#34;&#34;
+    Base class for query based managers : AlarmManager, EventManager
+    FilteredQueryList object can handle time_ranges and time splitting.
+    &#34;&#34;&#34;
+    
+    DEFAULT_TIME_RANGE=&#34;CURRENT_DAY&#34;
+    &#34;&#34;&#34;
+    If you don&#39;t specify any `time_range`, act like if it was &#34;CURRENT_DAY&#34;.
+    &#34;&#34;&#34;
+
+    POSSIBLE_TIME_RANGE=[
+            &#34;CUSTOM&#34;,
+            &#34;LAST_MINUTE&#34;,
+            &#34;LAST_10_MINUTES&#34;,
+            &#34;LAST_30_MINUTES&#34;,
+            &#34;LAST_HOUR&#34;,
+            &#34;CURRENT_DAY&#34;,
+            &#34;PREVIOUS_DAY&#34;,
+            &#34;LAST_24_HOURS&#34;,
+            &#34;LAST_2_DAYS&#34;,
+            &#34;LAST_3_DAYS&#34;,
+            &#34;CURRENT_WEEK&#34;,
+            &#34;PREVIOUS_WEEK&#34;,
+            &#34;CURRENT_MONTH&#34;,
+            &#34;PREVIOUS_MONTH&#34;,
+            &#34;CURRENT_QUARTER&#34;,
+            &#34;PREVIOUS_QUARTER&#34;,
+            &#34;CURRENT_YEAR&#34;,
+            &#34;PREVIOUS_YEAR&#34;
+    ]
+    &#34;&#34;&#34;
+    List of possible time ranges : &#34;CUSTOM&#34;,
+            &#34;LAST_MINUTE&#34;,
+            &#34;LAST_10_MINUTES&#34;,
+            &#34;LAST_30_MINUTES&#34;,
+            &#34;LAST_HOUR&#34;,
+            &#34;CURRENT_DAY&#34;,
+            &#34;PREVIOUS_DAY&#34;,
+            &#34;LAST_24_HOURS&#34;,
+            &#34;LAST_2_DAYS&#34;,
+            &#34;LAST_3_DAYS&#34;,
+            &#34;CURRENT_WEEK&#34;,
+            &#34;PREVIOUS_WEEK&#34;,
+            &#34;CURRENT_MONTH&#34;,
+            &#34;PREVIOUS_MONTH&#34;,
+            &#34;CURRENT_QUARTER&#34;,
+            &#34;PREVIOUS_QUARTER&#34;,
+            &#34;CURRENT_YEAR&#34;,
+            &#34;PREVIOUS_YEAR&#34;
+    &#34;&#34;&#34;
+
+    def __init__(self, time_range=None, start_time=None, end_time=None, filters=None, 
+        load_async=True, requests_size=500, max_query_depth=0,
+            __parent__=None, *arg, **kwargs):
+        &#34;&#34;&#34;
+        Abstract base class that handles the time ranges operations, loading data from the SIEM.
+
+        Params
+        `
+            time_range : Query time range. String representation of a time range. 
+                See `msiempy.base.FilteredQueryList.POSSIBLE_TIME_RANGE`
+            start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
+            end_time : Query endding time, can be a string or a datetime object. Parsed with dateutil.
+            filters : List of filters applied to the query
+            max_query_depth : maximum number of supplement reccursions of division of the query times
+                Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
+                the list is (500*5)*(500*5)*(500*5) = 15625000000
+            load_async : Load asynchonously the sub-queries. Defaulted to True.
+        `
+        &#34;&#34;&#34;
+
+        super().__init__(*arg, **kwargs)
+
+        #Store the query parent 
+        self.__parent__=__parent__
+        self.not_completed=False
+
+        #self.nitro.config.default_rows #nb rows per request : eq limit/page_size = requests_size
+        #self.nitro.config.max_rows #max nb rows 
+
+        #Declaring attributes and types
+        self._time_range=str()
+        self._start_time=None
+        self._end_time=None
+
+        #self.filters=filters filter property setter should be called in the concrete class
+        #TODO find a better solution to integrate the filter propertie
+
+        self.load_async=load_async
+
+        if start_time is not None and end_time is not None :
+            self.start_time=start_time
+            self.end_time=end_time
+            self.time_range=&#39;CUSTOM&#39;
+        else :
+            self.time_range=time_range
+
+        self.load_async=load_async
+        self.requests_size=requests_size
+        self.__init_max_query_depth__=max_query_depth
+        self.query_depth_ttl=max_query_depth
+
+
+    @property
+    def __root_parent__(self):
+        &#34;&#34;&#34;
+        Internal method that return the first query of the query tree
+        &#34;&#34;&#34;
+        if self.__parent__==None:
+            return self
+        else :
+            return self.__parent__.__root_parent__
+
+    @property
+    def time_range(self):
+        &#34;&#34;&#34;
+        Returns the query time range. See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+        Return &#39;CUSTOM&#39; if internal _time_range is None and start_time annd end_time are set.
+        &#34;&#34;&#34;
+        &#34;&#34;&#34;if self.start_time is not None and self.end_time is not None :
+            return(&#39;CUSTOM&#39;)
+        else :&#34;&#34;&#34;
+        return self._time_range.upper()
+
+    @property
+    def start_time(self):
+        &#34;&#34;&#34;
+        Return the start time of the query in the right SIEM format.
+            See `msiempy.utils.format_esm_time()`
+        Use _start_time to get the datetime object
+        &#34;&#34;&#34;
+        return format_esm_time(self._start_time)
+
+    @property
+    def end_time(self):
+        &#34;&#34;&#34;
+        Return the end time of the query in the right SIEM format.
+            See `msiempy.utils.format_esm_time()`
+        Use _end_time to get the datetime object
+        &#34;&#34;&#34;
+        return format_esm_time(self._end_time)
+
+    @time_range.setter
+    def time_range(self, time_range):
+        &#34;&#34;&#34;
+        Set the time range of the query to the specified string value. 
+        Defaulf `msiempy.queryFilteredQueryList.DEFAULT_TIME_RANGE`.
+        Note : the time range is upper cased automatically.
+        Throw VallueError if unrecognized time range.
+        &#34;&#34;&#34;
+
+        if not time_range :
+            self.time_range=self.DEFAULT_TIME_RANGE
+
+        elif isinstance(time_range, str):
+            time_range=time_range.upper()
+            if time_range in self.POSSIBLE_TIME_RANGE :
+                if time_range != &#39;CUSTOM&#39;:
+                    self.start_time=None
+                    self.end_time=None
+                self._time_range=time_range
+            else:
+                raise ValueError(&#34;The time range must be in &#34;+str(self.POSSIBLE_TIME_RANGE))
+        else:
+            raise ValueError(&#39;time_range must be a string or None&#39;)
+
+    
+    @start_time.setter
+    def start_time(self, start_time):
+        &#34;&#34;&#34;
+        Set the time start of the query.
+        start_time can be a string or a datetime.
+        If None, equivalent current_day start 00:00:00.
+        &#34;&#34;&#34;
+        
+        
+        if isinstance(start_time, str):
+            self.start_time = convert_to_time_obj(start_time)
+        elif isinstance(start_time, datetime.datetime):
+            self._start_time = start_time
+        elif start_time==None:
+             self._start_time=None#raise ValueError(&#34;Time must be string or datetime object, not None&#34;)#self.start_time = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        else:
+            raise ValueError(&#34;Time must be string or datetime object.&#34;)
+                
+    
+    @end_time.setter
+    def end_time(self, end_time):
+        &#34;&#34;&#34;
+        Set the time end of the query.
+        end_time can be a string or a datetime.
+        If None, equivalent now.
+        &#34;&#34;&#34;
+       
+        if isinstance(end_time, str):
+            self.end_time = convert_to_time_obj(end_time)
+        elif isinstance(end_time, datetime.datetime):
+            self._end_time = end_time
+        elif end_time==None:
+             self._end_time=None#raise ValueError(&#34;Time must be string or datetime object, not None&#34;)
+        else:
+            raise ValueError(&#34;Time must be string or datetime object.&#34;)
+
+    @abc.abstractproperty
+    def filters(self):
+        &#34;&#34;&#34; 
+        Filter propertie getter. Returns a list of filters.
+        TODO find a better solution to integrate the filter propertie
+        &#34;&#34;&#34;
+        raise NotImplementedError()
+
+    @filters.setter
+    def filters(self, filters):
+        &#34;&#34;&#34;Query filters property : can be a list of tuple(field, [values]) 
+            or just a tuple. None value will call `msiempy.query.FilteredQueryList.clear_filters()`
+        Throws AttributeError if type not supported.
+        &#34;&#34;&#34;
+        
+        if isinstance(filters, list):
+            for f in filters :
+                self.add_filter(f)
+
+        elif isinstance(filters, tuple):
+            self.add_filter(filters)
+
+        elif filters == None :
+            self.clear_filters()
+        
+        else :
+            raise AttributeError(&#34;Illegal type for the filter object, it must be a list, a tuple or None.&#34;)
+
+    
+    @abc.abstractmethod
+    def add_filter(self, filter):
+        &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
+        &#34;&#34;&#34;
+        pass
+
+    @abc.abstractmethod
+    def clear_filters(self):
+        &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
+        &#34;&#34;&#34;
+        pass 
+
+    @abc.abstractmethod
+    def _load_data(self, workers):
+        &#34;&#34;&#34;
+        Rturn a tuple (items, completed).
+        completed = True if all the data that should be load is loaded.
+        &#34;&#34;&#34;
+        pass
+
+    @abc.abstractmethod
+    def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
+        &#34;&#34;&#34;
+        Method to load the data from the SIEM
+        Split the query in defferents time slots if the query apprears not to be completed.
+        Splitting is done by duplicating current object, setting different times,
+        and re-loading results. First your query time is split in slots of size `delta` 
+        in [performance] section of the config and launch asynchronously in queue of length `max_workers`.
+        Secondly, if the sub queries are not completed, divide them in the number of `slots`, this step is
+        If you&#39;re looking foe `max_query_depth`, it&#39;s define at the creation of the query manager
+
+        Returns a FilteredQueryList.
+        
+        Note :
+            IF you looking for load_async = True/False, you should pass thid to the constructor method `msiempy.query.FilteredQueryList`
+                or by setting the attribute manually like `manager.load_asynch=True`
+            Only the first query is loaded asynchronously.
+
+        Params
+        `
+            requests_size : size (in items) for the individual requests.
+            workers : numbre of parrallels task
+            slots : number of time slots the query can be divided. The loading bar is 
+                divided according to the number of slots
+            delta : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
+                with dateutil.
+        `
+        #
+        &#34;&#34;&#34;
+
+        items, completed = self._load_data(workers=workers)
+
+        if not completed :
+            #If not completed the query is split and items aren&#39;t actually used
+
+            if self.query_depth_ttl &gt; 0 :
+                #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
+
+                if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
+                    start, end = timerange_gettimes(self.time_range)
+                else :
+                    start, end = self.start_time, self.end_time
+
+                if self.__parent__ == None and isinstance(delta, str) :
+                    #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
+                    times=divide_times(start, end, delta=parse_timedelta(delta))
+                    
+                else :times=divide_times(start, end, slots=slots)
+                        #IGONORING THE CONFIG ### : self.nitro.config.slots)
+                
+                sub_queries=list()
+
+                #self.
+
+                for time in times :
+                    &#34;&#34;&#34;
+                    &#34;&#34;&#34;
+                    sub_query = copy.copy(self)
+                    sub_query.__parent__=self
+                    sub_query.compute_time_range=False
+                    sub_query.time_range=&#39;CUSTOM&#39;
+                    sub_query.start_time=time[0].isoformat()
+                    sub_query.end_time=time[1].isoformat()
+                    sub_query.load_async=False
+                    sub_query.query_depth_ttl=self.query_depth_ttl-1
+                    #sub_query.requests_size=requests_size
+                    sub_queries.append(sub_query)
+
+            
+                results = self.perform(FilteredQueryList.load_data, sub_queries, 
+                    #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
+                    asynch=False if not self.load_async else (self.__parent__==None),
+                    progress=self.__parent__==None, 
+                    message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
+                    func_args=dict(slots=slots),
+                    workers=workers)
+
+                #Flatten the list of lists in a list
+                items=[item for sublist in results for item in sublist]
+                
+            else :
+                if not self.__root_parent__.not_completed :
+                    log.warning(&#34;The query won&#39;t fully complete. Try to divide in more slots or increase the requests_size&#34;)
+                    self.__root_parent__.not_completed=True
+
+        self.data=items
+        return(NitroList(alist=items)) #return self ?</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></li>
+<li>collections.UserList</li>
+<li>collections.abc.MutableSequence</li>
+<li>collections.abc.Sequence</li>
+<li>collections.abc.Reversible</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></li>
+<li><a title="msiempy.alarm.AlarmManager" href="alarm.html#msiempy.alarm.AlarmManager">AlarmManager</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE"><code class="name">var <span class="ident">DEFAULT_TIME_RANGE</span></code></dt>
+<dd>
+<section class="desc"><p>If you don't specify any <code>time_range</code>, act like if it was "CURRENT_DAY".</p></section>
+</dd>
+<dt id="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE"><code class="name">var <span class="ident">POSSIBLE_TIME_RANGE</span></code></dt>
+<dd>
+<section class="desc"><p>List of possible time ranges : "CUSTOM",
+"LAST_MINUTE",
+"LAST_10_MINUTES",
+"LAST_30_MINUTES",
+"LAST_HOUR",
+"CURRENT_DAY",
+"PREVIOUS_DAY",
+"LAST_24_HOURS",
+"LAST_2_DAYS",
+"LAST_3_DAYS",
+"CURRENT_WEEK",
+"PREVIOUS_WEEK",
+"CURRENT_MONTH",
+"PREVIOUS_MONTH",
+"CURRENT_QUARTER",
+"PREVIOUS_QUARTER",
+"CURRENT_YEAR",
+"PREVIOUS_YEAR"</p></section>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.query.FilteredQueryList.end_time"><code class="name">var <span class="ident">end_time</span></code></dt>
+<dd>
+<section class="desc"><p>Return the end time of the query in the right SIEM format.
+See <a title="msiempy.utils.format_esm_time" href="utils.html#msiempy.utils.format_esm_time"><code>format_esm_time()</code></a>
+Use _end_time to get the datetime object</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def end_time(self):
+    &#34;&#34;&#34;
+    Return the end time of the query in the right SIEM format.
+        See `msiempy.utils.format_esm_time()`
+    Use _end_time to get the datetime object
+    &#34;&#34;&#34;
+    return format_esm_time(self._end_time)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FilteredQueryList.filters"><code class="name">var <span class="ident">filters</span></code></dt>
+<dd>
+<section class="desc"><p>Filter propertie getter. Returns a list of filters.
+TODO find a better solution to integrate the filter propertie</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractproperty
+def filters(self):
+    &#34;&#34;&#34; 
+    Filter propertie getter. Returns a list of filters.
+    TODO find a better solution to integrate the filter propertie
+    &#34;&#34;&#34;
+    raise NotImplementedError()</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FilteredQueryList.start_time"><code class="name">var <span class="ident">start_time</span></code></dt>
+<dd>
+<section class="desc"><p>Return the start time of the query in the right SIEM format.
+See <a title="msiempy.utils.format_esm_time" href="utils.html#msiempy.utils.format_esm_time"><code>format_esm_time()</code></a>
+Use _start_time to get the datetime object</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def start_time(self):
+    &#34;&#34;&#34;
+    Return the start time of the query in the right SIEM format.
+        See `msiempy.utils.format_esm_time()`
+    Use _start_time to get the datetime object
+    &#34;&#34;&#34;
+    return format_esm_time(self._start_time)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FilteredQueryList.time_range"><code class="name">var <span class="ident">time_range</span></code></dt>
+<dd>
+<section class="desc"><p>Returns the query time range. See <a title="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE"><code>FilteredQueryList.POSSIBLE_TIME_RANGE</code></a>.
+Return 'CUSTOM' if internal _time_range is None and start_time annd end_time are set.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def time_range(self):
+    &#34;&#34;&#34;
+    Returns the query time range. See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+    Return &#39;CUSTOM&#39; if internal _time_range is None and start_time annd end_time are set.
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;if self.start_time is not None and self.end_time is not None :
+        return(&#39;CUSTOM&#39;)
+    else :&#34;&#34;&#34;
+    return self._time_range.upper()</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.query.FilteredQueryList.add_filter"><code class="name flex">
+<span>def <span class="ident">add_filter</span></span>(<span>self, filter)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Method that figures out the way to add a filter to the query.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def add_filter(self, filter):
+    &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FilteredQueryList.clear_filters"><code class="name flex">
+<span>def <span class="ident">clear_filters</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Method that fiures out the way to remove all filters to the query.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def clear_filters(self):
+    &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
+    &#34;&#34;&#34;
+    pass </code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FilteredQueryList.load_data"><code class="name flex">
+<span>def <span class="ident">load_data</span></span>(<span>self, workers=15, slots=4, delta='24h')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Method to load the data from the SIEM
+Split the query in defferents time slots if the query apprears not to be completed.
+Splitting is done by duplicating current object, setting different times,
+and re-loading results. First your query time is split in slots of size <code>delta</code>
+in [performance] section of the config and launch asynchronously in queue of length <code>max_workers</code>.
+Secondly, if the sub queries are not completed, divide them in the number of <code>slots</code>, this step is
+If you're looking foe <code>max_query_depth</code>, it's define at the creation of the query manager</p>
+<p>Returns a FilteredQueryList.</p>
+<p>Note :
+IF you looking for load_async = True/False, you should pass thid to the constructor method <a title="msiempy.query.FilteredQueryList" href="#msiempy.query.FilteredQueryList"><code>FilteredQueryList</code></a>
+or by setting the attribute manually like <code>manager.load_asynch=True</code>
+Only the first query is loaded asynchronously.</p>
+<p>Params
+<code>requests_size : size (in items) for the individual requests.
+workers : numbre of parrallels task
+slots : number of time slots the query can be divided. The loading bar is
+divided according to the number of slots
+delta : exemple : '24h', the query will be firstly divided in chuncks according to the time delta read
+with dateutil.</code></p>
+<h1 id="_1"></h1></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
+    &#34;&#34;&#34;
+    Method to load the data from the SIEM
+    Split the query in defferents time slots if the query apprears not to be completed.
+    Splitting is done by duplicating current object, setting different times,
+    and re-loading results. First your query time is split in slots of size `delta` 
+    in [performance] section of the config and launch asynchronously in queue of length `max_workers`.
+    Secondly, if the sub queries are not completed, divide them in the number of `slots`, this step is
+    If you&#39;re looking foe `max_query_depth`, it&#39;s define at the creation of the query manager
+
+    Returns a FilteredQueryList.
+    
+    Note :
+        IF you looking for load_async = True/False, you should pass thid to the constructor method `msiempy.query.FilteredQueryList`
+            or by setting the attribute manually like `manager.load_asynch=True`
+        Only the first query is loaded asynchronously.
+
+    Params
+    `
+        requests_size : size (in items) for the individual requests.
+        workers : numbre of parrallels task
+        slots : number of time slots the query can be divided. The loading bar is 
+            divided according to the number of slots
+        delta : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
+            with dateutil.
+    `
+    #
+    &#34;&#34;&#34;
+
+    items, completed = self._load_data(workers=workers)
+
+    if not completed :
+        #If not completed the query is split and items aren&#39;t actually used
+
+        if self.query_depth_ttl &gt; 0 :
+            #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
+
+            if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
+                start, end = timerange_gettimes(self.time_range)
+            else :
+                start, end = self.start_time, self.end_time
+
+            if self.__parent__ == None and isinstance(delta, str) :
+                #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
+                times=divide_times(start, end, delta=parse_timedelta(delta))
+                
+            else :times=divide_times(start, end, slots=slots)
+                    #IGONORING THE CONFIG ### : self.nitro.config.slots)
+            
+            sub_queries=list()
+
+            #self.
+
+            for time in times :
+                &#34;&#34;&#34;
+                &#34;&#34;&#34;
+                sub_query = copy.copy(self)
+                sub_query.__parent__=self
+                sub_query.compute_time_range=False
+                sub_query.time_range=&#39;CUSTOM&#39;
+                sub_query.start_time=time[0].isoformat()
+                sub_query.end_time=time[1].isoformat()
+                sub_query.load_async=False
+                sub_query.query_depth_ttl=self.query_depth_ttl-1
+                #sub_query.requests_size=requests_size
+                sub_queries.append(sub_query)
+
+        
+            results = self.perform(FilteredQueryList.load_data, sub_queries, 
+                #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
+                asynch=False if not self.load_async else (self.__parent__==None),
+                progress=self.__parent__==None, 
+                message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
+                func_args=dict(slots=slots),
+                workers=workers)
+
+            #Flatten the list of lists in a list
+            items=[item for sublist in results for item in sublist]
+            
+        else :
+            if not self.__root_parent__.not_completed :
+                log.warning(&#34;The query won&#39;t fully complete. Try to divide in more slots or increase the requests_size&#34;)
+                self.__root_parent__.not_completed=True
+
+    self.data=items
+    return(NitroList(alist=items)) #return self ?</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.NitroList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
+<li><code><a title="msiempy.NitroList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.NitroList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
+<li><code><a title="msiempy.NitroList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
+<li><code><a title="msiempy.NitroList.table_colums" href="index.html#msiempy.NitroList.table_colums">table_colums</a></code></li>
+<li><code><a title="msiempy.NitroList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="msiempy.query.GroupFilter"><code class="flex name class">
 <span>class <span class="ident">GroupFilter</span></span>
 <span>(</span><span>*filters, logic='AND')</span>
@@ -1187,646 +1827,6 @@ def text(self):
 </li>
 </ul>
 </dd>
-<dt id="msiempy.query.QueryManager"><code class="flex name class">
-<span>class <span class="ident">QueryManager</span></span>
-<span>(</span><span>time_range=None, start_time=None, end_time=None, filters=None, load_async=True, requests_size=500, max_query_depth=0, *arg, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Base class for query based managers : AlarmManager, EventManager
-QueryManager object can handle time_ranges and time splitting.</p>
-<p>Abstract base class that handles the time ranges operations, loading data from the SIEM.</p>
-<p>Params
-<code>time_range : Query time range. String representation of a time range.
-See</code>msiempy.base.QueryManager.POSSIBLE_TIME_RANGE<code>start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
-end_time : Query endding time, can be a string or a datetime object. Parsed with dateutil.
-filters : List of filters applied to the query
-max_query_depth : maximum number of supplement reccursions of division of the query times
-Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of
-the list is (500*5)*(500*5)*(500*5) = 15625000000
-load_async : Load asynchonously the sub-queries. Defaulted to True.</code></p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">class QueryManager(Manager):
-    &#34;&#34;&#34;
-    Base class for query based managers : AlarmManager, EventManager
-    QueryManager object can handle time_ranges and time splitting.
-    &#34;&#34;&#34;
-    
-    DEFAULT_TIME_RANGE=&#34;CURRENT_DAY&#34;
-    &#34;&#34;&#34;
-    If you don&#39;t specify any `time_range`, act like if it was &#34;CURRENT_DAY&#34;.
-    &#34;&#34;&#34;
-
-    POSSIBLE_TIME_RANGE=[
-            &#34;CUSTOM&#34;,
-            &#34;LAST_MINUTE&#34;,
-            &#34;LAST_10_MINUTES&#34;,
-            &#34;LAST_30_MINUTES&#34;,
-            &#34;LAST_HOUR&#34;,
-            &#34;CURRENT_DAY&#34;,
-            &#34;PREVIOUS_DAY&#34;,
-            &#34;LAST_24_HOURS&#34;,
-            &#34;LAST_2_DAYS&#34;,
-            &#34;LAST_3_DAYS&#34;,
-            &#34;CURRENT_WEEK&#34;,
-            &#34;PREVIOUS_WEEK&#34;,
-            &#34;CURRENT_MONTH&#34;,
-            &#34;PREVIOUS_MONTH&#34;,
-            &#34;CURRENT_QUARTER&#34;,
-            &#34;PREVIOUS_QUARTER&#34;,
-            &#34;CURRENT_YEAR&#34;,
-            &#34;PREVIOUS_YEAR&#34;
-    ]
-    &#34;&#34;&#34;
-    List of possible time ranges : &#34;CUSTOM&#34;,
-            &#34;LAST_MINUTE&#34;,
-            &#34;LAST_10_MINUTES&#34;,
-            &#34;LAST_30_MINUTES&#34;,
-            &#34;LAST_HOUR&#34;,
-            &#34;CURRENT_DAY&#34;,
-            &#34;PREVIOUS_DAY&#34;,
-            &#34;LAST_24_HOURS&#34;,
-            &#34;LAST_2_DAYS&#34;,
-            &#34;LAST_3_DAYS&#34;,
-            &#34;CURRENT_WEEK&#34;,
-            &#34;PREVIOUS_WEEK&#34;,
-            &#34;CURRENT_MONTH&#34;,
-            &#34;PREVIOUS_MONTH&#34;,
-            &#34;CURRENT_QUARTER&#34;,
-            &#34;PREVIOUS_QUARTER&#34;,
-            &#34;CURRENT_YEAR&#34;,
-            &#34;PREVIOUS_YEAR&#34;
-    &#34;&#34;&#34;
-
-    def __init__(self, time_range=None, start_time=None, end_time=None, filters=None, 
-        load_async=True, requests_size=500, max_query_depth=0,
-            __parent__=None, *arg, **kwargs):
-        &#34;&#34;&#34;
-        Abstract base class that handles the time ranges operations, loading data from the SIEM.
-
-        Params
-        `
-            time_range : Query time range. String representation of a time range. 
-                See `msiempy.base.QueryManager.POSSIBLE_TIME_RANGE`
-            start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
-            end_time : Query endding time, can be a string or a datetime object. Parsed with dateutil.
-            filters : List of filters applied to the query
-            max_query_depth : maximum number of supplement reccursions of division of the query times
-                Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
-                the list is (500*5)*(500*5)*(500*5) = 15625000000
-            load_async : Load asynchonously the sub-queries. Defaulted to True.
-        `
-        &#34;&#34;&#34;
-
-        super().__init__(*arg, **kwargs)
-
-        #Store the query parent 
-        self.__parent__=__parent__
-        self.not_completed=False
-
-        #self.nitro.config.default_rows #nb rows per request : eq limit/page_size = requests_size
-        #self.nitro.config.max_rows #max nb rows 
-
-        #Declaring attributes and types
-        self._time_range=str()
-        self._start_time=None
-        self._end_time=None
-
-        #self.filters=filters filter property setter should be called in the concrete class
-        #TODO find a better solution to integrate the filter propertie
-
-        self.load_async=load_async
-
-        if start_time is not None and end_time is not None :
-            self.start_time=start_time
-            self.end_time=end_time
-            self.time_range=&#39;CUSTOM&#39;
-        else :
-            self.time_range=time_range
-
-        self.load_async=load_async
-        self.requests_size=requests_size
-        self.__init_max_query_depth__=max_query_depth
-        self.query_depth_ttl=max_query_depth
-
-
-    @property
-    def __root_parent__(self):
-        &#34;&#34;&#34;
-        Internal method that return the first query of the query tree
-        &#34;&#34;&#34;
-        if self.__parent__==None:
-            return self
-        else :
-            return self.__parent__.__root_parent__
-
-    @property
-    def time_range(self):
-        &#34;&#34;&#34;
-        Returns the query time range. See `msiempy.query.QueryManager.POSSIBLE_TIME_RANGE`.
-        Return &#39;CUSTOM&#39; if internal _time_range is None and start_time annd end_time are set.
-        &#34;&#34;&#34;
-        &#34;&#34;&#34;if self.start_time is not None and self.end_time is not None :
-            return(&#39;CUSTOM&#39;)
-        else :&#34;&#34;&#34;
-        return self._time_range.upper()
-
-    @property
-    def start_time(self):
-        &#34;&#34;&#34;
-        Return the start time of the query in the right SIEM format.
-            See `msiempy.utils.format_esm_time()`
-        Use _start_time to get the datetime object
-        &#34;&#34;&#34;
-        return format_esm_time(self._start_time)
-
-    @property
-    def end_time(self):
-        &#34;&#34;&#34;
-        Return the end time of the query in the right SIEM format.
-            See `msiempy.utils.format_esm_time()`
-        Use _end_time to get the datetime object
-        &#34;&#34;&#34;
-        return format_esm_time(self._end_time)
-
-    @time_range.setter
-    def time_range(self, time_range):
-        &#34;&#34;&#34;
-        Set the time range of the query to the specified string value. 
-        Defaulf `msiempy.queryQueryManager.DEFAULT_TIME_RANGE`.
-        Note : the time range is upper cased automatically.
-        Throw VallueError if unrecognized time range.
-        &#34;&#34;&#34;
-
-        if not time_range :
-            self.time_range=self.DEFAULT_TIME_RANGE
-
-        elif isinstance(time_range, str):
-            time_range=time_range.upper()
-            if time_range in self.POSSIBLE_TIME_RANGE :
-                if time_range != &#39;CUSTOM&#39;:
-                    self.start_time=None
-                    self.end_time=None
-                self._time_range=time_range
-            else:
-                raise ValueError(&#34;The time range must be in &#34;+str(self.POSSIBLE_TIME_RANGE))
-        else:
-            raise ValueError(&#39;time_range must be a string or None&#39;)
-
-    
-    @start_time.setter
-    def start_time(self, start_time):
-        &#34;&#34;&#34;
-        Set the time start of the query.
-        start_time can be a string or a datetime.
-        If None, equivalent current_day start 00:00:00.
-        &#34;&#34;&#34;
-        
-        
-        if isinstance(start_time, str):
-            self.start_time = convert_to_time_obj(start_time)
-        elif isinstance(start_time, datetime.datetime):
-            self._start_time = start_time
-        elif start_time==None:
-             self._start_time=None#raise ValueError(&#34;Time must be string or datetime object, not None&#34;)#self.start_time = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        else:
-            raise ValueError(&#34;Time must be string or datetime object.&#34;)
-                
-    
-    @end_time.setter
-    def end_time(self, end_time):
-        &#34;&#34;&#34;
-        Set the time end of the query.
-        end_time can be a string or a datetime.
-        If None, equivalent now.
-        &#34;&#34;&#34;
-       
-        if isinstance(end_time, str):
-            self.end_time = convert_to_time_obj(end_time)
-        elif isinstance(end_time, datetime.datetime):
-            self._end_time = end_time
-        elif end_time==None:
-             self._end_time=None#raise ValueError(&#34;Time must be string or datetime object, not None&#34;)
-        else:
-            raise ValueError(&#34;Time must be string or datetime object.&#34;)
-
-    @abc.abstractproperty
-    def filters(self):
-        &#34;&#34;&#34; 
-        Filter propertie getter. Returns a list of filters.
-        TODO find a better solution to integrate the filter propertie
-        &#34;&#34;&#34;
-        raise NotImplementedError()
-
-    @filters.setter
-    def filters(self, filters):
-        &#34;&#34;&#34;Query filters property : can be a list of tuple(field, [values]) 
-            or just a tuple. None value will call `msiempy.query.QueryManager.clear_filters()`
-        Throws AttributeError if type not supported.
-        &#34;&#34;&#34;
-        
-        if isinstance(filters, list):
-            for f in filters :
-                self.add_filter(f)
-
-        elif isinstance(filters, tuple):
-            self.add_filter(filters)
-
-        elif filters == None :
-            self.clear_filters()
-        
-        else :
-            raise AttributeError(&#34;Illegal type for the filter object, it must be a list, a tuple or None.&#34;)
-
-    
-    @abc.abstractmethod
-    def add_filter(self, filter):
-        &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
-        &#34;&#34;&#34;
-        pass
-
-    @abc.abstractmethod
-    def clear_filters(self):
-        &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
-        &#34;&#34;&#34;
-        pass 
-
-    @abc.abstractmethod
-    def _load_data(self, workers):
-        &#34;&#34;&#34;
-        Rturn a tuple (items, completed).
-        completed = True if all the data that should be load is loaded.
-        &#34;&#34;&#34;
-        pass
-
-    @abc.abstractmethod
-    def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
-        &#34;&#34;&#34;
-        Method to load the data from the SIEM
-        Split the query in defferents time slots if the query apprears not to be completed.
-        Splitting is done by duplicating current object, setting different times,
-        and re-loading results. First your query time is split in slots of size `delta` 
-        in [performance] section of the config and launch asynchronously in queue of length `max_workers`.
-        Secondly, if the sub queries are not completed, divide them in the number of `slots`, this step is
-        If you&#39;re looking foe `max_query_depth`, it&#39;s define at the creation of the query manager
-
-        Returns a QueryManager.
-        
-        Note :
-            IF you looking for load_async = True/False, you should pass thid to the constructor method `msiempy.query.QueryManager`
-                or by setting the attribute manually like `manager.load_asynch=True`
-            Only the first query is loaded asynchronously.
-
-        Params
-        `
-            requests_size : size (in items) for the individual requests.
-            workers : numbre of parrallels task
-            slots : number of time slots the query can be divided. The loading bar is 
-                divided according to the number of slots
-            delta : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
-                with dateutil.
-        `
-        #
-        &#34;&#34;&#34;
-
-        items, completed = self._load_data(workers=workers)
-
-        if not completed :
-            #If not completed the query is split and items aren&#39;t actually used
-
-            if self.query_depth_ttl &gt; 0 :
-                #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
-
-                if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
-                    start, end = timerange_gettimes(self.time_range)
-                else :
-                    start, end = self.start_time, self.end_time
-
-                if self.__parent__ == None and isinstance(delta, str) :
-                    #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
-                    times=divide_times(start, end, delta=parse_timedelta(delta))
-                    
-                else :times=divide_times(start, end, slots=slots)
-                        #IGONORING THE CONFIG ### : self.nitro.config.slots)
-                
-                sub_queries=list()
-
-                #self.
-
-                for time in times :
-                    &#34;&#34;&#34;
-                    &#34;&#34;&#34;
-                    sub_query = copy.copy(self)
-                    sub_query.__parent__=self
-                    sub_query.compute_time_range=False
-                    sub_query.time_range=&#39;CUSTOM&#39;
-                    sub_query.start_time=time[0].isoformat()
-                    sub_query.end_time=time[1].isoformat()
-                    sub_query.load_async=False
-                    sub_query.query_depth_ttl=self.query_depth_ttl-1
-                    #sub_query.requests_size=requests_size
-                    sub_queries.append(sub_query)
-
-            
-                results = self.perform(QueryManager.load_data, sub_queries, 
-                    #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
-                    asynch=False if not self.load_async else (self.__parent__==None),
-                    progress=self.__parent__==None, 
-                    message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
-                    func_args=dict(slots=slots),
-                    workers=workers)
-
-                #Flatten the list of lists in a list
-                items=[item for sublist in results for item in sublist]
-                
-            else :
-                if not self.__root_parent__.not_completed :
-                    log.warning(&#34;The query won&#39;t fully complete. Try to divide in more slots or increase the requests_size&#34;)
-                    self.__root_parent__.not_completed=True
-
-        self.data=items
-        return(Manager(alist=items)) #return self ?</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></li>
-<li>collections.UserList</li>
-<li>collections.abc.MutableSequence</li>
-<li>collections.abc.Sequence</li>
-<li>collections.abc.Reversible</li>
-<li>collections.abc.Collection</li>
-<li>collections.abc.Sized</li>
-<li>collections.abc.Iterable</li>
-<li>collections.abc.Container</li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></li>
-<li><a title="msiempy.alarm.AlarmManager" href="alarm.html#msiempy.alarm.AlarmManager">AlarmManager</a></li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="msiempy.query.QueryManager.DEFAULT_TIME_RANGE"><code class="name">var <span class="ident">DEFAULT_TIME_RANGE</span></code></dt>
-<dd>
-<section class="desc"><p>If you don't specify any <code>time_range</code>, act like if it was "CURRENT_DAY".</p></section>
-</dd>
-<dt id="msiempy.query.QueryManager.POSSIBLE_TIME_RANGE"><code class="name">var <span class="ident">POSSIBLE_TIME_RANGE</span></code></dt>
-<dd>
-<section class="desc"><p>List of possible time ranges : "CUSTOM",
-"LAST_MINUTE",
-"LAST_10_MINUTES",
-"LAST_30_MINUTES",
-"LAST_HOUR",
-"CURRENT_DAY",
-"PREVIOUS_DAY",
-"LAST_24_HOURS",
-"LAST_2_DAYS",
-"LAST_3_DAYS",
-"CURRENT_WEEK",
-"PREVIOUS_WEEK",
-"CURRENT_MONTH",
-"PREVIOUS_MONTH",
-"CURRENT_QUARTER",
-"PREVIOUS_QUARTER",
-"CURRENT_YEAR",
-"PREVIOUS_YEAR"</p></section>
-</dd>
-</dl>
-<h3>Instance variables</h3>
-<dl>
-<dt id="msiempy.query.QueryManager.end_time"><code class="name">var <span class="ident">end_time</span></code></dt>
-<dd>
-<section class="desc"><p>Return the end time of the query in the right SIEM format.
-See <a title="msiempy.utils.format_esm_time" href="utils.html#msiempy.utils.format_esm_time"><code>format_esm_time()</code></a>
-Use _end_time to get the datetime object</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@property
-def end_time(self):
-    &#34;&#34;&#34;
-    Return the end time of the query in the right SIEM format.
-        See `msiempy.utils.format_esm_time()`
-    Use _end_time to get the datetime object
-    &#34;&#34;&#34;
-    return format_esm_time(self._end_time)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.query.QueryManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
-<dd>
-<section class="desc"><p>Filter propertie getter. Returns a list of filters.
-TODO find a better solution to integrate the filter propertie</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@abc.abstractproperty
-def filters(self):
-    &#34;&#34;&#34; 
-    Filter propertie getter. Returns a list of filters.
-    TODO find a better solution to integrate the filter propertie
-    &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
-</details>
-</dd>
-<dt id="msiempy.query.QueryManager.start_time"><code class="name">var <span class="ident">start_time</span></code></dt>
-<dd>
-<section class="desc"><p>Return the start time of the query in the right SIEM format.
-See <a title="msiempy.utils.format_esm_time" href="utils.html#msiempy.utils.format_esm_time"><code>format_esm_time()</code></a>
-Use _start_time to get the datetime object</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@property
-def start_time(self):
-    &#34;&#34;&#34;
-    Return the start time of the query in the right SIEM format.
-        See `msiempy.utils.format_esm_time()`
-    Use _start_time to get the datetime object
-    &#34;&#34;&#34;
-    return format_esm_time(self._start_time)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.query.QueryManager.time_range"><code class="name">var <span class="ident">time_range</span></code></dt>
-<dd>
-<section class="desc"><p>Returns the query time range. See <a title="msiempy.query.QueryManager.POSSIBLE_TIME_RANGE" href="#msiempy.query.QueryManager.POSSIBLE_TIME_RANGE"><code>QueryManager.POSSIBLE_TIME_RANGE</code></a>.
-Return 'CUSTOM' if internal _time_range is None and start_time annd end_time are set.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@property
-def time_range(self):
-    &#34;&#34;&#34;
-    Returns the query time range. See `msiempy.query.QueryManager.POSSIBLE_TIME_RANGE`.
-    Return &#39;CUSTOM&#39; if internal _time_range is None and start_time annd end_time are set.
-    &#34;&#34;&#34;
-    &#34;&#34;&#34;if self.start_time is not None and self.end_time is not None :
-        return(&#39;CUSTOM&#39;)
-    else :&#34;&#34;&#34;
-    return self._time_range.upper()</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="msiempy.query.QueryManager.add_filter"><code class="name flex">
-<span>def <span class="ident">add_filter</span></span>(<span>self, filter)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Method that figures out the way to add a filter to the query.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@abc.abstractmethod
-def add_filter(self, filter):
-    &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
-<dt id="msiempy.query.QueryManager.clear_filters"><code class="name flex">
-<span>def <span class="ident">clear_filters</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Method that fiures out the way to remove all filters to the query.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@abc.abstractmethod
-def clear_filters(self):
-    &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
-    &#34;&#34;&#34;
-    pass </code></pre>
-</details>
-</dd>
-<dt id="msiempy.query.QueryManager.load_data"><code class="name flex">
-<span>def <span class="ident">load_data</span></span>(<span>self, workers=15, slots=4, delta='24h')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Method to load the data from the SIEM
-Split the query in defferents time slots if the query apprears not to be completed.
-Splitting is done by duplicating current object, setting different times,
-and re-loading results. First your query time is split in slots of size <code>delta</code>
-in [performance] section of the config and launch asynchronously in queue of length <code>max_workers</code>.
-Secondly, if the sub queries are not completed, divide them in the number of <code>slots</code>, this step is
-If you're looking foe <code>max_query_depth</code>, it's define at the creation of the query manager</p>
-<p>Returns a QueryManager.</p>
-<p>Note :
-IF you looking for load_async = True/False, you should pass thid to the constructor method <a title="msiempy.query.QueryManager" href="#msiempy.query.QueryManager"><code>QueryManager</code></a>
-or by setting the attribute manually like <code>manager.load_asynch=True</code>
-Only the first query is loaded asynchronously.</p>
-<p>Params
-<code>requests_size : size (in items) for the individual requests.
-workers : numbre of parrallels task
-slots : number of time slots the query can be divided. The loading bar is
-divided according to the number of slots
-delta : exemple : '24h', the query will be firstly divided in chuncks according to the time delta read
-with dateutil.</code></p>
-<h1 id="_1"></h1></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@abc.abstractmethod
-def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
-    &#34;&#34;&#34;
-    Method to load the data from the SIEM
-    Split the query in defferents time slots if the query apprears not to be completed.
-    Splitting is done by duplicating current object, setting different times,
-    and re-loading results. First your query time is split in slots of size `delta` 
-    in [performance] section of the config and launch asynchronously in queue of length `max_workers`.
-    Secondly, if the sub queries are not completed, divide them in the number of `slots`, this step is
-    If you&#39;re looking foe `max_query_depth`, it&#39;s define at the creation of the query manager
-
-    Returns a QueryManager.
-    
-    Note :
-        IF you looking for load_async = True/False, you should pass thid to the constructor method `msiempy.query.QueryManager`
-            or by setting the attribute manually like `manager.load_asynch=True`
-        Only the first query is loaded asynchronously.
-
-    Params
-    `
-        requests_size : size (in items) for the individual requests.
-        workers : numbre of parrallels task
-        slots : number of time slots the query can be divided. The loading bar is 
-            divided according to the number of slots
-        delta : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
-            with dateutil.
-    `
-    #
-    &#34;&#34;&#34;
-
-    items, completed = self._load_data(workers=workers)
-
-    if not completed :
-        #If not completed the query is split and items aren&#39;t actually used
-
-        if self.query_depth_ttl &gt; 0 :
-            #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
-
-            if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
-                start, end = timerange_gettimes(self.time_range)
-            else :
-                start, end = self.start_time, self.end_time
-
-            if self.__parent__ == None and isinstance(delta, str) :
-                #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
-                times=divide_times(start, end, delta=parse_timedelta(delta))
-                
-            else :times=divide_times(start, end, slots=slots)
-                    #IGONORING THE CONFIG ### : self.nitro.config.slots)
-            
-            sub_queries=list()
-
-            #self.
-
-            for time in times :
-                &#34;&#34;&#34;
-                &#34;&#34;&#34;
-                sub_query = copy.copy(self)
-                sub_query.__parent__=self
-                sub_query.compute_time_range=False
-                sub_query.time_range=&#39;CUSTOM&#39;
-                sub_query.start_time=time[0].isoformat()
-                sub_query.end_time=time[1].isoformat()
-                sub_query.load_async=False
-                sub_query.query_depth_ttl=self.query_depth_ttl-1
-                #sub_query.requests_size=requests_size
-                sub_queries.append(sub_query)
-
-        
-            results = self.perform(QueryManager.load_data, sub_queries, 
-                #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
-                asynch=False if not self.load_async else (self.__parent__==None),
-                progress=self.__parent__==None, 
-                message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
-                func_args=dict(slots=slots),
-                workers=workers)
-
-            #Flatten the list of lists in a list
-            items=[item for sublist in results for item in sublist]
-            
-        else :
-            if not self.__root_parent__.not_completed :
-                log.warning(&#34;The query won&#39;t fully complete. Try to divide in more slots or increase the requests_size&#34;)
-                self.__root_parent__.not_completed=True
-
-    self.data=items
-    return(Manager(alist=items)) #return self ?</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.Manager.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.Manager.get_text" href="index.html#msiempy.Manager.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.Manager.json" href="index.html#msiempy.Manager.json">json</a></code></li>
-<li><code><a title="msiempy.Manager.keys" href="index.html#msiempy.Manager.keys">keys</a></code></li>
-<li><code><a title="msiempy.Manager.perform" href="index.html#msiempy.Manager.perform">perform</a></code></li>
-<li><code><a title="msiempy.Manager.refresh" href="index.html#msiempy.Manager.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.Manager.search" href="index.html#msiempy.Manager.search">search</a></code></li>
-<li><code><a title="msiempy.Manager.table_colums" href="index.html#msiempy.Manager.table_colums">table_colums</a></code></li>
-<li><code><a title="msiempy.Manager.text" href="index.html#msiempy.Manager.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
 </dl>
 </section>
 </article>
@@ -1856,6 +1856,20 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
 </ul>
 </li>
 <li>
+<h4><code><a title="msiempy.query.FilteredQueryList" href="#msiempy.query.FilteredQueryList">FilteredQueryList</a></code></h4>
+<ul class="two-column">
+<li><code><a title="msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE" href="#msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.add_filter" href="#msiempy.query.FilteredQueryList.add_filter">add_filter</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.clear_filters" href="#msiempy.query.FilteredQueryList.clear_filters">clear_filters</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.end_time" href="#msiempy.query.FilteredQueryList.end_time">end_time</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.filters" href="#msiempy.query.FilteredQueryList.filters">filters</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.load_data" href="#msiempy.query.FilteredQueryList.load_data">load_data</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.start_time" href="#msiempy.query.FilteredQueryList.start_time">start_time</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.time_range" href="#msiempy.query.FilteredQueryList.time_range">time_range</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="msiempy.query.GroupFilter" href="#msiempy.query.GroupFilter">GroupFilter</a></code></h4>
 <ul class="">
 <li><code><a title="msiempy.query.GroupFilter.config_dict" href="#msiempy.query.GroupFilter.config_dict">config_dict</a></code></li>
@@ -1869,20 +1883,6 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
 <li><code><a title="msiempy.query.QueryFilter.json" href="#msiempy.query.QueryFilter.json">json</a></code></li>
 <li><code><a title="msiempy.query.QueryFilter.refresh" href="#msiempy.query.QueryFilter.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.query.QueryFilter.text" href="#msiempy.query.QueryFilter.text">text</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="msiempy.query.QueryManager" href="#msiempy.query.QueryManager">QueryManager</a></code></h4>
-<ul class="two-column">
-<li><code><a title="msiempy.query.QueryManager.DEFAULT_TIME_RANGE" href="#msiempy.query.QueryManager.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.POSSIBLE_TIME_RANGE" href="#msiempy.query.QueryManager.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.add_filter" href="#msiempy.query.QueryManager.add_filter">add_filter</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.clear_filters" href="#msiempy.query.QueryManager.clear_filters">clear_filters</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.end_time" href="#msiempy.query.QueryManager.end_time">end_time</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.filters" href="#msiempy.query.QueryManager.filters">filters</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.load_data" href="#msiempy.query.QueryManager.load_data">load_data</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.start_time" href="#msiempy.query.QueryManager.start_time">start_time</a></code></li>
-<li><code><a title="msiempy.query.QueryManager.time_range" href="#msiempy.query.QueryManager.time_range">time_range</a></code></li>
 </ul>
 </li>
 </ul>

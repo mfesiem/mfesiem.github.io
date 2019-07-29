@@ -279,9 +279,6 @@ def format_fields_for_query(fields):
     &#34;&#34;&#34;
     return([{&#39;name&#39;:value} for value in list(fields)])
 
-
-
-
 def parse_timedelta(time_str):
     &#34;&#34;&#34;
     Parse a time string e.g. (2h13m) into a timedelta object.
@@ -295,7 +292,34 @@ def parse_timedelta(time_str):
     parts = regex.match(time_str)
     assert parts is not None, &#34;Could not parse any time information from &#39;{}&#39;.  Examples of valid strings: &#39;8h&#39;, &#39;2d8h5m20s&#39;, &#39;2m4s&#39;&#34;.format(time_str)
     time_params = {name: float(param) for name, param in parts.groupdict().items() if param}
-    return timedelta(**time_params)</code></pre>
+    return timedelta(**time_params)
+
+def sanitize_string(strg, valid_chars = &#39;&#39;):
+    &#39;&#39;&#39; Sanitize string 
+        Usage:
+            By default returns the string without special characters, underscore replaced with space, and surrounding whitespace removed
+            :valid_chars: By default this function removes all characters. Specifying a string of characters here will skip removing them
+
+        Edited from https://github.com/AutomationSolutionz/Zeuz_Python_Node/blob/master/Framework/Built_In_Automation/Built_In_Utility/CrossPlatform/BuiltInUtilityFunction.py
+    &#39;&#39;&#39;
+    
+    # Invalid character list (space and underscore are handle separately)
+    invalid_chars = &#39;!&#34;#$%&amp;\&#39;()*+,-./:;&lt;=&gt;?@[\]^`{|}~&#39;
+
+    # Adjust invalid character list, based on function input
+    for j in range(len(valid_chars)): # For each valid character
+        invalid_chars = invalid_chars.replace(valid_chars[j], &#39;&#39;) # Remove valid character from invalid character list
+   
+    for j in range(0,len(invalid_chars)): # For each invalid character (allows us to only remove those the user hasn&#39;t deemed valid)
+        strg = strg.replace(invalid_chars[j], &#39;&#39;) # Remove invalid character
+        strg = strg.lower() # Convert to lower case
+    if &#39;_&#39; not in valid_chars: strg = strg.replace(&#39;_&#39;, &#39; &#39;) # Underscore to space (unless user wants to keep it)
+
+    strg = strg.replace(&#39;  &#39;, &#39; &#39;) # Double space to single space
+    strg = strg.strip() # Remove leading and trailing whitespace
+
+    
+    return strg</code></pre>
 </details>
 </section>
 <section>
@@ -602,6 +626,45 @@ Returns :
         return False</code></pre>
 </details>
 </dd>
+<dt id="msiempy.utils.sanitize_string"><code class="name flex">
+<span>def <span class="ident">sanitize_string</span></span>(<span>strg, valid_chars='')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Sanitize string </p>
+<h2 id="usage">Usage</h2>
+<p>By default returns the string without special characters, underscore replaced with space, and surrounding whitespace removed
+:valid_chars: By default this function removes all characters. Specifying a string of characters here will skip removing them
+Edited from <a href="https://github.com/AutomationSolutionz/Zeuz_Python_Node/blob/master/Framework/Built_In_Automation/Built_In_Utility/CrossPlatform/BuiltInUtilityFunction.py">https://github.com/AutomationSolutionz/Zeuz_Python_Node/blob/master/Framework/Built_In_Automation/Built_In_Utility/CrossPlatform/BuiltInUtilityFunction.py</a></p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def sanitize_string(strg, valid_chars = &#39;&#39;):
+    &#39;&#39;&#39; Sanitize string 
+        Usage:
+            By default returns the string without special characters, underscore replaced with space, and surrounding whitespace removed
+            :valid_chars: By default this function removes all characters. Specifying a string of characters here will skip removing them
+
+        Edited from https://github.com/AutomationSolutionz/Zeuz_Python_Node/blob/master/Framework/Built_In_Automation/Built_In_Utility/CrossPlatform/BuiltInUtilityFunction.py
+    &#39;&#39;&#39;
+    
+    # Invalid character list (space and underscore are handle separately)
+    invalid_chars = &#39;!&#34;#$%&amp;\&#39;()*+,-./:;&lt;=&gt;?@[\]^`{|}~&#39;
+
+    # Adjust invalid character list, based on function input
+    for j in range(len(valid_chars)): # For each valid character
+        invalid_chars = invalid_chars.replace(valid_chars[j], &#39;&#39;) # Remove valid character from invalid character list
+   
+    for j in range(0,len(invalid_chars)): # For each invalid character (allows us to only remove those the user hasn&#39;t deemed valid)
+        strg = strg.replace(invalid_chars[j], &#39;&#39;) # Remove invalid character
+        strg = strg.lower() # Convert to lower case
+    if &#39;_&#39; not in valid_chars: strg = strg.replace(&#39;_&#39;, &#39; &#39;) # Underscore to space (unless user wants to keep it)
+
+    strg = strg.replace(&#39;  &#39;, &#39; &#39;) # Double space to single space
+    strg = strg.strip() # Remove leading and trailing whitespace
+
+    
+    return strg</code></pre>
+</details>
+</dd>
 <dt id="msiempy.utils.timerange_gettimes"><code class="name flex">
 <span>def <span class="ident">timerange_gettimes</span></span>(<span>time_range)</span>
 </code></dt>
@@ -727,6 +790,7 @@ Returns :
 <li><code><a title="msiempy.utils.parse_query_result" href="#msiempy.utils.parse_query_result">parse_query_result</a></code></li>
 <li><code><a title="msiempy.utils.parse_timedelta" href="#msiempy.utils.parse_timedelta">parse_timedelta</a></code></li>
 <li><code><a title="msiempy.utils.regex_match" href="#msiempy.utils.regex_match">regex_match</a></code></li>
+<li><code><a title="msiempy.utils.sanitize_string" href="#msiempy.utils.sanitize_string">sanitize_string</a></code></li>
 <li><code><a title="msiempy.utils.timerange_gettimes" href="#msiempy.utils.timerange_gettimes">timerange_gettimes</a></code></li>
 <li><code><a title="msiempy.utils.timethis" href="#msiempy.utils.timethis">timethis</a></code></li>
 <li><code><a title="msiempy.utils.tob64" href="#msiempy.utils.tob64">tob64</a></code></li>

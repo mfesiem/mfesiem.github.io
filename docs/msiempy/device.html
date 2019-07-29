@@ -40,7 +40,7 @@ from itertools import chain
 from io import StringIO
 from functools import partial, lru_cache
 
-from . import Item, Manager, NitroError, NitroObject
+from . import NitroDict, NitroList, NitroError, NitroObject
 from .utils import dehexify
 
 class Device(NitroObject):
@@ -99,15 +99,25 @@ class ESM(Device):
         venmod_to_type_id(vendor, model)    Returns string of matching type_id
         
     &#34;&#34;&#34;
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         &#34;&#34;&#34;
-        Args:
-            host (str): IP or hostname of ESM.
-
         Returns:
             obj. ESM object
         &#34;&#34;&#34;
-        super().__init__()
+        super().__init__(*args, **kwargs)
+
+    
+        
+    def refresh(self):
+        super().refresh()
+
+    @property
+    def text(self):
+        return str(&#39;ESM object&#39;)
+
+    @property
+    def json(self):
+        return (dict(self))
 
     def version(self):
         &#34;&#34;&#34;
@@ -318,6 +328,7 @@ class ESM(Device):
         for self.venmod in self.ds_types:
             if str(self.venmod[0]) == str(self.type_id):
                 return (self.venmod[1], self.venmod[2])
+        return((&#39;Unkown vendor for type_id {}&#39;.format(type_id),&#39;Unkown vendor&#39;))
 
     def venmod_to_type_id(self, vendor, model):
         &#34;&#34;&#34;
@@ -382,7 +393,7 @@ class ESM(Device):
                     for _ven in self._venmods[&#39;vendors&#39;]
                     for _mod in _ven[&#39;models&#39;]]
 
-class DataSource(Item):
+class DataSource(NitroDict):
     &#34;&#34;&#34;
     A DataSource object represents a validated datasource configuration.
     
@@ -639,7 +650,7 @@ class DataSource(Item):
         except ValueError:
             return False
      
-class DevTree(Manager):
+class DevTree(NitroList):
     &#34;&#34;&#34;
     Interface to the ESM device tree.
     
@@ -1287,7 +1298,7 @@ Note:
 </code></pre></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class DataSource(Item):
+<pre><code class="python">class DataSource(NitroDict):
     &#34;&#34;&#34;
     A DataSource object represents a validated datasource configuration.
     
@@ -1546,7 +1557,7 @@ Note:
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.Item" href="index.html#msiempy.Item">Item</a></li>
+<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
 <li>collections.UserDict</li>
 <li>collections.abc.MutableMapping</li>
 <li>collections.abc.Mapping</li>
@@ -1764,13 +1775,13 @@ will be raised.</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.Item" href="index.html#msiempy.Item">Item</a></b></code>:
+<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.Item.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.Item.data_from_id" href="index.html#msiempy.Item.data_from_id">data_from_id</a></code></li>
-<li><code><a title="msiempy.Item.json" href="index.html#msiempy.Item.json">json</a></code></li>
-<li><code><a title="msiempy.Item.refresh" href="index.html#msiempy.Item.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.Item.text" href="index.html#msiempy.Item.text">text</a></code></li>
+<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroDict.data_from_id" href="index.html#msiempy.NitroDict.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
+<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1836,7 +1847,7 @@ __contains__    Returns bool as to whether a datasource name, IP,
 <p>Initalize the DevTree object</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class DevTree(Manager):
+<pre><code class="python">class DevTree(NitroList):
     &#34;&#34;&#34;
     Interface to the ESM device tree.
     
@@ -2434,7 +2445,7 @@ __contains__    Returns bool as to whether a datasource name, IP,
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></li>
+<li><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></li>
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
 <li>collections.abc.Sequence</li>
@@ -2649,15 +2660,15 @@ under another device.</p>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.Manager" href="index.html#msiempy.Manager">Manager</a></b></code>:
+<li><code><b><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.Manager.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.Manager.get_text" href="index.html#msiempy.Manager.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.Manager.json" href="index.html#msiempy.Manager.json">json</a></code></li>
-<li><code><a title="msiempy.Manager.keys" href="index.html#msiempy.Manager.keys">keys</a></code></li>
-<li><code><a title="msiempy.Manager.perform" href="index.html#msiempy.Manager.perform">perform</a></code></li>
-<li><code><a title="msiempy.Manager.table_colums" href="index.html#msiempy.Manager.table_colums">table_colums</a></code></li>
-<li><code><a title="msiempy.Manager.text" href="index.html#msiempy.Manager.text">text</a></code></li>
+<li><code><a title="msiempy.NitroList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.NitroList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
+<li><code><a title="msiempy.NitroList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.NitroList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
+<li><code><a title="msiempy.NitroList.table_colums" href="index.html#msiempy.NitroList.table_colums">table_colums</a></code></li>
+<li><code><a title="msiempy.NitroList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2728,6 +2739,7 @@ NitroSession object that handle the esm requests.</p>
 </dd>
 <dt id="msiempy.device.ESM"><code class="flex name class">
 <span>class <span class="ident">ESM</span></span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>ESM class</p>
@@ -2775,11 +2787,6 @@ type_id_to_venmod(type_id)     Returns tuple. (vendor, model) matching
 
 venmod_to_type_id(vendor, model)    Returns string of matching type_id
 </code></pre>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>host</code></strong> :&ensp;<code>str</code></dt>
-<dd>IP or hostname of ESM.</dd>
-</dl>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>obj.</code> <a title="msiempy.device.ESM" href="#msiempy.device.ESM"><code>ESM</code></a> <code>object</code></dt>
@@ -2837,15 +2844,25 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
         venmod_to_type_id(vendor, model)    Returns string of matching type_id
         
     &#34;&#34;&#34;
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         &#34;&#34;&#34;
-        Args:
-            host (str): IP or hostname of ESM.
-
         Returns:
             obj. ESM object
         &#34;&#34;&#34;
-        super().__init__()
+        super().__init__(*args, **kwargs)
+
+    
+        
+    def refresh(self):
+        super().refresh()
+
+    @property
+    def text(self):
+        return str(&#39;ESM object&#39;)
+
+    @property
+    def json(self):
+        return (dict(self))
 
     def version(self):
         &#34;&#34;&#34;
@@ -3056,6 +3073,7 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
         for self.venmod in self.ds_types:
             if str(self.venmod[0]) == str(self.type_id):
                 return (self.venmod[1], self.venmod[2])
+        return((&#39;Unkown vendor for type_id {}&#39;.format(type_id),&#39;Unkown vendor&#39;))
 
     def venmod_to_type_id(self, vendor, model):
         &#34;&#34;&#34;
@@ -3418,7 +3436,8 @@ def recs(self):
     self.ds_types = self._get_ds_types()
     for self.venmod in self.ds_types:
         if str(self.venmod[0]) == str(self.type_id):
-            return (self.venmod[1], self.venmod[2])</code></pre>
+            return (self.venmod[1], self.venmod[2])
+    return((&#39;Unkown vendor for type_id {}&#39;.format(type_id),&#39;Unkown vendor&#39;))</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.ESM.tz_id_to_name"><code class="name flex">

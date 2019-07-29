@@ -849,7 +849,7 @@ class NitroList(collections.UserList, NitroObject):
         &#34;&#34;&#34;
         return(json.dumps([dict(item) for item in self.data], indent=4, cls=NitroObject.NitroJSONEncoder))
 
-    def search(self, invert=False, match_prop=&#39;json&#39;, *pattern,):
+    def search(self, invert=False, match_prop=&#39;json&#39;, *pattern):
         &#34;&#34;&#34;
         Return a list of elements that matches regex patterns.
         Patterns are applied one after another. It&#39;s a logic AND.
@@ -1756,7 +1756,7 @@ it will be added as such.</p></section>
         &#34;&#34;&#34;
         return(json.dumps([dict(item) for item in self.data], indent=4, cls=NitroObject.NitroJSONEncoder))
 
-    def search(self, invert=False, match_prop=&#39;json&#39;, *pattern,):
+    def search(self, invert=False, match_prop=&#39;json&#39;, *pattern):
         &#34;&#34;&#34;
         Return a list of elements that matches regex patterns.
         Patterns are applied one after another. It&#39;s a logic AND.
@@ -2201,7 +2201,7 @@ i.e. : <code>[item for item in manager if item['cost'] &gt; 50]</code></p>
 <p>More on regex <a href="https://docs.python.org/3/library/re.html#re.Pattern.search">https://docs.python.org/3/library/re.html#re.Pattern.search</a></p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def search(self, invert=False, match_prop=&#39;json&#39;, *pattern,):
+<pre><code class="python">def search(self, invert=False, match_prop=&#39;json&#39;, *pattern):
     &#34;&#34;&#34;
     Return a list of elements that matches regex patterns.
     Patterns are applied one after another. It&#39;s a logic AND.

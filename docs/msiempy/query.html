@@ -428,7 +428,7 @@ class GroupFilter(QueryFilter):
         Used to dump groups of filters in the right format.
     &#34;&#34;&#34;
 
-    def __init__(self, *filters, logic=&#39;AND&#39;) :
+    def __init__(self, logic=&#39;AND&#39;, *filters) :
         &#34;&#34;&#34;
         filter : a list of filters, it can be FieldFilter or GroupFilter aka -  base.QueryFilter
         logic : &#39;AND&#39; or &#39;OR&#39; (i think)
@@ -1601,7 +1601,7 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
 </dd>
 <dt id="msiempy.query.GroupFilter"><code class="flex name class">
 <span>class <span class="ident">GroupFilter</span></span>
-<span>(</span><span>*filters, logic='AND')</span>
+<span>(</span><span>logic='AND', *filters)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Based on EsmFilterGroup. See SIEM api doc.
@@ -1617,7 +1617,7 @@ logic : 'AND' or 'OR' (i think)</p></section>
         Used to dump groups of filters in the right format.
     &#34;&#34;&#34;
 
-    def __init__(self, *filters, logic=&#39;AND&#39;) :
+    def __init__(self, logic=&#39;AND&#39;, *filters) :
         &#34;&#34;&#34;
         filter : a list of filters, it can be FieldFilter or GroupFilter aka -  base.QueryFilter
         logic : &#39;AND&#39; or &#39;OR&#39; (i think)

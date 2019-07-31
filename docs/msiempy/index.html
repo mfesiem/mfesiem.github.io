@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
 <title>msiempy API documentation</title>
-<meta name="description" content="The point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
-Configuration management, authentication, …" />
+<meta name="description" content="Welcome to the msiempy base framework module documentation.
+Classes listed in this module are used by other classes in sub-modules to build …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -21,17 +21,27 @@ Configuration management, authentication, …" />
 <h1 class="title">Module <code>msiempy</code></h1>
 </header>
 <section id="section-intro">
-<p>The point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
-Configuration management, authentication, verbosity, logfile, general timeout, and others&hellip;
-Two main type of classes are offered in this API : lists and dicts.
-NitroLists are lists and NitroDicts are dicts.</p>
+<p>Welcome to the msiempy base framework module documentation.
+Classes listed in this module are used by other classes in sub-modules to build specialized objects and functions.
+<a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> is the point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
+It uses <a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroConfig</code></a> to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
+This API offers two main types of objects to interact with the SIEM : <a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a>, <a title="msiempy.NitroDict" href="#msiempy.NitroDict"><code>NitroDict</code></a>.
+<a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a>s have default behaviours related to parallel execution, string representation generation and search feature.
+Whereas <a title="msiempy.NitroDict" href="#msiempy.NitroDict"><code>NitroDict</code></a> that doesn't have any specific behaviours.</p>
+<p>Look at the class diagram : <a href="https://mfesiem.github.io/docs/msiempy/classes.png">https://mfesiem.github.io/docs/msiempy/classes.png</a></p>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
-&#34;&#34;&#34;The point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
-Configuration management, authentication, verbosity, logfile, general timeout, and others...
-Two main type of classes are offered in this API : lists and dicts.
-NitroLists are lists and NitroDicts are dicts.
+&#34;&#34;&#34;Welcome to the msiempy base framework module documentation.
+Classes listed in this module are used by other classes in sub-modules to build specialized objects and functions.
+`msiempy.NitroSession` is the point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
+It uses `msiempy.NitroConfig` to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
+This API offers two main types of objects to interact with the SIEM : `msiempy.NitroList`, `msiempy.NitroDict`.
+`msiempy.NitroList`s have default behaviours related to parallel execution, string representation generation and search feature.
+Whereas `msiempy.NitroDict` that doesn&#39;t have any specific behaviours.
+
+
+Look at the class diagram : https://mfesiem.github.io/docs/msiempy/classes.png
 &#34;&#34;&#34;
 __version__ = &#39;0.1.0&#39;
 
@@ -72,17 +82,18 @@ log = logging.getLogger(&#39;msiempy&#39;)
 
 class NitroError(Exception):
     &#34;&#34;&#34;
-    Base internal exception
+    Base internal exception. It&#39;s used when the user/passwd is incorrect, or other specific ESM related errors.
     &#34;&#34;&#34;
     pass
 
 class NitroConfig(configparser.ConfigParser):
-    &#34;&#34;&#34;&#34;NitroConfig
-   Class that handles the configuration.
+    &#34;&#34;&#34;&#34;Class that handles the configuration. Reads the config file whereever it is and make accessible it&#39;s values throught object properties.
     &#34;&#34;&#34;
 
     CONFIG_FILE_NAME=&#39;.msiem/conf.ini&#39;
+    &#34;&#34;&#34;.msiem/conf.ini&#34;&#34;&#34;
     CONF_DIR=&#39;.msiem/&#39;
+    &#34;&#34;&#34;.msiem/&#34;&#34;&#34;
 
     CONFIG_FILE_DISCLAMER=&#39;&#39;&#39;
         # The configuration file should be located securely in your path since it 
@@ -93,12 +104,11 @@ class NitroConfig(configparser.ConfigParser):
         #        or :   $HOME/&#39;&#39;&#39;+CONFIG_FILE_NAME+&#39;&#39;&#39;
         &#39;&#39;&#39;
     &#34;&#34;&#34;
-        # The configuration file should be located securely in your path since it 
-        # has credentials.
-        # For Windows:  %APPDATA%\\
-        # For Mac :     $HOME/
-        # For Linux :   $XDG_CONFIG_HOME/
-        #        or :   $HOME/
+        The configuration file should be located securely in your path since it 
+        has credentials.
+        - For Windows:  %APPDATA%\\
+        - For Mac :     $HOME/
+        - For Linux :   $XDG_CONFIG_HOME/ or :   $HOME/
     &#34;&#34;&#34;
 
     DEFAULT_CONF_DICT={
@@ -113,18 +123,21 @@ class NitroConfig(configparser.ConfigParser):
             &#39;output&#39;:&#39;text&#39;}
     }
     &#34;&#34;&#34;
-    Default configuration. Authentication is left empty.
-    {
-        &#39;esm&#39;:{&#39;host&#39;:&#39;&#39;, 
-            &#39;user&#39;:&#39;&#39;,
-            &#39;passwd&#39;:&#39;&#39;},
-        &#39;general&#39;:{&#39;verbose&#39;:False,
-            &#39;quiet&#39;:False,
-            &#39;logfile&#39;:&#39;&#39;,
-            &#39;timeout&#39;:30,
-            &#39;ssl_verify&#39;:False,
-            &#39;output&#39;:&#39;text&#39;}
-    }
+    Default configuration file should look like this. Authentication is left empty.
+    ```
+    [esm]
+    host = 
+    user = 
+    passwd = 
+
+    [general]
+    verbose = False
+    quiet = False
+    logfile = 
+    timeout = 30
+    ssl_verify = False
+    output = text
+    ```
     &#34;&#34;&#34;
 
     def __str__(self):
@@ -135,8 +148,9 @@ class NitroConfig(configparser.ConfigParser):
 
     def __init__(self, path=None, config=None, *arg, **kwarg):
         &#34;&#34;&#34;
-        Initialize the Config instance.
-        If path is left None, will automatically look for it.
+        Arguments
+        - path: Config file speciale path, if path is left None, will automatically look for it.
+        - config: Manual config dict. ex: {&#39;general&#39;:{&#39;verbose&#39;:True}}
         &#34;&#34;&#34;
 
         super().__init__(*arg, **kwarg)
@@ -282,12 +296,11 @@ class NitroConfig(configparser.ConfigParser):
 
 class NitroSession():
     &#39;&#39;&#39;NitroSession object represent the point of convergence of every request to the McFee ESM
-    It provides standard dialogue with the esm with params.py
-    Internal __dict__ refers to a unique instance of dict and thus, properties can be instanciated only once.
-    No need to call a login() method. Credentials and other configurations are read from a ./.msiem/conf.ini file 
+    It provides standard dialogue with the esm with agument interpolation with `msiempy.params`.
+    Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once.
+    Credentials and other configurations are read from a ./.msiem/conf.ini file.
     If the ./msiem directory desn&#39;t exists in your current directory, will assume the file is your home directory
-        as ~/.msiem/conf.ini or %appdata%\\Roaming\\.msiem\\conf.ini
-    Use logout() to delete the object.
+        as ~/.msiem/conf.ini or %appdata%\\Roaming\\.msiem\\conf.ini.
     Use NitroSession.config.read() - ConfigParser object - to read a new configuration file. 
     &#39;&#39;&#39;
 
@@ -325,12 +338,15 @@ class NitroSession():
 
     def __init__(self, conf_path=None, conf_dict=None):
         &#34;&#34;&#34;
-        This init method is called every time you call NitroSession() constructor.
-        but the properties are actually initiated only once.
+        The init method is called every time you call NitroSession() constructor.
+        But the properties are actually initiated only once.
         Use logout() to trash the obejct and re instanciate NitroSession.
-        Configuration file path can be passed as conf_path attr and/or conf_dict.
-        We read from conf_dict attr ie : {&#39;esm&#39;:{&#39;host&#39;:&#39;myhost.com&#39;,&#39;user&#39;:&#39;username&#39;,&#39;passwd&#39;:&#39;&#39;}...}
-            See NitroConfig class to have full details.
+
+            Parameters
+
+            conf_path : Configuration file path can be passed as conf_path attr.
+            conf_dict : attr ie : {&#39;esm&#39;:{&#39;host&#39;:&#39;myhost.com&#39;,&#39;user&#39;:&#39;username&#39;,&#39;passwd&#39;:&#39;&#39;}...}.
+            See `msiempy.NitroConfig` class to have full details.
         &#34;&#34;&#34;
         global log
         self.__dict__ = NitroSession.__unique_state__
@@ -458,12 +474,15 @@ class NitroSession():
     def request(self, request, http=&#39;post&#39;, callback=None, raw=False, secure=False, **params):
         &#34;&#34;&#34;
             This method is the centralized interface of all request coming to the SIEM.
-                request :   keyword corresponding to the request name in PARAMS mapping
-                http :      http method
-                callback :  a callable to execute on the returned object if needed
-                raw :       if true will return the Response object from requests module
-                secure :    if true will not log the content of the request
-                **params :  interpolation parameters that will be match to PARAMS templates
+
+                Parameters
+
+                request :   keyword corresponding to the request name in `msiempy.params` mapping.
+                http :      http method.
+                callback :  a callable to execute on the returned object if needed.
+                raw :       if true will return the Response object from requests module.
+                secure :    if true will not log the content of the request.
+                **params :  interpolation parameters that will be match to `msiempy.params` templates. Check the file to be sure of the keyword arguments.
 
             Returns None if HTTP error, Timeout or TooManyRedirects if raw=False
         &#34;&#34;&#34;
@@ -608,8 +627,7 @@ class NitroSession():
 
 class NitroObject(abc.ABC):
     &#34;&#34;&#34;
-    Base class for all nitro objects. All objects have a reference the single
-    NitroSession object that handle the esm requests.
+    Base class for all nitro objects. All objects have a reference to the single `msiempy.NitroSession` object that handle the esm requests.
     &#34;&#34;&#34;
 
     class NitroJSONEncoder(json.JSONEncoder):
@@ -668,7 +686,7 @@ class NitroObject(abc.ABC):
 
 class NitroDict(collections.UserDict, NitroObject):
     &#34;&#34;&#34;
-    Base class that represent any SIEM data that can be represented as a item of a manager.
+    Base class that represent any SIEM data that can be represented as a item of a list.
     Exemple : Event, Alarm, etc...
     Inherits from dict.
     &#34;&#34;&#34;
@@ -676,6 +694,11 @@ class NitroDict(collections.UserDict, NitroObject):
         &#34;&#34;&#34;
         Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument 
         and update dict values accordingly.
+
+            Parameters
+
+            adict : dict object to wrap.
+            id : ESM obejct unique identifier. Alert.IPSIDAlertID for exemple. 
         &#34;&#34;&#34;
         NitroObject.__init__(self)
         collections.UserDict.__init__(self, adict)
@@ -715,16 +738,14 @@ class NitroDict(collections.UserDict, NitroObject):
 
 class NitroList(collections.UserList, NitroObject):
     &#34;&#34;&#34;
-    Base class for NitroLists objects. 
-    Inherits from list
+    Base class for NitroList objects. It offers callable execution management, searcb and other data list actions.
     &#34;&#34;&#34;
 
     def __init__(self, alist=None):
         &#34;&#34;&#34;
-        Ignore nested lists. Meaning that if alist if a list of lists 
-            it will we be ignored.
-        Nevertheless, if a list is present as a key value in a dict, 
-            it will be added as such.
+            Parameters
+
+            alist : list object to wrap.
         &#34;&#34;&#34;
         NitroObject.__init__(self)
         if alist is None:
@@ -746,9 +767,9 @@ class NitroList(collections.UserList, NitroObject):
 
     def _norm_dicts(self):
         &#34;&#34;&#34;
-        Internal method
-        all dict should have the same set of keys
-        Creating keys in dicts
+        Internal method.
+        All dict should have the same set of keys.
+        Creating keys in dicts.
         &#34;&#34;&#34;
         for item in self.data :
             if isinstance(item, (dict, NitroDict)):
@@ -773,10 +794,13 @@ class NitroList(collections.UserList, NitroObject):
     def get_text(self, compact=False, fields=None, max_column_width=120):
         &#34;&#34;&#34;
         Return a acsii table string representation of the manager list
+
+            Parameters
+
             compact : Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.
             fields : list of fields you want in the table
                 is None : default fields are returned by .keys attribute and sorted.
-            max_column_width when using prettytable (not compact)
+            max_column_width : when using prettytable (not compact)
 
         It&#39;s an expesive thing to do on big ammount of data !
         &#34;&#34;&#34;
@@ -845,21 +869,28 @@ class NitroList(collections.UserList, NitroObject):
         
     @property
     def json(self):
-        &#34;&#34;&#34;Dumps a JSON list of dicts.
+        &#34;&#34;&#34;Dumps a JSON list of dicts representing the current list.
         &#34;&#34;&#34;
         return(json.dumps([dict(item) for item in self.data], indent=4, cls=NitroObject.NitroJSONEncoder))
 
     def search(self, invert=False, match_prop=&#39;json&#39;, *pattern):
         &#34;&#34;&#34;
-        Return a list of elements that matches regex patterns.
+        Return a list of elements that matches one or more regex patterns.
         Patterns are applied one after another. It&#39;s a logic AND.
         Use `|` inside patterns to search with logic OR.
         This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not
         references the items in the original NitroList.
 
+            Parameters
+            
+            *pattern : List or string regex patterns to look for.
+            invert : Weither or not to invert the search and return elements that doesn&#39;t not match search.
+            match_prop : Propertie that is going to be called to search. Could be `text` or `json`.
+
+
         If you wish to apply more specific filters to NitroList list, please
         use filter(), list comprehension, or other filtering method.
-            i.e. : `[item for item in manager if item[&#39;cost&#39;] &gt; 50]`
+            i.e. : `[item for item in list if item[&#39;cost&#39;] &gt; 50]`
 
         More on regex https://docs.python.org/3/library/re.html#re.Pattern.search
         &#34;&#34;&#34;
@@ -894,20 +925,19 @@ class NitroList(collections.UserList, NitroObject):
 
     def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
         &#34;&#34;&#34;
-        Wrapper arround executable and the data list of NitroList object.
-        Will execute the callable the local manager data list.
+        Wrapper arround executable and the data list of `msiempy.NitroList` object.
+        Will execute the callable the list.
 
-            Params
+            Parameters
             
-            func : callable stateless function
-                funs is going to be called like func(item, **func_args) on all items in data patern
-            if data stays None, will perform the action on all rows, else it will perfom the action on the data list
-            func_args : dict that will be passed by default to func in all calls
-            confirm : will ask interactively confirmation 
-            asynch : execute the task asynchronously with NitroSession executor
-            workers : mandatory if asynch is true
-            progress : to show progress bar with ETA (tqdm) 
-            message : To show to the user
+            func : callable stateless function. func is going to be called like func(item, **func_args) on all items in data.
+            data : if stays None, will perform the action on all rows, else it will perfom the action on the data list.
+            func_args : dict that will be passed by default to func in all calls.
+            confirm : will ask interactively confirmation.
+            asynch : execute the task asynchronously with `msiempy.NitroSession` executor.
+            workers : mandatory if asynch is true.
+            progress : to show progress bar with ETA (tqdm).
+            message : To show to the user.
 
         Returns a list of returned results
         &#34;&#34;&#34;
@@ -999,25 +1029,25 @@ class NitroList(collections.UserList, NitroObject):
 <dl>
 <dt><code class="name"><a title="msiempy.alarm" href="alarm.html">msiempy.alarm</a></code></dt>
 <dd>
-<section class="desc"><p>Module that provide alarm management, acknowledgement, filtering, etc&hellip;</p></section>
+<section class="desc"><p>Provide alarm management.</p></section>
 </dd>
 <dt><code class="name"><a title="msiempy.device" href="device.html">msiempy.device</a></code></dt>
 <dd>
-<section class="desc"><p>Module offering ESM, ERC, DevTree and DataSource management (TODO)</p></section>
+<section class="desc"><p>Provide ESM, ERC and data source management.</p></section>
 </dd>
 <dt><code class="name"><a title="msiempy.event" href="event.html">msiempy.event</a></code></dt>
 <dd>
-<section class="desc"><p>Module for event management, qryExecuteDetails wrapper, adding note, etc..</p></section>
+<section class="desc"><p>Provide event management.</p></section>
 </dd>
 <dt><code class="name"><a title="msiempy.params" href="params.html">msiempy.params</a></code></dt>
 <dd>
 <section class="desc"><p>This module imports a dict into the msiem core class to provide
-a central place to aggregate methods and parameters. The params
+a central place to aggregate API methods and parameters. The params
 are stored as …</p></section>
 </dd>
 <dt><code class="name"><a title="msiempy.query" href="query.html">msiempy.query</a></code></dt>
 <dd>
-<section class="desc"><p>Module that provide time ranged filtered query wrapper. FilteredQueryList is an abstract object.</p></section>
+<section class="desc"><p>Provide time ranged filtered query wrapper.</p></section>
 </dd>
 <dt><code class="name"><a title="msiempy.utils" href="utils.html">msiempy.utils</a></code></dt>
 <dd>
@@ -1025,7 +1055,7 @@ are stored as …</p></section>
 </dd>
 <dt><code class="name"><a title="msiempy.watchlist" href="watchlist.html">msiempy.watchlist</a></code></dt>
 <dd>
-<section class="desc"><p>Watchlist module offers a whatchlist management.</p></section>
+<section class="desc"><p>Provide whatchlist management.</p></section>
 </dd>
 </dl>
 </section>
@@ -1041,19 +1071,20 @@ are stored as …</p></section>
 <span>(</span><span>path=None, config=None, *arg, **kwarg)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>"NitroConfig
-Class that handles the configuration.</p>
-<p>Initialize the Config instance.
-If path is left None, will automatically look for it.</p></section>
+<section class="desc"><p>"Class that handles the configuration. Reads the config file whereever it is and make accessible it's values throught object properties.</p>
+<p>Arguments
+- path: Config file speciale path, if path is left None, will automatically look for it.
+- config: Manual config dict. ex: {'general':{'verbose':True}}</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class NitroConfig(configparser.ConfigParser):
-    &#34;&#34;&#34;&#34;NitroConfig
-   Class that handles the configuration.
+    &#34;&#34;&#34;&#34;Class that handles the configuration. Reads the config file whereever it is and make accessible it&#39;s values throught object properties.
     &#34;&#34;&#34;
 
     CONFIG_FILE_NAME=&#39;.msiem/conf.ini&#39;
+    &#34;&#34;&#34;.msiem/conf.ini&#34;&#34;&#34;
     CONF_DIR=&#39;.msiem/&#39;
+    &#34;&#34;&#34;.msiem/&#34;&#34;&#34;
 
     CONFIG_FILE_DISCLAMER=&#39;&#39;&#39;
         # The configuration file should be located securely in your path since it 
@@ -1064,12 +1095,11 @@ If path is left None, will automatically look for it.</p></section>
         #        or :   $HOME/&#39;&#39;&#39;+CONFIG_FILE_NAME+&#39;&#39;&#39;
         &#39;&#39;&#39;
     &#34;&#34;&#34;
-        # The configuration file should be located securely in your path since it 
-        # has credentials.
-        # For Windows:  %APPDATA%\\
-        # For Mac :     $HOME/
-        # For Linux :   $XDG_CONFIG_HOME/
-        #        or :   $HOME/
+        The configuration file should be located securely in your path since it 
+        has credentials.
+        - For Windows:  %APPDATA%\\
+        - For Mac :     $HOME/
+        - For Linux :   $XDG_CONFIG_HOME/ or :   $HOME/
     &#34;&#34;&#34;
 
     DEFAULT_CONF_DICT={
@@ -1084,18 +1114,21 @@ If path is left None, will automatically look for it.</p></section>
             &#39;output&#39;:&#39;text&#39;}
     }
     &#34;&#34;&#34;
-    Default configuration. Authentication is left empty.
-    {
-        &#39;esm&#39;:{&#39;host&#39;:&#39;&#39;, 
-            &#39;user&#39;:&#39;&#39;,
-            &#39;passwd&#39;:&#39;&#39;},
-        &#39;general&#39;:{&#39;verbose&#39;:False,
-            &#39;quiet&#39;:False,
-            &#39;logfile&#39;:&#39;&#39;,
-            &#39;timeout&#39;:30,
-            &#39;ssl_verify&#39;:False,
-            &#39;output&#39;:&#39;text&#39;}
-    }
+    Default configuration file should look like this. Authentication is left empty.
+    ```
+    [esm]
+    host = 
+    user = 
+    passwd = 
+
+    [general]
+    verbose = False
+    quiet = False
+    logfile = 
+    timeout = 30
+    ssl_verify = False
+    output = text
+    ```
     &#34;&#34;&#34;
 
     def __str__(self):
@@ -1106,8 +1139,9 @@ If path is left None, will automatically look for it.</p></section>
 
     def __init__(self, path=None, config=None, *arg, **kwarg):
         &#34;&#34;&#34;
-        Initialize the Config instance.
-        If path is left None, will automatically look for it.
+        Arguments
+        - path: Config file speciale path, if path is left None, will automatically look for it.
+        - config: Manual config dict. ex: {&#39;general&#39;:{&#39;verbose&#39;:True}}
         &#34;&#34;&#34;
 
         super().__init__(*arg, **kwarg)
@@ -1266,39 +1300,40 @@ If path is left None, will automatically look for it.</p></section>
 <dl>
 <dt id="msiempy.NitroConfig.CONFIG_FILE_DISCLAMER"><code class="name">var <span class="ident">CONFIG_FILE_DISCLAMER</span></code></dt>
 <dd>
-<section class="desc"><h1 id="the-configuration-file-should-be-located-securely-in-your-path-since-it">The configuration file should be located securely in your path since it</h1>
-<h1 id="has-credentials">has credentials.</h1>
-<p># For Windows:
-%APPDATA%\</p>
-<h1 id="for-mac-home">For Mac :
-$HOME/</h1>
-<h1 id="for-linux-xdg_config_home">For Linux :
-$XDG_CONFIG_HOME/</h1>
-<h1 id="or-home">or :
-$HOME/</h1></section>
+<section class="desc"><p>The configuration file should be located securely in your path since it
+has credentials.
+- For Windows:
+%APPDATA%\
+- For Mac :
+$HOME/
+- For Linux :
+$XDG_CONFIG_HOME/ or :
+$HOME/</p></section>
 </dd>
 <dt id="msiempy.NitroConfig.CONFIG_FILE_NAME"><code class="name">var <span class="ident">CONFIG_FILE_NAME</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>.msiem/conf.ini</p></section>
 </dd>
 <dt id="msiempy.NitroConfig.CONF_DIR"><code class="name">var <span class="ident">CONF_DIR</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>.msiem/</p></section>
 </dd>
 <dt id="msiempy.NitroConfig.DEFAULT_CONF_DICT"><code class="name">var <span class="ident">DEFAULT_CONF_DICT</span></code></dt>
 <dd>
-<section class="desc"><p>Default configuration. Authentication is left empty.
-{
-'esm':{'host':'',
-'user':'',
-'passwd':''},
-'general':{'verbose':False,
-'quiet':False,
-'logfile':'',
-'timeout':30,
-'ssl_verify':False,
-'output':'text'}
-}</p></section>
+<section class="desc"><p>Default configuration file should look like this. Authentication is left empty.</p>
+<pre><code>[esm]
+host = 
+user = 
+passwd = 
+
+[general]
+verbose = False
+quiet = False
+logfile = 
+timeout = 30
+ssl_verify = False
+output = text
+</code></pre></section>
 </dd>
 </dl>
 <h3>Instance variables</h3>
@@ -1448,16 +1483,21 @@ If option stays None, all section's option will be interactively set.</p></secti
 <span>(</span><span>adict=None, id=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class that represent any SIEM data that can be represented as a item of a manager.
+<section class="desc"><p>Base class that represent any SIEM data that can be represented as a item of a list.
 Exemple : Event, Alarm, etc&hellip;
 Inherits from dict.</p>
 <p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
-and update dict values accordingly.</p></section>
+and update dict values accordingly.</p>
+<pre><code>Parameters
+
+adict : dict object to wrap.
+id : ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.
+</code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class NitroDict(collections.UserDict, NitroObject):
     &#34;&#34;&#34;
-    Base class that represent any SIEM data that can be represented as a item of a manager.
+    Base class that represent any SIEM data that can be represented as a item of a list.
     Exemple : Event, Alarm, etc...
     Inherits from dict.
     &#34;&#34;&#34;
@@ -1465,6 +1505,11 @@ and update dict values accordingly.</p></section>
         &#34;&#34;&#34;
         Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument 
         and update dict values accordingly.
+
+            Parameters
+
+            adict : dict object to wrap.
+            id : ESM obejct unique identifier. Alert.IPSIDAlertID for exemple. 
         &#34;&#34;&#34;
         NitroObject.__init__(self)
         collections.UserDict.__init__(self, adict)
@@ -1517,8 +1562,8 @@ and update dict values accordingly.</p></section>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></li>
-<li><a title="msiempy.alarm.Alarm" href="alarm.html#msiempy.alarm.Alarm">Alarm</a></li>
 <li><a title="msiempy.device.DataSource" href="device.html#msiempy.device.DataSource">DataSource</a></li>
+<li><a title="msiempy.alarm.Alarm" href="alarm.html#msiempy.alarm.Alarm">Alarm</a></li>
 <li><a title="msiempy.watchlist.Watchlist" href="watchlist.html#msiempy.watchlist.Watchlist">Watchlist</a></li>
 </ul>
 <h3>Instance variables</h3>
@@ -1592,12 +1637,12 @@ def data_from_id(self, id):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base internal exception</p></section>
+<section class="desc"><p>Base internal exception. It's used when the user/passwd is incorrect, or other specific ESM related errors.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class NitroError(Exception):
     &#34;&#34;&#34;
-    Base internal exception
+    Base internal exception. It&#39;s used when the user/passwd is incorrect, or other specific ESM related errors.
     &#34;&#34;&#34;
     pass</code></pre>
 </details>
@@ -1612,26 +1657,21 @@ def data_from_id(self, id):
 <span>(</span><span>alist=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for NitroLists objects.
-Inherits from list</p>
-<p>Ignore nested lists. Meaning that if alist if a list of lists
-it will we be ignored.
-Nevertheless, if a list is present as a key value in a dict,
-it will be added as such.</p></section>
+<section class="desc"><p>Base class for NitroList objects. It offers callable execution management, searcb and other data list actions.</p>
+<p>Parameters</p>
+<p>alist : list object to wrap.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class NitroList(collections.UserList, NitroObject):
     &#34;&#34;&#34;
-    Base class for NitroLists objects. 
-    Inherits from list
+    Base class for NitroList objects. It offers callable execution management, searcb and other data list actions.
     &#34;&#34;&#34;
 
     def __init__(self, alist=None):
         &#34;&#34;&#34;
-        Ignore nested lists. Meaning that if alist if a list of lists 
-            it will we be ignored.
-        Nevertheless, if a list is present as a key value in a dict, 
-            it will be added as such.
+            Parameters
+
+            alist : list object to wrap.
         &#34;&#34;&#34;
         NitroObject.__init__(self)
         if alist is None:
@@ -1653,9 +1693,9 @@ it will be added as such.</p></section>
 
     def _norm_dicts(self):
         &#34;&#34;&#34;
-        Internal method
-        all dict should have the same set of keys
-        Creating keys in dicts
+        Internal method.
+        All dict should have the same set of keys.
+        Creating keys in dicts.
         &#34;&#34;&#34;
         for item in self.data :
             if isinstance(item, (dict, NitroDict)):
@@ -1680,10 +1720,13 @@ it will be added as such.</p></section>
     def get_text(self, compact=False, fields=None, max_column_width=120):
         &#34;&#34;&#34;
         Return a acsii table string representation of the manager list
+
+            Parameters
+
             compact : Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.
             fields : list of fields you want in the table
                 is None : default fields are returned by .keys attribute and sorted.
-            max_column_width when using prettytable (not compact)
+            max_column_width : when using prettytable (not compact)
 
         It&#39;s an expesive thing to do on big ammount of data !
         &#34;&#34;&#34;
@@ -1752,21 +1795,28 @@ it will be added as such.</p></section>
         
     @property
     def json(self):
-        &#34;&#34;&#34;Dumps a JSON list of dicts.
+        &#34;&#34;&#34;Dumps a JSON list of dicts representing the current list.
         &#34;&#34;&#34;
         return(json.dumps([dict(item) for item in self.data], indent=4, cls=NitroObject.NitroJSONEncoder))
 
     def search(self, invert=False, match_prop=&#39;json&#39;, *pattern):
         &#34;&#34;&#34;
-        Return a list of elements that matches regex patterns.
+        Return a list of elements that matches one or more regex patterns.
         Patterns are applied one after another. It&#39;s a logic AND.
         Use `|` inside patterns to search with logic OR.
         This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not
         references the items in the original NitroList.
 
+            Parameters
+            
+            *pattern : List or string regex patterns to look for.
+            invert : Weither or not to invert the search and return elements that doesn&#39;t not match search.
+            match_prop : Propertie that is going to be called to search. Could be `text` or `json`.
+
+
         If you wish to apply more specific filters to NitroList list, please
         use filter(), list comprehension, or other filtering method.
-            i.e. : `[item for item in manager if item[&#39;cost&#39;] &gt; 50]`
+            i.e. : `[item for item in list if item[&#39;cost&#39;] &gt; 50]`
 
         More on regex https://docs.python.org/3/library/re.html#re.Pattern.search
         &#34;&#34;&#34;
@@ -1801,20 +1851,19 @@ it will be added as such.</p></section>
 
     def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
         &#34;&#34;&#34;
-        Wrapper arround executable and the data list of NitroList object.
-        Will execute the callable the local manager data list.
+        Wrapper arround executable and the data list of `msiempy.NitroList` object.
+        Will execute the callable the list.
 
-            Params
+            Parameters
             
-            func : callable stateless function
-                funs is going to be called like func(item, **func_args) on all items in data patern
-            if data stays None, will perform the action on all rows, else it will perfom the action on the data list
-            func_args : dict that will be passed by default to func in all calls
-            confirm : will ask interactively confirmation 
-            asynch : execute the task asynchronously with NitroSession executor
-            workers : mandatory if asynch is true
-            progress : to show progress bar with ETA (tqdm) 
-            message : To show to the user
+            func : callable stateless function. func is going to be called like func(item, **func_args) on all items in data.
+            data : if stays None, will perform the action on all rows, else it will perfom the action on the data list.
+            func_args : dict that will be passed by default to func in all calls.
+            confirm : will ask interactively confirmation.
+            asynch : execute the task asynchronously with `msiempy.NitroSession` executor.
+            workers : mandatory if asynch is true.
+            progress : to show progress bar with ETA (tqdm).
+            message : To show to the user.
 
         Returns a list of returned results
         &#34;&#34;&#34;
@@ -1923,12 +1972,12 @@ it will be added as such.</p></section>
 <dl>
 <dt id="msiempy.NitroList.json"><code class="name">var <span class="ident">json</span></code></dt>
 <dd>
-<section class="desc"><p>Dumps a JSON list of dicts.</p></section>
+<section class="desc"><p>Dumps a JSON list of dicts representing the current list.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
 def json(self):
-    &#34;&#34;&#34;Dumps a JSON list of dicts.
+    &#34;&#34;&#34;Dumps a JSON list of dicts representing the current list.
     &#34;&#34;&#34;
     return(json.dumps([dict(item) for item in self.data], indent=4, cls=NitroObject.NitroJSONEncoder))</code></pre>
 </details>
@@ -1983,21 +2032,27 @@ def text(self):
 <span>def <span class="ident">get_text</span></span>(<span>self, compact=False, fields=None, max_column_width=120)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Return a acsii table string representation of the manager list
+<section class="desc"><p>Return a acsii table string representation of the manager list</p>
+<pre><code>Parameters
+
 compact : Returns a nice string table made with prettytable, else an '|' separated list.
 fields : list of fields you want in the table
-is None : default fields are returned by .keys attribute and sorted.
-max_column_width when using prettytable (not compact)</p>
+    is None : default fields are returned by .keys attribute and sorted.
+max_column_width : when using prettytable (not compact)
+</code></pre>
 <p>It's an expesive thing to do on big ammount of data !</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def get_text(self, compact=False, fields=None, max_column_width=120):
     &#34;&#34;&#34;
     Return a acsii table string representation of the manager list
+
+        Parameters
+
         compact : Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.
         fields : list of fields you want in the table
             is None : default fields are returned by .keys attribute and sorted.
-        max_column_width when using prettytable (not compact)
+        max_column_width : when using prettytable (not compact)
 
     It&#39;s an expesive thing to do on big ammount of data !
     &#34;&#34;&#34;
@@ -2061,39 +2116,37 @@ max_column_width when using prettytable (not compact)</p>
 <span>def <span class="ident">perform</span></span>(<span>self, func, data=None, func_args=None, confirm=False, asynch=False, workers=None, progress=False, message=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Wrapper arround executable and the data list of NitroList object.
-Will execute the callable the local manager data list.</p>
-<pre><code>Params
+<section class="desc"><p>Wrapper arround executable and the data list of <a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a> object.
+Will execute the callable the list.</p>
+<pre><code>Parameters
 
-func : callable stateless function
-    funs is going to be called like func(item, **func_args) on all items in data patern
-if data stays None, will perform the action on all rows, else it will perfom the action on the data list
-func_args : dict that will be passed by default to func in all calls
-confirm : will ask interactively confirmation 
-asynch : execute the task asynchronously with NitroSession executor
-workers : mandatory if asynch is true
-progress : to show progress bar with ETA (tqdm) 
-message : To show to the user
+func : callable stateless function. func is going to be called like func(item, **func_args) on all items in data.
+data : if stays None, will perform the action on all rows, else it will perfom the action on the data list.
+func_args : dict that will be passed by default to func in all calls.
+confirm : will ask interactively confirmation.
+asynch : execute the task asynchronously with &lt;a title="msiempy.NitroSession" href="#msiempy.NitroSession"&gt;`NitroSession`&lt;/a&gt; executor.
+workers : mandatory if asynch is true.
+progress : to show progress bar with ETA (tqdm).
+message : To show to the user.
 </code></pre>
 <p>Returns a list of returned results</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
     &#34;&#34;&#34;
-    Wrapper arround executable and the data list of NitroList object.
-    Will execute the callable the local manager data list.
+    Wrapper arround executable and the data list of `msiempy.NitroList` object.
+    Will execute the callable the list.
 
-        Params
+        Parameters
         
-        func : callable stateless function
-            funs is going to be called like func(item, **func_args) on all items in data patern
-        if data stays None, will perform the action on all rows, else it will perfom the action on the data list
-        func_args : dict that will be passed by default to func in all calls
-        confirm : will ask interactively confirmation 
-        asynch : execute the task asynchronously with NitroSession executor
-        workers : mandatory if asynch is true
-        progress : to show progress bar with ETA (tqdm) 
-        message : To show to the user
+        func : callable stateless function. func is going to be called like func(item, **func_args) on all items in data.
+        data : if stays None, will perform the action on all rows, else it will perfom the action on the data list.
+        func_args : dict that will be passed by default to func in all calls.
+        confirm : will ask interactively confirmation.
+        asynch : execute the task asynchronously with `msiempy.NitroSession` executor.
+        workers : mandatory if asynch is true.
+        progress : to show progress bar with ETA (tqdm).
+        message : To show to the user.
 
     Returns a list of returned results
     &#34;&#34;&#34;
@@ -2190,28 +2243,41 @@ message : To show to the user
 <span>def <span class="ident">search</span></span>(<span>self, invert=False, match_prop='json', *pattern)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Return a list of elements that matches regex patterns.
+<section class="desc"><p>Return a list of elements that matches one or more regex patterns.
 Patterns are applied one after another. It's a logic AND.
 Use <code>|</code> inside patterns to search with logic OR.
 This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not
 references the items in the original NitroList.</p>
+<pre><code>Parameters
+
+*pattern : List or string regex patterns to look for.
+invert : Weither or not to invert the search and return elements that doesn't not match search.
+match_prop : Propertie that is going to be called to search. Could be `text` or `json`.
+</code></pre>
 <p>If you wish to apply more specific filters to NitroList list, please
 use filter(), list comprehension, or other filtering method.
-i.e. : <code>[item for item in manager if item['cost'] &gt; 50]</code></p>
+i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
 <p>More on regex <a href="https://docs.python.org/3/library/re.html#re.Pattern.search">https://docs.python.org/3/library/re.html#re.Pattern.search</a></p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def search(self, invert=False, match_prop=&#39;json&#39;, *pattern):
     &#34;&#34;&#34;
-    Return a list of elements that matches regex patterns.
+    Return a list of elements that matches one or more regex patterns.
     Patterns are applied one after another. It&#39;s a logic AND.
     Use `|` inside patterns to search with logic OR.
     This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not
     references the items in the original NitroList.
 
+        Parameters
+        
+        *pattern : List or string regex patterns to look for.
+        invert : Weither or not to invert the search and return elements that doesn&#39;t not match search.
+        match_prop : Propertie that is going to be called to search. Could be `text` or `json`.
+
+
     If you wish to apply more specific filters to NitroList list, please
     use filter(), list comprehension, or other filtering method.
-        i.e. : `[item for item in manager if item[&#39;cost&#39;] &gt; 50]`
+        i.e. : `[item for item in list if item[&#39;cost&#39;] &gt; 50]`
 
     More on regex https://docs.python.org/3/library/re.html#re.Pattern.search
     &#34;&#34;&#34;
@@ -2252,15 +2318,13 @@ i.e. : <code>[item for item in manager if item['cost'] &gt; 50]</code></p>
 <span>class <span class="ident">NitroObject</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for all nitro objects. All objects have a reference the single
-NitroSession object that handle the esm requests.</p>
+<section class="desc"><p>Base class for all nitro objects. All objects have a reference to the single <a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> object that handle the esm requests.</p>
 <p>Creates the object session.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class NitroObject(abc.ABC):
     &#34;&#34;&#34;
-    Base class for all nitro objects. All objects have a reference the single
-    NitroSession object that handle the esm requests.
+    Base class for all nitro objects. All objects have a reference to the single `msiempy.NitroSession` object that handle the esm requests.
     &#34;&#34;&#34;
 
     class NitroJSONEncoder(json.JSONEncoder):
@@ -2391,29 +2455,30 @@ def refresh(self):
 </code></dt>
 <dd>
 <section class="desc"><p>NitroSession object represent the point of convergence of every request to the McFee ESM
-It provides standard dialogue with the esm with params.py
-Internal <strong>dict</strong> refers to a unique instance of dict and thus, properties can be instanciated only once.
-No need to call a login() method. Credentials and other configurations are read from a ./.msiem/conf.ini file
+It provides standard dialogue with the esm with agument interpolation with <a title="msiempy.params" href="params.html"><code>msiempy.params</code></a>.
+Internal <code>__dict__</code> refers to a unique instance of dict and thus, properties can be instanciated only once.
+Credentials and other configurations are read from a ./.msiem/conf.ini file.
 If the ./msiem directory desn't exists in your current directory, will assume the file is your home directory
-as ~/.msiem/conf.ini or %appdata%\Roaming.msiem\conf.ini
-Use logout() to delete the object.
+as ~/.msiem/conf.ini or %appdata%\Roaming.msiem\conf.ini.
 Use NitroSession.config.read() - ConfigParser object - to read a new configuration file. </p>
-<p>This init method is called every time you call NitroSession() constructor.
-but the properties are actually initiated only once.
-Use logout() to trash the obejct and re instanciate NitroSession.
-Configuration file path can be passed as conf_path attr and/or conf_dict.
-We read from conf_dict attr ie : {'esm':{'host':'myhost.com','user':'username','passwd':''}&hellip;}
-See NitroConfig class to have full details.</p></section>
+<p>The init method is called every time you call NitroSession() constructor.
+But the properties are actually initiated only once.
+Use logout() to trash the obejct and re instanciate NitroSession.</p>
+<pre><code>Parameters
+
+conf_path : Configuration file path can be passed as conf_path attr.
+conf_dict : attr ie : {'esm':{'host':'myhost.com','user':'username','passwd':''}...}.
+See &lt;a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"&gt;`NitroConfig`&lt;/a&gt; class to have full details.
+</code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class NitroSession():
     &#39;&#39;&#39;NitroSession object represent the point of convergence of every request to the McFee ESM
-    It provides standard dialogue with the esm with params.py
-    Internal __dict__ refers to a unique instance of dict and thus, properties can be instanciated only once.
-    No need to call a login() method. Credentials and other configurations are read from a ./.msiem/conf.ini file 
+    It provides standard dialogue with the esm with agument interpolation with `msiempy.params`.
+    Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once.
+    Credentials and other configurations are read from a ./.msiem/conf.ini file.
     If the ./msiem directory desn&#39;t exists in your current directory, will assume the file is your home directory
-        as ~/.msiem/conf.ini or %appdata%\\Roaming\\.msiem\\conf.ini
-    Use logout() to delete the object.
+        as ~/.msiem/conf.ini or %appdata%\\Roaming\\.msiem\\conf.ini.
     Use NitroSession.config.read() - ConfigParser object - to read a new configuration file. 
     &#39;&#39;&#39;
 
@@ -2451,12 +2516,15 @@ See NitroConfig class to have full details.</p></section>
 
     def __init__(self, conf_path=None, conf_dict=None):
         &#34;&#34;&#34;
-        This init method is called every time you call NitroSession() constructor.
-        but the properties are actually initiated only once.
+        The init method is called every time you call NitroSession() constructor.
+        But the properties are actually initiated only once.
         Use logout() to trash the obejct and re instanciate NitroSession.
-        Configuration file path can be passed as conf_path attr and/or conf_dict.
-        We read from conf_dict attr ie : {&#39;esm&#39;:{&#39;host&#39;:&#39;myhost.com&#39;,&#39;user&#39;:&#39;username&#39;,&#39;passwd&#39;:&#39;&#39;}...}
-            See NitroConfig class to have full details.
+
+            Parameters
+
+            conf_path : Configuration file path can be passed as conf_path attr.
+            conf_dict : attr ie : {&#39;esm&#39;:{&#39;host&#39;:&#39;myhost.com&#39;,&#39;user&#39;:&#39;username&#39;,&#39;passwd&#39;:&#39;&#39;}...}.
+            See `msiempy.NitroConfig` class to have full details.
         &#34;&#34;&#34;
         global log
         self.__dict__ = NitroSession.__unique_state__
@@ -2584,12 +2652,15 @@ See NitroConfig class to have full details.</p></section>
     def request(self, request, http=&#39;post&#39;, callback=None, raw=False, secure=False, **params):
         &#34;&#34;&#34;
             This method is the centralized interface of all request coming to the SIEM.
-                request :   keyword corresponding to the request name in PARAMS mapping
-                http :      http method
-                callback :  a callable to execute on the returned object if needed
-                raw :       if true will return the Response object from requests module
-                secure :    if true will not log the content of the request
-                **params :  interpolation parameters that will be match to PARAMS templates
+
+                Parameters
+
+                request :   keyword corresponding to the request name in `msiempy.params` mapping.
+                http :      http method.
+                callback :  a callable to execute on the returned object if needed.
+                raw :       if true will return the Response object from requests module.
+                secure :    if true will not log the content of the request.
+                **params :  interpolation parameters that will be match to `msiempy.params` templates. Check the file to be sure of the keyword arguments.
 
             Returns None if HTTP error, Timeout or TooManyRedirects if raw=False
         &#34;&#34;&#34;
@@ -2775,31 +2846,31 @@ a new session will be instanciated next time.</p></section>
 <span>def <span class="ident">request</span></span>(<span>self, request, http='post', callback=None, raw=False, secure=False, **params)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>This method is the centralized interface of all request coming to the SIEM.
-request :
-keyword corresponding to the request name in PARAMS mapping
-http :
-http method
-callback :
-a callable to execute on the returned object if needed
-raw :
-if true will return the Response object from requests module
-secure :
-if true will not log the content of the request
-**params :
-interpolation parameters that will be match to PARAMS templates</p>
+<section class="desc"><p>This method is the centralized interface of all request coming to the SIEM.</p>
+<pre><code>Parameters
+
+request :   keyword corresponding to the request name in &lt;a title="msiempy.params" href="params.html"&gt;`msiempy.params`&lt;/a&gt; mapping.
+http :      http method.
+callback :  a callable to execute on the returned object if needed.
+raw :       if true will return the Response object from requests module.
+secure :    if true will not log the content of the request.
+**params :  interpolation parameters that will be match to &lt;a title="msiempy.params" href="params.html"&gt;`msiempy.params`&lt;/a&gt; templates. Check the file to be sure of the keyword arguments.
+</code></pre>
 <p>Returns None if HTTP error, Timeout or TooManyRedirects if raw=False</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def request(self, request, http=&#39;post&#39;, callback=None, raw=False, secure=False, **params):
     &#34;&#34;&#34;
         This method is the centralized interface of all request coming to the SIEM.
-            request :   keyword corresponding to the request name in PARAMS mapping
-            http :      http method
-            callback :  a callable to execute on the returned object if needed
-            raw :       if true will return the Response object from requests module
-            secure :    if true will not log the content of the request
-            **params :  interpolation parameters that will be match to PARAMS templates
+
+            Parameters
+
+            request :   keyword corresponding to the request name in `msiempy.params` mapping.
+            http :      http method.
+            callback :  a callable to execute on the returned object if needed.
+            raw :       if true will return the Response object from requests module.
+            secure :    if true will not log the content of the request.
+            **params :  interpolation parameters that will be match to `msiempy.params` templates. Check the file to be sure of the keyword arguments.
 
         Returns None if HTTP error, Timeout or TooManyRedirects if raw=False
     &#34;&#34;&#34;

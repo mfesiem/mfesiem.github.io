@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
 <title>msiempy.watchlist API documentation</title>
-<meta name="description" content="Watchlist module offers a whatchlist management." />
+<meta name="description" content="Provide whatchlist management." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,11 +20,11 @@
 <h1 class="title">Module <code>msiempy.watchlist</code></h1>
 </header>
 <section id="section-intro">
-<p>Watchlist module offers a whatchlist management.</p>
+<p>Provide whatchlist management.</p>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
-&#34;&#34;&#34;Watchlist module offers a whatchlist management.&#34;&#34;&#34;
+&#34;&#34;&#34;Provide whatchlist management.&#34;&#34;&#34;
 
 import logging
 import collections
@@ -34,6 +34,9 @@ from . import NitroDict, NitroList
 class WatchlistManager(NitroList):
 
     def __init__(self, *args, **kwargs):
+        &#34;&#34;&#34;
+
+        &#34;&#34;&#34;
         super().__init__(*args, **kwargs)
         self.data=self.nitro.request(&#39;get_watchlists_no_filters&#39;, hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
 
@@ -41,6 +44,9 @@ class WatchlistManager(NitroList):
         collections.UserList.__init__(self, [Watchlist(adict=item) for item in self.data if isinstance(item, (dict, NitroDict))])
 
     def load_details(self):
+        &#34;&#34;&#34;
+        
+        &#34;&#34;&#34;
         self.perform(Watchlist.load_details, asynch=False, progress=True)
 
 
@@ -48,7 +54,9 @@ class Watchlist(NitroDict):
     &#34;&#34;&#34;
 
     Complete list of watchlist fields (not values) once load with load_details()
-    Dict keys :
+
+        Dictionary keys
+
         name: The name of the watchlist
         type: The watchlist type
         customType: The watchlist custom type (custom field)
@@ -101,13 +109,22 @@ class Watchlist(NitroDict):
         super().__init__(*args, **kwargs)
 
     def add_values(self, values):
+        &#34;&#34;&#34;
+        
+        &#34;&#34;&#34;
         self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)
 
     def data_from_id(self, id):
+        &#34;&#34;&#34;
+        
+        &#34;&#34;&#34;
         info=self.nitro.request(&#39;get_watchlist_details&#39;, id=id)
         return info
 
     def load_details(self):
+        &#34;&#34;&#34;
+        
+        &#34;&#34;&#34;
         the_id = self.data[&#39;id&#39;]
         self.data.update(self.data_from_id(the_id))
         self.data[&#39;id&#39;]=the_id
@@ -133,14 +150,14 @@ class Watchlist(NitroDict):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Complete list of watchlist fields (not values) once load with load_details()
-Dict keys :
+<section class="desc"><p>Complete list of watchlist fields (not values) once load with load_details()</p>
+<pre><code>Dictionary keys
+
 name: The name of the watchlist
 type: The watchlist type
 customType: The watchlist custom type (custom field)
 dynamic: Whether this watchlist is dynamic
-hidden:
-Whether this watchlist is hidden
+hidden:  Whether this watchlist is hidden
 scored: Whether this watchlist has a scoring component (GTI for example)
 valueCount: The number of values in this watchlist
 active: Whether this watchlist is a active
@@ -149,12 +166,12 @@ source: source
 id: The id of the watchlist
 search: A regular expression, if applicable to the type of data source
 updateType: If dynamic is true, the type of update frequency (hourly, weekly, etc)
-Accepted Values:
-EVERY_SO_MANY_MINUTES
-HOURLY_AT_SPECIFIED_MINUTE
-DAILY_AT_SPECIFIED_TIME
-WEEKLY_AT_SPECIFIED_DAYTIME
-MONTHLY_AT_SPECIFIED_DAYTIME
+    Accepted Values:
+    EVERY_SO_MANY_MINUTES
+    HOURLY_AT_SPECIFIED_MINUTE
+    DAILY_AT_SPECIFIED_TIME
+    WEEKLY_AT_SPECIFIED_DAYTIME
+    MONTHLY_AT_SPECIFIED_DAYTIME
 updateDay: The day the watchlist should be updated, if applicable. This value will either be the day of the week (1-7, corresponding to Sunday to Saturday), or the day of the month depending on the update type.
 updateMin: If dynamic is true and a minute field is applicable to the update frequency, this will hold the minute of either the hour or day depending on updateType.
 age: The age of the watchlist values in milliseconds
@@ -180,16 +197,24 @@ matchRegex: If the watchlist is populated from an enrichment source, this will h
 lineSkip: If the watchlist is populated from an enrichment source, this will hold the enrichment line skip setting. See the enrichment configuration documentation for more details on this setting.
 delimitRegex: If the watchlist is populated from an enrichment source, this will hold the enrichment delimit regex setting. See the enrichment configuration documentation for more details on this setting.
 groups: If the watchlist is populated from an enrichment source, this will hold the enrichment groups setting. See the enrichment configuration documentation for more details on this setting.
-values: values</p>
+values: values
+</code></pre>
 <p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
-and update dict values accordingly.</p></section>
+and update dict values accordingly.</p>
+<pre><code>Parameters
+
+adict : dict object to wrap.
+id : ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.
+</code></pre></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Watchlist(NitroDict):
     &#34;&#34;&#34;
 
     Complete list of watchlist fields (not values) once load with load_details()
-    Dict keys :
+
+        Dictionary keys
+
         name: The name of the watchlist
         type: The watchlist type
         customType: The watchlist custom type (custom field)
@@ -242,13 +267,22 @@ and update dict values accordingly.</p></section>
         super().__init__(*args, **kwargs)
 
     def add_values(self, values):
+        &#34;&#34;&#34;
+        
+        &#34;&#34;&#34;
         self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)
 
     def data_from_id(self, id):
+        &#34;&#34;&#34;
+        
+        &#34;&#34;&#34;
         info=self.nitro.request(&#39;get_watchlist_details&#39;, id=id)
         return info
 
     def load_details(self):
+        &#34;&#34;&#34;
+        
+        &#34;&#34;&#34;
         the_id = self.data[&#39;id&#39;]
         self.data.update(self.data_from_id(the_id))
         self.data[&#39;id&#39;]=the_id
@@ -282,6 +316,9 @@ and update dict values accordingly.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def add_values(self, values):
+    &#34;&#34;&#34;
+    
+    &#34;&#34;&#34;
     self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)</code></pre>
 </details>
 </dd>
@@ -293,6 +330,9 @@ and update dict values accordingly.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def load_details(self):
+    &#34;&#34;&#34;
+    
+    &#34;&#34;&#34;
     the_id = self.data[&#39;id&#39;]
     self.data.update(self.data_from_id(the_id))
     self.data[&#39;id&#39;]=the_id</code></pre>
@@ -331,17 +371,15 @@ and update dict values accordingly.</p></section>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for NitroLists objects.
-Inherits from list</p>
-<p>Ignore nested lists. Meaning that if alist if a list of lists
-it will we be ignored.
-Nevertheless, if a list is present as a key value in a dict,
-it will be added as such.</p></section>
+<section class="desc"><p>Base class for NitroList objects. It offers callable execution management, searcb and other data list actions.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class WatchlistManager(NitroList):
 
     def __init__(self, *args, **kwargs):
+        &#34;&#34;&#34;
+
+        &#34;&#34;&#34;
         super().__init__(*args, **kwargs)
         self.data=self.nitro.request(&#39;get_watchlists_no_filters&#39;, hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
 
@@ -349,6 +387,9 @@ it will be added as such.</p></section>
         collections.UserList.__init__(self, [Watchlist(adict=item) for item in self.data if isinstance(item, (dict, NitroDict))])
 
     def load_details(self):
+        &#34;&#34;&#34;
+        
+        &#34;&#34;&#34;
         self.perform(Watchlist.load_details, asynch=False, progress=True)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -375,6 +416,9 @@ it will be added as such.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def load_details(self):
+    &#34;&#34;&#34;
+    
+    &#34;&#34;&#34;
     self.perform(Watchlist.load_details, asynch=False, progress=True)</code></pre>
 </details>
 </dd>

@@ -6,7 +6,7 @@
 <meta name="generator" content="pdoc 0.6.3" />
 <title>msiempy.params API documentation</title>
 <meta name="description" content="This module imports a dict into the msiem core class to provide
-a central place to aggregate methods and parameters. The params
+a central place to aggregate API methods and parameters. The params
 are stored as …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
@@ -23,14 +23,14 @@ are stored as …" />
 </header>
 <section id="section-intro">
 <p>This module imports a dict into the msiem core class to provide
-a central place to aggregate methods and parameters. The params
+a central place to aggregate API methods and parameters. The params
 are stored as docstrings to support string replacement.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>method</code></strong> :&ensp;<code>str</code></dt>
 <dd>Dict key associated with desired function</dd>
 </dl>
-<p>Use normal dict access, ["method"], or .pop("method")</p>
+<p>Use normal dict access, PARAMS["method"], or PARAMS.get("method")</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><strong><code>tuple</code></strong></dt>
@@ -50,12 +50,12 @@ Important note : Do not use sigle quotes (') to delimit data into the interpolat
 <summary>Source code</summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;This module imports a dict into the msiem core class to provide
-    a central place to aggregate methods and parameters. The params
+    a central place to aggregate API methods and parameters. The params
     are stored as docstrings to support string replacement.
 
     Args:
         method (str): Dict key associated with desired function
-        Use normal dict access, [&#34;method&#34;], or .pop(&#34;method&#34;)
+        Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
 
     Returns:
         tuple: (string, string)

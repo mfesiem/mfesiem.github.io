@@ -68,7 +68,7 @@ class FilteredQueryList(NitroList):
             &#34;PREVIOUS_YEAR&#34;
     ]
     &#34;&#34;&#34;
-    List of possible time ranges : &#34;CUSTOM&#34;,
+    List of possible time ranges : `&#34;CUSTOM&#34;,
             &#34;LAST_MINUTE&#34;,
             &#34;LAST_10_MINUTES&#34;,
             &#34;LAST_30_MINUTES&#34;,
@@ -85,7 +85,7 @@ class FilteredQueryList(NitroList):
             &#34;CURRENT_QUARTER&#34;,
             &#34;PREVIOUS_QUARTER&#34;,
             &#34;CURRENT_YEAR&#34;,
-            &#34;PREVIOUS_YEAR&#34;
+            &#34;PREVIOUS_YEAR&#34;`
     &#34;&#34;&#34;
 
     def __init__(self, time_range=None, start_time=None, end_time=None, filters=None, 
@@ -94,20 +94,19 @@ class FilteredQueryList(NitroList):
         &#34;&#34;&#34;
         Abstract base class that handles the time ranges operations, loading data from the SIEM.
 
-            Parameters
-        
-            time_range : Query time range. String representation of a time range. 
-                See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`
-            start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
-            end_time : Query endding time, can be a string or a datetime object. Parsed with dateutil.
-            filters : List of filters applied to the query.
-            load_async : Load asynchonously the sub-queries. Defaulted to True.
-            requests_size : number of items per request.
-            max_query_depth : maximum number of supplement reccursions of division of the query times
-                Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
-                the list is (500*5)*(500*5)*(500*5) = 15625000000
+        Parameters:  
+    
+        - `time_range` : Query time range. String representation of a time range. 
+            See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`
+        - `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
+        - `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
+        - `filters` : List of filters applied to the query.
+        - `load_async` : Load asynchonously the sub-queries. Defaulted to True.
+        - `requests_size` : number of items per request.
+        - `max_query_depth` : maximum number of supplement reccursions of division of the query times
+            Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
+            the list is (500*5)*(500*5)*(500*5) = 15625000000
             
-        
         &#34;&#34;&#34;
 
         super().__init__(*arg, **kwargs)
@@ -308,16 +307,14 @@ class FilteredQueryList(NitroList):
                 or by setting the attribute manually like `manager.load_asynch=True`
             Only the first query is loaded asynchronously.
 
-            Parameters
+        Parameters:  
+    
+        - `workers` : numbre of parrallels task
+        - `slots` : number of time slots the query can be divided. The loading bar is 
+            divided according to the number of slots
+        - `delta` : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
+            with dateutil.
         
-            requests_size : size (in items) for the individual requests.
-            workers : numbre of parrallels task
-            slots : number of time slots the query can be divided. The loading bar is 
-                divided according to the number of slots
-            delta : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
-                with dateutil.
-        
-        #
         &#34;&#34;&#34;
 
         items, completed = self._load_data(workers=workers)
@@ -474,22 +471,38 @@ class FieldFilter(QueryFilter):
         &#39;DOES_NOT_CONTAIN&#39;,
         &#39;REGEX&#39;]
 
-    &#34;&#34;&#34;List of possible type of value and the associated keyword to pass
-        to
+    &#34;&#34;&#34;List of possible operators : `&#39;IN&#39;,
+        &#39;NOT_IN&#39;,
+        &#39;GREATER_THAN&#39;,
+        &#39;LESS_THAN&#39;,
+        &#39;GREATER_OR_EQUALS_THAN&#39;,
+        &#39;LESS_OR_EQUALS_THAN&#39;,
+        &#39;NUMERIC_EQUALS&#39;,
+        &#39;NUMERIC_NOT_EQUALS&#39;,
+        &#39;DOES_NOT_EQUAL&#39;,
+        &#39;EQUALS&#39;,
+        &#39;CONTAINS&#39;,
+        &#39;DOES_NOT_CONTAIN&#39;,
+        &#39;REGEX&#39;`
         &#34;&#34;&#34;
+
     POSSIBLE_VALUE_TYPES=[
             {&#39;type&#39;:&#39;EsmWatchlistValue&#39;,    &#39;key&#39;:&#39;watchlist&#39;},
             {&#39;type&#39;:&#39;EsmVariableValue&#39;,     &#39;key&#39;:&#39;variable&#39;},
             {&#39;type&#39;:&#39;EsmBasicValue&#39;,        &#39;key&#39;:&#39;value&#39;},
             {&#39;type&#39;:&#39;EsmCompoundValue&#39;,     &#39;key&#39;:&#39;values&#39;}]
+    &#34;&#34;&#34;
+    List of possible value type. See `msiempy.query.FieldFilter.add_value`.
+    &#34;&#34;&#34;
 
 
     def __init__(self, name, values, operator=&#39;IN&#39;) :
         &#34;&#34;&#34;
-        name : field name as string
-        values : list of values the field is going 
-                 to be tested againts with the specified orperator
-        orperator : string representing 
+        Parameters:
+
+        - `name` : field name as string.
+        - `values` : list of values the field is going to be tested againts with the specified orperator.
+        - `orperator` : operator, see `msiempy.query.FieldFilter.POSSIBLE_OPERATORS`.
         &#34;&#34;&#34;
         super().__init__()
         #Declaring attributes
@@ -562,7 +575,7 @@ class FieldFilter(QueryFilter):
         &#34;&#34;&#34;
         Add a new value to the field filter.
         
-        Args could be :
+        Parameters could be (depending of the value type):
             (type=&#39;EsmBasicValue&#39;,      value=&#39;a value&#39;}. or
             (type=&#39;EsmWatchlistValue&#39;,  watchlist=1)   or 
             (type=&#39;EsmVariableValue&#39;,   variable=1}  or
@@ -601,7 +614,7 @@ class FieldFilter(QueryFilter):
 
     def add_basic_value(self, value):
         &#34;&#34;&#34;
-        Wrapper arround add_value to add a EsmBasicValue
+        Wrapper arround add_value to add a EsmBasicValue.
         &#34;&#34;&#34;
         self.add_value(type=&#39;EsmBasicValue&#39;, value=value)
 
@@ -636,10 +649,12 @@ class FieldFilter(QueryFilter):
 <dd>
 <section class="desc"><p>Based on EsmFieldFilter. See SIEM api doc.
 Used to dump a filter in the right format.</p>
-<p>name : field name as string
-values : list of values the field is going
-to be tested againts with the specified orperator
-orperator : string representing</p></section>
+<p>Parameters:</p>
+<ul>
+<li><code>name</code> : field name as string.</li>
+<li><code>values</code> : list of values the field is going to be tested againts with the specified orperator.</li>
+<li><code>orperator</code> : operator, see <a title="msiempy.query.FieldFilter.POSSIBLE_OPERATORS" href="#msiempy.query.FieldFilter.POSSIBLE_OPERATORS"><code>FieldFilter.POSSIBLE_OPERATORS</code></a>.</li>
+</ul></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class FieldFilter(QueryFilter):
@@ -664,22 +679,38 @@ orperator : string representing</p></section>
         &#39;DOES_NOT_CONTAIN&#39;,
         &#39;REGEX&#39;]
 
-    &#34;&#34;&#34;List of possible type of value and the associated keyword to pass
-        to
+    &#34;&#34;&#34;List of possible operators : `&#39;IN&#39;,
+        &#39;NOT_IN&#39;,
+        &#39;GREATER_THAN&#39;,
+        &#39;LESS_THAN&#39;,
+        &#39;GREATER_OR_EQUALS_THAN&#39;,
+        &#39;LESS_OR_EQUALS_THAN&#39;,
+        &#39;NUMERIC_EQUALS&#39;,
+        &#39;NUMERIC_NOT_EQUALS&#39;,
+        &#39;DOES_NOT_EQUAL&#39;,
+        &#39;EQUALS&#39;,
+        &#39;CONTAINS&#39;,
+        &#39;DOES_NOT_CONTAIN&#39;,
+        &#39;REGEX&#39;`
         &#34;&#34;&#34;
+
     POSSIBLE_VALUE_TYPES=[
             {&#39;type&#39;:&#39;EsmWatchlistValue&#39;,    &#39;key&#39;:&#39;watchlist&#39;},
             {&#39;type&#39;:&#39;EsmVariableValue&#39;,     &#39;key&#39;:&#39;variable&#39;},
             {&#39;type&#39;:&#39;EsmBasicValue&#39;,        &#39;key&#39;:&#39;value&#39;},
             {&#39;type&#39;:&#39;EsmCompoundValue&#39;,     &#39;key&#39;:&#39;values&#39;}]
+    &#34;&#34;&#34;
+    List of possible value type. See `msiempy.query.FieldFilter.add_value`.
+    &#34;&#34;&#34;
 
 
     def __init__(self, name, values, operator=&#39;IN&#39;) :
         &#34;&#34;&#34;
-        name : field name as string
-        values : list of values the field is going 
-                 to be tested againts with the specified orperator
-        orperator : string representing 
+        Parameters:
+
+        - `name` : field name as string.
+        - `values` : list of values the field is going to be tested againts with the specified orperator.
+        - `orperator` : operator, see `msiempy.query.FieldFilter.POSSIBLE_OPERATORS`.
         &#34;&#34;&#34;
         super().__init__()
         #Declaring attributes
@@ -752,7 +783,7 @@ orperator : string representing</p></section>
         &#34;&#34;&#34;
         Add a new value to the field filter.
         
-        Args could be :
+        Parameters could be (depending of the value type):
             (type=&#39;EsmBasicValue&#39;,      value=&#39;a value&#39;}. or
             (type=&#39;EsmWatchlistValue&#39;,  watchlist=1)   or 
             (type=&#39;EsmVariableValue&#39;,   variable=1}  or
@@ -791,7 +822,7 @@ orperator : string representing</p></section>
 
     def add_basic_value(self, value):
         &#34;&#34;&#34;
-        Wrapper arround add_value to add a EsmBasicValue
+        Wrapper arround add_value to add a EsmBasicValue.
         &#34;&#34;&#34;
         self.add_value(type=&#39;EsmBasicValue&#39;, value=value)
 
@@ -819,12 +850,23 @@ orperator : string representing</p></section>
 <dl>
 <dt id="msiempy.query.FieldFilter.POSSIBLE_OPERATORS"><code class="name">var <span class="ident">POSSIBLE_OPERATORS</span></code></dt>
 <dd>
-<section class="desc"><p>List of possible type of value and the associated keyword to pass
-to</p></section>
+<section class="desc"><p>List of possible operators : <code>'IN',
+'NOT_IN',
+'GREATER_THAN',
+'LESS_THAN',
+'GREATER_OR_EQUALS_THAN',
+'LESS_OR_EQUALS_THAN',
+'NUMERIC_EQUALS',
+'NUMERIC_NOT_EQUALS',
+'DOES_NOT_EQUAL',
+'EQUALS',
+'CONTAINS',
+'DOES_NOT_CONTAIN',
+'REGEX'</code></p></section>
 </dd>
 <dt id="msiempy.query.FieldFilter.POSSIBLE_VALUE_TYPES"><code class="name">var <span class="ident">POSSIBLE_VALUE_TYPES</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>List of possible value type. See <a title="msiempy.query.FieldFilter.add_value" href="#msiempy.query.FieldFilter.add_value"><code>FieldFilter.add_value()</code></a>.</p></section>
 </dd>
 </dl>
 <h3>Instance variables</h3>
@@ -875,12 +917,12 @@ def values(self):
 <span>def <span class="ident">add_basic_value</span></span>(<span>self, value)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Wrapper arround add_value to add a EsmBasicValue</p></section>
+<section class="desc"><p>Wrapper arround add_value to add a EsmBasicValue.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def add_basic_value(self, value):
     &#34;&#34;&#34;
-    Wrapper arround add_value to add a EsmBasicValue
+    Wrapper arround add_value to add a EsmBasicValue.
     &#34;&#34;&#34;
     self.add_value(type=&#39;EsmBasicValue&#39;, value=value)</code></pre>
 </details>
@@ -890,7 +932,7 @@ def values(self):
 </code></dt>
 <dd>
 <section class="desc"><p>Add a new value to the field filter.</p>
-<p>Args could be :
+<p>Parameters could be (depending of the value type):
 (type='EsmBasicValue',
 value='a value'}. or
 (type='EsmWatchlistValue',
@@ -907,7 +949,7 @@ values=['.*']}</p></section>
     &#34;&#34;&#34;
     Add a new value to the field filter.
     
-    Args could be :
+    Parameters could be (depending of the value type):
         (type=&#39;EsmBasicValue&#39;,      value=&#39;a value&#39;}. or
         (type=&#39;EsmWatchlistValue&#39;,  watchlist=1)   or 
         (type=&#39;EsmVariableValue&#39;,   variable=1}  or
@@ -968,19 +1010,20 @@ values=['.*']}</p></section>
 <section class="desc"><p>Base class for query based managers : AlarmManager, EventManager
 FilteredQueryList object can handle time_ranges and time splitting.</p>
 <p>Abstract base class that handles the time ranges operations, loading data from the SIEM.</p>
-<pre><code>Parameters
-
-time_range : Query time range. String representation of a time range. 
-    See &lt;a title="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE"&gt;`FilteredQueryList.POSSIBLE_TIME_RANGE`&lt;/a&gt;
-start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
-end_time : Query endding time, can be a string or a datetime object. Parsed with dateutil.
-filters : List of filters applied to the query.
-load_async : Load asynchonously the sub-queries. Defaulted to True.
-requests_size : number of items per request.
-max_query_depth : maximum number of supplement reccursions of division of the query times
-    Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
-    the list is (500*5)*(500*5)*(500*5) = 15625000000
-</code></pre></section>
+<p>Parameters:
+</p>
+<ul>
+<li><code>time_range</code> : Query time range. String representation of a time range.
+See <a title="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE"><code>FilteredQueryList.POSSIBLE_TIME_RANGE</code></a></li>
+<li><code>start_time</code> : Query starting time, can be a string or a datetime object. Parsed with dateutil.</li>
+<li><code>end_time</code> : Query endding time, can be a string or a datetime object. Parsed with dateutil.</li>
+<li><code>filters</code> : List of filters applied to the query.</li>
+<li><code>load_async</code> : Load asynchonously the sub-queries. Defaulted to True.</li>
+<li><code>requests_size</code> : number of items per request.</li>
+<li><code>max_query_depth</code> : maximum number of supplement reccursions of division of the query times
+Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of
+the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
+</ul></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class FilteredQueryList(NitroList):
@@ -1015,7 +1058,7 @@ max_query_depth : maximum number of supplement reccursions of division of the qu
             &#34;PREVIOUS_YEAR&#34;
     ]
     &#34;&#34;&#34;
-    List of possible time ranges : &#34;CUSTOM&#34;,
+    List of possible time ranges : `&#34;CUSTOM&#34;,
             &#34;LAST_MINUTE&#34;,
             &#34;LAST_10_MINUTES&#34;,
             &#34;LAST_30_MINUTES&#34;,
@@ -1032,7 +1075,7 @@ max_query_depth : maximum number of supplement reccursions of division of the qu
             &#34;CURRENT_QUARTER&#34;,
             &#34;PREVIOUS_QUARTER&#34;,
             &#34;CURRENT_YEAR&#34;,
-            &#34;PREVIOUS_YEAR&#34;
+            &#34;PREVIOUS_YEAR&#34;`
     &#34;&#34;&#34;
 
     def __init__(self, time_range=None, start_time=None, end_time=None, filters=None, 
@@ -1041,20 +1084,19 @@ max_query_depth : maximum number of supplement reccursions of division of the qu
         &#34;&#34;&#34;
         Abstract base class that handles the time ranges operations, loading data from the SIEM.
 
-            Parameters
-        
-            time_range : Query time range. String representation of a time range. 
-                See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`
-            start_time : Query starting time, can be a string or a datetime object. Parsed with dateutil.
-            end_time : Query endding time, can be a string or a datetime object. Parsed with dateutil.
-            filters : List of filters applied to the query.
-            load_async : Load asynchonously the sub-queries. Defaulted to True.
-            requests_size : number of items per request.
-            max_query_depth : maximum number of supplement reccursions of division of the query times
-                Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
-                the list is (500*5)*(500*5)*(500*5) = 15625000000
+        Parameters:  
+    
+        - `time_range` : Query time range. String representation of a time range. 
+            See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`
+        - `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
+        - `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
+        - `filters` : List of filters applied to the query.
+        - `load_async` : Load asynchonously the sub-queries. Defaulted to True.
+        - `requests_size` : number of items per request.
+        - `max_query_depth` : maximum number of supplement reccursions of division of the query times
+            Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
+            the list is (500*5)*(500*5)*(500*5) = 15625000000
             
-        
         &#34;&#34;&#34;
 
         super().__init__(*arg, **kwargs)
@@ -1255,16 +1297,14 @@ max_query_depth : maximum number of supplement reccursions of division of the qu
                 or by setting the attribute manually like `manager.load_asynch=True`
             Only the first query is loaded asynchronously.
 
-            Parameters
+        Parameters:  
+    
+        - `workers` : numbre of parrallels task
+        - `slots` : number of time slots the query can be divided. The loading bar is 
+            divided according to the number of slots
+        - `delta` : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
+            with dateutil.
         
-            requests_size : size (in items) for the individual requests.
-            workers : numbre of parrallels task
-            slots : number of time slots the query can be divided. The loading bar is 
-                divided according to the number of slots
-            delta : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
-                with dateutil.
-        
-        #
         &#34;&#34;&#34;
 
         items, completed = self._load_data(workers=workers)
@@ -1352,7 +1392,7 @@ max_query_depth : maximum number of supplement reccursions of division of the qu
 </dd>
 <dt id="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE"><code class="name">var <span class="ident">POSSIBLE_TIME_RANGE</span></code></dt>
 <dd>
-<section class="desc"><p>List of possible time ranges : "CUSTOM",
+<section class="desc"><p>List of possible time ranges : <code>"CUSTOM",
 "LAST_MINUTE",
 "LAST_10_MINUTES",
 "LAST_30_MINUTES",
@@ -1369,7 +1409,7 @@ max_query_depth : maximum number of supplement reccursions of division of the qu
 "CURRENT_QUARTER",
 "PREVIOUS_QUARTER",
 "CURRENT_YEAR",
-"PREVIOUS_YEAR"</p></section>
+"PREVIOUS_YEAR"</code></p></section>
 </dd>
 </dl>
 <h3>Instance variables</h3>
@@ -1487,16 +1527,15 @@ If you're looking for <code>max_query_depth</code>, it's define at the creation 
 IF you looking for load_async = True/False, you should pass this to the constructor method <a title="msiempy.query.FilteredQueryList" href="#msiempy.query.FilteredQueryList"><code>FilteredQueryList</code></a>
 or by setting the attribute manually like <code>manager.load_asynch=True</code>
 Only the first query is loaded asynchronously.</p>
-<pre><code>Parameters
-
-requests_size : size (in items) for the individual requests.
-workers : numbre of parrallels task
-slots : number of time slots the query can be divided. The loading bar is 
-    divided according to the number of slots
-delta : exemple : '24h', the query will be firstly divided in chuncks according to the time delta read
-    with dateutil.
-</code></pre>
-<h1 id="_1"></h1></section>
+<p>Parameters:
+</p>
+<ul>
+<li><code>workers</code> : numbre of parrallels task</li>
+<li><code>slots</code> : number of time slots the query can be divided. The loading bar is
+divided according to the number of slots</li>
+<li><code>delta</code> : exemple : '24h', the query will be firstly divided in chuncks according to the time delta read
+with dateutil.</li>
+</ul></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractmethod
@@ -1516,16 +1555,14 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
             or by setting the attribute manually like `manager.load_asynch=True`
         Only the first query is loaded asynchronously.
 
-        Parameters
+    Parameters:  
+
+    - `workers` : numbre of parrallels task
+    - `slots` : number of time slots the query can be divided. The loading bar is 
+        divided according to the number of slots
+    - `delta` : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
+        with dateutil.
     
-        requests_size : size (in items) for the individual requests.
-        workers : numbre of parrallels task
-        slots : number of time slots the query can be divided. The loading bar is 
-            divided according to the number of slots
-        delta : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
-            with dateutil.
-    
-    #
     &#34;&#34;&#34;
 
     items, completed = self._load_data(workers=workers)

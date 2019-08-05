@@ -400,9 +400,9 @@ class GroupFilter(QueryFilter):
         Used to dump groups of filters in the right format.
     &#34;&#34;&#34;
 
-    def __init__(self, logic=&#39;AND&#39;, *filters) :
+    def __init__(self, filters, logic=&#39;AND&#39;) :
         &#34;&#34;&#34;Parameters :  
-        - `filter` : a list of filters, it can be `msiempy.query.FieldFilter` or `msiempy.query.GroupFilter`
+        - `filters` : a list of filters, it can be `msiempy.query.FieldFilter` or `msiempy.query.GroupFilter`
         - `logic` : &#39;AND&#39; or &#39;OR&#39;
         &#34;&#34;&#34;
         super().__init__()
@@ -1660,13 +1660,13 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
 </dd>
 <dt id="msiempy.query.GroupFilter"><code class="flex name class">
 <span>class <span class="ident">GroupFilter</span></span>
-<span>(</span><span>logic='AND', *filters)</span>
+<span>(</span><span>filters, logic='AND')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Based on EsmFilterGroup. See SIEM api doc.
 Used to dump groups of filters in the right format.</p>
 <p>Parameters :<br>
-- <code>filter</code> : a list of filters, it can be <a title="msiempy.query.FieldFilter" href="#msiempy.query.FieldFilter"><code>FieldFilter</code></a> or <a title="msiempy.query.GroupFilter" href="#msiempy.query.GroupFilter"><code>GroupFilter</code></a>
+- <code>filters</code> : a list of filters, it can be <a title="msiempy.query.FieldFilter" href="#msiempy.query.FieldFilter"><code>FieldFilter</code></a> or <a title="msiempy.query.GroupFilter" href="#msiempy.query.GroupFilter"><code>GroupFilter</code></a>
 - <code>logic</code> : 'AND' or 'OR'</p></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1676,9 +1676,9 @@ Used to dump groups of filters in the right format.</p>
         Used to dump groups of filters in the right format.
     &#34;&#34;&#34;
 
-    def __init__(self, logic=&#39;AND&#39;, *filters) :
+    def __init__(self, filters, logic=&#39;AND&#39;) :
         &#34;&#34;&#34;Parameters :  
-        - `filter` : a list of filters, it can be `msiempy.query.FieldFilter` or `msiempy.query.GroupFilter`
+        - `filters` : a list of filters, it can be `msiempy.query.FieldFilter` or `msiempy.query.GroupFilter`
         - `logic` : &#39;AND&#39; or &#39;OR&#39;
         &#34;&#34;&#34;
         super().__init__()

@@ -141,7 +141,7 @@ class NitroConfig(configparser.ConfigParser):
 
         - `path`: Config file special path, if path is left None, will automatically look for it.  
         - `config`: Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`.
-        - `*args, **kwargs` : Passed to configparser.ConfigParser.__init__() method.
+        - `*args, **kwargs` : Passed to `configparser.ConfigParser.__init__()` method.
         &#34;&#34;&#34;
 
         super().__init__(*arg, **kwarg)
@@ -170,8 +170,7 @@ class NitroConfig(configparser.ConfigParser):
             self.read_dict(config)
 
     def write(self):
-        &#34;&#34;&#34;
-        Write the config file.
+        &#34;&#34;&#34;Write the config file to the predetermined path.
         &#34;&#34;&#34;
         log.info(&#34;Write config file at &#34;+self._path)
         with open(self._path, &#39;w&#39;) as conf:
@@ -193,9 +192,12 @@ class NitroConfig(configparser.ConfigParser):
             super().set(section, option, newvalue)
 
     def iset(self, section, option=None, secure=False):
-        &#34;&#34;&#34;
-        Will interactively set the specified section/optionby asking the user the input.
-        If option stays None, all section&#39;s option will be interactively set.
+        &#34;&#34;&#34;Interactively set the specified section/option by asking the user the input.  
+        Parameters:  
+
+        - `section`: Configuration&#39;s section. Exemple : &#39;esm&#39; or &#39;general&#39;.  
+        - `option`: Configuraion&#39;s option. Leave to `None` to set the whole section one after another. Exemple : &#39;user&#39;, &#39;timeout&#39;.  
+        - `secure`: Will use getpass to retreive the configuration value and won&#39;t print old value.
         &#34;&#34;&#34;
         if option is None :
             for key in self.options(section):
@@ -204,49 +206,31 @@ class NitroConfig(configparser.ConfigParser):
             self._iset(section, option, secure)
 
     @property
-    def user(self):
-        &#34;&#34;&#34;ConfigParser.get(&#39;esm&#39;, &#39;user&#39;)&#34;&#34;&#34;
-        return self.get(&#39;esm&#39;, &#39;user&#39;)
+    def user(self): return self.get(&#39;esm&#39;, &#39;user&#39;)
 
     @property
-    def host(self):
-        &#34;&#34;&#34;ConfigParser.get(&#39;esm&#39;, &#39;host&#39;)&#34;&#34;&#34;
-        return self.get(&#39;esm&#39;, &#39;host&#39;)
+    def host(self): return self.get(&#39;esm&#39;, &#39;host&#39;)
 
     @property
-    def passwd(self):
-        &#34;&#34;&#34;ConfigParser.get(&#39;esm&#39;, &#39;passwd&#39;)&#34;&#34;&#34;
-        return self.get(&#39;esm&#39;, &#39;passwd&#39;)
+    def passwd(self): return self.get(&#39;esm&#39;, &#39;passwd&#39;)
 
     @property
-    def verbose(self):
-        &#34;&#34;&#34;ConfigParser.getboolean(&#39;general&#39;, &#39;verbose&#39;)&#34;&#34;&#34;
-        return self.getboolean(&#39;general&#39;, &#39;verbose&#39;)
+    def verbose(self): return self.getboolean(&#39;general&#39;, &#39;verbose&#39;)
 
     @property
-    def quiet(self):
-        &#34;&#34;&#34;ConfigParser.getboolean(&#39;general&#39;, &#39;quiet&#39;)&#34;&#34;&#34;
-        return self.getboolean(&#39;general&#39;, &#39;quiet&#39;)
+    def quiet(self): return self.getboolean(&#39;general&#39;, &#39;quiet&#39;)
 
     @property
-    def logfile(self):
-        &#34;&#34;&#34;ConfigParser.get(&#39;general&#39;, &#39;logfile&#39;)&#34;&#34;&#34;
-        return self.get(&#39;general&#39;, &#39;logfile&#39;)
+    def logfile(self): return self.get(&#39;general&#39;, &#39;logfile&#39;)
 
     @property
-    def timeout(self):
-        &#34;&#34;&#34;ConfigParser.getint(&#39;general&#39;, &#39;timeout&#39;)&#34;&#34;&#34;
-        return self.getint(&#39;general&#39;, &#39;timeout&#39;)
+    def timeout(self): return self.getint(&#39;general&#39;, &#39;timeout&#39;)
 
     @property
-    def ssl_verify(self):
-        &#34;&#34;&#34;ConfigParser.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)&#34;&#34;&#34;
-        return self.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)
+    def ssl_verify(self): return self.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)
 
     @property
-    def output(self):
-        &#34;&#34;&#34;ConfigParser.get(&#39;general&#39;, &#39;output&#39;)&#34;&#34;&#34;
-        return self.get(&#39;general&#39;, &#39;output&#39;)
+    def output(self): return self.get(&#39;general&#39;, &#39;output&#39;)
 
    
     @staticmethod
@@ -254,14 +238,7 @@ class NitroConfig(configparser.ConfigParser):
         &#39;&#39;&#39;
         Returns the location of a supposed conf.ini file the conf.ini file,
         If the file doesn&#39;t exist, will still return the location.
-        Do not create a files not directory.
-        If a .msiem/ directory exists in pwd, will return &#39;./.msiem/conf.ini&#39;
-        Or  For Windows:  %APPDATA%\\Roaming\\
-            For Mac :     $HOME/
-            For Linux :   $XDG_CONFIG_HOME/
-                or :   $HOME/
-        If your system doesn&#39;t have any of the above environment varibles,
-            will return &#39;./.msiem/conf.ini&#39;
+        Do not create a file nor directory.
         &#39;&#39;&#39;
         conf_path_dir=None
 
@@ -288,11 +265,7 @@ class NitroConfig(configparser.ConfigParser):
 class NitroSession():
     &#39;&#39;&#39;NitroSession object represent the point of convergence of every request to the McFee ESM
     It provides standard dialogue with the esm with agument interpolation with `msiempy.params`.
-    Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once.
-    Credentials and other configurations are read from a ./.msiem/conf.ini file.
-    If the ./msiem directory desn&#39;t exists in your current directory, will assume the file is your home directory
-        as ~/.msiem/conf.ini or %appdata%\\Roaming\\.msiem\\conf.ini.
-    Use NitroSession.config.read() - ConfigParser object - to read a new configuration file. 
+    Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once. 
     &#39;&#39;&#39;
 
     BASE_URL = &#39;https://{}/rs/esm/&#39;
@@ -331,13 +304,12 @@ class NitroSession():
         &#34;&#34;&#34;
         The init method is called every time you call NitroSession() constructor.
         But the properties are actually initiated only once.
-        Use logout() to trash the obejct and re instanciate NitroSession.
+        Use logout() to reinstanciate NitroSession.
 
-            Parameters
+        Parameters:
 
-            conf_path : Configuration file path can be passed as conf_path attr.
-            conf_dict : attr ie : {&#39;esm&#39;:{&#39;host&#39;:&#39;myhost.com&#39;,&#39;user&#39;:&#39;username&#39;,&#39;passwd&#39;:&#39;&#39;}...}.
-            See `msiempy.NitroConfig` class to have full details.
+        - `conf_path` : Configuration file path.  
+        - `conf_dict` : Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`. See `msiempy.NitroConfig` class to have full details.
         &#34;&#34;&#34;
         global log
         self.__dict__ = NitroSession.__unique_state__
@@ -464,18 +436,17 @@ class NitroSession():
 
     def request(self, request, http=&#39;post&#39;, callback=None, raw=False, secure=False, **params):
         &#34;&#34;&#34;
-            This method is the centralized interface of all request coming to the SIEM.
+            This method is the centralized interface of all requests going to the SIEM.  
+            Parameters:  
 
-                Parameters
+            - `request`: Keyword corresponding to the request name in `msiempy.params` mapping.  
+            - `http`: HTTP method.  
+            - `callback`: A callable to execute on the returned object if needed.  
+            - `raw`: If true will return the Response object from requests module.  
+            - `secure`: If true will not log the content of the request.  
+            - `**params`: Interpolation parameters that will be match to `msiempy.params` templates. Check the file to be sure of the keyword arguments.  
 
-                request :   keyword corresponding to the request name in `msiempy.params` mapping.
-                http :      http method.
-                callback :  a callable to execute on the returned object if needed.
-                raw :       if true will return the Response object from requests module.
-                secure :    if true will not log the content of the request.
-                **params :  interpolation parameters that will be match to `msiempy.params` templates. Check the file to be sure of the keyword arguments.
-
-            Returns None if HTTP error, Timeout or TooManyRedirects if raw=False
+            Returns None if HTTP error, Timeout or TooManyRedirects if raw=False.
         &#34;&#34;&#34;
         log.debug(&#34;Calling nitro request : {} params={} http={} raw={} secure={} callback={}&#34;.format(
             str(request), str(params) if not secure else &#39;***&#39;, str(http), str(raw), str(secure), str(callback)
@@ -1082,7 +1053,7 @@ $XDG_CONFIG_HOME/ or : $HOME/</li>
 <li><code>path</code>: Config file special path, if path is left None, will automatically look for it.
 </li>
 <li><code>config</code>: Manual config dict. ex: <code>{'general':{'verbose':True}}</code>.</li>
-<li><code>*args, **kwargs</code> : Passed to configparser.ConfigParser.<strong>init</strong>() method.</li>
+<li><code>*args, **kwargs</code> : Passed to <code>configparser.ConfigParser.__init__()</code> method.</li>
 </ul></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1141,7 +1112,7 @@ $XDG_CONFIG_HOME/ or : $HOME/</li>
 
         - `path`: Config file special path, if path is left None, will automatically look for it.  
         - `config`: Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`.
-        - `*args, **kwargs` : Passed to configparser.ConfigParser.__init__() method.
+        - `*args, **kwargs` : Passed to `configparser.ConfigParser.__init__()` method.
         &#34;&#34;&#34;
 
         super().__init__(*arg, **kwarg)
@@ -1170,8 +1141,7 @@ $XDG_CONFIG_HOME/ or : $HOME/</li>
             self.read_dict(config)
 
     def write(self):
-        &#34;&#34;&#34;
-        Write the config file.
+        &#34;&#34;&#34;Write the config file to the predetermined path.
         &#34;&#34;&#34;
         log.info(&#34;Write config file at &#34;+self._path)
         with open(self._path, &#39;w&#39;) as conf:
@@ -1193,9 +1163,12 @@ $XDG_CONFIG_HOME/ or : $HOME/</li>
             super().set(section, option, newvalue)
 
     def iset(self, section, option=None, secure=False):
-        &#34;&#34;&#34;
-        Will interactively set the specified section/optionby asking the user the input.
-        If option stays None, all section&#39;s option will be interactively set.
+        &#34;&#34;&#34;Interactively set the specified section/option by asking the user the input.  
+        Parameters:  
+
+        - `section`: Configuration&#39;s section. Exemple : &#39;esm&#39; or &#39;general&#39;.  
+        - `option`: Configuraion&#39;s option. Leave to `None` to set the whole section one after another. Exemple : &#39;user&#39;, &#39;timeout&#39;.  
+        - `secure`: Will use getpass to retreive the configuration value and won&#39;t print old value.
         &#34;&#34;&#34;
         if option is None :
             for key in self.options(section):
@@ -1204,49 +1177,31 @@ $XDG_CONFIG_HOME/ or : $HOME/</li>
             self._iset(section, option, secure)
 
     @property
-    def user(self):
-        &#34;&#34;&#34;ConfigParser.get(&#39;esm&#39;, &#39;user&#39;)&#34;&#34;&#34;
-        return self.get(&#39;esm&#39;, &#39;user&#39;)
+    def user(self): return self.get(&#39;esm&#39;, &#39;user&#39;)
 
     @property
-    def host(self):
-        &#34;&#34;&#34;ConfigParser.get(&#39;esm&#39;, &#39;host&#39;)&#34;&#34;&#34;
-        return self.get(&#39;esm&#39;, &#39;host&#39;)
+    def host(self): return self.get(&#39;esm&#39;, &#39;host&#39;)
 
     @property
-    def passwd(self):
-        &#34;&#34;&#34;ConfigParser.get(&#39;esm&#39;, &#39;passwd&#39;)&#34;&#34;&#34;
-        return self.get(&#39;esm&#39;, &#39;passwd&#39;)
+    def passwd(self): return self.get(&#39;esm&#39;, &#39;passwd&#39;)
 
     @property
-    def verbose(self):
-        &#34;&#34;&#34;ConfigParser.getboolean(&#39;general&#39;, &#39;verbose&#39;)&#34;&#34;&#34;
-        return self.getboolean(&#39;general&#39;, &#39;verbose&#39;)
+    def verbose(self): return self.getboolean(&#39;general&#39;, &#39;verbose&#39;)
 
     @property
-    def quiet(self):
-        &#34;&#34;&#34;ConfigParser.getboolean(&#39;general&#39;, &#39;quiet&#39;)&#34;&#34;&#34;
-        return self.getboolean(&#39;general&#39;, &#39;quiet&#39;)
+    def quiet(self): return self.getboolean(&#39;general&#39;, &#39;quiet&#39;)
 
     @property
-    def logfile(self):
-        &#34;&#34;&#34;ConfigParser.get(&#39;general&#39;, &#39;logfile&#39;)&#34;&#34;&#34;
-        return self.get(&#39;general&#39;, &#39;logfile&#39;)
+    def logfile(self): return self.get(&#39;general&#39;, &#39;logfile&#39;)
 
     @property
-    def timeout(self):
-        &#34;&#34;&#34;ConfigParser.getint(&#39;general&#39;, &#39;timeout&#39;)&#34;&#34;&#34;
-        return self.getint(&#39;general&#39;, &#39;timeout&#39;)
+    def timeout(self): return self.getint(&#39;general&#39;, &#39;timeout&#39;)
 
     @property
-    def ssl_verify(self):
-        &#34;&#34;&#34;ConfigParser.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)&#34;&#34;&#34;
-        return self.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)
+    def ssl_verify(self): return self.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)
 
     @property
-    def output(self):
-        &#34;&#34;&#34;ConfigParser.get(&#39;general&#39;, &#39;output&#39;)&#34;&#34;&#34;
-        return self.get(&#39;general&#39;, &#39;output&#39;)
+    def output(self): return self.get(&#39;general&#39;, &#39;output&#39;)
 
    
     @staticmethod
@@ -1254,14 +1209,7 @@ $XDG_CONFIG_HOME/ or : $HOME/</li>
         &#39;&#39;&#39;
         Returns the location of a supposed conf.ini file the conf.ini file,
         If the file doesn&#39;t exist, will still return the location.
-        Do not create a files not directory.
-        If a .msiem/ directory exists in pwd, will return &#39;./.msiem/conf.ini&#39;
-        Or  For Windows:  %APPDATA%\\Roaming\\
-            For Mac :     $HOME/
-            For Linux :   $XDG_CONFIG_HOME/
-                or :   $HOME/
-        If your system doesn&#39;t have any of the above environment varibles,
-            will return &#39;./.msiem/conf.ini&#39;
+        Do not create a file nor directory.
         &#39;&#39;&#39;
         conf_path_dir=None
 
@@ -1328,101 +1276,83 @@ output = text #Not used yet
 <dl>
 <dt id="msiempy.NitroConfig.host"><code class="name">var <span class="ident">host</span></code></dt>
 <dd>
-<section class="desc"><p>ConfigParser.get('esm', 'host')</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
-def host(self):
-    &#34;&#34;&#34;ConfigParser.get(&#39;esm&#39;, &#39;host&#39;)&#34;&#34;&#34;
-    return self.get(&#39;esm&#39;, &#39;host&#39;)</code></pre>
+def host(self): return self.get(&#39;esm&#39;, &#39;host&#39;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.NitroConfig.logfile"><code class="name">var <span class="ident">logfile</span></code></dt>
 <dd>
-<section class="desc"><p>ConfigParser.get('general', 'logfile')</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
-def logfile(self):
-    &#34;&#34;&#34;ConfigParser.get(&#39;general&#39;, &#39;logfile&#39;)&#34;&#34;&#34;
-    return self.get(&#39;general&#39;, &#39;logfile&#39;)</code></pre>
+def logfile(self): return self.get(&#39;general&#39;, &#39;logfile&#39;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.NitroConfig.output"><code class="name">var <span class="ident">output</span></code></dt>
 <dd>
-<section class="desc"><p>ConfigParser.get('general', 'output')</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
-def output(self):
-    &#34;&#34;&#34;ConfigParser.get(&#39;general&#39;, &#39;output&#39;)&#34;&#34;&#34;
-    return self.get(&#39;general&#39;, &#39;output&#39;)</code></pre>
+def output(self): return self.get(&#39;general&#39;, &#39;output&#39;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.NitroConfig.passwd"><code class="name">var <span class="ident">passwd</span></code></dt>
 <dd>
-<section class="desc"><p>ConfigParser.get('esm', 'passwd')</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
-def passwd(self):
-    &#34;&#34;&#34;ConfigParser.get(&#39;esm&#39;, &#39;passwd&#39;)&#34;&#34;&#34;
-    return self.get(&#39;esm&#39;, &#39;passwd&#39;)</code></pre>
+def passwd(self): return self.get(&#39;esm&#39;, &#39;passwd&#39;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.NitroConfig.quiet"><code class="name">var <span class="ident">quiet</span></code></dt>
 <dd>
-<section class="desc"><p>ConfigParser.getboolean('general', 'quiet')</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
-def quiet(self):
-    &#34;&#34;&#34;ConfigParser.getboolean(&#39;general&#39;, &#39;quiet&#39;)&#34;&#34;&#34;
-    return self.getboolean(&#39;general&#39;, &#39;quiet&#39;)</code></pre>
+def quiet(self): return self.getboolean(&#39;general&#39;, &#39;quiet&#39;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.NitroConfig.ssl_verify"><code class="name">var <span class="ident">ssl_verify</span></code></dt>
 <dd>
-<section class="desc"><p>ConfigParser.getboolean('general', 'ssl_verify')</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
-def ssl_verify(self):
-    &#34;&#34;&#34;ConfigParser.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)&#34;&#34;&#34;
-    return self.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)</code></pre>
+def ssl_verify(self): return self.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.NitroConfig.timeout"><code class="name">var <span class="ident">timeout</span></code></dt>
 <dd>
-<section class="desc"><p>ConfigParser.getint('general', 'timeout')</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
-def timeout(self):
-    &#34;&#34;&#34;ConfigParser.getint(&#39;general&#39;, &#39;timeout&#39;)&#34;&#34;&#34;
-    return self.getint(&#39;general&#39;, &#39;timeout&#39;)</code></pre>
+def timeout(self): return self.getint(&#39;general&#39;, &#39;timeout&#39;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.NitroConfig.user"><code class="name">var <span class="ident">user</span></code></dt>
 <dd>
-<section class="desc"><p>ConfigParser.get('esm', 'user')</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
-def user(self):
-    &#34;&#34;&#34;ConfigParser.get(&#39;esm&#39;, &#39;user&#39;)&#34;&#34;&#34;
-    return self.get(&#39;esm&#39;, &#39;user&#39;)</code></pre>
+def user(self): return self.get(&#39;esm&#39;, &#39;user&#39;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.NitroConfig.verbose"><code class="name">var <span class="ident">verbose</span></code></dt>
 <dd>
-<section class="desc"><p>ConfigParser.getboolean('general', 'verbose')</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
-def verbose(self):
-    &#34;&#34;&#34;ConfigParser.getboolean(&#39;general&#39;, &#39;verbose&#39;)&#34;&#34;&#34;
-    return self.getboolean(&#39;general&#39;, &#39;verbose&#39;)</code></pre>
+def verbose(self): return self.getboolean(&#39;general&#39;, &#39;verbose&#39;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1432,14 +1362,25 @@ def verbose(self):
 <span>def <span class="ident">iset</span></span>(<span>self, section, option=None, secure=False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Will interactively set the specified section/optionby asking the user the input.
-If option stays None, all section's option will be interactively set.</p></section>
+<section class="desc"><p>Interactively set the specified section/option by asking the user the input.<br>
+Parameters:
+</p>
+<ul>
+<li><code>section</code>: Configuration's section. Exemple : 'esm' or 'general'.
+</li>
+<li><code>option</code>: Configuraion's option. Leave to <code>None</code> to set the whole section one after another. Exemple : 'user', 'timeout'.
+</li>
+<li><code>secure</code>: Will use getpass to retreive the configuration value and won't print old value.</li>
+</ul></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def iset(self, section, option=None, secure=False):
-    &#34;&#34;&#34;
-    Will interactively set the specified section/optionby asking the user the input.
-    If option stays None, all section&#39;s option will be interactively set.
+    &#34;&#34;&#34;Interactively set the specified section/option by asking the user the input.  
+    Parameters:  
+
+    - `section`: Configuration&#39;s section. Exemple : &#39;esm&#39; or &#39;general&#39;.  
+    - `option`: Configuraion&#39;s option. Leave to `None` to set the whole section one after another. Exemple : &#39;user&#39;, &#39;timeout&#39;.  
+    - `secure`: Will use getpass to retreive the configuration value and won&#39;t print old value.
     &#34;&#34;&#34;
     if option is None :
         for key in self.options(section):
@@ -1452,12 +1393,11 @@ If option stays None, all section's option will be interactively set.</p></secti
 <span>def <span class="ident">write</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Write the config file.</p></section>
+<section class="desc"><p>Write the config file to the predetermined path.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def write(self):
-    &#34;&#34;&#34;
-    Write the config file.
+    &#34;&#34;&#34;Write the config file to the predetermined path.
     &#34;&#34;&#34;
     log.info(&#34;Write config file at &#34;+self._path)
     with open(self._path, &#39;w&#39;) as conf:
@@ -2444,30 +2384,22 @@ def refresh(self):
 <dd>
 <section class="desc"><p>NitroSession object represent the point of convergence of every request to the McFee ESM
 It provides standard dialogue with the esm with agument interpolation with <a title="msiempy.params" href="params.html"><code>msiempy.params</code></a>.
-Internal <code>__dict__</code> refers to a unique instance of dict and thus, properties can be instanciated only once.
-Credentials and other configurations are read from a ./.msiem/conf.ini file.
-If the ./msiem directory desn't exists in your current directory, will assume the file is your home directory
-as ~/.msiem/conf.ini or %appdata%\Roaming.msiem\conf.ini.
-Use NitroSession.config.read() - ConfigParser object - to read a new configuration file. </p>
+Internal <code>__dict__</code> refers to a unique instance of dict and thus, properties can be instanciated only once. </p>
 <p>The init method is called every time you call NitroSession() constructor.
 But the properties are actually initiated only once.
-Use logout() to trash the obejct and re instanciate NitroSession.</p>
-<pre><code>Parameters
-
-conf_path : Configuration file path can be passed as conf_path attr.
-conf_dict : attr ie : {'esm':{'host':'myhost.com','user':'username','passwd':''}...}.
-See &lt;a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"&gt;`NitroConfig`&lt;/a&gt; class to have full details.
-</code></pre></section>
+Use logout() to reinstanciate NitroSession.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>conf_path</code> : Configuration file path.
+</li>
+<li><code>conf_dict</code> : Manual config dict. ex: <code>{'general':{'verbose':True}}</code>. See <a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroConfig</code></a> class to have full details.</li>
+</ul></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class NitroSession():
     &#39;&#39;&#39;NitroSession object represent the point of convergence of every request to the McFee ESM
     It provides standard dialogue with the esm with agument interpolation with `msiempy.params`.
-    Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once.
-    Credentials and other configurations are read from a ./.msiem/conf.ini file.
-    If the ./msiem directory desn&#39;t exists in your current directory, will assume the file is your home directory
-        as ~/.msiem/conf.ini or %appdata%\\Roaming\\.msiem\\conf.ini.
-    Use NitroSession.config.read() - ConfigParser object - to read a new configuration file. 
+    Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once. 
     &#39;&#39;&#39;
 
     BASE_URL = &#39;https://{}/rs/esm/&#39;
@@ -2506,13 +2438,12 @@ See &lt;a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"&gt;`NitroConfi
         &#34;&#34;&#34;
         The init method is called every time you call NitroSession() constructor.
         But the properties are actually initiated only once.
-        Use logout() to trash the obejct and re instanciate NitroSession.
+        Use logout() to reinstanciate NitroSession.
 
-            Parameters
+        Parameters:
 
-            conf_path : Configuration file path can be passed as conf_path attr.
-            conf_dict : attr ie : {&#39;esm&#39;:{&#39;host&#39;:&#39;myhost.com&#39;,&#39;user&#39;:&#39;username&#39;,&#39;passwd&#39;:&#39;&#39;}...}.
-            See `msiempy.NitroConfig` class to have full details.
+        - `conf_path` : Configuration file path.  
+        - `conf_dict` : Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`. See `msiempy.NitroConfig` class to have full details.
         &#34;&#34;&#34;
         global log
         self.__dict__ = NitroSession.__unique_state__
@@ -2639,18 +2570,17 @@ See &lt;a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"&gt;`NitroConfi
 
     def request(self, request, http=&#39;post&#39;, callback=None, raw=False, secure=False, **params):
         &#34;&#34;&#34;
-            This method is the centralized interface of all request coming to the SIEM.
+            This method is the centralized interface of all requests going to the SIEM.  
+            Parameters:  
 
-                Parameters
+            - `request`: Keyword corresponding to the request name in `msiempy.params` mapping.  
+            - `http`: HTTP method.  
+            - `callback`: A callable to execute on the returned object if needed.  
+            - `raw`: If true will return the Response object from requests module.  
+            - `secure`: If true will not log the content of the request.  
+            - `**params`: Interpolation parameters that will be match to `msiempy.params` templates. Check the file to be sure of the keyword arguments.  
 
-                request :   keyword corresponding to the request name in `msiempy.params` mapping.
-                http :      http method.
-                callback :  a callable to execute on the returned object if needed.
-                raw :       if true will return the Response object from requests module.
-                secure :    if true will not log the content of the request.
-                **params :  interpolation parameters that will be match to `msiempy.params` templates. Check the file to be sure of the keyword arguments.
-
-            Returns None if HTTP error, Timeout or TooManyRedirects if raw=False
+            Returns None if HTTP error, Timeout or TooManyRedirects if raw=False.
         &#34;&#34;&#34;
         log.debug(&#34;Calling nitro request : {} params={} http={} raw={} secure={} callback={}&#34;.format(
             str(request), str(params) if not secure else &#39;***&#39;, str(http), str(raw), str(secure), str(callback)
@@ -2834,33 +2764,39 @@ a new session will be instanciated next time.</p></section>
 <span>def <span class="ident">request</span></span>(<span>self, request, http='post', callback=None, raw=False, secure=False, **params)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>This method is the centralized interface of all request coming to the SIEM.</p>
-<pre><code>Parameters
-
-request :   keyword corresponding to the request name in &lt;a title="msiempy.params" href="params.html"&gt;`msiempy.params`&lt;/a&gt; mapping.
-http :      http method.
-callback :  a callable to execute on the returned object if needed.
-raw :       if true will return the Response object from requests module.
-secure :    if true will not log the content of the request.
-**params :  interpolation parameters that will be match to &lt;a title="msiempy.params" href="params.html"&gt;`msiempy.params`&lt;/a&gt; templates. Check the file to be sure of the keyword arguments.
-</code></pre>
-<p>Returns None if HTTP error, Timeout or TooManyRedirects if raw=False</p></section>
+<section class="desc"><p>This method is the centralized interface of all requests going to the SIEM.<br>
+Parameters:
+</p>
+<ul>
+<li><code>request</code>: Keyword corresponding to the request name in <a title="msiempy.params" href="params.html"><code>msiempy.params</code></a> mapping.
+</li>
+<li><code>http</code>: HTTP method.
+</li>
+<li><code>callback</code>: A callable to execute on the returned object if needed.
+</li>
+<li><code>raw</code>: If true will return the Response object from requests module.
+</li>
+<li><code>secure</code>: If true will not log the content of the request.
+</li>
+<li><code>**params</code>: Interpolation parameters that will be match to <a title="msiempy.params" href="params.html"><code>msiempy.params</code></a> templates. Check the file to be sure of the keyword arguments.
+</li>
+</ul>
+<p>Returns None if HTTP error, Timeout or TooManyRedirects if raw=False.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def request(self, request, http=&#39;post&#39;, callback=None, raw=False, secure=False, **params):
     &#34;&#34;&#34;
-        This method is the centralized interface of all request coming to the SIEM.
+        This method is the centralized interface of all requests going to the SIEM.  
+        Parameters:  
 
-            Parameters
+        - `request`: Keyword corresponding to the request name in `msiempy.params` mapping.  
+        - `http`: HTTP method.  
+        - `callback`: A callable to execute on the returned object if needed.  
+        - `raw`: If true will return the Response object from requests module.  
+        - `secure`: If true will not log the content of the request.  
+        - `**params`: Interpolation parameters that will be match to `msiempy.params` templates. Check the file to be sure of the keyword arguments.  
 
-            request :   keyword corresponding to the request name in `msiempy.params` mapping.
-            http :      http method.
-            callback :  a callable to execute on the returned object if needed.
-            raw :       if true will return the Response object from requests module.
-            secure :    if true will not log the content of the request.
-            **params :  interpolation parameters that will be match to `msiempy.params` templates. Check the file to be sure of the keyword arguments.
-
-        Returns None if HTTP error, Timeout or TooManyRedirects if raw=False
+        Returns None if HTTP error, Timeout or TooManyRedirects if raw=False.
     &#34;&#34;&#34;
     log.debug(&#34;Calling nitro request : {} params={} http={} raw={} secure={} callback={}&#34;.format(
         str(request), str(params) if not secure else &#39;***&#39;, str(http), str(raw), str(secure), str(callback)

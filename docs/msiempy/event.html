@@ -70,11 +70,11 @@ class EventManager(FilteredQueryList):
             Structure must be in correct format
                 -&gt; same as setting _order property directly.
         - `limit` : max number of rows per query, by default takes the value in config `default_rows` option.
-        - `filters` : list of filters. A filter can be a tuple (field, [values]) or it can be a `msiempy.query.QueryFilter`.
+        - `filters` : list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.query.QueryFilter`
         if you wish to use advanced filtering.
         - `compute_time_range` : False if you want to send the actualy time_range in parameter for the initial query.
             Defaulted to True cause the query splitting implies computing the time_range anyway.
-        - `*args, **kwargs` : Parameters passed to `msiempy.base.FilteredQueryList.__init__()`
+        - `*args, **kwargs` : Parameters passed to `msiempy.base.FilteredQueryList`
            
             
         Notes :
@@ -84,7 +84,8 @@ class EventManager(FilteredQueryList):
             &gt;&gt;&gt;em=EventManager(fields=[&#39;SrcIP&#39;,&#39;DstIP&#39;],
                     order=(&#39;DESCENDING&#39;&#39;LastTime&#39;),
                     filters=[(&#39;DstIP&#39;,&#39;4.4.0.0/16&#39;,&#39;8.8.0.0/16&#39;)])
-            &gt;&gt;&gt;em.load_data()```
+            &gt;&gt;&gt;em.load_data()
+        ```
 
         is equivalent to :
         ```
@@ -93,8 +94,9 @@ class EventManager(FilteredQueryList):
             &gt;&gt;&gt;em._order=[{  &#34;direction&#34;: &#39;DESCENDING&#39;,
                             &#34;field&#34;: { &#34;name&#34;: &#39;LastTime&#39; }  }]
             &gt;&gt;&gt;em.filters=[(&#39;DstIP&#39;,&#39;4.4.0.0/16&#39;,&#39;8.8.0.0/16&#39;)]
-            &gt;&gt;&gt;em.load_data()```
-        - You can remove fields from `msiempy.event.Event.DEFAULTS_EVENT_FIELDS`.
+            &gt;&gt;&gt;em.load_data()
+        ```
+        - You can remove fields from default `msiempy.event.Event` fields.
         ```
             &gt;&gt;&gt;em=EventManager()
             &gt;&gt;&gt;em.fields.remove(&#39;SrcIP&#39;)
@@ -183,14 +185,15 @@ class EventManager(FilteredQueryList):
     @property
     def filters(self):
         &#34;&#34;&#34;
-        Generates the json SIEM formatted filters for the query by calling reccursive getter : config_dict.
+        JSON SIEM formatted filters for the query by calling reccursively : `msiempy.query.QueryFilter.config_dict`.
+        See `msiempy.query.FilteredQueryList.filters`.
         &#34;&#34;&#34;
         return([f.config_dict for f in self._filters])
 
     def add_filter(self, afilter):
         &#34;&#34;&#34;
-        Concrete description of the FilteredQueryList method.
-        It can take a tuple(fiels, [values]) or a QueryFilter sub class.
+        Concrete description of the `msiempy.query.FilteredQueryList` method.
+        It can take a `tuple(fiels, [values])` or a `msiempy.query.QueryFilter` subclass.
         &#34;&#34;&#34;
         if isinstance(afilter, tuple) :
             self._filters.append(FieldFilter(afilter[0], afilter[1]))
@@ -210,7 +213,7 @@ class EventManager(FilteredQueryList):
     
     @property
     def time_range(self):
-        &#34;&#34;&#34; Re-implemented the `msiempy.query.FilteredQueryList.time_range` to have better control on the property setter.
+        &#34;&#34;&#34;Re-implemented the `msiempy.query.FilteredQueryList.time_range` to have better control on the property setter.
         If `compute_time_range` is True (by default it is), try to get a start and a end time with `msiempy.utils.timerange_gettimes()`
         &#34;&#34;&#34;
         return(super().time_range)
@@ -747,11 +750,11 @@ If you pass a list here, will use the this raw list as the SIEM <code>order</cod
 Structure must be in correct format
 -&gt; same as setting _order property directly.</li>
 <li><code>limit</code> : max number of rows per query, by default takes the value in config <code>default_rows</code> option.</li>
-<li><code>filters</code> : list of filters. A filter can be a tuple (field, [values]) or it can be a <a title="msiempy.query.QueryFilter" href="query.html#msiempy.query.QueryFilter"><code>QueryFilter</code></a>.
+<li><code>filters</code> : list of filters. A filter can be a <code>tuple(field, [values])</code> or it can be a <a title="msiempy.query.QueryFilter" href="query.html#msiempy.query.QueryFilter"><code>QueryFilter</code></a>
 if you wish to use advanced filtering.</li>
 <li><code>compute_time_range</code> : False if you want to send the actualy time_range in parameter for the initial query.
 Defaulted to True cause the query splitting implies computing the time_range anyway.</li>
-<li><code>*args, **kwargs</code> : Parameters passed to <code>msiempy.base.FilteredQueryList.__init__()</code></li>
+<li><code>*args, **kwargs</code> : Parameters passed to <code>msiempy.base.FilteredQueryList</code></li>
 </ul>
 <p>Notes :</p>
 <ul>
@@ -760,19 +763,18 @@ Defaulted to True cause the query splitting implies computing the time_range any
 <pre><code>    &gt;&gt;&gt;em=EventManager(fields=['SrcIP','DstIP'],
             order=('DESCENDING''LastTime'),
             filters=[('DstIP','4.4.0.0/16','8.8.0.0/16')])
-    &gt;&gt;&gt;em.load_data()```
-
-is equivalent to :
+    &gt;&gt;&gt;em.load_data()
 </code></pre>
-<pre><code>&gt;&gt;&gt;em=EventManager()
-&gt;&gt;&gt;em.fields=['SrcIP','DstIP'],
-&gt;&gt;&gt;em._order=[{  "direction": 'DESCENDING',
-                "field": { "name": 'LastTime' }  }]
-&gt;&gt;&gt;em.filters=[('DstIP','4.4.0.0/16','8.8.0.0/16')]
-&gt;&gt;&gt;em.load_data()```
+<p>is equivalent to :</p>
+<pre><code>    &gt;&gt;&gt;em=EventManager()
+    &gt;&gt;&gt;em.fields=['SrcIP','DstIP'],
+    &gt;&gt;&gt;em._order=[{  &quot;direction&quot;: 'DESCENDING',
+                    &quot;field&quot;: { &quot;name&quot;: 'LastTime' }  }]
+    &gt;&gt;&gt;em.filters=[('DstIP','4.4.0.0/16','8.8.0.0/16')]
+    &gt;&gt;&gt;em.load_data()
 </code></pre>
 <ul>
-<li>You can remove fields from <code>msiempy.event.Event.DEFAULTS_EVENT_FIELDS</code>.</li>
+<li>You can remove fields from default <code>msiempy.event.Event</code> fields.</li>
 </ul>
 <pre><code>    &gt;&gt;&gt;em=EventManager()
     &gt;&gt;&gt;em.fields.remove('SrcIP')
@@ -813,11 +815,11 @@ is equivalent to :
             Structure must be in correct format
                 -&gt; same as setting _order property directly.
         - `limit` : max number of rows per query, by default takes the value in config `default_rows` option.
-        - `filters` : list of filters. A filter can be a tuple (field, [values]) or it can be a `msiempy.query.QueryFilter`.
+        - `filters` : list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.query.QueryFilter`
         if you wish to use advanced filtering.
         - `compute_time_range` : False if you want to send the actualy time_range in parameter for the initial query.
             Defaulted to True cause the query splitting implies computing the time_range anyway.
-        - `*args, **kwargs` : Parameters passed to `msiempy.base.FilteredQueryList.__init__()`
+        - `*args, **kwargs` : Parameters passed to `msiempy.base.FilteredQueryList`
            
             
         Notes :
@@ -827,7 +829,8 @@ is equivalent to :
             &gt;&gt;&gt;em=EventManager(fields=[&#39;SrcIP&#39;,&#39;DstIP&#39;],
                     order=(&#39;DESCENDING&#39;&#39;LastTime&#39;),
                     filters=[(&#39;DstIP&#39;,&#39;4.4.0.0/16&#39;,&#39;8.8.0.0/16&#39;)])
-            &gt;&gt;&gt;em.load_data()```
+            &gt;&gt;&gt;em.load_data()
+        ```
 
         is equivalent to :
         ```
@@ -836,8 +839,9 @@ is equivalent to :
             &gt;&gt;&gt;em._order=[{  &#34;direction&#34;: &#39;DESCENDING&#39;,
                             &#34;field&#34;: { &#34;name&#34;: &#39;LastTime&#39; }  }]
             &gt;&gt;&gt;em.filters=[(&#39;DstIP&#39;,&#39;4.4.0.0/16&#39;,&#39;8.8.0.0/16&#39;)]
-            &gt;&gt;&gt;em.load_data()```
-        - You can remove fields from `msiempy.event.Event.DEFAULTS_EVENT_FIELDS`.
+            &gt;&gt;&gt;em.load_data()
+        ```
+        - You can remove fields from default `msiempy.event.Event` fields.
         ```
             &gt;&gt;&gt;em=EventManager()
             &gt;&gt;&gt;em.fields.remove(&#39;SrcIP&#39;)
@@ -926,14 +930,15 @@ is equivalent to :
     @property
     def filters(self):
         &#34;&#34;&#34;
-        Generates the json SIEM formatted filters for the query by calling reccursive getter : config_dict.
+        JSON SIEM formatted filters for the query by calling reccursively : `msiempy.query.QueryFilter.config_dict`.
+        See `msiempy.query.FilteredQueryList.filters`.
         &#34;&#34;&#34;
         return([f.config_dict for f in self._filters])
 
     def add_filter(self, afilter):
         &#34;&#34;&#34;
-        Concrete description of the FilteredQueryList method.
-        It can take a tuple(fiels, [values]) or a QueryFilter sub class.
+        Concrete description of the `msiempy.query.FilteredQueryList` method.
+        It can take a `tuple(fiels, [values])` or a `msiempy.query.QueryFilter` subclass.
         &#34;&#34;&#34;
         if isinstance(afilter, tuple) :
             self._filters.append(FieldFilter(afilter[0], afilter[1]))
@@ -953,7 +958,7 @@ is equivalent to :
     
     @property
     def time_range(self):
-        &#34;&#34;&#34; Re-implemented the `msiempy.query.FilteredQueryList.time_range` to have better control on the property setter.
+        &#34;&#34;&#34;Re-implemented the `msiempy.query.FilteredQueryList.time_range` to have better control on the property setter.
         If `compute_time_range` is True (by default it is), try to get a start and a end time with `msiempy.utils.timerange_gettimes()`
         &#34;&#34;&#34;
         return(super().time_range)
@@ -1121,13 +1126,15 @@ is equivalent to :
 <dl>
 <dt id="msiempy.event.EventManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
-<section class="desc"><p>Generates the json SIEM formatted filters for the query by calling reccursive getter : config_dict.</p></section>
+<section class="desc"><p>JSON SIEM formatted filters for the query by calling reccursively : <a title="msiempy.query.QueryFilter.config_dict" href="query.html#msiempy.query.QueryFilter.config_dict"><code>QueryFilter.config_dict</code></a>.
+See <a title="msiempy.query.FilteredQueryList.filters" href="query.html#msiempy.query.FilteredQueryList.filters"><code>FilteredQueryList.filters</code></a>.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
 def filters(self):
     &#34;&#34;&#34;
-    Generates the json SIEM formatted filters for the query by calling reccursive getter : config_dict.
+    JSON SIEM formatted filters for the query by calling reccursively : `msiempy.query.QueryFilter.config_dict`.
+    See `msiempy.query.FilteredQueryList.filters`.
     &#34;&#34;&#34;
     return([f.config_dict for f in self._filters])</code></pre>
 </details>
@@ -1159,7 +1166,7 @@ If <code>compute_time_range</code> is True (by default it is), try to get a star
 <summary>Source code</summary>
 <pre><code class="python">@property
 def time_range(self):
-    &#34;&#34;&#34; Re-implemented the `msiempy.query.FilteredQueryList.time_range` to have better control on the property setter.
+    &#34;&#34;&#34;Re-implemented the `msiempy.query.FilteredQueryList.time_range` to have better control on the property setter.
     If `compute_time_range` is True (by default it is), try to get a start and a end time with `msiempy.utils.timerange_gettimes()`
     &#34;&#34;&#34;
     return(super().time_range)</code></pre>
@@ -1172,14 +1179,14 @@ def time_range(self):
 <span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Concrete description of the FilteredQueryList method.
-It can take a tuple(fiels, [values]) or a QueryFilter sub class.</p></section>
+<section class="desc"><p>Concrete description of the <a title="msiempy.query.FilteredQueryList" href="query.html#msiempy.query.FilteredQueryList"><code>FilteredQueryList</code></a> method.
+It can take a <code>tuple(fiels, [values])</code> or a <a title="msiempy.query.QueryFilter" href="query.html#msiempy.query.QueryFilter"><code>QueryFilter</code></a> subclass.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def add_filter(self, afilter):
     &#34;&#34;&#34;
-    Concrete description of the FilteredQueryList method.
-    It can take a tuple(fiels, [values]) or a QueryFilter sub class.
+    Concrete description of the `msiempy.query.FilteredQueryList` method.
+    It can take a `tuple(fiels, [values])` or a `msiempy.query.QueryFilter` subclass.
     &#34;&#34;&#34;
     if isinstance(afilter, tuple) :
         self._filters.append(FieldFilter(afilter[0], afilter[1]))

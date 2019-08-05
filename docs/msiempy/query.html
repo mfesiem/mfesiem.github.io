@@ -155,9 +155,9 @@ class FilteredQueryList(NitroList):
     def time_range(self):
         &#34;&#34;&#34;
         Query time range. See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
-        Default to `msiempy.queryFilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
+        Default to `msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
         Note that the time range is upper cased automatically.
-        Throw VallueError if unrecognized time range is set or not the right type.
+        Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
         &#34;&#34;&#34;
         return self._time_range.upper()
 
@@ -176,14 +176,14 @@ class FilteredQueryList(NitroList):
             else:
                 raise ValueError(&#34;The time range must be in &#34;+str(self.POSSIBLE_TIME_RANGE))
         else:
-            raise ValueError(&#39;time_range must be a string or None&#39;)
+            raise AttributeError(&#39;time_range must be a string or None&#39;)
 
     @property
     def start_time(self):
         &#34;&#34;&#34;
         Start time of the query in the right SIEM format. See `msiempy.utils.format_esm_time()`
         Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.
-        If None, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.
+        If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.
         &#34;&#34;&#34;
         return format_esm_time(self._start_time)
 
@@ -203,7 +203,7 @@ class FilteredQueryList(NitroList):
         &#34;&#34;&#34;
         End time of the query in the right SIEM format.  See `msiempy.utils.format_esm_time()`
         Use _end_time to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.
-        If None, equivalent CURRENT_DAY ends now. Raises `ValueError` if not the right type.
+        If `None`, equivalent CURRENT_DAY ends now. Raises `ValueError` if not the right type.
         &#34;&#34;&#34;
         return format_esm_time(self._end_time)
 
@@ -224,7 +224,7 @@ class FilteredQueryList(NitroList):
         Filter property : Returns a list of filters.
         Can be set with list of tuple(field, [values]) or `msiempy.query.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
         None value will call `msiempy.query.FilteredQueryList.clear_filters()`
-        Throws AttributeError if type not supported.
+        Raises `AttributeError` if type not supported.
         TODO find a better solution to integrate the filter propertie
         &#34;&#34;&#34;
         raise NotImplementedError()
@@ -314,8 +314,6 @@ class FilteredQueryList(NitroList):
                 
                 sub_queries=list()
 
-                #self.
-
                 for time in times :
                     &#34;&#34;&#34;
                     &#34;&#34;&#34;
@@ -403,9 +401,9 @@ class GroupFilter(QueryFilter):
     &#34;&#34;&#34;
 
     def __init__(self, logic=&#39;AND&#39;, *filters) :
-        &#34;&#34;&#34;
-        filter : a list of filters, it can be FieldFilter or GroupFilter aka -  base.QueryFilter
-        logic : &#39;AND&#39; or &#39;OR&#39; (i think)
+        &#34;&#34;&#34;Parameters :  
+        - `filter` : a list of filters, it can be `msiempy.query.FieldFilter` or `msiempy.query.GroupFilter`
+        - `logic` : &#39;AND&#39; or &#39;OR&#39;
         &#34;&#34;&#34;
         super().__init__()
         
@@ -541,6 +539,7 @@ class FieldFilter(QueryFilter):
         Values will always be added to the filter. To remove values, handle directly the `_values` property.
 
         Example:  
+        ```
             &gt;&gt;&gt; filter = FieldFilter(name=&#39;DstIP&#39;,values=[&#39;10.1.13.0/24&#39;],operator=&#39;IN&#39;)
             &gt;&gt;&gt; filter.values=[&#39;10.1.14.0/8&#39;, {&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}]
             &gt;&gt;&gt; filter.config_dict
@@ -550,6 +549,7 @@ class FieldFilter(QueryFilter):
             &#39;values&#39;: [{&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.13.0/24&#39;},
                 {&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.14.0/8&#39;},
                 {&#39;type&#39;: &#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;: 42}]}
+                ```
             
         &#34;&#34;&#34;
         return (self._values)
@@ -567,11 +567,14 @@ class FieldFilter(QueryFilter):
         &#34;&#34;&#34;
         Add a new value to the field filter.
         
-        Parameters could be (depending of the value type):  
-        - `{ type=&#39;EsmBasicValue&#39;, value=&#39;a value&#39;}`
-        - `{ type=&#39;EsmWatchlistValue&#39;, watchlist=1}`
-        - `{ type=&#39;EsmVariableValue&#39;, variable=1}`
-        - `{ type=&#39;EsmCompoundValue&#39;, values=[&#39;.*&#39;]}`
+        Parameters (`**args`) could be (depending of the value type):  
+        - `{ type=&#39;EsmBasicValue&#39;, value=&#39;a value&#39;}`  
+        - `{ type=&#39;EsmWatchlistValue&#39;, watchlist=1}`  
+        - `{ type=&#39;EsmVariableValue&#39;, variable=1}`  
+        - `{ type=&#39;EsmCompoundValue&#39;, values=[&#39;.*&#39;]}`  
+
+        Raises `KeyError` or `AttributeError` if you don&#39;t respect the correct type/key/value combo.
+        Note : Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
         &#34;&#34;&#34;
         try:
             type_template=None
@@ -753,6 +756,7 @@ Used to dump a filter in the right format.</p>
         Values will always be added to the filter. To remove values, handle directly the `_values` property.
 
         Example:  
+        ```
             &gt;&gt;&gt; filter = FieldFilter(name=&#39;DstIP&#39;,values=[&#39;10.1.13.0/24&#39;],operator=&#39;IN&#39;)
             &gt;&gt;&gt; filter.values=[&#39;10.1.14.0/8&#39;, {&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}]
             &gt;&gt;&gt; filter.config_dict
@@ -762,6 +766,7 @@ Used to dump a filter in the right format.</p>
             &#39;values&#39;: [{&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.13.0/24&#39;},
                 {&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.14.0/8&#39;},
                 {&#39;type&#39;: &#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;: 42}]}
+                ```
             
         &#34;&#34;&#34;
         return (self._values)
@@ -779,11 +784,14 @@ Used to dump a filter in the right format.</p>
         &#34;&#34;&#34;
         Add a new value to the field filter.
         
-        Parameters could be (depending of the value type):  
-        - `{ type=&#39;EsmBasicValue&#39;, value=&#39;a value&#39;}`
-        - `{ type=&#39;EsmWatchlistValue&#39;, watchlist=1}`
-        - `{ type=&#39;EsmVariableValue&#39;, variable=1}`
-        - `{ type=&#39;EsmCompoundValue&#39;, values=[&#39;.*&#39;]}`
+        Parameters (`**args`) could be (depending of the value type):  
+        - `{ type=&#39;EsmBasicValue&#39;, value=&#39;a value&#39;}`  
+        - `{ type=&#39;EsmWatchlistValue&#39;, watchlist=1}`  
+        - `{ type=&#39;EsmVariableValue&#39;, variable=1}`  
+        - `{ type=&#39;EsmCompoundValue&#39;, values=[&#39;.*&#39;]}`  
+
+        Raises `KeyError` or `AttributeError` if you don&#39;t respect the correct type/key/value combo.
+        Note : Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
         &#34;&#34;&#34;
         try:
             type_template=None
@@ -904,7 +912,7 @@ Set a list of values by calling <code>msiempy.query.FilteredQueryList.add_value(
 <code>dict</code> or calls <code>msiempy.query.FilteredQueryList.add_basic_value()</code> if value type is <code>int</code>, <code>float</code> or <code>str</code>.
 Values will always be added to the filter. To remove values, handle directly the <code>_values</code> property.</p>
 <p>Example:<br>
-&gt;&gt;&gt; filter = FieldFilter(name='DstIP',values=['10.1.13.0/24'],operator='IN')
+<code>&gt;&gt;&gt; filter = FieldFilter(name='DstIP',values=['10.1.13.0/24'],operator='IN')
 &gt;&gt;&gt; filter.values=['10.1.14.0/8', {'type':'EsmWatchlistValue', 'watchlist':42}]
 &gt;&gt;&gt; filter.config_dict
 {'type': 'EsmFieldFilter',
@@ -912,7 +920,7 @@ Values will always be added to the filter. To remove values, handle directly the
 'operator': 'IN',
 'values': [{'type': 'EsmBasicValue', 'value': '10.1.13.0/24'},
 {'type': 'EsmBasicValue', 'value': '10.1.14.0/8'},
-{'type': 'EsmWatchlistValue', 'watchlist': 42}]}</p></section>
+{'type': 'EsmWatchlistValue', 'watchlist': 42}]}</code></p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
@@ -924,6 +932,7 @@ def values(self):
     Values will always be added to the filter. To remove values, handle directly the `_values` property.
 
     Example:  
+    ```
         &gt;&gt;&gt; filter = FieldFilter(name=&#39;DstIP&#39;,values=[&#39;10.1.13.0/24&#39;],operator=&#39;IN&#39;)
         &gt;&gt;&gt; filter.values=[&#39;10.1.14.0/8&#39;, {&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}]
         &gt;&gt;&gt; filter.config_dict
@@ -933,6 +942,7 @@ def values(self):
         &#39;values&#39;: [{&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.13.0/24&#39;},
             {&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.14.0/8&#39;},
             {&#39;type&#39;: &#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;: 42}]}
+            ```
         
     &#34;&#34;&#34;
     return (self._values)</code></pre>
@@ -960,22 +970,28 @@ def values(self):
 </code></dt>
 <dd>
 <section class="desc"><p>Add a new value to the field filter.</p>
-<p>Parameters could be (depending of the value type):<br>
-- <code>{ type='EsmBasicValue', value='a value'}</code>
-- <code>{ type='EsmWatchlistValue', watchlist=1}</code>
-- <code>{ type='EsmVariableValue', variable=1}</code>
-- <code>{ type='EsmCompoundValue', values=['.*']}</code></p></section>
+<p>Parameters (<code>**args</code>) could be (depending of the value type):<br>
+- <code>{ type='EsmBasicValue', value='a value'}</code><br>
+- <code>{ type='EsmWatchlistValue', watchlist=1}</code><br>
+- <code>{ type='EsmVariableValue', variable=1}</code><br>
+- <code>{ type='EsmCompoundValue', values=['.*']}</code>
+</p>
+<p>Raises <code>KeyError</code> or <code>AttributeError</code> if you don't respect the correct type/key/value combo.
+Note : Filtering query with other type of filter than 'EsmBasicValue' is not tested.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def add_value(self, type, **args):
     &#34;&#34;&#34;
     Add a new value to the field filter.
     
-    Parameters could be (depending of the value type):  
-    - `{ type=&#39;EsmBasicValue&#39;, value=&#39;a value&#39;}`
-    - `{ type=&#39;EsmWatchlistValue&#39;, watchlist=1}`
-    - `{ type=&#39;EsmVariableValue&#39;, variable=1}`
-    - `{ type=&#39;EsmCompoundValue&#39;, values=[&#39;.*&#39;]}`
+    Parameters (`**args`) could be (depending of the value type):  
+    - `{ type=&#39;EsmBasicValue&#39;, value=&#39;a value&#39;}`  
+    - `{ type=&#39;EsmWatchlistValue&#39;, watchlist=1}`  
+    - `{ type=&#39;EsmVariableValue&#39;, variable=1}`  
+    - `{ type=&#39;EsmCompoundValue&#39;, values=[&#39;.*&#39;]}`  
+
+    Raises `KeyError` or `AttributeError` if you don&#39;t respect the correct type/key/value combo.
+    Note : Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
     &#34;&#34;&#34;
     try:
         type_template=None
@@ -1166,9 +1182,9 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
     def time_range(self):
         &#34;&#34;&#34;
         Query time range. See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
-        Default to `msiempy.queryFilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
+        Default to `msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
         Note that the time range is upper cased automatically.
-        Throw VallueError if unrecognized time range is set or not the right type.
+        Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
         &#34;&#34;&#34;
         return self._time_range.upper()
 
@@ -1187,14 +1203,14 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
             else:
                 raise ValueError(&#34;The time range must be in &#34;+str(self.POSSIBLE_TIME_RANGE))
         else:
-            raise ValueError(&#39;time_range must be a string or None&#39;)
+            raise AttributeError(&#39;time_range must be a string or None&#39;)
 
     @property
     def start_time(self):
         &#34;&#34;&#34;
         Start time of the query in the right SIEM format. See `msiempy.utils.format_esm_time()`
         Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.
-        If None, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.
+        If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.
         &#34;&#34;&#34;
         return format_esm_time(self._start_time)
 
@@ -1214,7 +1230,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
         &#34;&#34;&#34;
         End time of the query in the right SIEM format.  See `msiempy.utils.format_esm_time()`
         Use _end_time to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.
-        If None, equivalent CURRENT_DAY ends now. Raises `ValueError` if not the right type.
+        If `None`, equivalent CURRENT_DAY ends now. Raises `ValueError` if not the right type.
         &#34;&#34;&#34;
         return format_esm_time(self._end_time)
 
@@ -1235,7 +1251,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
         Filter property : Returns a list of filters.
         Can be set with list of tuple(field, [values]) or `msiempy.query.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
         None value will call `msiempy.query.FilteredQueryList.clear_filters()`
-        Throws AttributeError if type not supported.
+        Raises `AttributeError` if type not supported.
         TODO find a better solution to integrate the filter propertie
         &#34;&#34;&#34;
         raise NotImplementedError()
@@ -1325,8 +1341,6 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
                 
                 sub_queries=list()
 
-                #self.
-
                 for time in times :
                     &#34;&#34;&#34;
                     &#34;&#34;&#34;
@@ -1415,7 +1429,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 <section class="desc"><p>End time of the query in the right SIEM format.
 See <a title="msiempy.utils.format_esm_time" href="utils.html#msiempy.utils.format_esm_time"><code>format_esm_time()</code></a>
 Use _end_time to get the datetime object. You can set the <code>end_time</code> as a <code>str</code> or a <code>datetime</code>.
-If None, equivalent CURRENT_DAY ends now. Raises <code>ValueError</code> if not the right type.</p></section>
+If <code>None</code>, equivalent CURRENT_DAY ends now. Raises <code>ValueError</code> if not the right type.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
@@ -1423,7 +1437,7 @@ def end_time(self):
     &#34;&#34;&#34;
     End time of the query in the right SIEM format.  See `msiempy.utils.format_esm_time()`
     Use _end_time to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.
-    If None, equivalent CURRENT_DAY ends now. Raises `ValueError` if not the right type.
+    If `None`, equivalent CURRENT_DAY ends now. Raises `ValueError` if not the right type.
     &#34;&#34;&#34;
     return format_esm_time(self._end_time)</code></pre>
 </details>
@@ -1433,7 +1447,7 @@ def end_time(self):
 <section class="desc"><p>Filter property : Returns a list of filters.
 Can be set with list of tuple(field, [values]) or <a title="msiempy.query.QueryFilter" href="#msiempy.query.QueryFilter"><code>QueryFilter</code></a> in the case of a <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a> query. A single tuple is also accepted.
 None value will call <a title="msiempy.query.FilteredQueryList.clear_filters" href="#msiempy.query.FilteredQueryList.clear_filters"><code>FilteredQueryList.clear_filters()</code></a>
-Throws AttributeError if type not supported.
+Raises <code>AttributeError</code> if type not supported.
 TODO find a better solution to integrate the filter propertie</p></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1443,7 +1457,7 @@ def filters(self):
     Filter property : Returns a list of filters.
     Can be set with list of tuple(field, [values]) or `msiempy.query.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
     None value will call `msiempy.query.FilteredQueryList.clear_filters()`
-    Throws AttributeError if type not supported.
+    Raises `AttributeError` if type not supported.
     TODO find a better solution to integrate the filter propertie
     &#34;&#34;&#34;
     raise NotImplementedError()</code></pre>
@@ -1453,7 +1467,7 @@ def filters(self):
 <dd>
 <section class="desc"><p>Start time of the query in the right SIEM format. See <a title="msiempy.utils.format_esm_time" href="utils.html#msiempy.utils.format_esm_time"><code>format_esm_time()</code></a>
 Use <code>_start_time</code> to get the datetime object. You can set the <code>star_time</code> as a <code>str</code> or a <code>datetime</code>.
-If None, equivalent CURRENT_DAY start 00:00:00. Raises <code>ValueError</code> if not the right type.</p></section>
+If <code>None</code>, equivalent CURRENT_DAY start 00:00:00. Raises <code>ValueError</code> if not the right type.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
@@ -1461,7 +1475,7 @@ def start_time(self):
     &#34;&#34;&#34;
     Start time of the query in the right SIEM format. See `msiempy.utils.format_esm_time()`
     Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.
-    If None, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.
+    If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.
     &#34;&#34;&#34;
     return format_esm_time(self._start_time)</code></pre>
 </details>
@@ -1469,18 +1483,18 @@ def start_time(self):
 <dt id="msiempy.query.FilteredQueryList.time_range"><code class="name">var <span class="ident">time_range</span></code></dt>
 <dd>
 <section class="desc"><p>Query time range. See <a title="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE"><code>FilteredQueryList.POSSIBLE_TIME_RANGE</code></a>.
-Default to <code>msiempy.queryFilteredQueryList.DEFAULT_TIME_RANGE</code> (CURRENT_DAY).
+Default to <a title="msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE" href="#msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE"><code>FilteredQueryList.DEFAULT_TIME_RANGE</code></a> (CURRENT_DAY).
 Note that the time range is upper cased automatically.
-Throw VallueError if unrecognized time range is set or not the right type.</p></section>
+Raises <code>VallueError</code> if unrecognized time range is set and <code>AttributeError</code> if not the right type.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
 def time_range(self):
     &#34;&#34;&#34;
     Query time range. See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
-    Default to `msiempy.queryFilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
+    Default to `msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
     Note that the time range is upper cased automatically.
-    Throw VallueError if unrecognized time range is set or not the right type.
+    Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
     &#34;&#34;&#34;
     return self._time_range.upper()</code></pre>
 </details>
@@ -1591,8 +1605,6 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
             
             sub_queries=list()
 
-            #self.
-
             for time in times :
                 &#34;&#34;&#34;
                 &#34;&#34;&#34;
@@ -1653,9 +1665,9 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
 <dd>
 <section class="desc"><p>Based on EsmFilterGroup. See SIEM api doc.
 Used to dump groups of filters in the right format.</p>
-<p>filter : a list of filters, it can be FieldFilter or GroupFilter aka -
-base.QueryFilter
-logic : 'AND' or 'OR' (i think)</p></section>
+<p>Parameters :<br>
+- <code>filter</code> : a list of filters, it can be <a title="msiempy.query.FieldFilter" href="#msiempy.query.FieldFilter"><code>FieldFilter</code></a> or <a title="msiempy.query.GroupFilter" href="#msiempy.query.GroupFilter"><code>GroupFilter</code></a>
+- <code>logic</code> : 'AND' or 'OR'</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class GroupFilter(QueryFilter):
@@ -1665,9 +1677,9 @@ logic : 'AND' or 'OR' (i think)</p></section>
     &#34;&#34;&#34;
 
     def __init__(self, logic=&#39;AND&#39;, *filters) :
-        &#34;&#34;&#34;
-        filter : a list of filters, it can be FieldFilter or GroupFilter aka -  base.QueryFilter
-        logic : &#39;AND&#39; or &#39;OR&#39; (i think)
+        &#34;&#34;&#34;Parameters :  
+        - `filter` : a list of filters, it can be `msiempy.query.FieldFilter` or `msiempy.query.GroupFilter`
+        - `logic` : &#39;AND&#39; or &#39;OR&#39;
         &#34;&#34;&#34;
         super().__init__()
         

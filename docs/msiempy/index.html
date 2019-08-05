@@ -87,9 +87,12 @@ class NitroError(Exception):
     pass
 
 class NitroConfig(configparser.ConfigParser):
-    &#34;&#34;&#34;Class that handles the configuration. Reads the config file where ever it is and make accessible it&#39;s values throught object properties.
-    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values.
-    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place, see `msiempy.NitroConfig.CONFIG_FILE_DISCLAMER`.
+    &#34;&#34;&#34;Class that handles the configuration. Reads the config file where ever it is and make accessible it&#39;s values throught object properties.  
+    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values.  
+    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform.  
+      * For Windows:  %APPDATA%\\  
+      * For Mac :     $HOME/  
+      * For Linux :   $XDG_CONFIG_HOME/ or : $HOME/
     &#34;&#34;&#34;
 
     CONFIG_FILE_NAME=&#39;.msiem/conf.ini&#39;
@@ -97,21 +100,6 @@ class NitroConfig(configparser.ConfigParser):
 
     CONF_DIR=&#39;.msiem/&#39;
     &#34;&#34;&#34;`.msiem/`&#34;&#34;&#34;
-
-    CONFIG_FILE_DISCLAMER=&#34;&#34;&#34;
-        The configuration file should be located securely in your path since it 
-        has credentials.
-        * For Windows:  %APPDATA%\\
-        * For Mac :     $HOME/
-        * For Linux :   $XDG_CONFIG_HOME/ or :   $HOME/
-    &#34;&#34;&#34;
-    &#34;&#34;&#34;
-        The configuration file should be located securely in your path since it 
-        has credentials.
-        * For Windows:  %APPDATA%\\
-        * For Mac :     $HOME/
-        * For Linux :   $XDG_CONFIG_HOME/ or :   $HOME/
-    &#34;&#34;&#34;
 
     DEFAULT_CONF_DICT={
         &#39;esm&#39;:{&#39;host&#39;:&#39;&#39;, 
@@ -145,14 +133,16 @@ class NitroConfig(configparser.ConfigParser):
     def __str__(self):
         &#34;&#34;&#34;Custom str() method that lists all config fields.
         &#34;&#34;&#34;
-        return(self.CONFIG_FILE_DISCLAMER+&#39;\nConfiguration file : &#39;+
-            self._path+&#39;\n&#39;+str({section: dict(self[section]) for section in self.sections()}))
+        return(&#39;Configuration file : &#39;+ self._path+&#39;\n&#39;+str({section: dict(self[section]) for section in self.sections()}))
 
     def __init__(self, path=None, config=None, *arg, **kwarg):
         &#34;&#34;&#34;
-        Arguments
-        - path: Config file speciale path, if path is left None, will automatically look for it.
-        - config: Manual config dict. ex: {&#39;general&#39;:{&#39;verbose&#39;:True}}
+
+            Parameters
+
+            path: Config file speciale path, if path is left None, will automatically look for it.
+            config: Manual config dict. ex: {&#39;general&#39;:{&#39;verbose&#39;:True}}
+            *args, **kwargs : Passed to configparser.ConfigParser __init__()
         &#34;&#34;&#34;
 
         super().__init__(*arg, **kwarg)
@@ -1073,18 +1063,28 @@ are stored as …</p></section>
 <span>(</span><span>path=None, config=None, *arg, **kwarg)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Class that handles the configuration. Reads the config file where ever it is and make accessible it's values throught object properties.
-If a <code>.msiem/</code> directory exists in your current directory, the program will assume the <code>conf.ini</code> file is there, if not, it will create it with default values.
-Secondly, if no <code>.msiem/</code> directory exists in the current directory, it will be automatically placed in a appropriate place, see <a title="msiempy.NitroConfig.CONFIG_FILE_DISCLAMER" href="#msiempy.NitroConfig.CONFIG_FILE_DISCLAMER"><code>NitroConfig.CONFIG_FILE_DISCLAMER</code></a>.</p>
-<p>Arguments
-- path: Config file speciale path, if path is left None, will automatically look for it.
-- config: Manual config dict. ex: {'general':{'verbose':True}}</p></section>
+<section class="desc"><p>Class that handles the configuration. Reads the config file where ever it is and make accessible it's values throught object properties.<br>
+If a <code>.msiem/</code> directory exists in your current directory, the program will assume the <code>conf.ini</code> file is there, if not, it will create it with default values.<br>
+Secondly, if no <code>.msiem/</code> directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform.<br>
+* For Windows:
+%APPDATA%\<br>
+* For Mac :
+$HOME/<br>
+* For Linux :
+$XDG_CONFIG_HOME/ or : $HOME/</p>
+<p>Parameters</p>
+<p>path: Config file speciale path, if path is left None, will automatically look for it.
+config: Manual config dict. ex: {'general':{'verbose':True}}
+<em>args, </em>*kwargs : Passed to configparser.ConfigParser <strong>init</strong>()</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class NitroConfig(configparser.ConfigParser):
-    &#34;&#34;&#34;Class that handles the configuration. Reads the config file where ever it is and make accessible it&#39;s values throught object properties.
-    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values.
-    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place, see `msiempy.NitroConfig.CONFIG_FILE_DISCLAMER`.
+    &#34;&#34;&#34;Class that handles the configuration. Reads the config file where ever it is and make accessible it&#39;s values throught object properties.  
+    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values.  
+    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform.  
+      * For Windows:  %APPDATA%\\  
+      * For Mac :     $HOME/  
+      * For Linux :   $XDG_CONFIG_HOME/ or : $HOME/
     &#34;&#34;&#34;
 
     CONFIG_FILE_NAME=&#39;.msiem/conf.ini&#39;
@@ -1092,21 +1092,6 @@ Secondly, if no <code>.msiem/</code> directory exists in the current directory, 
 
     CONF_DIR=&#39;.msiem/&#39;
     &#34;&#34;&#34;`.msiem/`&#34;&#34;&#34;
-
-    CONFIG_FILE_DISCLAMER=&#34;&#34;&#34;
-        The configuration file should be located securely in your path since it 
-        has credentials.
-        * For Windows:  %APPDATA%\\
-        * For Mac :     $HOME/
-        * For Linux :   $XDG_CONFIG_HOME/ or :   $HOME/
-    &#34;&#34;&#34;
-    &#34;&#34;&#34;
-        The configuration file should be located securely in your path since it 
-        has credentials.
-        * For Windows:  %APPDATA%\\
-        * For Mac :     $HOME/
-        * For Linux :   $XDG_CONFIG_HOME/ or :   $HOME/
-    &#34;&#34;&#34;
 
     DEFAULT_CONF_DICT={
         &#39;esm&#39;:{&#39;host&#39;:&#39;&#39;, 
@@ -1140,14 +1125,16 @@ Secondly, if no <code>.msiem/</code> directory exists in the current directory, 
     def __str__(self):
         &#34;&#34;&#34;Custom str() method that lists all config fields.
         &#34;&#34;&#34;
-        return(self.CONFIG_FILE_DISCLAMER+&#39;\nConfiguration file : &#39;+
-            self._path+&#39;\n&#39;+str({section: dict(self[section]) for section in self.sections()}))
+        return(&#39;Configuration file : &#39;+ self._path+&#39;\n&#39;+str({section: dict(self[section]) for section in self.sections()}))
 
     def __init__(self, path=None, config=None, *arg, **kwarg):
         &#34;&#34;&#34;
-        Arguments
-        - path: Config file speciale path, if path is left None, will automatically look for it.
-        - config: Manual config dict. ex: {&#39;general&#39;:{&#39;verbose&#39;:True}}
+
+            Parameters
+
+            path: Config file speciale path, if path is left None, will automatically look for it.
+            config: Manual config dict. ex: {&#39;general&#39;:{&#39;verbose&#39;:True}}
+            *args, **kwargs : Passed to configparser.ConfigParser __init__()
         &#34;&#34;&#34;
 
         super().__init__(*arg, **kwarg)
@@ -1304,18 +1291,6 @@ Secondly, if no <code>.msiem/</code> directory exists in the current directory, 
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="msiempy.NitroConfig.CONFIG_FILE_DISCLAMER"><code class="name">var <span class="ident">CONFIG_FILE_DISCLAMER</span></code></dt>
-<dd>
-<section class="desc"><p>The configuration file should be located securely in your path since it
-has credentials.
-* For Windows:
-%APPDATA%\
-* For Mac :
-$HOME/
-* For Linux :
-$XDG_CONFIG_HOME/ or :
-$HOME/</p></section>
-</dd>
 <dt id="msiempy.NitroConfig.CONFIG_FILE_NAME"><code class="name">var <span class="ident">CONFIG_FILE_NAME</span></code></dt>
 <dd>
 <section class="desc"><p><code>.msiem/conf.ini</code></p></section>
@@ -2937,8 +2912,7 @@ secure :    if true will not log the content of the request.
 <ul>
 <li>
 <h4><code><a title="msiempy.NitroConfig" href="#msiempy.NitroConfig">NitroConfig</a></code></h4>
-<ul class="">
-<li><code><a title="msiempy.NitroConfig.CONFIG_FILE_DISCLAMER" href="#msiempy.NitroConfig.CONFIG_FILE_DISCLAMER">CONFIG_FILE_DISCLAMER</a></code></li>
+<ul class="two-column">
 <li><code><a title="msiempy.NitroConfig.CONFIG_FILE_NAME" href="#msiempy.NitroConfig.CONFIG_FILE_NAME">CONFIG_FILE_NAME</a></code></li>
 <li><code><a title="msiempy.NitroConfig.CONF_DIR" href="#msiempy.NitroConfig.CONF_DIR">CONF_DIR</a></code></li>
 <li><code><a title="msiempy.NitroConfig.DEFAULT_CONF_DICT" href="#msiempy.NitroConfig.DEFAULT_CONF_DICT">DEFAULT_CONF_DICT</a></code></li>

@@ -304,9 +304,9 @@ class NitroSession():
         &#34;&#34;&#34;
         The init method is called every time you call NitroSession() constructor.
         But the properties are actually initiated only once.
-        Use logout() to reinstanciate NitroSession.
+        Use logout() to reinstanciate NitroSession.  
 
-        Parameters:
+        Parameters:  
 
         - `conf_path` : Configuration file path.  
         - `conf_dict` : Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`. See `msiempy.NitroConfig` class to have full details.
@@ -437,6 +437,7 @@ class NitroSession():
     def request(self, request, http=&#39;post&#39;, callback=None, raw=False, secure=False, **params):
         &#34;&#34;&#34;
             This method is the centralized interface of all requests going to the SIEM.  
+
             Parameters:  
 
             - `request`: Keyword corresponding to the request name in `msiempy.params` mapping.  
@@ -613,36 +614,31 @@ class NitroObject(abc.ABC):
         self.nitro=NitroSession()
 
     def __str__(self):
-        &#34;&#34;&#34;
-        str(obj) -&gt; return text string.
+        &#34;&#34;&#34;str(obj) -&gt; return text string.
         Can be a table if the object is a NitroList.
         &#34;&#34;&#34;
         return self.text
 
     def __repr__(self):
-        &#34;&#34;&#34;
-        repr(obj) -&gt; return json string.
+        &#34;&#34;&#34;repr(obj) -&gt; return json string.
         &#34;&#34;&#34;
         return self.json
 
     @abc.abstractproperty
     def text(self):
-        &#34;&#34;&#34;
-        Returns printable string.
+        &#34;&#34;&#34;Returns printable string.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractproperty
     def json(self):
-        &#34;&#34;&#34;
-        Returns json string representation.
+        &#34;&#34;&#34;Returns json string representation.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
     def refresh(self):
-        &#34;&#34;&#34;
-        Refresh the state of the object.
+        &#34;&#34;&#34;Refresh the state of the object.
         &#34;&#34;&#34;
         pass
 
@@ -657,10 +653,10 @@ class NitroDict(collections.UserDict, NitroObject):
         Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument 
         and update dict values accordingly.
 
-            Parameters
+        Parameters:  
 
-            adict : dict object to wrap.
-            id : ESM obejct unique identifier. Alert.IPSIDAlertID for exemple. 
+        - `adict`: dict object to wrap.  
+        - `id`: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple. 
         &#34;&#34;&#34;
         NitroObject.__init__(self)
         collections.UserDict.__init__(self, adict)
@@ -705,9 +701,9 @@ class NitroList(collections.UserList, NitroObject):
 
     def __init__(self, alist=None):
         &#34;&#34;&#34;
-            Parameters
+        Parameters:  
 
-            alist : list object to wrap.
+        - `alist`: list object to wrap.
         &#34;&#34;&#34;
         NitroObject.__init__(self)
         if alist is None:
@@ -757,12 +753,11 @@ class NitroList(collections.UserList, NitroObject):
         &#34;&#34;&#34;
         Return a acsii table string representation of the manager list
 
-            Parameters
+        Parameters:  
 
-            compact : Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.
-            fields : list of fields you want in the table
-                is None : default fields are returned by .keys attribute and sorted.
-            max_column_width : when using prettytable (not compact)
+        - `compact`: Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.  
+        - `fields`: list of fields you want in the table is None : default fields are returned by .keys attribute and sorted.  
+        - `max_column_width`: when using prettytable (not compact)  
 
         It&#39;s an expesive thing to do on big ammount of data !
         &#34;&#34;&#34;
@@ -841,13 +836,13 @@ class NitroList(collections.UserList, NitroObject):
         Patterns are applied one after another. It&#39;s a logic AND.
         Use `|` inside patterns to search with logic OR.
         This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not
-        references the items in the original NitroList.
+        references the items in the original NitroList.  
 
-            Parameters
-            
-            *pattern : List or string regex patterns to look for.
-            invert : Weither or not to invert the search and return elements that doesn&#39;t not match search.
-            match_prop : Propertie that is going to be called to search. Could be `text` or `json`.
+        Parameters:  
+        
+        - `*pattern`: List or string regex patterns to look for.
+        - `invert`: Weither or not to invert the search and return elements that doesn&#39;t not match search.
+        - `match_prop`: Propertie that is going to be called to search. Could be `text` or `json`.
 
 
         If you wish to apply more specific filters to NitroList list, please
@@ -890,16 +885,16 @@ class NitroList(collections.UserList, NitroObject):
         Wrapper arround executable and the data list of `msiempy.NitroList` object.
         Will execute the callable the list.
 
-            Parameters
-            
-            func : callable stateless function. func is going to be called like func(item, **func_args) on all items in data.
-            data : if stays None, will perform the action on all rows, else it will perfom the action on the data list.
-            func_args : dict that will be passed by default to func in all calls.
-            confirm : will ask interactively confirmation.
-            asynch : execute the task asynchronously with `msiempy.NitroSession` executor.
-            workers : mandatory if asynch is true.
-            progress : to show progress bar with ETA (tqdm).
-            message : To show to the user.
+        Parameters:  
+        
+        - `func`: callable stateless function. func is going to be called like `func(item, **func_args)` on all items in data.
+        - `data`: if stays None, will perform the action on all rows, else it will perfom the action on the data list.
+        - `func_args`: dict that will be passed by default to func in all calls.
+        - `confirm`: will ask interactively confirmation.
+        - `asynch`: execute the task asynchronously with `msiempy.NitroSession` executor.
+        - `workers`: mandatory if asynch is true.
+        - `progress`: to show progress bar with ETA (tqdm).
+        - `message` : To show to the user.
 
         Returns a list of returned results
         &#34;&#34;&#34;
@@ -1416,11 +1411,13 @@ Exemple : Event, Alarm, etc&hellip;
 Inherits from dict.</p>
 <p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
 and update dict values accordingly.</p>
-<pre><code>Parameters
-
-adict : dict object to wrap.
-id : ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.
-</code></pre></section>
+<p>Parameters:
+</p>
+<ul>
+<li><code>adict</code>: dict object to wrap.
+</li>
+<li><code>id</code>: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.</li>
+</ul></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class NitroDict(collections.UserDict, NitroObject):
@@ -1434,10 +1431,10 @@ id : ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.
         Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument 
         and update dict values accordingly.
 
-            Parameters
+        Parameters:  
 
-            adict : dict object to wrap.
-            id : ESM obejct unique identifier. Alert.IPSIDAlertID for exemple. 
+        - `adict`: dict object to wrap.  
+        - `id`: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple. 
         &#34;&#34;&#34;
         NitroObject.__init__(self)
         collections.UserDict.__init__(self, adict)
@@ -1586,8 +1583,11 @@ def data_from_id(self, id):
 </code></dt>
 <dd>
 <section class="desc"><p>Base class for NitroList objects. It offers callable execution management, searcb and other data list actions.</p>
-<p>Parameters</p>
-<p>alist : list object to wrap.</p></section>
+<p>Parameters:
+</p>
+<ul>
+<li><code>alist</code>: list object to wrap.</li>
+</ul></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class NitroList(collections.UserList, NitroObject):
@@ -1597,9 +1597,9 @@ def data_from_id(self, id):
 
     def __init__(self, alist=None):
         &#34;&#34;&#34;
-            Parameters
+        Parameters:  
 
-            alist : list object to wrap.
+        - `alist`: list object to wrap.
         &#34;&#34;&#34;
         NitroObject.__init__(self)
         if alist is None:
@@ -1649,12 +1649,11 @@ def data_from_id(self, id):
         &#34;&#34;&#34;
         Return a acsii table string representation of the manager list
 
-            Parameters
+        Parameters:  
 
-            compact : Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.
-            fields : list of fields you want in the table
-                is None : default fields are returned by .keys attribute and sorted.
-            max_column_width : when using prettytable (not compact)
+        - `compact`: Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.  
+        - `fields`: list of fields you want in the table is None : default fields are returned by .keys attribute and sorted.  
+        - `max_column_width`: when using prettytable (not compact)  
 
         It&#39;s an expesive thing to do on big ammount of data !
         &#34;&#34;&#34;
@@ -1733,13 +1732,13 @@ def data_from_id(self, id):
         Patterns are applied one after another. It&#39;s a logic AND.
         Use `|` inside patterns to search with logic OR.
         This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not
-        references the items in the original NitroList.
+        references the items in the original NitroList.  
 
-            Parameters
-            
-            *pattern : List or string regex patterns to look for.
-            invert : Weither or not to invert the search and return elements that doesn&#39;t not match search.
-            match_prop : Propertie that is going to be called to search. Could be `text` or `json`.
+        Parameters:  
+        
+        - `*pattern`: List or string regex patterns to look for.
+        - `invert`: Weither or not to invert the search and return elements that doesn&#39;t not match search.
+        - `match_prop`: Propertie that is going to be called to search. Could be `text` or `json`.
 
 
         If you wish to apply more specific filters to NitroList list, please
@@ -1782,16 +1781,16 @@ def data_from_id(self, id):
         Wrapper arround executable and the data list of `msiempy.NitroList` object.
         Will execute the callable the list.
 
-            Parameters
-            
-            func : callable stateless function. func is going to be called like func(item, **func_args) on all items in data.
-            data : if stays None, will perform the action on all rows, else it will perfom the action on the data list.
-            func_args : dict that will be passed by default to func in all calls.
-            confirm : will ask interactively confirmation.
-            asynch : execute the task asynchronously with `msiempy.NitroSession` executor.
-            workers : mandatory if asynch is true.
-            progress : to show progress bar with ETA (tqdm).
-            message : To show to the user.
+        Parameters:  
+        
+        - `func`: callable stateless function. func is going to be called like `func(item, **func_args)` on all items in data.
+        - `data`: if stays None, will perform the action on all rows, else it will perfom the action on the data list.
+        - `func_args`: dict that will be passed by default to func in all calls.
+        - `confirm`: will ask interactively confirmation.
+        - `asynch`: execute the task asynchronously with `msiempy.NitroSession` executor.
+        - `workers`: mandatory if asynch is true.
+        - `progress`: to show progress bar with ETA (tqdm).
+        - `message` : To show to the user.
 
         Returns a list of returned results
         &#34;&#34;&#34;
@@ -1961,13 +1960,16 @@ def text(self):
 </code></dt>
 <dd>
 <section class="desc"><p>Return a acsii table string representation of the manager list</p>
-<pre><code>Parameters
-
-compact : Returns a nice string table made with prettytable, else an '|' separated list.
-fields : list of fields you want in the table
-    is None : default fields are returned by .keys attribute and sorted.
-max_column_width : when using prettytable (not compact)
-</code></pre>
+<p>Parameters:
+</p>
+<ul>
+<li><code>compact</code>: Returns a nice string table made with prettytable, else an '|' separated list.
+</li>
+<li><code>fields</code>: list of fields you want in the table is None : default fields are returned by .keys attribute and sorted.
+</li>
+<li><code>max_column_width</code>: when using prettytable (not compact)
+</li>
+</ul>
 <p>It's an expesive thing to do on big ammount of data !</p></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1975,12 +1977,11 @@ max_column_width : when using prettytable (not compact)
     &#34;&#34;&#34;
     Return a acsii table string representation of the manager list
 
-        Parameters
+    Parameters:  
 
-        compact : Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.
-        fields : list of fields you want in the table
-            is None : default fields are returned by .keys attribute and sorted.
-        max_column_width : when using prettytable (not compact)
+    - `compact`: Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.  
+    - `fields`: list of fields you want in the table is None : default fields are returned by .keys attribute and sorted.  
+    - `max_column_width`: when using prettytable (not compact)  
 
     It&#39;s an expesive thing to do on big ammount of data !
     &#34;&#34;&#34;
@@ -2046,17 +2047,18 @@ max_column_width : when using prettytable (not compact)
 <dd>
 <section class="desc"><p>Wrapper arround executable and the data list of <a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a> object.
 Will execute the callable the list.</p>
-<pre><code>Parameters
-
-func : callable stateless function. func is going to be called like func(item, **func_args) on all items in data.
-data : if stays None, will perform the action on all rows, else it will perfom the action on the data list.
-func_args : dict that will be passed by default to func in all calls.
-confirm : will ask interactively confirmation.
-asynch : execute the task asynchronously with &lt;a title="msiempy.NitroSession" href="#msiempy.NitroSession"&gt;`NitroSession`&lt;/a&gt; executor.
-workers : mandatory if asynch is true.
-progress : to show progress bar with ETA (tqdm).
-message : To show to the user.
-</code></pre>
+<p>Parameters:
+</p>
+<ul>
+<li><code>func</code>: callable stateless function. func is going to be called like <code>func(item, **func_args)</code> on all items in data.</li>
+<li><code>data</code>: if stays None, will perform the action on all rows, else it will perfom the action on the data list.</li>
+<li><code>func_args</code>: dict that will be passed by default to func in all calls.</li>
+<li><code>confirm</code>: will ask interactively confirmation.</li>
+<li><code>asynch</code>: execute the task asynchronously with <a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> executor.</li>
+<li><code>workers</code>: mandatory if asynch is true.</li>
+<li><code>progress</code>: to show progress bar with ETA (tqdm).</li>
+<li><code>message</code> : To show to the user.</li>
+</ul>
 <p>Returns a list of returned results</p></section>
 <details class="source">
 <summary>Source code</summary>
@@ -2065,16 +2067,16 @@ message : To show to the user.
     Wrapper arround executable and the data list of `msiempy.NitroList` object.
     Will execute the callable the list.
 
-        Parameters
-        
-        func : callable stateless function. func is going to be called like func(item, **func_args) on all items in data.
-        data : if stays None, will perform the action on all rows, else it will perfom the action on the data list.
-        func_args : dict that will be passed by default to func in all calls.
-        confirm : will ask interactively confirmation.
-        asynch : execute the task asynchronously with `msiempy.NitroSession` executor.
-        workers : mandatory if asynch is true.
-        progress : to show progress bar with ETA (tqdm).
-        message : To show to the user.
+    Parameters:  
+    
+    - `func`: callable stateless function. func is going to be called like `func(item, **func_args)` on all items in data.
+    - `data`: if stays None, will perform the action on all rows, else it will perfom the action on the data list.
+    - `func_args`: dict that will be passed by default to func in all calls.
+    - `confirm`: will ask interactively confirmation.
+    - `asynch`: execute the task asynchronously with `msiempy.NitroSession` executor.
+    - `workers`: mandatory if asynch is true.
+    - `progress`: to show progress bar with ETA (tqdm).
+    - `message` : To show to the user.
 
     Returns a list of returned results
     &#34;&#34;&#34;
@@ -2175,13 +2177,15 @@ message : To show to the user.
 Patterns are applied one after another. It's a logic AND.
 Use <code>|</code> inside patterns to search with logic OR.
 This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not
-references the items in the original NitroList.</p>
-<pre><code>Parameters
-
-*pattern : List or string regex patterns to look for.
-invert : Weither or not to invert the search and return elements that doesn't not match search.
-match_prop : Propertie that is going to be called to search. Could be `text` or `json`.
-</code></pre>
+references the items in the original NitroList.
+</p>
+<p>Parameters:
+</p>
+<ul>
+<li><code>*pattern</code>: List or string regex patterns to look for.</li>
+<li><code>invert</code>: Weither or not to invert the search and return elements that doesn't not match search.</li>
+<li><code>match_prop</code>: Propertie that is going to be called to search. Could be <code>text</code> or <code>json</code>.</li>
+</ul>
 <p>If you wish to apply more specific filters to NitroList list, please
 use filter(), list comprehension, or other filtering method.
 i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
@@ -2194,13 +2198,13 @@ i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
     Patterns are applied one after another. It&#39;s a logic AND.
     Use `|` inside patterns to search with logic OR.
     This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not
-    references the items in the original NitroList.
+    references the items in the original NitroList.  
 
-        Parameters
-        
-        *pattern : List or string regex patterns to look for.
-        invert : Weither or not to invert the search and return elements that doesn&#39;t not match search.
-        match_prop : Propertie that is going to be called to search. Could be `text` or `json`.
+    Parameters:  
+    
+    - `*pattern`: List or string regex patterns to look for.
+    - `invert`: Weither or not to invert the search and return elements that doesn&#39;t not match search.
+    - `match_prop`: Propertie that is going to be called to search. Could be `text` or `json`.
 
 
     If you wish to apply more specific filters to NitroList list, please
@@ -2276,36 +2280,31 @@ i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
         self.nitro=NitroSession()
 
     def __str__(self):
-        &#34;&#34;&#34;
-        str(obj) -&gt; return text string.
+        &#34;&#34;&#34;str(obj) -&gt; return text string.
         Can be a table if the object is a NitroList.
         &#34;&#34;&#34;
         return self.text
 
     def __repr__(self):
-        &#34;&#34;&#34;
-        repr(obj) -&gt; return json string.
+        &#34;&#34;&#34;repr(obj) -&gt; return json string.
         &#34;&#34;&#34;
         return self.json
 
     @abc.abstractproperty
     def text(self):
-        &#34;&#34;&#34;
-        Returns printable string.
+        &#34;&#34;&#34;Returns printable string.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractproperty
     def json(self):
-        &#34;&#34;&#34;
-        Returns json string representation.
+        &#34;&#34;&#34;Returns json string representation.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
     def refresh(self):
-        &#34;&#34;&#34;
-        Refresh the state of the object.
+        &#34;&#34;&#34;Refresh the state of the object.
         &#34;&#34;&#34;
         pass</code></pre>
 </details>
@@ -2338,8 +2337,7 @@ TODO support json json dumping of QueryFilers, may be by making them inherits fr
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractproperty
 def json(self):
-    &#34;&#34;&#34;
-    Returns json string representation.
+    &#34;&#34;&#34;Returns json string representation.
     &#34;&#34;&#34;
     pass</code></pre>
 </details>
@@ -2351,8 +2349,7 @@ def json(self):
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractproperty
 def text(self):
-    &#34;&#34;&#34;
-    Returns printable string.
+    &#34;&#34;&#34;Returns printable string.
     &#34;&#34;&#34;
     pass</code></pre>
 </details>
@@ -2369,8 +2366,7 @@ def text(self):
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractmethod
 def refresh(self):
-    &#34;&#34;&#34;
-    Refresh the state of the object.
+    &#34;&#34;&#34;Refresh the state of the object.
     &#34;&#34;&#34;
     pass</code></pre>
 </details>
@@ -2387,8 +2383,10 @@ It provides standard dialogue with the esm with agument interpolation with <a ti
 Internal <code>__dict__</code> refers to a unique instance of dict and thus, properties can be instanciated only once. </p>
 <p>The init method is called every time you call NitroSession() constructor.
 But the properties are actually initiated only once.
-Use logout() to reinstanciate NitroSession.</p>
-<p>Parameters:</p>
+Use logout() to reinstanciate NitroSession.
+</p>
+<p>Parameters:
+</p>
 <ul>
 <li><code>conf_path</code> : Configuration file path.
 </li>
@@ -2438,9 +2436,9 @@ Use logout() to reinstanciate NitroSession.</p>
         &#34;&#34;&#34;
         The init method is called every time you call NitroSession() constructor.
         But the properties are actually initiated only once.
-        Use logout() to reinstanciate NitroSession.
+        Use logout() to reinstanciate NitroSession.  
 
-        Parameters:
+        Parameters:  
 
         - `conf_path` : Configuration file path.  
         - `conf_dict` : Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`. See `msiempy.NitroConfig` class to have full details.
@@ -2571,6 +2569,7 @@ Use logout() to reinstanciate NitroSession.</p>
     def request(self, request, http=&#39;post&#39;, callback=None, raw=False, secure=False, **params):
         &#34;&#34;&#34;
             This method is the centralized interface of all requests going to the SIEM.  
+
             Parameters:  
 
             - `request`: Keyword corresponding to the request name in `msiempy.params` mapping.  
@@ -2764,8 +2763,9 @@ a new session will be instanciated next time.</p></section>
 <span>def <span class="ident">request</span></span>(<span>self, request, http='post', callback=None, raw=False, secure=False, **params)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>This method is the centralized interface of all requests going to the SIEM.<br>
-Parameters:
+<section class="desc"><p>This method is the centralized interface of all requests going to the SIEM.
+</p>
+<p>Parameters:
 </p>
 <ul>
 <li><code>request</code>: Keyword corresponding to the request name in <a title="msiempy.params" href="params.html"><code>msiempy.params</code></a> mapping.
@@ -2787,6 +2787,7 @@ Parameters:
 <pre><code class="python">def request(self, request, http=&#39;post&#39;, callback=None, raw=False, secure=False, **params):
     &#34;&#34;&#34;
         This method is the centralized interface of all requests going to the SIEM.  
+
         Parameters:  
 
         - `request`: Keyword corresponding to the request name in `msiempy.params` mapping.  

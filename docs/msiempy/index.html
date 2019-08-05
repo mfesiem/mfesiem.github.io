@@ -87,12 +87,12 @@ class NitroError(Exception):
     pass
 
 class NitroConfig(configparser.ConfigParser):
-    &#34;&#34;&#34;Class that handles the configuration. Reads the config file where ever it is and make accessible it&#39;s values throught object properties.  
-    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values.  
-    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform.  
-      * For Windows:  %APPDATA%\\  
-      * For Mac :     $HOME/  
-      * For Linux :   $XDG_CONFIG_HOME/ or : $HOME/
+    &#34;&#34;&#34;Class that handles the configuration. Reads the config file where ever it is and make accessible it&#39;s values throught object properties. 
+    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values. 
+    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:  
+    - For Windows:  %APPDATA%\\  
+    - For Mac :     $HOME/  
+    - For Linux :   $XDG_CONFIG_HOME/ or : $HOME/
     &#34;&#34;&#34;
 
     CONFIG_FILE_NAME=&#39;.msiem/conf.ini&#39;
@@ -126,7 +126,7 @@ class NitroConfig(configparser.ConfigParser):
     logfile = 
     timeout = 30
     ssl_verify = False
-    output = text
+    output = text #Not used yet
     ```
     &#34;&#34;&#34;
 
@@ -137,13 +137,13 @@ class NitroConfig(configparser.ConfigParser):
 
     def __init__(self, path=None, config=None, *arg, **kwarg):
         &#34;&#34;&#34;
-        Initiate a config object.
-        
-            Parameters
+        Initiate a config object.  
 
-            path: Config file speciale path, if path is left None, will automatically look for it.
-            config: Manual config dict. ex: {&#39;general&#39;:{&#39;verbose&#39;:True}}
-            *args, **kwargs : Passed to configparser.ConfigParser __init__()
+        Parameters:  
+
+        - path: Config file speciale path, if path is left None, will automatically look for it.  
+        - config: Manual config dict. ex: ```{&#39;general&#39;:{&#39;verbose&#39;:True}}```  
+        - *args, **kwargs : Passed to configparser.ConfigParser __init__()
         &#34;&#34;&#34;
 
         super().__init__(*arg, **kwarg)
@@ -1064,31 +1064,35 @@ are stored as …</p></section>
 <span>(</span><span>path=None, config=None, *arg, **kwarg)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Class that handles the configuration. Reads the config file where ever it is and make accessible it's values throught object properties.<br>
-If a <code>.msiem/</code> directory exists in your current directory, the program will assume the <code>conf.ini</code> file is there, if not, it will create it with default values.<br>
-Secondly, if no <code>.msiem/</code> directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform.<br>
-* For Windows:
+<section class="desc"><p>Class that handles the configuration. Reads the config file where ever it is and make accessible it's values throught object properties.
+If a <code>.msiem/</code> directory exists in your current directory, the program will assume the <code>conf.ini</code> file is there, if not, it will create it with default values.
+Secondly, if no <code>.msiem/</code> directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:<br>
+- For Windows:
 %APPDATA%\<br>
-* For Mac :
+- For Mac :
 $HOME/<br>
-* For Linux :
+- For Linux :
 $XDG_CONFIG_HOME/ or : $HOME/</p>
-<p>Initiate a config object.</p>
-<pre><code>Parameters
-
-path: Config file speciale path, if path is left None, will automatically look for it.
-config: Manual config dict. ex: {'general':{'verbose':True}}
-*args, **kwargs : Passed to configparser.ConfigParser __init__()
-</code></pre></section>
+<p>Initiate a config object.
+</p>
+<p>Parameters:
+</p>
+<ul>
+<li>path: Config file speciale path, if path is left None, will automatically look for it.
+</li>
+<li>config: Manual config dict. ex: <code>{'general':{'verbose':True}}</code>
+</li>
+<li><em>args, </em>*kwargs : Passed to configparser.ConfigParser <strong>init</strong>()</li>
+</ul></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class NitroConfig(configparser.ConfigParser):
-    &#34;&#34;&#34;Class that handles the configuration. Reads the config file where ever it is and make accessible it&#39;s values throught object properties.  
-    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values.  
-    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform.  
-      * For Windows:  %APPDATA%\\  
-      * For Mac :     $HOME/  
-      * For Linux :   $XDG_CONFIG_HOME/ or : $HOME/
+    &#34;&#34;&#34;Class that handles the configuration. Reads the config file where ever it is and make accessible it&#39;s values throught object properties. 
+    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values. 
+    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:  
+    - For Windows:  %APPDATA%\\  
+    - For Mac :     $HOME/  
+    - For Linux :   $XDG_CONFIG_HOME/ or : $HOME/
     &#34;&#34;&#34;
 
     CONFIG_FILE_NAME=&#39;.msiem/conf.ini&#39;
@@ -1122,7 +1126,7 @@ config: Manual config dict. ex: {'general':{'verbose':True}}
     logfile = 
     timeout = 30
     ssl_verify = False
-    output = text
+    output = text #Not used yet
     ```
     &#34;&#34;&#34;
 
@@ -1133,13 +1137,13 @@ config: Manual config dict. ex: {'general':{'verbose':True}}
 
     def __init__(self, path=None, config=None, *arg, **kwarg):
         &#34;&#34;&#34;
-        Initiate a config object.
-        
-            Parameters
+        Initiate a config object.  
 
-            path: Config file speciale path, if path is left None, will automatically look for it.
-            config: Manual config dict. ex: {&#39;general&#39;:{&#39;verbose&#39;:True}}
-            *args, **kwargs : Passed to configparser.ConfigParser __init__()
+        Parameters:  
+
+        - path: Config file speciale path, if path is left None, will automatically look for it.  
+        - config: Manual config dict. ex: ```{&#39;general&#39;:{&#39;verbose&#39;:True}}```  
+        - *args, **kwargs : Passed to configparser.ConfigParser __init__()
         &#34;&#34;&#34;
 
         super().__init__(*arg, **kwarg)
@@ -1318,7 +1322,7 @@ quiet = False
 logfile = 
 timeout = 30
 ssl_verify = False
-output = text
+output = text #Not used yet
 </code></pre></section>
 </dd>
 </dl>

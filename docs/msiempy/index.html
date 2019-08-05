@@ -87,28 +87,30 @@ class NitroError(Exception):
     pass
 
 class NitroConfig(configparser.ConfigParser):
-    &#34;&#34;&#34;&#34;Class that handles the configuration. Reads the config file whereever it is and make accessible it&#39;s values throught object properties.
+    &#34;&#34;&#34;Class that handles the configuration. Reads the config file where ever it is and make accessible it&#39;s values throught object properties.
+    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values.
+    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place, see `msiempy.NitroConfig.CONFIG_FILE_DISCLAMER`.
     &#34;&#34;&#34;
 
     CONFIG_FILE_NAME=&#39;.msiem/conf.ini&#39;
-    &#34;&#34;&#34;.msiem/conf.ini&#34;&#34;&#34;
-    CONF_DIR=&#39;.msiem/&#39;
-    &#34;&#34;&#34;.msiem/&#34;&#34;&#34;
+    &#34;&#34;&#34;`.msiem/conf.ini`&#34;&#34;&#34;
 
-    CONFIG_FILE_DISCLAMER=&#39;&#39;&#39;
-        # The configuration file should be located securely in your path since it 
-        # has credentials.
-        # For Windows:  %APPDATA%\\\\&#39;&#39;&#39;+CONFIG_FILE_NAME+&#39;&#39;&#39;
-        # For Mac :     $HOME/&#39;&#39;&#39;+CONFIG_FILE_NAME+&#39;&#39;&#39;
-        # For Linux :   $XDG_CONFIG_HOME/&#39;&#39;&#39;+CONFIG_FILE_NAME+&#39;&#39;&#39;
-        #        or :   $HOME/&#39;&#39;&#39;+CONFIG_FILE_NAME+&#39;&#39;&#39;
-        &#39;&#39;&#39;
+    CONF_DIR=&#39;.msiem/&#39;
+    &#34;&#34;&#34;`.msiem/`&#34;&#34;&#34;
+
+    CONFIG_FILE_DISCLAMER=&#34;&#34;&#34;
+        The configuration file should be located securely in your path since it 
+        has credentials.
+        * For Windows:  %APPDATA%\\
+        * For Mac :     $HOME/
+        * For Linux :   $XDG_CONFIG_HOME/ or :   $HOME/
+    &#34;&#34;&#34;
     &#34;&#34;&#34;
         The configuration file should be located securely in your path since it 
         has credentials.
-        - For Windows:  %APPDATA%\\
-        - For Mac :     $HOME/
-        - For Linux :   $XDG_CONFIG_HOME/ or :   $HOME/
+        * For Windows:  %APPDATA%\\
+        * For Mac :     $HOME/
+        * For Linux :   $XDG_CONFIG_HOME/ or :   $HOME/
     &#34;&#34;&#34;
 
     DEFAULT_CONF_DICT={
@@ -1071,35 +1073,39 @@ are stored as …</p></section>
 <span>(</span><span>path=None, config=None, *arg, **kwarg)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>"Class that handles the configuration. Reads the config file whereever it is and make accessible it's values throught object properties.</p>
+<section class="desc"><p>Class that handles the configuration. Reads the config file where ever it is and make accessible it's values throught object properties.
+If a <code>.msiem/</code> directory exists in your current directory, the program will assume the <code>conf.ini</code> file is there, if not, it will create it with default values.
+Secondly, if no <code>.msiem/</code> directory exists in the current directory, it will be automatically placed in a appropriate place, see <a title="msiempy.NitroConfig.CONFIG_FILE_DISCLAMER" href="#msiempy.NitroConfig.CONFIG_FILE_DISCLAMER"><code>NitroConfig.CONFIG_FILE_DISCLAMER</code></a>.</p>
 <p>Arguments
 - path: Config file speciale path, if path is left None, will automatically look for it.
 - config: Manual config dict. ex: {'general':{'verbose':True}}</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class NitroConfig(configparser.ConfigParser):
-    &#34;&#34;&#34;&#34;Class that handles the configuration. Reads the config file whereever it is and make accessible it&#39;s values throught object properties.
+    &#34;&#34;&#34;Class that handles the configuration. Reads the config file where ever it is and make accessible it&#39;s values throught object properties.
+    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values.
+    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place, see `msiempy.NitroConfig.CONFIG_FILE_DISCLAMER`.
     &#34;&#34;&#34;
 
     CONFIG_FILE_NAME=&#39;.msiem/conf.ini&#39;
-    &#34;&#34;&#34;.msiem/conf.ini&#34;&#34;&#34;
-    CONF_DIR=&#39;.msiem/&#39;
-    &#34;&#34;&#34;.msiem/&#34;&#34;&#34;
+    &#34;&#34;&#34;`.msiem/conf.ini`&#34;&#34;&#34;
 
-    CONFIG_FILE_DISCLAMER=&#39;&#39;&#39;
-        # The configuration file should be located securely in your path since it 
-        # has credentials.
-        # For Windows:  %APPDATA%\\\\&#39;&#39;&#39;+CONFIG_FILE_NAME+&#39;&#39;&#39;
-        # For Mac :     $HOME/&#39;&#39;&#39;+CONFIG_FILE_NAME+&#39;&#39;&#39;
-        # For Linux :   $XDG_CONFIG_HOME/&#39;&#39;&#39;+CONFIG_FILE_NAME+&#39;&#39;&#39;
-        #        or :   $HOME/&#39;&#39;&#39;+CONFIG_FILE_NAME+&#39;&#39;&#39;
-        &#39;&#39;&#39;
+    CONF_DIR=&#39;.msiem/&#39;
+    &#34;&#34;&#34;`.msiem/`&#34;&#34;&#34;
+
+    CONFIG_FILE_DISCLAMER=&#34;&#34;&#34;
+        The configuration file should be located securely in your path since it 
+        has credentials.
+        * For Windows:  %APPDATA%\\
+        * For Mac :     $HOME/
+        * For Linux :   $XDG_CONFIG_HOME/ or :   $HOME/
+    &#34;&#34;&#34;
     &#34;&#34;&#34;
         The configuration file should be located securely in your path since it 
         has credentials.
-        - For Windows:  %APPDATA%\\
-        - For Mac :     $HOME/
-        - For Linux :   $XDG_CONFIG_HOME/ or :   $HOME/
+        * For Windows:  %APPDATA%\\
+        * For Mac :     $HOME/
+        * For Linux :   $XDG_CONFIG_HOME/ or :   $HOME/
     &#34;&#34;&#34;
 
     DEFAULT_CONF_DICT={
@@ -1302,21 +1308,21 @@ are stored as …</p></section>
 <dd>
 <section class="desc"><p>The configuration file should be located securely in your path since it
 has credentials.
-- For Windows:
+* For Windows:
 %APPDATA%\
-- For Mac :
+* For Mac :
 $HOME/
-- For Linux :
+* For Linux :
 $XDG_CONFIG_HOME/ or :
 $HOME/</p></section>
 </dd>
 <dt id="msiempy.NitroConfig.CONFIG_FILE_NAME"><code class="name">var <span class="ident">CONFIG_FILE_NAME</span></code></dt>
 <dd>
-<section class="desc"><p>.msiem/conf.ini</p></section>
+<section class="desc"><p><code>.msiem/conf.ini</code></p></section>
 </dd>
 <dt id="msiempy.NitroConfig.CONF_DIR"><code class="name">var <span class="ident">CONF_DIR</span></code></dt>
 <dd>
-<section class="desc"><p>.msiem/</p></section>
+<section class="desc"><p><code>.msiem/</code></p></section>
 </dd>
 <dt id="msiempy.NitroConfig.DEFAULT_CONF_DICT"><code class="name">var <span class="ident">DEFAULT_CONF_DICT</span></code></dt>
 <dd>

@@ -27,14 +27,15 @@
 &#34;&#34;&#34;
 
 import time
+import json
+import abc
 import collections
 import datetime
 import logging
 log = logging.getLogger(&#39;msiempy&#39;)
 
-from . import NitroDict, NitroError
-from .query import FilteredQueryList, FieldFilter, GroupFilter, QueryFilter
-from .utils import timerange_gettimes, parse_query_result, format_fields_for_query
+from . import NitroObject, NitroDict, NitroError, FilteredQueryList
+from .__utils__ import timerange_gettimes, parse_query_result, format_fields_for_query
 
 class EventManager(FilteredQueryList):
     &#34;&#34;&#34;Interface to query and manage events.
@@ -348,6 +349,7 @@ class EventManager(FilteredQueryList):
         return events
           
 class Event(NitroDict):
+
     &#34;&#34;&#34;        
     Default event field keys :  
     - `Rule.msg`
@@ -450,6 +452,7 @@ class Event(NitroDict):
         &#34;&#34;&#34;
         Desctructive action.
         Replace the notes by an empty string. 
+        Do not work with SIEM v 11.2.1.
         &#34;&#34;&#34;
         NotImplementedError()
 
@@ -470,7 +473,273 @@ class Event(NitroDict):
         
     def data_from_id(self, id):
         &#34;&#34;&#34;EsmAlertData wrapper&#34;&#34;&#34;
-        return self.nitro.request(&#39;get_alert_data&#39;, id=id)</code></pre>
+        return self.nitro.request(&#39;get_alert_data&#39;, id=id)
+
+    
+class QueryFilter(NitroObject):
+    &#34;&#34;&#34;Base class for all SIEM query objects, declares the `config_dict` abstract property in order to dump the filter as JSON.
+    &#34;&#34;&#34;
+    _possible_filters = []
+
+    def __init__(self):
+        super().__init__()
+
+        #Setting up static constant
+        &#34;&#34;&#34;Not checking dynamically the validity of the fields cause makes too much of unecessary requests
+            self._possible_filters = self._get_possible_filters()
+            &#34;&#34;&#34;
+
+    def get_possible_filters(self):
+        &#34;&#34;&#34;
+        Return all the fields that you can filter on in a query.
+        &#34;&#34;&#34;
+        return(self.nitro.request(&#39;get_possible_filters&#39;))
+
+    @abc.abstractproperty
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Dump a filter in the right JSON format.
+        &#34;&#34;&#34;
+        pass
+
+    def refresh(self):
+        &#34;&#34;&#34;
+        Superclass method.
+        &#34;&#34;&#34;
+        log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))
+
+    @property
+    def json(self):
+        &#34;&#34;&#34;
+        Dump the filter as a json.
+        &#34;&#34;&#34;
+        return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))
+    
+    @property
+    def text(self):
+        &#34;&#34;&#34;
+        Text representation of `config_dict` property.
+        &#34;&#34;&#34;
+        return str(self.config_dict)
+
+class GroupFilter(QueryFilter):
+    &#34;&#34;&#34;
+        Based on EsmFilterGroup. See SIEM api doc.
+        Used to dump groups of filters in the right format.
+    &#34;&#34;&#34;
+
+    def __init__(self, filters, logic=&#39;AND&#39;) :
+        &#34;&#34;&#34;Parameters :  
+        - `filters` : a list of filters, it can be `msiempy.query.FieldFilter` or `msiempy.query.GroupFilter`
+        - `logic` : &#39;AND&#39; or &#39;OR&#39;
+        &#34;&#34;&#34;
+        super().__init__()
+        
+        #Declaring attributes
+        self.filters=filters
+        self.logic=logic
+
+    @property
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Could call recursively if there is other GroupFilter(s) object nested.
+        Dump a filter in the right format.
+        &#34;&#34;&#34;
+        return({
+            &#34;type&#34;: &#34;EsmFilterGroup&#34;,
+            &#34;filters&#34;: [f.config_dict for f in self.filters],
+            &#34;logic&#34;:self.logic
+            })
+        
+class FieldFilter(QueryFilter):
+    &#34;&#34;&#34;
+    Based on EsmFieldFilter. See SIEM api doc.
+    Used to dump a filter in the right format.
+    &#34;&#34;&#34;
+
+    &#34;&#34;&#34;List of possibles operators        
+        &#34;&#34;&#34;
+    POSSIBLE_OPERATORS=[&#39;IN&#39;,
+        &#39;NOT_IN&#39;,
+        &#39;GREATER_THAN&#39;,
+        &#39;LESS_THAN&#39;,
+        &#39;GREATER_OR_EQUALS_THAN&#39;,
+        &#39;LESS_OR_EQUALS_THAN&#39;,
+        &#39;NUMERIC_EQUALS&#39;,
+        &#39;NUMERIC_NOT_EQUALS&#39;,
+        &#39;DOES_NOT_EQUAL&#39;,
+        &#39;EQUALS&#39;,
+        &#39;CONTAINS&#39;,
+        &#39;DOES_NOT_CONTAIN&#39;,
+        &#39;REGEX&#39;]
+
+    &#34;&#34;&#34;List of possible operators : `&#39;IN&#39;,
+        &#39;NOT_IN&#39;,
+        &#39;GREATER_THAN&#39;,
+        &#39;LESS_THAN&#39;,
+        &#39;GREATER_OR_EQUALS_THAN&#39;,
+        &#39;LESS_OR_EQUALS_THAN&#39;,
+        &#39;NUMERIC_EQUALS&#39;,
+        &#39;NUMERIC_NOT_EQUALS&#39;,
+        &#39;DOES_NOT_EQUAL&#39;,
+        &#39;EQUALS&#39;,
+        &#39;CONTAINS&#39;,
+        &#39;DOES_NOT_CONTAIN&#39;,
+        &#39;REGEX&#39;`
+        &#34;&#34;&#34;
+
+    POSSIBLE_VALUE_TYPES=[
+            {&#39;type&#39;:&#39;EsmWatchlistValue&#39;,    &#39;key&#39;:&#39;watchlist&#39;},
+            {&#39;type&#39;:&#39;EsmVariableValue&#39;,     &#39;key&#39;:&#39;variable&#39;},
+            {&#39;type&#39;:&#39;EsmBasicValue&#39;,        &#39;key&#39;:&#39;value&#39;},
+            {&#39;type&#39;:&#39;EsmCompoundValue&#39;,     &#39;key&#39;:&#39;values&#39;}]
+    &#34;&#34;&#34;
+    List of possible value type. See `msiempy.query.FieldFilter.add_value`.
+    &#34;&#34;&#34;
+
+
+    def __init__(self, name, values, operator=&#39;IN&#39;) :
+        &#34;&#34;&#34;
+        Parameters:
+
+        - `name` : field name as string.
+        - `values` : list of values the field is going to be tested againts with the specified orperator.
+        - `orperator` : operator, see `msiempy.query.FieldFilter.POSSIBLE_OPERATORS`.
+        &#34;&#34;&#34;
+        super().__init__()
+        #Declaring attributes
+        self._name=str()
+        self._operator=str()
+        self._values=list()
+        self.name = name
+        self.operator = operator
+        self.values = values
+
+    @property
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Dump a filter in the right format.
+        &#34;&#34;&#34;
+        return ({
+            &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+            &#34;field&#34;: {&#34;name&#34;: self.name},
+            &#34;operator&#34;: self.operator,
+            &#34;values&#34;: self.values
+            })
+
+    @property
+    def name(self):
+        &#34;&#34;&#34;
+        Field name property. Example : `SrcIP`. See full list here: https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json
+        &#34;&#34;&#34;
+        return (self._name)
+
+    @name.setter
+    def name(self, name):
+        if True : # Not checking dynamically the validity of the fields cause makes too much of unecessary requests any(f.get(&#39;name&#39;, None) == name for f in self._possible_filters):
+            self._name = name
+        else:
+            raise AttributeError(&#34;Illegal value for the &#34;+name+&#34; field. The filter must be in :&#34;+str([f[&#39;name&#39;] for f in self._possible_filters]))
+    
+    @property
+    def operator(self):
+        &#34;&#34;&#34;
+        Field operator property. Check the value against the list of possible operators and trow `AttributeError` if not present.
+        &#34;&#34;&#34;
+        return (self._operator)
+    
+    @operator.setter
+    def operator(self, operator):
+        try:
+            if operator in self.POSSIBLE_OPERATORS :
+                self._operator = operator
+            else:
+                raise AttributeError(&#34;Illegal value for the filter operator &#34;+operator+&#34;. The operator must be in &#34;+str(self.POSSIBLE_OPERATORS))
+        except:
+            raise
+
+    @property
+    def values(self):
+        &#34;&#34;&#34;
+        Values property.
+        Set a list of values by calling `msiempy.query.FilteredQueryList.add_value()` if value is a 
+        `dict` or calls `msiempy.query.FilteredQueryList.add_basic_value()` if value type is `int`, `float` or `str`.
+        Values will always be added to the filter. To remove values, handle directly the `_values` property.
+
+        Example:  
+        ```
+            &gt;&gt;&gt; filter = FieldFilter(name=&#39;DstIP&#39;,values=[&#39;10.1.13.0/24&#39;],operator=&#39;IN&#39;)
+            &gt;&gt;&gt; filter.values=[&#39;10.1.14.0/8&#39;, {&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}]
+            &gt;&gt;&gt; filter.config_dict
+            {&#39;type&#39;: &#39;EsmFieldFilter&#39;, 
+            &#39;field&#39;: {&#39;name&#39;: &#39;DstIP&#39;}, 
+            &#39;operator&#39;: &#39;IN&#39;, 
+            &#39;values&#39;: [{&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.13.0/24&#39;},
+                {&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.14.0/8&#39;},
+                {&#39;type&#39;: &#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;: 42}]}
+                ```
+            
+        &#34;&#34;&#34;
+        return (self._values)
+
+    @values.setter  
+    def values(self, values):
+        for val in values :
+            if isinstance(val, dict):
+                self.add_value(**val)
+
+            elif isinstance(val, (int, float, str)) :
+                self.add_basic_value(val)
+        
+    def add_value(self, type, **args):
+        &#34;&#34;&#34;
+        Add a new value to the field filter.
+        
+        Parameters (`**args`) could be (depending of the value type):  
+        - `{ type=&#39;EsmBasicValue&#39;, value=&#39;a value&#39;}`  
+        - `{ type=&#39;EsmWatchlistValue&#39;, watchlist=1}`  
+        - `{ type=&#39;EsmVariableValue&#39;, variable=1}`  
+        - `{ type=&#39;EsmCompoundValue&#39;, values=[&#39;.*&#39;]}`  
+
+        Raises `KeyError` or `AttributeError` if you don&#39;t respect the correct type/key/value combo.
+        Note : Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
+        &#34;&#34;&#34;
+        try:
+            type_template=None
+            
+            #Look for the type of the object ex EsmBasicValue
+            # it&#39; used to know the type and name of value parameter we should receive next
+            for possible_value_type in self.POSSIBLE_VALUE_TYPES :
+                if possible_value_type[&#39;type&#39;] == type :
+                    type_template=possible_value_type
+                    if type != &#39;EsmBasicValue&#39; :
+                        log.warning(&#34;Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.&#34;)                            
+                    break
+
+            #Error throwing
+            if type_template is not None :
+                if type_template[&#39;key&#39;] in args :
+                    
+                    # Adds a new value to a fields filter
+                    # Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
+                    value = args[type_template[&#39;key&#39;]]
+                    if type == &#39;EsmBasicValue&#39; :
+                        value=str(value)
+                        #log.debug(&#39;Adding a basic value to filter (&#39;+self.text+&#39;) : &#39;+value)
+                    self._values.append({&#39;type&#39;:type, type_template[&#39;key&#39;]:value})
+                    #log.debug(&#39;The value was appended to the list: &#39;+str(self))
+                    
+                #Error throwing
+                else: raise KeyError (&#39;The valid key value parameter is not present&#39;)
+            else: raise KeyError (&#39;Impossible filter&#39;)
+        except KeyError as err:
+            raise AttributeError(&#34;You must provide a valid named parameters containing the type and values for this filter. The type/keys must be in &#34;+str(self.POSSIBLE_VALUE_TYPES)+&#34;Can&#39;t be type=&#34;+str(type)+&#39; &#39;+str(args)+&#34;. Additionnal indicator :&#34;+str(err) )
+
+    def add_basic_value(self, value):
+        &#34;&#34;&#34;
+        Wrapper arround add_value to add a EsmBasicValue.
+        &#34;&#34;&#34;
+        self.add_value(type=&#39;EsmBasicValue&#39;, value=value)</code></pre>
 </details>
 </section>
 <section>
@@ -513,6 +782,7 @@ and update dict values accordingly.</p>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Event(NitroDict):
+
     &#34;&#34;&#34;        
     Default event field keys :  
     - `Rule.msg`
@@ -615,6 +885,7 @@ and update dict values accordingly.</p>
         &#34;&#34;&#34;
         Desctructive action.
         Replace the notes by an empty string. 
+        Do not work with SIEM v 11.2.1.
         &#34;&#34;&#34;
         NotImplementedError()
 
@@ -692,13 +963,15 @@ Add a new note in the note field.</p></section>
 </code></dt>
 <dd>
 <section class="desc"><p>Desctructive action.
-Replace the notes by an empty string.</p></section>
+Replace the notes by an empty string.
+Do not work with SIEM v 11.2.1.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def clear_notes(self):
     &#34;&#34;&#34;
     Desctructive action.
     Replace the notes by an empty string. 
+    Do not work with SIEM v 11.2.1.
     &#34;&#34;&#34;
     NotImplementedError()</code></pre>
 </details>
@@ -734,7 +1007,7 @@ Replace the notes by an empty string.</p></section>
 </code></dt>
 <dd>
 <section class="desc"><p>Interface to query and manage events.
-Inherits from <a title="msiempy.query.FilteredQueryList" href="query.html#msiempy.query.FilteredQueryList"><code>FilteredQueryList</code></a>.</p>
+Inherits from <code>msiempy.query.FilteredQueryList</code>.</p>
 <p>Paramters:
 </p>
 <ul>
@@ -750,11 +1023,11 @@ If you pass a list here, will use the this raw list as the SIEM <code>order</cod
 Structure must be in correct format
 -&gt; same as setting _order property directly.</li>
 <li><code>limit</code> : max number of rows per query, by default takes the value in config <code>default_rows</code> option.</li>
-<li><code>filters</code> : list of filters. A filter can be a <code>tuple(field, [values])</code> or it can be a <a title="msiempy.query.QueryFilter" href="query.html#msiempy.query.QueryFilter"><code>QueryFilter</code></a>
+<li><code>filters</code> : list of filters. A filter can be a <code>tuple(field, [values])</code> or it can be a <code>msiempy.query.QueryFilter</code>
 if you wish to use advanced filtering.</li>
 <li><code>compute_time_range</code> : False if you want to send the actualy time_range in parameter for the initial query.
 Defaulted to True cause the query splitting implies computing the time_range anyway.</li>
-<li><code>*args, **kwargs</code> : Parameters passed to <a title="msiempy.query.FilteredQueryList" href="query.html#msiempy.query.FilteredQueryList"><code>FilteredQueryList</code></a></li>
+<li><code>*args, **kwargs</code> : Parameters passed to <code>msiempy.query.FilteredQueryList</code></li>
 </ul>
 <p>Notes :</p>
 <ul>
@@ -1094,7 +1367,7 @@ Defaulted to True cause the query splitting implies computing the time_range any
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.query.FilteredQueryList" href="query.html#msiempy.query.FilteredQueryList">FilteredQueryList</a></li>
+<li><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></li>
 <li><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></li>
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
@@ -1126,8 +1399,8 @@ Defaulted to True cause the query splitting implies computing the time_range any
 <dl>
 <dt id="msiempy.event.EventManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
-<section class="desc"><p>JSON SIEM formatted filters for the query by calling reccursively : <a title="msiempy.query.QueryFilter.config_dict" href="query.html#msiempy.query.QueryFilter.config_dict"><code>QueryFilter.config_dict</code></a>.
-See <a title="msiempy.query.FilteredQueryList.filters" href="query.html#msiempy.query.FilteredQueryList.filters"><code>FilteredQueryList.filters</code></a>.</p></section>
+<section class="desc"><p>JSON SIEM formatted filters for the query by calling reccursively : <code>msiempy.query.QueryFilter.config_dict</code>.
+See <code>msiempy.query.FilteredQueryList.filters</code>.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
@@ -1160,8 +1433,8 @@ def order(self):
 </dd>
 <dt id="msiempy.event.EventManager.time_range"><code class="name">var <span class="ident">time_range</span></code></dt>
 <dd>
-<section class="desc"><p>Re-implemented the <a title="msiempy.query.FilteredQueryList.time_range" href="query.html#msiempy.query.FilteredQueryList.time_range"><code>FilteredQueryList.time_range</code></a> to have better control on the property setter.
-If <code>compute_time_range</code> is True (by default it is), try to get a start and a end time with <a title="msiempy.utils.timerange_gettimes" href="utils.html#msiempy.utils.timerange_gettimes"><code>timerange_gettimes()</code></a></p></section>
+<section class="desc"><p>Re-implemented the <code>msiempy.query.FilteredQueryList.time_range</code> to have better control on the property setter.
+If <code>compute_time_range</code> is True (by default it is), try to get a start and a end time with <code>msiempy.utils.timerange_gettimes()</code></p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
@@ -1179,8 +1452,8 @@ def time_range(self):
 <span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Concrete description of the <a title="msiempy.query.FilteredQueryList" href="query.html#msiempy.query.FilteredQueryList"><code>FilteredQueryList</code></a> method.
-It can take a <code>tuple(fiels, [values])</code> or a <a title="msiempy.query.QueryFilter" href="query.html#msiempy.query.QueryFilter"><code>QueryFilter</code></a> subclass.</p></section>
+<section class="desc"><p>Concrete description of the <code>msiempy.query.FilteredQueryList</code> method.
+It can take a <code>tuple(fiels, [values])</code> or a <code>msiempy.query.QueryFilter</code> subclass.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def add_filter(self, afilter):
@@ -1255,21 +1528,663 @@ kwargs are passed to super().load_data()</p></section>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.query.FilteredQueryList" href="query.html#msiempy.query.FilteredQueryList">FilteredQueryList</a></b></code>:
+<li><code><b><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE" href="query.html#msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="query.html#msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.end_time" href="query.html#msiempy.query.FilteredQueryList.end_time">end_time</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.start_time" href="query.html#msiempy.query.FilteredQueryList.start_time">start_time</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.table_colums" href="index.html#msiempy.NitroList.table_colums">table_colums</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.DEFAULT_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.end_time" href="index.html#msiempy.FilteredQueryList.end_time">end_time</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.start_time" href="index.html#msiempy.FilteredQueryList.start_time">start_time</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.table_colums" href="index.html#msiempy.NitroList.table_colums">table_colums</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.event.FieldFilter"><code class="flex name class">
+<span>class <span class="ident">FieldFilter</span></span>
+<span>(</span><span>name, values, operator='IN')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Based on EsmFieldFilter. See SIEM api doc.
+Used to dump a filter in the right format.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>name</code> : field name as string.</li>
+<li><code>values</code> : list of values the field is going to be tested againts with the specified orperator.</li>
+<li><code>orperator</code> : operator, see <code>msiempy.query.FieldFilter.POSSIBLE_OPERATORS</code>.</li>
+</ul></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class FieldFilter(QueryFilter):
+    &#34;&#34;&#34;
+    Based on EsmFieldFilter. See SIEM api doc.
+    Used to dump a filter in the right format.
+    &#34;&#34;&#34;
+
+    &#34;&#34;&#34;List of possibles operators        
+        &#34;&#34;&#34;
+    POSSIBLE_OPERATORS=[&#39;IN&#39;,
+        &#39;NOT_IN&#39;,
+        &#39;GREATER_THAN&#39;,
+        &#39;LESS_THAN&#39;,
+        &#39;GREATER_OR_EQUALS_THAN&#39;,
+        &#39;LESS_OR_EQUALS_THAN&#39;,
+        &#39;NUMERIC_EQUALS&#39;,
+        &#39;NUMERIC_NOT_EQUALS&#39;,
+        &#39;DOES_NOT_EQUAL&#39;,
+        &#39;EQUALS&#39;,
+        &#39;CONTAINS&#39;,
+        &#39;DOES_NOT_CONTAIN&#39;,
+        &#39;REGEX&#39;]
+
+    &#34;&#34;&#34;List of possible operators : `&#39;IN&#39;,
+        &#39;NOT_IN&#39;,
+        &#39;GREATER_THAN&#39;,
+        &#39;LESS_THAN&#39;,
+        &#39;GREATER_OR_EQUALS_THAN&#39;,
+        &#39;LESS_OR_EQUALS_THAN&#39;,
+        &#39;NUMERIC_EQUALS&#39;,
+        &#39;NUMERIC_NOT_EQUALS&#39;,
+        &#39;DOES_NOT_EQUAL&#39;,
+        &#39;EQUALS&#39;,
+        &#39;CONTAINS&#39;,
+        &#39;DOES_NOT_CONTAIN&#39;,
+        &#39;REGEX&#39;`
+        &#34;&#34;&#34;
+
+    POSSIBLE_VALUE_TYPES=[
+            {&#39;type&#39;:&#39;EsmWatchlistValue&#39;,    &#39;key&#39;:&#39;watchlist&#39;},
+            {&#39;type&#39;:&#39;EsmVariableValue&#39;,     &#39;key&#39;:&#39;variable&#39;},
+            {&#39;type&#39;:&#39;EsmBasicValue&#39;,        &#39;key&#39;:&#39;value&#39;},
+            {&#39;type&#39;:&#39;EsmCompoundValue&#39;,     &#39;key&#39;:&#39;values&#39;}]
+    &#34;&#34;&#34;
+    List of possible value type. See `msiempy.query.FieldFilter.add_value`.
+    &#34;&#34;&#34;
+
+
+    def __init__(self, name, values, operator=&#39;IN&#39;) :
+        &#34;&#34;&#34;
+        Parameters:
+
+        - `name` : field name as string.
+        - `values` : list of values the field is going to be tested againts with the specified orperator.
+        - `orperator` : operator, see `msiempy.query.FieldFilter.POSSIBLE_OPERATORS`.
+        &#34;&#34;&#34;
+        super().__init__()
+        #Declaring attributes
+        self._name=str()
+        self._operator=str()
+        self._values=list()
+        self.name = name
+        self.operator = operator
+        self.values = values
+
+    @property
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Dump a filter in the right format.
+        &#34;&#34;&#34;
+        return ({
+            &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+            &#34;field&#34;: {&#34;name&#34;: self.name},
+            &#34;operator&#34;: self.operator,
+            &#34;values&#34;: self.values
+            })
+
+    @property
+    def name(self):
+        &#34;&#34;&#34;
+        Field name property. Example : `SrcIP`. See full list here: https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json
+        &#34;&#34;&#34;
+        return (self._name)
+
+    @name.setter
+    def name(self, name):
+        if True : # Not checking dynamically the validity of the fields cause makes too much of unecessary requests any(f.get(&#39;name&#39;, None) == name for f in self._possible_filters):
+            self._name = name
+        else:
+            raise AttributeError(&#34;Illegal value for the &#34;+name+&#34; field. The filter must be in :&#34;+str([f[&#39;name&#39;] for f in self._possible_filters]))
+    
+    @property
+    def operator(self):
+        &#34;&#34;&#34;
+        Field operator property. Check the value against the list of possible operators and trow `AttributeError` if not present.
+        &#34;&#34;&#34;
+        return (self._operator)
+    
+    @operator.setter
+    def operator(self, operator):
+        try:
+            if operator in self.POSSIBLE_OPERATORS :
+                self._operator = operator
+            else:
+                raise AttributeError(&#34;Illegal value for the filter operator &#34;+operator+&#34;. The operator must be in &#34;+str(self.POSSIBLE_OPERATORS))
+        except:
+            raise
+
+    @property
+    def values(self):
+        &#34;&#34;&#34;
+        Values property.
+        Set a list of values by calling `msiempy.query.FilteredQueryList.add_value()` if value is a 
+        `dict` or calls `msiempy.query.FilteredQueryList.add_basic_value()` if value type is `int`, `float` or `str`.
+        Values will always be added to the filter. To remove values, handle directly the `_values` property.
+
+        Example:  
+        ```
+            &gt;&gt;&gt; filter = FieldFilter(name=&#39;DstIP&#39;,values=[&#39;10.1.13.0/24&#39;],operator=&#39;IN&#39;)
+            &gt;&gt;&gt; filter.values=[&#39;10.1.14.0/8&#39;, {&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}]
+            &gt;&gt;&gt; filter.config_dict
+            {&#39;type&#39;: &#39;EsmFieldFilter&#39;, 
+            &#39;field&#39;: {&#39;name&#39;: &#39;DstIP&#39;}, 
+            &#39;operator&#39;: &#39;IN&#39;, 
+            &#39;values&#39;: [{&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.13.0/24&#39;},
+                {&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.14.0/8&#39;},
+                {&#39;type&#39;: &#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;: 42}]}
+                ```
+            
+        &#34;&#34;&#34;
+        return (self._values)
+
+    @values.setter  
+    def values(self, values):
+        for val in values :
+            if isinstance(val, dict):
+                self.add_value(**val)
+
+            elif isinstance(val, (int, float, str)) :
+                self.add_basic_value(val)
+        
+    def add_value(self, type, **args):
+        &#34;&#34;&#34;
+        Add a new value to the field filter.
+        
+        Parameters (`**args`) could be (depending of the value type):  
+        - `{ type=&#39;EsmBasicValue&#39;, value=&#39;a value&#39;}`  
+        - `{ type=&#39;EsmWatchlistValue&#39;, watchlist=1}`  
+        - `{ type=&#39;EsmVariableValue&#39;, variable=1}`  
+        - `{ type=&#39;EsmCompoundValue&#39;, values=[&#39;.*&#39;]}`  
+
+        Raises `KeyError` or `AttributeError` if you don&#39;t respect the correct type/key/value combo.
+        Note : Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
+        &#34;&#34;&#34;
+        try:
+            type_template=None
+            
+            #Look for the type of the object ex EsmBasicValue
+            # it&#39; used to know the type and name of value parameter we should receive next
+            for possible_value_type in self.POSSIBLE_VALUE_TYPES :
+                if possible_value_type[&#39;type&#39;] == type :
+                    type_template=possible_value_type
+                    if type != &#39;EsmBasicValue&#39; :
+                        log.warning(&#34;Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.&#34;)                            
+                    break
+
+            #Error throwing
+            if type_template is not None :
+                if type_template[&#39;key&#39;] in args :
+                    
+                    # Adds a new value to a fields filter
+                    # Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
+                    value = args[type_template[&#39;key&#39;]]
+                    if type == &#39;EsmBasicValue&#39; :
+                        value=str(value)
+                        #log.debug(&#39;Adding a basic value to filter (&#39;+self.text+&#39;) : &#39;+value)
+                    self._values.append({&#39;type&#39;:type, type_template[&#39;key&#39;]:value})
+                    #log.debug(&#39;The value was appended to the list: &#39;+str(self))
+                    
+                #Error throwing
+                else: raise KeyError (&#39;The valid key value parameter is not present&#39;)
+            else: raise KeyError (&#39;Impossible filter&#39;)
+        except KeyError as err:
+            raise AttributeError(&#34;You must provide a valid named parameters containing the type and values for this filter. The type/keys must be in &#34;+str(self.POSSIBLE_VALUE_TYPES)+&#34;Can&#39;t be type=&#34;+str(type)+&#39; &#39;+str(args)+&#34;. Additionnal indicator :&#34;+str(err) )
+
+    def add_basic_value(self, value):
+        &#34;&#34;&#34;
+        Wrapper arround add_value to add a EsmBasicValue.
+        &#34;&#34;&#34;
+        self.add_value(type=&#39;EsmBasicValue&#39;, value=value)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.event.FieldFilter.POSSIBLE_OPERATORS"><code class="name">var <span class="ident">POSSIBLE_OPERATORS</span></code></dt>
+<dd>
+<section class="desc"><p>List of possible operators : <code>'IN',
+'NOT_IN',
+'GREATER_THAN',
+'LESS_THAN',
+'GREATER_OR_EQUALS_THAN',
+'LESS_OR_EQUALS_THAN',
+'NUMERIC_EQUALS',
+'NUMERIC_NOT_EQUALS',
+'DOES_NOT_EQUAL',
+'EQUALS',
+'CONTAINS',
+'DOES_NOT_CONTAIN',
+'REGEX'</code></p></section>
+</dd>
+<dt id="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES"><code class="name">var <span class="ident">POSSIBLE_VALUE_TYPES</span></code></dt>
+<dd>
+<section class="desc"><p>List of possible value type. See <code>msiempy.query.FieldFilter.add_value</code>.</p></section>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.event.FieldFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
+<dd>
+<section class="desc"><p>Dump a filter in the right format.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def config_dict(self):
+    &#34;&#34;&#34;
+    Dump a filter in the right format.
+    &#34;&#34;&#34;
+    return ({
+        &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+        &#34;field&#34;: {&#34;name&#34;: self.name},
+        &#34;operator&#34;: self.operator,
+        &#34;values&#34;: self.values
+        })</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.FieldFilter.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<section class="desc"><p>Field name property. Example : <code>SrcIP</code>. See full list here: <a href="https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json">https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json</a></p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def name(self):
+    &#34;&#34;&#34;
+    Field name property. Example : `SrcIP`. See full list here: https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json
+    &#34;&#34;&#34;
+    return (self._name)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.FieldFilter.operator"><code class="name">var <span class="ident">operator</span></code></dt>
+<dd>
+<section class="desc"><p>Field operator property. Check the value against the list of possible operators and trow <code>AttributeError</code> if not present.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def operator(self):
+    &#34;&#34;&#34;
+    Field operator property. Check the value against the list of possible operators and trow `AttributeError` if not present.
+    &#34;&#34;&#34;
+    return (self._operator)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.FieldFilter.values"><code class="name">var <span class="ident">values</span></code></dt>
+<dd>
+<section class="desc"><p>Values property.
+Set a list of values by calling <code>msiempy.query.FilteredQueryList.add_value()</code> if value is a
+<code>dict</code> or calls <code>msiempy.query.FilteredQueryList.add_basic_value()</code> if value type is <code>int</code>, <code>float</code> or <code>str</code>.
+Values will always be added to the filter. To remove values, handle directly the <code>_values</code> property.</p>
+<p>Example:<br>
+<code>&gt;&gt;&gt; filter = FieldFilter(name='DstIP',values=['10.1.13.0/24'],operator='IN')
+&gt;&gt;&gt; filter.values=['10.1.14.0/8', {'type':'EsmWatchlistValue', 'watchlist':42}]
+&gt;&gt;&gt; filter.config_dict
+{'type': 'EsmFieldFilter',
+'field': {'name': 'DstIP'},
+'operator': 'IN',
+'values': [{'type': 'EsmBasicValue', 'value': '10.1.13.0/24'},
+{'type': 'EsmBasicValue', 'value': '10.1.14.0/8'},
+{'type': 'EsmWatchlistValue', 'watchlist': 42}]}</code></p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def values(self):
+    &#34;&#34;&#34;
+    Values property.
+    Set a list of values by calling `msiempy.query.FilteredQueryList.add_value()` if value is a 
+    `dict` or calls `msiempy.query.FilteredQueryList.add_basic_value()` if value type is `int`, `float` or `str`.
+    Values will always be added to the filter. To remove values, handle directly the `_values` property.
+
+    Example:  
+    ```
+        &gt;&gt;&gt; filter = FieldFilter(name=&#39;DstIP&#39;,values=[&#39;10.1.13.0/24&#39;],operator=&#39;IN&#39;)
+        &gt;&gt;&gt; filter.values=[&#39;10.1.14.0/8&#39;, {&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}]
+        &gt;&gt;&gt; filter.config_dict
+        {&#39;type&#39;: &#39;EsmFieldFilter&#39;, 
+        &#39;field&#39;: {&#39;name&#39;: &#39;DstIP&#39;}, 
+        &#39;operator&#39;: &#39;IN&#39;, 
+        &#39;values&#39;: [{&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.13.0/24&#39;},
+            {&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.14.0/8&#39;},
+            {&#39;type&#39;: &#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;: 42}]}
+            ```
+        
+    &#34;&#34;&#34;
+    return (self._values)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.event.FieldFilter.add_basic_value"><code class="name flex">
+<span>def <span class="ident">add_basic_value</span></span>(<span>self, value)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Wrapper arround add_value to add a EsmBasicValue.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def add_basic_value(self, value):
+    &#34;&#34;&#34;
+    Wrapper arround add_value to add a EsmBasicValue.
+    &#34;&#34;&#34;
+    self.add_value(type=&#39;EsmBasicValue&#39;, value=value)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.FieldFilter.add_value"><code class="name flex">
+<span>def <span class="ident">add_value</span></span>(<span>self, type, **args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Add a new value to the field filter.</p>
+<p>Parameters (<code>**args</code>) could be (depending of the value type):<br>
+- <code>{ type='EsmBasicValue', value='a value'}</code><br>
+- <code>{ type='EsmWatchlistValue', watchlist=1}</code><br>
+- <code>{ type='EsmVariableValue', variable=1}</code><br>
+- <code>{ type='EsmCompoundValue', values=['.*']}</code>
+</p>
+<p>Raises <code>KeyError</code> or <code>AttributeError</code> if you don't respect the correct type/key/value combo.
+Note : Filtering query with other type of filter than 'EsmBasicValue' is not tested.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def add_value(self, type, **args):
+    &#34;&#34;&#34;
+    Add a new value to the field filter.
+    
+    Parameters (`**args`) could be (depending of the value type):  
+    - `{ type=&#39;EsmBasicValue&#39;, value=&#39;a value&#39;}`  
+    - `{ type=&#39;EsmWatchlistValue&#39;, watchlist=1}`  
+    - `{ type=&#39;EsmVariableValue&#39;, variable=1}`  
+    - `{ type=&#39;EsmCompoundValue&#39;, values=[&#39;.*&#39;]}`  
+
+    Raises `KeyError` or `AttributeError` if you don&#39;t respect the correct type/key/value combo.
+    Note : Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
+    &#34;&#34;&#34;
+    try:
+        type_template=None
+        
+        #Look for the type of the object ex EsmBasicValue
+        # it&#39; used to know the type and name of value parameter we should receive next
+        for possible_value_type in self.POSSIBLE_VALUE_TYPES :
+            if possible_value_type[&#39;type&#39;] == type :
+                type_template=possible_value_type
+                if type != &#39;EsmBasicValue&#39; :
+                    log.warning(&#34;Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.&#34;)                            
+                break
+
+        #Error throwing
+        if type_template is not None :
+            if type_template[&#39;key&#39;] in args :
+                
+                # Adds a new value to a fields filter
+                # Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
+                value = args[type_template[&#39;key&#39;]]
+                if type == &#39;EsmBasicValue&#39; :
+                    value=str(value)
+                    #log.debug(&#39;Adding a basic value to filter (&#39;+self.text+&#39;) : &#39;+value)
+                self._values.append({&#39;type&#39;:type, type_template[&#39;key&#39;]:value})
+                #log.debug(&#39;The value was appended to the list: &#39;+str(self))
+                
+            #Error throwing
+            else: raise KeyError (&#39;The valid key value parameter is not present&#39;)
+        else: raise KeyError (&#39;Impossible filter&#39;)
+    except KeyError as err:
+        raise AttributeError(&#34;You must provide a valid named parameters containing the type and values for this filter. The type/keys must be in &#34;+str(self.POSSIBLE_VALUE_TYPES)+&#34;Can&#39;t be type=&#34;+str(type)+&#39; &#39;+str(args)+&#34;. Additionnal indicator :&#34;+str(err) )</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.event.QueryFilter.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.get_possible_filters" href="#msiempy.event.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.event.GroupFilter"><code class="flex name class">
+<span>class <span class="ident">GroupFilter</span></span>
+<span>(</span><span>filters, logic='AND')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Based on EsmFilterGroup. See SIEM api doc.
+Used to dump groups of filters in the right format.</p>
+<p>Parameters :<br>
+- <code>filters</code> : a list of filters, it can be <code>msiempy.query.FieldFilter</code> or <code>msiempy.query.GroupFilter</code>
+- <code>logic</code> : 'AND' or 'OR'</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class GroupFilter(QueryFilter):
+    &#34;&#34;&#34;
+        Based on EsmFilterGroup. See SIEM api doc.
+        Used to dump groups of filters in the right format.
+    &#34;&#34;&#34;
+
+    def __init__(self, filters, logic=&#39;AND&#39;) :
+        &#34;&#34;&#34;Parameters :  
+        - `filters` : a list of filters, it can be `msiempy.query.FieldFilter` or `msiempy.query.GroupFilter`
+        - `logic` : &#39;AND&#39; or &#39;OR&#39;
+        &#34;&#34;&#34;
+        super().__init__()
+        
+        #Declaring attributes
+        self.filters=filters
+        self.logic=logic
+
+    @property
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Could call recursively if there is other GroupFilter(s) object nested.
+        Dump a filter in the right format.
+        &#34;&#34;&#34;
+        return({
+            &#34;type&#34;: &#34;EsmFilterGroup&#34;,
+            &#34;filters&#34;: [f.config_dict for f in self.filters],
+            &#34;logic&#34;:self.logic
+            })</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.event.GroupFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
+<dd>
+<section class="desc"><p>Could call recursively if there is other GroupFilter(s) object nested.
+Dump a filter in the right format.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def config_dict(self):
+    &#34;&#34;&#34;
+    Could call recursively if there is other GroupFilter(s) object nested.
+    Dump a filter in the right format.
+    &#34;&#34;&#34;
+    return({
+        &#34;type&#34;: &#34;EsmFilterGroup&#34;,
+        &#34;filters&#34;: [f.config_dict for f in self.filters],
+        &#34;logic&#34;:self.logic
+        })</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.event.QueryFilter.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.get_possible_filters" href="#msiempy.event.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.event.QueryFilter"><code class="flex name class">
+<span>class <span class="ident">QueryFilter</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class for all SIEM query objects, declares the <code>config_dict</code> abstract property in order to dump the filter as JSON.</p>
+<p>Creates the object session.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class QueryFilter(NitroObject):
+    &#34;&#34;&#34;Base class for all SIEM query objects, declares the `config_dict` abstract property in order to dump the filter as JSON.
+    &#34;&#34;&#34;
+    _possible_filters = []
+
+    def __init__(self):
+        super().__init__()
+
+        #Setting up static constant
+        &#34;&#34;&#34;Not checking dynamically the validity of the fields cause makes too much of unecessary requests
+            self._possible_filters = self._get_possible_filters()
+            &#34;&#34;&#34;
+
+    def get_possible_filters(self):
+        &#34;&#34;&#34;
+        Return all the fields that you can filter on in a query.
+        &#34;&#34;&#34;
+        return(self.nitro.request(&#39;get_possible_filters&#39;))
+
+    @abc.abstractproperty
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Dump a filter in the right JSON format.
+        &#34;&#34;&#34;
+        pass
+
+    def refresh(self):
+        &#34;&#34;&#34;
+        Superclass method.
+        &#34;&#34;&#34;
+        log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))
+
+    @property
+    def json(self):
+        &#34;&#34;&#34;
+        Dump the filter as a json.
+        &#34;&#34;&#34;
+        return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))
+    
+    @property
+    def text(self):
+        &#34;&#34;&#34;
+        Text representation of `config_dict` property.
+        &#34;&#34;&#34;
+        return str(self.config_dict)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></li>
+<li><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.event.QueryFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
+<dd>
+<section class="desc"><p>Dump a filter in the right JSON format.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractproperty
+def config_dict(self):
+    &#34;&#34;&#34;
+    Dump a filter in the right JSON format.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.QueryFilter.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<section class="desc"><p>Dump the filter as a json.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def json(self):
+    &#34;&#34;&#34;
+    Dump the filter as a json.
+    &#34;&#34;&#34;
+    return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.QueryFilter.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<section class="desc"><p>Text representation of <code>config_dict</code> property.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@property
+def text(self):
+    &#34;&#34;&#34;
+    Text representation of `config_dict` property.
+    &#34;&#34;&#34;
+    return str(self.config_dict)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.event.QueryFilter.get_possible_filters"><code class="name flex">
+<span>def <span class="ident">get_possible_filters</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return all the fields that you can filter on in a query.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_possible_filters(self):
+    &#34;&#34;&#34;
+    Return all the fields that you can filter on in a query.
+    &#34;&#34;&#34;
+    return(self.nitro.request(&#39;get_possible_filters&#39;))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.QueryFilter.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Superclass method.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def refresh(self):
+    &#34;&#34;&#34;
+    Superclass method.
+    &#34;&#34;&#34;
+    log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1313,6 +2228,35 @@ kwargs are passed to super().load_data()</p></section>
 <li><code><a title="msiempy.event.EventManager.load_data" href="#msiempy.event.EventManager.load_data">load_data</a></code></li>
 <li><code><a title="msiempy.event.EventManager.order" href="#msiempy.event.EventManager.order">order</a></code></li>
 <li><code><a title="msiempy.event.EventManager.time_range" href="#msiempy.event.EventManager.time_range">time_range</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.event.FieldFilter.POSSIBLE_OPERATORS" href="#msiempy.event.FieldFilter.POSSIBLE_OPERATORS">POSSIBLE_OPERATORS</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES" href="#msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES">POSSIBLE_VALUE_TYPES</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.add_basic_value" href="#msiempy.event.FieldFilter.add_basic_value">add_basic_value</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.add_value" href="#msiempy.event.FieldFilter.add_value">add_value</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.config_dict" href="#msiempy.event.FieldFilter.config_dict">config_dict</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.name" href="#msiempy.event.FieldFilter.name">name</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.operator" href="#msiempy.event.FieldFilter.operator">operator</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.values" href="#msiempy.event.FieldFilter.values">values</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.event.GroupFilter.config_dict" href="#msiempy.event.GroupFilter.config_dict">config_dict</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.event.QueryFilter.config_dict" href="#msiempy.event.QueryFilter.config_dict">config_dict</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.get_possible_filters" href="#msiempy.event.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
 </ul>
 </li>
 </ul>

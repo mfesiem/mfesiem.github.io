@@ -31,10 +31,9 @@ import datetime
 import logging
 log = logging.getLogger(&#39;msiempy&#39;)
 
-from . import NitroDict, NitroList
-from .query import FilteredQueryList
+from . import NitroDict, NitroList, FilteredQueryList
 from .event import EventManager, Event
-from .utils import regex_match, convert_to_time_obj
+from .__utils__ import regex_match, convert_to_time_obj
 
 class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
@@ -174,7 +173,7 @@ class AlarmManager(FilteredQueryList):
             func_args=dict(extra_fields=extra_fields, by_id=by_id))
         return AlarmManager(alist=self)
 
-    def _load_data(self, workers):
+    def _load_data(self, workers, no_detailed_filter=False):
         &#34;&#34;&#34;
         Concrete helper method that loads the data.
             -&gt; Fetch the complete list of alarms -&gt; Filter
@@ -201,10 +200,12 @@ class AlarmManager(FilteredQueryList):
                 page_size=self.page_size,
                 page_number=self.page_number
                 )
+                
         #alarms = AlarmManager(alist=alarms)
-        return (( self._filter(alarms, workers), len(alarms)&lt;self.page_size ))
+        return (( self._filter(alarms, workers, no_detailed_filter), 
+            len(alarms)&lt;self.page_size ))
 
-    def _filter(self, alarms, workers, alarmonly=False):
+    def _filter(self, alarms, workers, no_detailed_filter=False):
         &#34;&#34;&#34;
         Helper method that filters the alarms depending on alarm and event filters.
             -&gt; Filter dependinf on alarms related filters -&gt; load events details
@@ -215,7 +216,7 @@ class AlarmManager(FilteredQueryList):
 
         alarms = AlarmManager(alist=[a for a in alarms if self._alarm_match(a)])
 
-        if not alarmonly :
+        if not no_detailed_filter :
             log.info(&#34;Getting alarms infos... Please be patient.&#34;)
             detailed = self.perform(Alarm.load_details, list(alarms), asynch=True, progress=True, workers=workers)
             alarms = AlarmManager(alist=[a for a in detailed if self._event_match(a)])
@@ -966,7 +967,7 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
             func_args=dict(extra_fields=extra_fields, by_id=by_id))
         return AlarmManager(alist=self)
 
-    def _load_data(self, workers):
+    def _load_data(self, workers, no_detailed_filter=False):
         &#34;&#34;&#34;
         Concrete helper method that loads the data.
             -&gt; Fetch the complete list of alarms -&gt; Filter
@@ -993,10 +994,12 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
                 page_size=self.page_size,
                 page_number=self.page_number
                 )
+                
         #alarms = AlarmManager(alist=alarms)
-        return (( self._filter(alarms, workers), len(alarms)&lt;self.page_size ))
+        return (( self._filter(alarms, workers, no_detailed_filter), 
+            len(alarms)&lt;self.page_size ))
 
-    def _filter(self, alarms, workers, alarmonly=False):
+    def _filter(self, alarms, workers, no_detailed_filter=False):
         &#34;&#34;&#34;
         Helper method that filters the alarms depending on alarm and event filters.
             -&gt; Filter dependinf on alarms related filters -&gt; load events details
@@ -1007,7 +1010,7 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
 
         alarms = AlarmManager(alist=[a for a in alarms if self._alarm_match(a)])
 
-        if not alarmonly :
+        if not no_detailed_filter :
             log.info(&#34;Getting alarms infos... Please be patient.&#34;)
             detailed = self.perform(Alarm.load_details, list(alarms), asynch=True, progress=True, workers=workers)
             alarms = AlarmManager(alist=[a for a in detailed if self._event_match(a)])
@@ -1049,7 +1052,7 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.query.FilteredQueryList" href="query.html#msiempy.query.FilteredQueryList">FilteredQueryList</a></li>
+<li><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></li>
 <li><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></li>
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
@@ -1193,22 +1196,22 @@ kwargs are passed to super().load_data()</p></section>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.query.FilteredQueryList" href="query.html#msiempy.query.FilteredQueryList">FilteredQueryList</a></b></code>:
+<li><code><b><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE" href="query.html#msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="query.html#msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.end_time" href="query.html#msiempy.query.FilteredQueryList.end_time">end_time</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.start_time" href="query.html#msiempy.query.FilteredQueryList.start_time">start_time</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.table_colums" href="index.html#msiempy.NitroList.table_colums">table_colums</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
-<li><code><a title="msiempy.query.FilteredQueryList.time_range" href="query.html#msiempy.query.FilteredQueryList.time_range">time_range</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.DEFAULT_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.end_time" href="index.html#msiempy.FilteredQueryList.end_time">end_time</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.start_time" href="index.html#msiempy.FilteredQueryList.start_time">start_time</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.table_colums" href="index.html#msiempy.NitroList.table_colums">table_colums</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.time_range" href="index.html#msiempy.FilteredQueryList.time_range">time_range</a></code></li>
 </ul>
 </li>
 </ul>

@@ -963,12 +963,6 @@ class NitroList(collections.UserList, NitroObject):
         else :
             raise ValueError(&#39;NitroList can only be initiated based on a list&#39;)
 
-    @property
-    def table_colums(self):
-        &#34;&#34;&#34;Return the list of columns the table representation will have. This attribute is designed to overwritten.
-        &#34;&#34;&#34;            
-        return []
-
     def _norm_dicts(self):
         &#34;&#34;&#34;
         Internal method.
@@ -1022,22 +1016,22 @@ class NitroList(collections.UserList, NitroObject):
 
             for item in self.data:
                 if isinstance(item, (dict, NitroDict)):
-                    table.add_row([&#39;\n&#39;.join(textwrap.wrap(str(item[field]), width=max_column_width))
-                        if not isinstance(item[field], NitroList)
-                        else item[field].get_text() for field in fields])
+                    try :
+                        table.add_row([&#39;\n&#39;.join(textwrap.wrap(str(item[field]), width=max_column_width))
+                            if not isinstance(item[field], NitroList)
+                            else item[field].get_text() for field in fields])
+                    
+                    except (KeyError, IndexError) as err :
+                        log.error(&#34;Inconsistent NitroList state, some fields aren&#39;t present in the dict keys. Try calling _norm_dicts() method : &#34;+str(err))
+                        raise
+
+                    except Exception as err :
+                        if &#34;Row has incorrect number of values&#34; in str(err):
+                            log.error(&#34;Inconsistent NitroList state, some fields aren&#39;t present or too many are present : {}&#34;.format(str(err)))
+
                 else : log.warning(&#34;Unnapropriate list element type, doesn&#39;t show on the list : {}&#34;.format(str(item)))
 
-            if len(self.table_colums) &gt;0 :
-                try :
-                    text =table.get_string(fields=self.table_colums)
-                except Exception as err :
-                    if &#34;Invalid field name&#34; in str(err):
-                        text=table.get_string()
-                        log.warning(&#34;Inconsistent manager state, some fields aren&#39;t present {}&#34;.format(str(err)))
-                    else :
-                        raise
-            else: 
-                text=table.get_string()
+            text=table.get_string()
 
         elif compact is True :
             text=&#39;|_&#39;
@@ -2183,7 +2177,6 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
 <li><code><a title="msiempy.NitroList.perform" href="#msiempy.NitroList.perform">perform</a></code></li>
 <li><code><a title="msiempy.NitroList.refresh" href="#msiempy.NitroList.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.NitroList.search" href="#msiempy.NitroList.search">search</a></code></li>
-<li><code><a title="msiempy.NitroList.table_colums" href="#msiempy.NitroList.table_colums">table_colums</a></code></li>
 <li><code><a title="msiempy.NitroList.text" href="#msiempy.NitroList.text">text</a></code></li>
 </ul>
 </li>
@@ -2782,12 +2775,6 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
         else :
             raise ValueError(&#39;NitroList can only be initiated based on a list&#39;)
 
-    @property
-    def table_colums(self):
-        &#34;&#34;&#34;Return the list of columns the table representation will have. This attribute is designed to overwritten.
-        &#34;&#34;&#34;            
-        return []
-
     def _norm_dicts(self):
         &#34;&#34;&#34;
         Internal method.
@@ -2841,22 +2828,22 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
 
             for item in self.data:
                 if isinstance(item, (dict, NitroDict)):
-                    table.add_row([&#39;\n&#39;.join(textwrap.wrap(str(item[field]), width=max_column_width))
-                        if not isinstance(item[field], NitroList)
-                        else item[field].get_text() for field in fields])
+                    try :
+                        table.add_row([&#39;\n&#39;.join(textwrap.wrap(str(item[field]), width=max_column_width))
+                            if not isinstance(item[field], NitroList)
+                            else item[field].get_text() for field in fields])
+                    
+                    except (KeyError, IndexError) as err :
+                        log.error(&#34;Inconsistent NitroList state, some fields aren&#39;t present in the dict keys. Try calling _norm_dicts() method : &#34;+str(err))
+                        raise
+
+                    except Exception as err :
+                        if &#34;Row has incorrect number of values&#34; in str(err):
+                            log.error(&#34;Inconsistent NitroList state, some fields aren&#39;t present or too many are present : {}&#34;.format(str(err)))
+
                 else : log.warning(&#34;Unnapropriate list element type, doesn&#39;t show on the list : {}&#34;.format(str(item)))
 
-            if len(self.table_colums) &gt;0 :
-                try :
-                    text =table.get_string(fields=self.table_colums)
-                except Exception as err :
-                    if &#34;Invalid field name&#34; in str(err):
-                        text=table.get_string()
-                        log.warning(&#34;Inconsistent manager state, some fields aren&#39;t present {}&#34;.format(str(err)))
-                    else :
-                        raise
-            else: 
-                text=table.get_string()
+            text=table.get_string()
 
         elif compact is True :
             text=&#39;|_&#39;
@@ -3097,18 +3084,6 @@ def keys(self):
     return manager_keys</code></pre>
 </details>
 </dd>
-<dt id="msiempy.NitroList.table_colums"><code class="name">var <span class="ident">table_colums</span></code></dt>
-<dd>
-<section class="desc"><p>Return the list of columns the table representation will have. This attribute is designed to overwritten.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@property
-def table_colums(self):
-    &#34;&#34;&#34;Return the list of columns the table representation will have. This attribute is designed to overwritten.
-    &#34;&#34;&#34;            
-    return []</code></pre>
-</details>
-</dd>
 <dt id="msiempy.NitroList.text"><code class="name">var <span class="ident">text</span></code></dt>
 <dd>
 <section class="desc"><p>The text properti is a shorcut to get_text() with no arguments.</p></section>
@@ -3169,22 +3144,22 @@ def text(self):
 
         for item in self.data:
             if isinstance(item, (dict, NitroDict)):
-                table.add_row([&#39;\n&#39;.join(textwrap.wrap(str(item[field]), width=max_column_width))
-                    if not isinstance(item[field], NitroList)
-                    else item[field].get_text() for field in fields])
+                try :
+                    table.add_row([&#39;\n&#39;.join(textwrap.wrap(str(item[field]), width=max_column_width))
+                        if not isinstance(item[field], NitroList)
+                        else item[field].get_text() for field in fields])
+                
+                except (KeyError, IndexError) as err :
+                    log.error(&#34;Inconsistent NitroList state, some fields aren&#39;t present in the dict keys. Try calling _norm_dicts() method : &#34;+str(err))
+                    raise
+
+                except Exception as err :
+                    if &#34;Row has incorrect number of values&#34; in str(err):
+                        log.error(&#34;Inconsistent NitroList state, some fields aren&#39;t present or too many are present : {}&#34;.format(str(err)))
+
             else : log.warning(&#34;Unnapropriate list element type, doesn&#39;t show on the list : {}&#34;.format(str(item)))
 
-        if len(self.table_colums) &gt;0 :
-            try :
-                text =table.get_string(fields=self.table_colums)
-            except Exception as err :
-                if &#34;Invalid field name&#34; in str(err):
-                    text=table.get_string()
-                    log.warning(&#34;Inconsistent manager state, some fields aren&#39;t present {}&#34;.format(str(err)))
-                else :
-                    raise
-        else: 
-            text=table.get_string()
+        text=table.get_string()
 
     elif compact is True :
         text=&#39;|_&#39;
@@ -4346,7 +4321,6 @@ a new session will be instanciated next time.</p></section>
 <li><code><a title="msiempy.NitroList.perform" href="#msiempy.NitroList.perform">perform</a></code></li>
 <li><code><a title="msiempy.NitroList.refresh" href="#msiempy.NitroList.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.NitroList.search" href="#msiempy.NitroList.search">search</a></code></li>
-<li><code><a title="msiempy.NitroList.table_colums" href="#msiempy.NitroList.table_colums">table_colums</a></code></li>
 <li><code><a title="msiempy.NitroList.text" href="#msiempy.NitroList.text">text</a></code></li>
 </ul>
 </li>

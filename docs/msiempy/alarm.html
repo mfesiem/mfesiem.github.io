@@ -79,12 +79,7 @@ class AlarmManager(FilteredQueryList):
         #Casting all data to Alarms objects, better way to do it ?
         collections.UserList.__init__(self, [Alarm(adict=item) for item in self.data if isinstance(item, (dict, NitroDict))])
 
-    @property
-    def table_colums(self):
-        &#34;&#34;&#34;
-
-        &#34;&#34;&#34;
-        return [&#39;id&#39;,&#39;alarmName&#39;, &#39;triggeredDate&#39;, &#39;events&#39;]
+    
 
     @property
     def filters(self):
@@ -318,7 +313,7 @@ class Alarm(NitroDict):
 
     &#34;&#34;&#34;
 
-    ALARM_DEFAULT_FIELDS=[&#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39;]
+    ALARM_DEFAULT_FIELDS=[&#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39;] #could also be [&#39;id&#39;,&#39;alarmName&#39;, &#39;triggeredDate&#39;, &#39;events&#39;]
     &#34;&#34;&#34;Defaulfs fields : `&#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39;` (not used , may be for printing with `msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)
     &#34;&#34;&#34;
 
@@ -514,7 +509,7 @@ class Alarm(NitroDict):
 
     &#34;&#34;&#34;
 
-    ALARM_DEFAULT_FIELDS=[&#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39;]
+    ALARM_DEFAULT_FIELDS=[&#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39;] #could also be [&#39;id&#39;,&#39;alarmName&#39;, &#39;triggeredDate&#39;, &#39;events&#39;]
     &#34;&#34;&#34;Defaulfs fields : `&#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39;` (not used , may be for printing with `msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)
     &#34;&#34;&#34;
 
@@ -873,12 +868,7 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
         #Casting all data to Alarms objects, better way to do it ?
         collections.UserList.__init__(self, [Alarm(adict=item) for item in self.data if isinstance(item, (dict, NitroDict))])
 
-    @property
-    def table_colums(self):
-        &#34;&#34;&#34;
-
-        &#34;&#34;&#34;
-        return [&#39;id&#39;,&#39;alarmName&#39;, &#39;triggeredDate&#39;, &#39;events&#39;]
+    
 
     @property
     def filters(self):
@@ -1209,7 +1199,6 @@ kwargs are passed to super().load_data()</p></section>
 <li><code><a title="msiempy.FilteredQueryList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.start_time" href="index.html#msiempy.FilteredQueryList.start_time">start_time</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.table_colums" href="index.html#msiempy.NitroList.table_colums">table_colums</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.time_range" href="index.html#msiempy.FilteredQueryList.time_range">time_range</a></code></li>
 </ul>

@@ -165,8 +165,31 @@ class ESM(Device):
                 - list of top level devices
         Other functions exist to return subsets of this data also.
         &#34;&#34;&#34;
-        #return self.post(&#34;sysGetSysInfo&#34;)
-        return self.nitro.request(&#34;get_sys_info&#34;)
+        status = self.nitro.request(&#34;get_sys_info&#34;)
+        return self.map_status_int_fields(status)
+
+    def map_status_int_fields(self, status):
+        new_status = {}
+        new_status[&#39;cpu&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[0][6:]
+        new_status[&#39;hdd&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[1][6:]
+        new_status[&#39;ram&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[2][6:]
+        new_status[&#39;autoBackupEnabled&#39;] = status[&#39;ABENABLED&#39;]
+        new_status[&#39;autoBackupHour&#39;] = status[&#39;ABHOUR&#39;]
+        new_status[&#39;autoBackupDay&#39;] = status[&#39;ABDAY&#39;]
+        new_status[&#39;backupNextTime&#39;] = status[&#39;BUNEXT&#39;]
+        new_status[&#39;backupLastTime&#39;] = status[&#39;BULAST&#39;]
+        new_status[&#39;rulesAndSoftwareCheckEnabled&#39;] = status[&#39;RSCENABLED&#39;]
+        new_status[&#39;rulesAndSoftNextCheck&#39;] = status[&#39;RSNEXT&#39;]
+        if status[&#39;RSLAST&#39;] == &#39;RSLAST&#39;:
+            new_status[&#39;rulesAndSoftLastCheck&#39;] = None
+        else:
+            new_status[&#39;rulesAndSoftLastCheck&#39;] = status[&#39;RSLAST&#39;]
+        if status[&#39;CHIP&#39;] == &#39;CHIP&#39;:
+            new_status[&#39;callHomeIp&#39;] = None
+        else:
+            new_status[&#39;callHomeIp&#39;] = status[&#39;CHIP&#39;]
+        return new_status
+
 
     def disks(self):
         &#34;&#34;&#34;
@@ -2907,8 +2930,31 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
                 - list of top level devices
         Other functions exist to return subsets of this data also.
         &#34;&#34;&#34;
-        #return self.post(&#34;sysGetSysInfo&#34;)
-        return self.nitro.request(&#34;get_sys_info&#34;)
+        status = self.nitro.request(&#34;get_sys_info&#34;)
+        return self.map_status_int_fields(status)
+
+    def map_status_int_fields(self, status):
+        new_status = {}
+        new_status[&#39;cpu&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[0][6:]
+        new_status[&#39;hdd&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[1][6:]
+        new_status[&#39;ram&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[2][6:]
+        new_status[&#39;autoBackupEnabled&#39;] = status[&#39;ABENABLED&#39;]
+        new_status[&#39;autoBackupHour&#39;] = status[&#39;ABHOUR&#39;]
+        new_status[&#39;autoBackupDay&#39;] = status[&#39;ABDAY&#39;]
+        new_status[&#39;backupNextTime&#39;] = status[&#39;BUNEXT&#39;]
+        new_status[&#39;backupLastTime&#39;] = status[&#39;BULAST&#39;]
+        new_status[&#39;rulesAndSoftwareCheckEnabled&#39;] = status[&#39;RSCENABLED&#39;]
+        new_status[&#39;rulesAndSoftNextCheck&#39;] = status[&#39;RSNEXT&#39;]
+        if status[&#39;RSLAST&#39;] == &#39;RSLAST&#39;:
+            new_status[&#39;rulesAndSoftLastCheck&#39;] = None
+        else:
+            new_status[&#39;rulesAndSoftLastCheck&#39;] = status[&#39;RSLAST&#39;]
+        if status[&#39;CHIP&#39;] == &#39;CHIP&#39;:
+            new_status[&#39;callHomeIp&#39;] = None
+        else:
+            new_status[&#39;callHomeIp&#39;] = status[&#39;CHIP&#39;]
+        return new_status
+
 
     def disks(self):
         &#34;&#34;&#34;
@@ -3245,6 +3291,36 @@ Size:
     return self.status()[&#39;hdd&#39;]</code></pre>
 </details>
 </dd>
+<dt id="msiempy.device.ESM.map_status_int_fields"><code class="name flex">
+<span>def <span class="ident">map_status_int_fields</span></span>(<span>self, status)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def map_status_int_fields(self, status):
+    new_status = {}
+    new_status[&#39;cpu&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[0][6:]
+    new_status[&#39;hdd&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[1][6:]
+    new_status[&#39;ram&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[2][6:]
+    new_status[&#39;autoBackupEnabled&#39;] = status[&#39;ABENABLED&#39;]
+    new_status[&#39;autoBackupHour&#39;] = status[&#39;ABHOUR&#39;]
+    new_status[&#39;autoBackupDay&#39;] = status[&#39;ABDAY&#39;]
+    new_status[&#39;backupNextTime&#39;] = status[&#39;BUNEXT&#39;]
+    new_status[&#39;backupLastTime&#39;] = status[&#39;BULAST&#39;]
+    new_status[&#39;rulesAndSoftwareCheckEnabled&#39;] = status[&#39;RSCENABLED&#39;]
+    new_status[&#39;rulesAndSoftNextCheck&#39;] = status[&#39;RSNEXT&#39;]
+    if status[&#39;RSLAST&#39;] == &#39;RSLAST&#39;:
+        new_status[&#39;rulesAndSoftLastCheck&#39;] = None
+    else:
+        new_status[&#39;rulesAndSoftLastCheck&#39;] = status[&#39;RSLAST&#39;]
+    if status[&#39;CHIP&#39;] == &#39;CHIP&#39;:
+        new_status[&#39;callHomeIp&#39;] = None
+    else:
+        new_status[&#39;callHomeIp&#39;] = status[&#39;CHIP&#39;]
+    return new_status</code></pre>
+</details>
+</dd>
 <dt id="msiempy.device.ESM.ram"><code class="name flex">
 <span>def <span class="ident">ram</span></span>(<span>self)</span>
 </code></dt>
@@ -3354,8 +3430,8 @@ def recs(self):
             - list of top level devices
     Other functions exist to return subsets of this data also.
     &#34;&#34;&#34;
-    #return self.post(&#34;sysGetSysInfo&#34;)
-    return self.nitro.request(&#34;get_sys_info&#34;)</code></pre>
+    status = self.nitro.request(&#34;get_sys_info&#34;)
+    return self.map_status_int_fields(status)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.ESM.time"><code class="name flex">
@@ -3648,11 +3724,12 @@ def recs(self):
 </li>
 <li>
 <h4><code><a title="msiempy.device.ESM" href="#msiempy.device.ESM">ESM</a></code></h4>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="msiempy.device.ESM.backup_status" href="#msiempy.device.ESM.backup_status">backup_status</a></code></li>
 <li><code><a title="msiempy.device.ESM.buildstamp" href="#msiempy.device.ESM.buildstamp">buildstamp</a></code></li>
 <li><code><a title="msiempy.device.ESM.callhome" href="#msiempy.device.ESM.callhome">callhome</a></code></li>
 <li><code><a title="msiempy.device.ESM.disks" href="#msiempy.device.ESM.disks">disks</a></code></li>
+<li><code><a title="msiempy.device.ESM.map_status_int_fields" href="#msiempy.device.ESM.map_status_int_fields">map_status_int_fields</a></code></li>
 <li><code><a title="msiempy.device.ESM.ram" href="#msiempy.device.ESM.ram">ram</a></code></li>
 <li><code><a title="msiempy.device.ESM.recs" href="#msiempy.device.ESM.recs">recs</a></code></li>
 <li><code><a title="msiempy.device.ESM.rules_status" href="#msiempy.device.ESM.rules_status">rules_status</a></code></li>

@@ -21,8 +21,8 @@
 </header>
 <section id="section-intro">
 <h1 id="welcome-to-the-msiempy-module-documentation-the-pythonic-way-to-deal-with-mcfee-esm-api">Welcome to the <strong>msiempy</strong> module documentation. The pythonic way to deal with McFee esm API.</h1>
-<h3 id="classes-listed-in-this-module-are-used-by-other-classes-in-sub-modules-to-build-specialized-objects-and-functions">Classes listed in this module are used by other classes in sub-modules to build specialized objects and functions.</h3>
-<h1 id="if-you-with-to-see-concrete-example-of-code-head-to-one-of-the-sub-modules">If you with to see concrete example of code, <strong>head to one of the sub-modules</strong> !</h1>
+<p>Classes listed in this module are used by other classes in sub-modules to build specialized objects and functions. If you with to see concrete example of code, <strong>head to one of the sub-modules</strong> !
+</p>
 <p>This API offers two main types of objects to interact with the SIEM : <a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a>, <a title="msiempy.NitroDict" href="#msiempy.NitroDict"><code>NitroDict</code></a>.
 <a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a>s have default behaviours related to parallel execution, string representation generation and search feature.
 Whereas <a title="msiempy.NitroDict" href="#msiempy.NitroDict"><code>NitroDict</code></a> that doesn't have any specific behaviours. Both inheriths from <a title="msiempy.NitroObject" href="#msiempy.NitroObject"><code>NitroObject</code></a>.
@@ -36,8 +36,7 @@ It uses <a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroCo
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;# Welcome to the **msiempy** module documentation. The pythonic way to deal with McFee esm API.  
 
-### Classes listed in this module are used by other classes in sub-modules to build specialized objects and functions. 
-# If you with to see concrete example of code, **head to one of the sub-modules** !  
+Classes listed in this module are used by other classes in sub-modules to build specialized objects and functions. If you with to see concrete example of code, **head to one of the sub-modules** !  
 
 This API offers two main types of objects to interact with the SIEM : `msiempy.NitroList`, `msiempy.NitroDict`. 
 `msiempy.NitroList`s have default behaviours related to parallel execution, string representation generation and search feature.
@@ -445,6 +444,10 @@ class NitroSession():
             &#34;get_alarms&#34;: (&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s&#34;&#34;&#34;, None),
 
             &#34;get_alarm_details&#34;: (&#34;&#34;&#34;notifyGetTriggeredNotification&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;id&#34;:%(id)s}&#34;&#34;&#34;),
+            
+            &#34;get_alarm_details_int&#34;: (&#34;NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL&#34;, 
+                                        &#34;&#34;&#34;{&#34;TID&#34;: &#34;%(id)s&#34;}&#34;&#34;&#34;),
+
 
             &#34;ack_alarms&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
 
@@ -509,9 +512,9 @@ class NitroSession():
 
             &#34;get_watchlist_values&#34;: (&#34;&#34;&#34;sysGetWatchlistValues?pos=%(pos)s&amp;count=%(count)s&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;file&#34;: {&#34;id&#34;: &#34;%(id)s&#34;}}&#34;&#34;&#34;),
 
-            &#34;get_alert_data&#34;: (&#34;&#34;&#34;ipsGetAlertData&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;id&#34;: &#34;%(id)s&#34;}&#34;&#34;&#34;),
+            &#34;get_alert_data&#34;: (&#34;&#34;&#34;ipsGetAlertData&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;id&#34;: {&#34;value&#34;:&#34;%(id)s&#34;}}&#34;&#34;&#34;),
             
-            &#34;get_sys_info&#34;  : (&#34;sysGetSysInfo&#34;,None),
+            &#34;get_sys_info&#34;  : (&#34;SYS_GETSYSINFO&#34;,&#34;&#34;&#34;{}&#34;&#34;&#34;),
             
             &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
     }
@@ -1311,8 +1314,6 @@ class FilteredQueryList(NitroList):
         #self.filters=filters filter property setter should be called in the concrete class
         #TODO find a better solution to integrate the filter propertie
 
-        self.load_async=load_async
-
         if start_time is not None and end_time is not None :
             self.start_time=start_time
             self.end_time=end_time
@@ -1451,7 +1452,7 @@ class FilteredQueryList(NitroList):
         pass
 
     @abc.abstractmethod
-    def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
+    def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;, *args, **kwargs):
         &#34;&#34;&#34;
         Method to load the data from the SIEM.
         Split the query in defferents time slots if the query apprears not to be completed.
@@ -1477,7 +1478,7 @@ class FilteredQueryList(NitroList):
         
         &#34;&#34;&#34;
 
-        items, completed = self._load_data(workers=workers)
+        items, completed = self._load_data(workers=workers, *args, **kwargs)
 
         if not completed :
             #If not completed the query is split and items aren&#39;t actually used
@@ -1678,8 +1679,6 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
         #self.filters=filters filter property setter should be called in the concrete class
         #TODO find a better solution to integrate the filter propertie
 
-        self.load_async=load_async
-
         if start_time is not None and end_time is not None :
             self.start_time=start_time
             self.end_time=end_time
@@ -1818,7 +1817,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
         pass
 
     @abc.abstractmethod
-    def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
+    def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;, *args, **kwargs):
         &#34;&#34;&#34;
         Method to load the data from the SIEM.
         Split the query in defferents time slots if the query apprears not to be completed.
@@ -1844,7 +1843,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
         
         &#34;&#34;&#34;
 
-        items, completed = self._load_data(workers=workers)
+        items, completed = self._load_data(workers=workers, *args, **kwargs)
 
         if not completed :
             #If not completed the query is split and items aren&#39;t actually used
@@ -2056,7 +2055,7 @@ def clear_filters(self):
 </details>
 </dd>
 <dt id="msiempy.FilteredQueryList.load_data"><code class="name flex">
-<span>def <span class="ident">load_data</span></span>(<span>self, workers=15, slots=4, delta='24h')</span>
+<span>def <span class="ident">load_data</span></span>(<span>self, workers=15, slots=4, delta='24h', *args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Method to load the data from the SIEM.
@@ -2082,7 +2081,7 @@ with dateutil.</li>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractmethod
-def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
+def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;, *args, **kwargs):
     &#34;&#34;&#34;
     Method to load the data from the SIEM.
     Split the query in defferents time slots if the query apprears not to be completed.
@@ -2108,7 +2107,7 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
     
     &#34;&#34;&#34;
 
-    items, completed = self._load_data(workers=workers)
+    items, completed = self._load_data(workers=workers, *args, **kwargs)
 
     if not completed :
         #If not completed the query is split and items aren&#39;t actually used
@@ -2646,8 +2645,8 @@ and update dict values accordingly.</p>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></li>
-<li><a title="msiempy.device.DataSource" href="device.html#msiempy.device.DataSource">DataSource</a></li>
 <li><a title="msiempy.alarm.Alarm" href="alarm.html#msiempy.alarm.Alarm">Alarm</a></li>
+<li><a title="msiempy.device.DataSource" href="device.html#msiempy.device.DataSource">DataSource</a></li>
 <li><a title="msiempy.watchlist.Watchlist" href="watchlist.html#msiempy.watchlist.Watchlist">Watchlist</a></li>
 </ul>
 <h3>Instance variables</h3>
@@ -3717,6 +3716,10 @@ Use logout() to reinstanciate NitroSession.
             &#34;get_alarms&#34;: (&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s&#34;&#34;&#34;, None),
 
             &#34;get_alarm_details&#34;: (&#34;&#34;&#34;notifyGetTriggeredNotification&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;id&#34;:%(id)s}&#34;&#34;&#34;),
+            
+            &#34;get_alarm_details_int&#34;: (&#34;NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL&#34;, 
+                                        &#34;&#34;&#34;{&#34;TID&#34;: &#34;%(id)s&#34;}&#34;&#34;&#34;),
+
 
             &#34;ack_alarms&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
 
@@ -3781,9 +3784,9 @@ Use logout() to reinstanciate NitroSession.
 
             &#34;get_watchlist_values&#34;: (&#34;&#34;&#34;sysGetWatchlistValues?pos=%(pos)s&amp;count=%(count)s&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;file&#34;: {&#34;id&#34;: &#34;%(id)s&#34;}}&#34;&#34;&#34;),
 
-            &#34;get_alert_data&#34;: (&#34;&#34;&#34;ipsGetAlertData&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;id&#34;: &#34;%(id)s&#34;}&#34;&#34;&#34;),
+            &#34;get_alert_data&#34;: (&#34;&#34;&#34;ipsGetAlertData&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;id&#34;: {&#34;value&#34;:&#34;%(id)s&#34;}}&#34;&#34;&#34;),
             
-            &#34;get_sys_info&#34;  : (&#34;sysGetSysInfo&#34;,None),
+            &#34;get_sys_info&#34;  : (&#34;SYS_GETSYSINFO&#34;,&#34;&#34;&#34;{}&#34;&#34;&#34;),
             
             &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
     }
@@ -4249,11 +4252,7 @@ a new session will be instanciated next time.</p></section>
 <h1>Index</h1>
 <div class="toc">
 <ul>
-<li><a href="#welcome-to-the-msiempy-module-documentation-the-pythonic-way-to-deal-with-mcfee-esm-api">Welcome to the msiempy module documentation. The pythonic way to deal with McFee esm API.</a><ul>
-<li><a href="#classes-listed-in-this-module-are-used-by-other-classes-in-sub-modules-to-build-specialized-objects-and-functions">Classes listed in this module are used by other classes in sub-modules to build specialized objects and functions.</a></li>
-</ul>
-</li>
-<li><a href="#if-you-with-to-see-concrete-example-of-code-head-to-one-of-the-sub-modules">If you with to see concrete example of code, head to one of the sub-modules !</a></li>
+<li><a href="#welcome-to-the-msiempy-module-documentation-the-pythonic-way-to-deal-with-mcfee-esm-api">Welcome to the msiempy module documentation. The pythonic way to deal with McFee esm API.</a></li>
 </ul>
 </div>
 <ul id="index">

@@ -538,10 +538,9 @@ class NitroSession():
 
     Content :  
     
-    %(content)s
+%(content)s
     
-    &#34;&#34;&#34; % dict(content=str(PARAMS).replace(&#39;\n&#39;, &#34;&#34;&#34;  
-    &#34;&#34;&#34;))
+    &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1))
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -3827,10 +3826,9 @@ Use logout() to reinstanciate NitroSession.
 
     Content :  
     
-    %(content)s
+%(content)s
     
-    &#34;&#34;&#34; % dict(content=str(PARAMS).replace(&#39;\n&#39;, &#34;&#34;&#34;  
-    &#34;&#34;&#34;))
+    &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1))
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -4153,51 +4151,76 @@ Use logout() to reinstanciate NitroSession.
 </dd>
 <dt id="msiempy.NitroSession.PARAMS"><code class="name">var <span class="ident">PARAMS</span></code></dt>
 <dd>
-<section class="desc"><p>This structure provide a central place to aggregate API methods and parameters.
+<section class="desc"><pre><code>This structure provide a central place to aggregate API methods and parameters. 
 The parameters are stored as docstrings to support string replacement.
-</p>
-<p>Args:<br>
-method (str): Dict key associated with desired function
-Use normal dict access, PARAMS["method"], or PARAMS.get("method")</p>
-<p>Returns:<br>
-tuple: (string, string)
-</p>
-<pre><code>The first string is the method name that is actually used as
-the URI or passed to the ESM. The second string is the params
-required for that method. Some params require variables be
-interpolated as documented in the Attributes.
+
+Args:  
+    method (str): Dict key associated with desired function
+    Use normal dict access, PARAMS["method"], or PARAMS.get("method")
+
+Returns:  
+    tuple: (string, string)
+
+    The first string is the method name that is actually used as
+    the URI or passed to the ESM. The second string is the params
+    required for that method. Some params require variables be
+    interpolated as documented in the Attributes.
+
+Example:
+    method, params = PARAMS.get("login").format(username, password)  
+    See : &lt;a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"&gt;`NitroSession.request()`&lt;/a&gt;
+
+Important note : 
+    Do not use sigle quotes (') to delimit data into the interpolated strings !
+
+Content :
 </code></pre>
-<h2 id="example">Example</h2>
-<dl>
-<dt>method, params = PARAMS.get("login").format(username, password)</dt>
-<dt><strong><code>See</code></strong> :&ensp;<code>&lt;a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"&gt;</code>NitroSession.request()<code>&lt;/a&gt;</code></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Important note :
-Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
-<dl>
-<dt><strong><code>Content</code></strong> :&ensp;</dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>{'login': ('login', '{"username": "%(username)s",\n
+<p>{
+"login": [
+"login",
+"{"username": "%(username)s",\n
 "password" : "%(password)s",\n
 "locale": "en_US",\n
 "os": "Win32"}\n
-'), 'get_devtree': ('GRP_GETVIRTUALGROUPIPSLISTDATA', '{"ITEMS": "#{DC1 + DC2}",\n
+"
+],
+"get_devtree": [
+"GRP_GETVIRTUALGROUPIPSLISTDATA",
+"{"ITEMS": "#{DC1 + DC2}",\n
 "DID": "1",\n
 "HD": "F",\n
 "NS": "0"}\n
-'), 'get_zones_devtree': ('GRP_GETVIRTUALGROUPIPSLISTDATA', '{"ITEMS": "#{DC1 + DC2}",\n
+"
+],
+"get_zones_devtree": [
+"GRP_GETVIRTUALGROUPIPSLISTDATA",
+"{"ITEMS": "#{DC1 + DC2}",\n
 "DID": "3",\n
 "HD": "F",\n
 "NS": "0"}\n
-'), 'req_client_str': ('DS_GETDSCLIENTLIST', '{"DSID": "%(_ds_id)s",\n
+"
+],
+"req_client_str": [
+"DS_GETDSCLIENTLIST",
+"{"DSID": "%(_ds_id)s",\n
 "SEARCH": ""}\n
-'), 'get_rfile': ('MISC_READFILE', '{"FNAME": "%(_ftoken)s",\n
+"
+],
+"get_rfile": [
+"MISC_READFILE",
+"{"FNAME": "%(_ftoken)s",\n
 "SPOS": "0",\n
 "NBYTES": "0"}\n
-'), 'get_wfile': ('MISC_WRITEFILE', '{"DATA1": "%(_ds_id)s",\n
-'), 'map_dtree': ('map_dtree', '{"dev_type": "%(dev_type)s",\n
+"
+],
+"get_wfile": [
+"MISC_WRITEFILE",
+"{"DATA1": "%(_ds_id)s",\n
+"
+],
+"map_dtree": [
+"map_dtree",
+"{"dev_type": "%(dev_type)s",\n
 "name": "%(ds_name)s",\n
 "ds_id": "%(ds_id)s",\n
 "enabled": "%(enabled)s",\n
@@ -4212,7 +4235,11 @@ Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 "syslog_tls": "",\n
 "client_groups": "%(client_groups)s"\n
 }\n
-'), 'add_ds': ('dsAddDataSource', '{"datasource": {\n
+"
+],
+"add_ds": [
+"dsAddDataSource",
+"{"datasource": {\n
 "parentId": {"id": "%(parent_id)s"},\n
 "name": "%(name)s",\n
 "id": {"id": "%(ds_id)s"},\n
@@ -4226,7 +4253,11 @@ Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 "enabled": "%(enabled)s",\n
 "idmId": "%(idm_id)s",\n
 "parameters": %(parameters)s\n
-}}'), 'add_client': ('DS_ADDDSCLIENT', '{"PID": "%(parent_id)s",\n
+}}"
+],
+"add_client": [
+"DS_ADDDSCLIENT",
+"{"PID": "%(parent_id)s",\n
 "NAME": "%(name)s",\n
 "ENABLED": "%(enabled)s",\n
 "IP": "%(ds_ip)s",\n
@@ -4237,12 +4268,44 @@ Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 "MASKFLAG": "%(maskflag)s",\n
 "PORT": "%(port)s",\n
 "USETLS": "%(syslog_tls)s"\n
-}'), 'get_recs': ('devGetDeviceList?filterByRights=false', '{"types": ["RECEIVER"]}\n
-'), 'get_dstypes': ('dsGetDataSourceTypes', '{"receiverId": {"id": "%(rec_id)s"}\n
+}"
+],
+"get_recs": [
+"devGetDeviceList?filterByRights=false",
+"{"types": ["RECEIVER"]}\n
+"
+],
+"get_dstypes": [
+"dsGetDataSourceTypes",
+"{"receiverId": {"id": "%(rec_id)s"}\n
 }\n
-'), 'del_ds': ('dsDeleteDataSource', '{"receiverId": {"id": "%(parent_id)s"},\n
+"
+],
+"del_ds": [
+"dsDeleteDataSource",
+"{"receiverId": {"id": "%(parent_id)s"},\n
 "datasourceId": {"id": "%(ds_id)s"}}\n
-'), 'del_client': ('DS_DELETEDSCLIENTS', None), 'ds_last_times': ('QRY%5FGETDEVICELASTALERTTIME', '{}'), 'zonetree': ('zoneGetZoneTree', None), 'ds_by_type': ('QRY_GETDEVICECOUNTBYTYPE', None), '_dev_types': ('dev_type_map', '{"1": "zone",\n
+"
+],
+"del_client": [
+"DS_DELETEDSCLIENTS",
+null
+],
+"ds_last_times": [
+"QRY%5FGETDEVICELASTALERTTIME",
+"{}"
+],
+"zonetree": [
+"zoneGetZoneTree",
+null
+],
+"ds_by_type": [
+"QRY_GETDEVICECOUNTBYTYPE",
+null
+],
+"_dev_types": [
+"dev_type_map",
+"{"1": "zone",\n
 "2": "ERC",\n
 "3": "datasource",\n
 "4": "Database Event Monitor (DBM)",\n
@@ -4263,9 +4326,65 @@ Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 "25": "Enterprise Log Search (ELS)",\n
 "254": "client_group",\n
 "256": "client"}\n
-'), 'ds_details': ('dsGetDataSourceDetail', '{"datasourceId": \n
+"
+],
+"ds_details": [
+"dsGetDataSourceDetail",
+"{"datasourceId": \n
 {"id": "%(ds_id)s"}}\n
-'), 'get_alarms_custom_time': ('alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;customStart=%(start_time)s&amp;customEnd=%(end_time)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s', None), 'get_alarms': ('alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s', None), 'get_alarm_details': ('notifyGetTriggeredNotification', '{"id":%(id)s}'), 'get_alarm_details_int': ('NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL', '{"TID": "%(id)s"}'), 'ack_alarms': ('alarmAcknowledgeTriggeredAlarm', '{"triggeredIds":{"alarmIdList"::%(ids)s}}'), 'unack_alarms': ('alarmUnacknowledgeTriggeredAlarm', '{"triggeredIds":{"alarmIdList":%(ids)s}}'), 'delete_alarms': ('alarmDeleteTriggeredAlarm', '{"triggeredIds":{"alarmIdList":%(ids)s}}'), 'get_possible_filters': ('qryGetFilterFields', None), 'get_possible_fields': ('qryGetSelectFields?type=%(type)s&amp;groupType=%(groupType)s', None), 'get_esm_time': ('essmgtGetESSTime', None), 'logout': ('logout', None), 'get_user_locale': ('getUserLocale', None), 'event_query_custom_time': ('qryExecuteDetail?type=EVENT&amp;reverse=false', '{\n
+"
+],
+"get_alarms_custom_time": [
+"alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;customStart=%(start_time)s&amp;customEnd=%(end_time)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s",
+null
+],
+"get_alarms": [
+"alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s",
+null
+],
+"get_alarm_details": [
+"notifyGetTriggeredNotification",
+"{"id":%(id)s}"
+],
+"get_alarm_details_int": [
+"NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL",
+"{"TID": "%(id)s"}"
+],
+"ack_alarms": [
+"alarmAcknowledgeTriggeredAlarm",
+"{"triggeredIds":{"alarmIdList"::%(ids)s}}"
+],
+"unack_alarms": [
+"alarmUnacknowledgeTriggeredAlarm",
+"{"triggeredIds":{"alarmIdList":%(ids)s}}"
+],
+"delete_alarms": [
+"alarmDeleteTriggeredAlarm",
+"{"triggeredIds":{"alarmIdList":%(ids)s}}"
+],
+"get_possible_filters": [
+"qryGetFilterFields",
+null
+],
+"get_possible_fields": [
+"qryGetSelectFields?type=%(type)s&amp;groupType=%(groupType)s",
+null
+],
+"get_esm_time": [
+"essmgtGetESSTime",
+null
+],
+"logout": [
+"logout",
+null
+],
+"get_user_locale": [
+"getUserLocale",
+null
+],
+"event_query_custom_time": [
+"qryExecuteDetail?type=EVENT&amp;reverse=false",
+"{\n
 "config": {\n
 "timeRange": "%(time_range)s",\n
 "customStart": "%(start_time)s",\n
@@ -4275,7 +4394,11 @@ Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 "limit":%(limit)s,\n
 "offset":%(offset)s\n
 }\n
-}'), 'event_query': ('qryExecuteDetail?type=EVENT&amp;reverse=false', '{\n
+}"
+],
+"event_query": [
+"qryExecuteDetail?type=EVENT&amp;reverse=false",
+"{\n
 "config": {\n
 "timeRange":"%(time_range)s",\n
 "fields":%(fields)s,\n
@@ -4283,13 +4406,59 @@ Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 "limit":%(limit)s,\n
 "offset":%(offset)s\n
 }\n
-}'), 'query_status': ('qryGetStatus', '{"resultID": %(resultID)s}'), 'query_result': ('qryGetResults?startPos=%(startPos)s&amp;numRows=%(numRows)s&amp;reverse=false', '{"resultID": %(resultID)s}'), 'time_zones': ('userGetTimeZones', None), 'add_note_to_event': ('ipsAddAlertNote', '{\n
+}"
+],
+"query_status": [
+"qryGetStatus",
+"{"resultID": %(resultID)s}"
+],
+"query_result": [
+"qryGetResults?startPos=%(startPos)s&amp;numRows=%(numRows)s&amp;reverse=false",
+"{"resultID": %(resultID)s}"
+],
+"time_zones": [
+"userGetTimeZones",
+null
+],
+"add_note_to_event": [
+"ipsAddAlertNote",
+"{\n
 "id": {"value": "%(id)s"},\n
 "note": {"note": "%(note)s"}\n
-}'), 'get_watchlists_no_filters': ('sysGetWatchlists?hidden=%(hidden)s&amp;dynamic=%(dynamic)s&amp;writeOnly=%(writeOnly)s&amp;indexedOnly=%(indexedOnly)s', None), 'get_watchlist_details': ('sysGetWatchlistDetails', '{"id": %(id)s}'), 'add_watchlist_values': ('sysAddWatchlistValues', '{\n
+}"
+],
+"get_watchlists_no_filters": [
+"sysGetWatchlists?hidden=%(hidden)s&amp;dynamic=%(dynamic)s&amp;writeOnly=%(writeOnly)s&amp;indexedOnly=%(indexedOnly)s",
+null
+],
+"get_watchlist_details": [
+"sysGetWatchlistDetails",
+"{"id": %(id)s}"
+],
+"add_watchlist_values": [
+"sysAddWatchlistValues",
+"{\n
 "watchlist": %(watchlist)s,\n
 "values": %(values)s,\n
-}'), 'get_watchlist_values': ('sysGetWatchlistValues?pos=%(pos)s&amp;count=%(count)s', '{"file": {"id": "%(id)s"}}'), 'get_alert_data': ('ipsGetAlertData', '{"id": {"value":"%(id)s"}}'), 'get_sys_info': ('SYS_GETSYSINFO', '{}'), 'build_stamp': ('essmgtGetBuildStamp', None)}</p></section>
+}"
+],
+"get_watchlist_values": [
+"sysGetWatchlistValues?pos=%(pos)s&amp;count=%(count)s",
+"{"file": {"id": "%(id)s"}}"
+],
+"get_alert_data": [
+"ipsGetAlertData",
+"{"id": {"value":"%(id)s"}}"
+],
+"get_sys_info": [
+"SYS_GETSYSINFO",
+"{}"
+],
+"build_stamp": [
+"essmgtGetBuildStamp",
+null
+]
+}</p></section>
 </dd>
 <dt id="msiempy.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>

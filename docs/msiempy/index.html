@@ -513,7 +513,7 @@ class NitroSession():
             
             &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
     }
-    __pdoc__[&#39;PARAMS&#39;] = &#34;&#34;&#34;
+    __pdoc__[&#39;NitroSession.PARAMS&#39;] = &#34;&#34;&#34;
     This structure provide a central place to aggregate API methods and parameters. 
     The parameters are stored as docstrings to support string replacement.  
 
@@ -539,7 +539,7 @@ class NitroSession():
     ```
     %(content)s
     ```
-    &#34;&#34;&#34;.format(content=PARAMS)
+    &#34;&#34;&#34; % dict(content=PARAMS)
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -3800,7 +3800,7 @@ Use logout() to reinstanciate NitroSession.
             
             &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
     }
-    __pdoc__[&#39;PARAMS&#39;] = &#34;&#34;&#34;
+    __pdoc__[&#39;NitroSession.PARAMS&#39;] = &#34;&#34;&#34;
     This structure provide a central place to aggregate API methods and parameters. 
     The parameters are stored as docstrings to support string replacement.  
 
@@ -3826,7 +3826,7 @@ Use logout() to reinstanciate NitroSession.
     ```
     %(content)s
     ```
-    &#34;&#34;&#34;.format(content=PARAMS)
+    &#34;&#34;&#34; % dict(content=PARAMS)
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -4149,7 +4149,33 @@ Use logout() to reinstanciate NitroSession.
 </dd>
 <dt id="msiempy.NitroSession.PARAMS"><code class="name">var <span class="ident">PARAMS</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>This structure provide a central place to aggregate API methods and parameters.
+The parameters are stored as docstrings to support string replacement.
+</p>
+<p>Args:<br>
+method (str): Dict key associated with desired function
+Use normal dict access, PARAMS["method"], or PARAMS.get("method")</p>
+<p>Returns:<br>
+tuple: (string, string)
+</p>
+<pre><code>The first string is the method name that is actually used as
+the URI or passed to the ESM. The second string is the params
+required for that method. Some params require variables be
+interpolated as documented in the Attributes.
+</code></pre>
+<h2 id="example">Example</h2>
+<dl>
+<dt>method, params = PARAMS.get("login").format(username, password)</dt>
+<dt><strong><code>See</code></strong> :&ensp;<code>&lt;a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"&gt;</code>NitroSession.request()<code>&lt;/a&gt;</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<p>Important note : Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
+<dl>
+<dt><strong><code>Content</code></strong> :&ensp;</dt>
+<dd>&nbsp;</dd>
+</dl>
+<pre><code>{'login': ('login', '{&quot;username&quot;: &quot;%(username)s&quot;,\n                    &quot;password&quot; : &quot;%(password)s&quot;,\n                    &quot;locale&quot;: &quot;en_US&quot;,\n                    &quot;os&quot;: &quot;Win32&quot;}\n                    '), 'get_devtree': ('GRP_GETVIRTUALGROUPIPSLISTDATA', '{&quot;ITEMS&quot;: &quot;#{DC1 + DC2}&quot;,\n                            &quot;DID&quot;: &quot;1&quot;,\n                            &quot;HD&quot;: &quot;F&quot;,\n                            &quot;NS&quot;: &quot;0&quot;}\n                        '), 'get_zones_devtree': ('GRP_GETVIRTUALGROUPIPSLISTDATA', '{&quot;ITEMS&quot;: &quot;#{DC1 + DC2}&quot;,\n                            &quot;DID&quot;: &quot;3&quot;,\n                            &quot;HD&quot;: &quot;F&quot;,\n                            &quot;NS&quot;: &quot;0&quot;}\n                        '), 'req_client_str': ('DS_GETDSCLIENTLIST', '{&quot;DSID&quot;: &quot;%(_ds_id)s&quot;,\n                                &quot;SEARCH&quot;: &quot;&quot;}\n                            '), 'get_rfile': ('MISC_READFILE', '{&quot;FNAME&quot;: &quot;%(_ftoken)s&quot;,\n                    &quot;SPOS&quot;: &quot;0&quot;,\n                    &quot;NBYTES&quot;: &quot;0&quot;}\n                    '), 'get_wfile': ('MISC_WRITEFILE', '{&quot;DATA1&quot;: &quot;%(_ds_id)s&quot;,\n                    '), 'map_dtree': ('map_dtree', '{&quot;dev_type&quot;: &quot;%(dev_type)s&quot;,\n                    &quot;name&quot;: &quot;%(ds_name)s&quot;,\n                    &quot;ds_id&quot;: &quot;%(ds_id)s&quot;,\n                    &quot;enabled&quot;: &quot;%(enabled)s&quot;,\n                    &quot;ds_ip&quot;: &quot;%(ds_ip)s&quot;,\n                    &quot;hostname&quot; : &quot;%(hostname)s&quot;,\n                    &quot;typeID&quot;: &quot;%(type_id)s&quot;,\n                    &quot;vendor&quot;: &quot;&quot;,\n                    &quot;model&quot;: &quot;&quot;,\n                    &quot;tz_id&quot;: &quot;&quot;,\n                    &quot;date_order&quot;: &quot;&quot;,\n                    &quot;port&quot;: &quot;&quot;,\n                    &quot;syslog_tls&quot;: &quot;&quot;,\n                    &quot;client_groups&quot;: &quot;%(client_groups)s&quot;\n                    }\n                    '), 'add_ds': ('dsAddDataSource', '{&quot;datasource&quot;: {\n                            &quot;parentId&quot;: {&quot;id&quot;: &quot;%(parent_id)s&quot;},\n                            &quot;name&quot;: &quot;%(name)s&quot;,\n                            &quot;id&quot;: {&quot;id&quot;: &quot;%(ds_id)s&quot;},\n                            &quot;typeId&quot;: {&quot;id&quot;: &quot;%(type_id)s&quot;},\n                            &quot;childEnabled&quot;: &quot;%(child_enabled)s&quot;,\n                            &quot;childCount&quot;: &quot;%(child_count)s&quot;,\n                            &quot;childType&quot;: &quot;%(child_type)s&quot;,\n                            &quot;ipAddress&quot;: &quot;%(ds_ip)s&quot;,\n                            &quot;zoneId&quot;: &quot;%(zone_id)s&quot;,\n                            &quot;url&quot;: &quot;%(url)s&quot;,\n                            &quot;enabled&quot;: &quot;%(enabled)s&quot;,\n                            &quot;idmId&quot;: &quot;%(idm_id)s&quot;,\n                            &quot;parameters&quot;: %(parameters)s\n                        }}'), 'add_client': ('DS_ADDDSCLIENT', '{&quot;PID&quot;: &quot;%(parent_id)s&quot;,\n                        &quot;NAME&quot;: &quot;%(name)s&quot;,\n                        &quot;ENABLED&quot;: &quot;%(enabled)s&quot;,\n                        &quot;IP&quot;: &quot;%(ds_ip)s&quot;,\n                        &quot;HOST&quot;: &quot;%(hostname)s&quot;,\n                        &quot;TYPE&quot;: &quot;%(type_id)s&quot;,\n                        &quot;TZID&quot;: &quot;%(tz_id)s&quot;,\n                        &quot;DORDER&quot;: &quot;%(dorder)s&quot;,\n                        &quot;MASKFLAG&quot;: &quot;%(maskflag)s&quot;,\n                        &quot;PORT&quot;: &quot;%(port)s&quot;,\n                        &quot;USETLS&quot;: &quot;%(syslog_tls)s&quot;\n                        }'), 'get_recs': ('devGetDeviceList?filterByRights=false', '{&quot;types&quot;: [&quot;RECEIVER&quot;]}\n                        '), 'get_dstypes': ('dsGetDataSourceTypes', '{&quot;receiverId&quot;: {&quot;id&quot;: &quot;%(rec_id)s&quot;}\n                            }\n                        '), 'del_ds': ('dsDeleteDataSource', '{&quot;receiverId&quot;: {&quot;id&quot;: &quot;%(parent_id)s&quot;},\n                        &quot;datasourceId&quot;: {&quot;id&quot;: &quot;%(ds_id)s&quot;}}\n                    '), 'del_client': ('DS_DELETEDSCLIENTS', None), 'ds_last_times': ('QRY%5FGETDEVICELASTALERTTIME', '{}'), 'zonetree': ('zoneGetZoneTree', None), 'ds_by_type': ('QRY_GETDEVICECOUNTBYTYPE', None), '_dev_types': ('dev_type_map', '{&quot;1&quot;: &quot;zone&quot;,\n                                &quot;2&quot;: &quot;ERC&quot;,\n                                &quot;3&quot;: &quot;datasource&quot;,\n                                &quot;4&quot;: &quot;Database Event Monitor (DBM)&quot;,\n                                &quot;5&quot;: &quot;DBM Database&quot;,\n                                &quot;7&quot;: &quot;Policy Auditor&quot;,\n                                &quot;10&quot;: &quot;Application Data Monitor (ADM)&quot;,\n                                &quot;12&quot;: &quot;ELM&quot;,\n                                &quot;14&quot;: &quot;Local ESM&quot;,\n                                &quot;15&quot;: &quot;Advanced Correlation Engine (ACE)&quot;,\n                                &quot;16&quot;: &quot;Asset datasource&quot;,\n                                &quot;17&quot;: &quot;Score-based Correlation&quot;,\n                                &quot;19&quot;: &quot;McAfee ePolicy Orchestrator (ePO)&quot;,\n                                &quot;20&quot;: &quot;EPO&quot;,\n                                &quot;21&quot;: &quot;McAfee Network Security Manager (NSM)&quot;,\n                                &quot;22&quot;: &quot;McAfee Network Security Platform (NSP)&quot;,\n                                &quot;23&quot;: &quot;NSP Port&quot;,\n                                &quot;24&quot;: &quot;McAfee Vulnerability Manager (MVM)&quot;,\n                                &quot;25&quot;: &quot;Enterprise Log Search (ELS)&quot;,\n                                &quot;254&quot;: &quot;client_group&quot;,\n                                &quot;256&quot;: &quot;client&quot;}\n                            '), 'ds_details': ('dsGetDataSourceDetail', '{&quot;datasourceId&quot;: \n                                {&quot;id&quot;: &quot;%(ds_id)s&quot;}}\n                            '), 'get_alarms_custom_time': ('alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;customStart=%(start_time)s&amp;customEnd=%(end_time)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s', None), 'get_alarms': ('alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s', None), 'get_alarm_details': ('notifyGetTriggeredNotification', '{&quot;id&quot;:%(id)s}'), 'get_alarm_details_int': ('NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL', '{&quot;TID&quot;: &quot;%(id)s&quot;}'), 'ack_alarms': ('alarmAcknowledgeTriggeredAlarm', '{&quot;triggeredIds&quot;:{&quot;alarmIdList&quot;::%(ids)s}}'), 'unack_alarms': ('alarmUnacknowledgeTriggeredAlarm', '{&quot;triggeredIds&quot;:{&quot;alarmIdList&quot;:%(ids)s}}'), 'delete_alarms': ('alarmDeleteTriggeredAlarm', '{&quot;triggeredIds&quot;:{&quot;alarmIdList&quot;:%(ids)s}}'), 'get_possible_filters': ('qryGetFilterFields', None), 'get_possible_fields': ('qryGetSelectFields?type=%(type)s&amp;groupType=%(groupType)s', None), 'get_esm_time': ('essmgtGetESSTime', None), 'logout': ('logout', None), 'get_user_locale': ('getUserLocale', None), 'event_query_custom_time': ('qryExecuteDetail?type=EVENT&amp;reverse=false', '{\n                    &quot;config&quot;: {\n                        &quot;timeRange&quot;: &quot;%(time_range)s&quot;,\n                        &quot;customStart&quot;: &quot;%(start_time)s&quot;,\n                        &quot;customEnd&quot;: &quot;%(end_time)s&quot;,\n                        &quot;fields&quot;:%(fields)s,\n                        &quot;filters&quot;:%(filters)s,\n                        &quot;limit&quot;:%(limit)s,\n                        &quot;offset&quot;:%(offset)s\n                        }\n                        }'), 'event_query': ('qryExecuteDetail?type=EVENT&amp;reverse=false', '{\n                    &quot;config&quot;: {\n                        &quot;timeRange&quot;:&quot;%(time_range)s&quot;,\n                        &quot;fields&quot;:%(fields)s,\n                        &quot;filters&quot;:%(filters)s,\n                        &quot;limit&quot;:%(limit)s,\n                        &quot;offset&quot;:%(offset)s\n                        }\n                        }'), 'query_status': ('qryGetStatus', '{&quot;resultID&quot;: %(resultID)s}'), 'query_result': ('qryGetResults?startPos=%(startPos)s&amp;numRows=%(numRows)s&amp;reverse=false', '{&quot;resultID&quot;: %(resultID)s}'), 'time_zones': ('userGetTimeZones', None), 'add_note_to_event': ('ipsAddAlertNote', '{\n                &quot;id&quot;: {&quot;value&quot;: &quot;%(id)s&quot;},\n                &quot;note&quot;: {&quot;note&quot;: &quot;%(note)s&quot;}\n            }'), 'get_watchlists_no_filters': ('sysGetWatchlists?hidden=%(hidden)s&amp;dynamic=%(dynamic)s&amp;writeOnly=%(writeOnly)s&amp;indexedOnly=%(indexedOnly)s', None), 'get_watchlist_details': ('sysGetWatchlistDetails', '{&quot;id&quot;: %(id)s}'), 'add_watchlist_values': ('sysAddWatchlistValues', '{\n                &quot;watchlist&quot;: %(watchlist)s,\n                &quot;values&quot;: %(values)s,\n                }'), 'get_watchlist_values': ('sysGetWatchlistValues?pos=%(pos)s&amp;count=%(count)s', '{&quot;file&quot;: {&quot;id&quot;: &quot;%(id)s&quot;}}'), 'get_alert_data': ('ipsGetAlertData', '{&quot;id&quot;: {&quot;value&quot;:&quot;%(id)s&quot;}}'), 'get_sys_info': ('SYS_GETSYSINFO', '{}'), 'build_stamp': ('essmgtGetBuildStamp', None)}
+</code></pre></section>
 </dd>
 <dt id="msiempy.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>

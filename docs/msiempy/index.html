@@ -81,7 +81,7 @@ except : pass
 logging.getLogger(&#34;urllib3&#34;).setLevel(logging.WARNING)
 log = logging.getLogger(&#39;msiempy&#39;)
 
-
+__pdoc__={} #Init pdoc overwrite engine to document stuff dynamically
 
 class NitroError(Exception):
     &#34;&#34;&#34;
@@ -293,11 +293,6 @@ class NitroSession():
     NitroConfig object.
     &#34;&#34;&#34;
     
-    executor = None
-    &#34;&#34;&#34;
-    Executor object.
-    &#34;&#34;&#34;
-
     PARAMS = {
         &#34;login&#34;: (&#34;login&#34;,
                 &#34;&#34;&#34;{&#34;username&#34;: &#34;%(username)s&#34;,
@@ -449,11 +444,11 @@ class NitroSession():
                                         &#34;&#34;&#34;{&#34;TID&#34;: &#34;%(id)s&#34;}&#34;&#34;&#34;),
 
 
-            &#34;ack_alarms&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
+            &#34;ack_alarms&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;::%(ids)s}}&#34;&#34;&#34;),
 
-            &#34;unack_alarms&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
+            &#34;unack_alarms&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:%(ids)s}}&#34;&#34;&#34;),
 
-            &#34;delete_alarms&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
+            &#34;delete_alarms&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:%(ids)s}}&#34;&#34;&#34;),
             
             &#34;get_possible_filters&#34; : ( &#34;&#34;&#34;qryGetFilterFields&#34;&#34;&#34;, None ),
 
@@ -518,16 +513,16 @@ class NitroSession():
             
             &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
     }
-    &#34;&#34;&#34;
+    __pdoc__[&#39;PARAMS&#39;] = &#34;&#34;&#34;
     This structure provide a central place to aggregate API methods and parameters. 
-    The parameters are stored as docstrings to support string replacement.
+    The parameters are stored as docstrings to support string replacement.  
 
-    Args:
+    Args:  
         method (str): Dict key associated with desired function
         Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
 
-    Returns:
-        tuple: (string, string)
+    Returns:  
+        tuple: (string, string)  
 
         The first string is the method name that is actually used as
         the URI or passed to the ESM. The second string is the params
@@ -535,10 +530,16 @@ class NitroSession():
         interpolated as documented in the Attributes.
 
     Example:
-        method, params = params[&#34;login&#34;].format(username, password)
+        method, params = PARAMS.get(&#34;login&#34;).format(username, password)  
+        See : `msiempy.NitroSession.request`
 
     Important note : Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
-    &#34;&#34;&#34;
+
+    Content :  
+    ```
+    %(content)s
+    ```
+    &#34;&#34;&#34;.format(content=PARAMS)
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -575,13 +576,29 @@ class NitroSession():
                 quiet=self.config.quiet,
                 logfile=self.config.logfile)
 
-    def _request(self, method, http, data=None, callback=None, raw=False, secure=False):
+
+    def esm_request(self, method, http, data=None, callback=None, raw=False, secure=False):
         &#34;&#34;&#34;
-        Helper method that format the request, handle the basic parsing of the SIEM result 
-        as well as other errors.        
-        If method is all upper cases, it&#39;s a private API call.
-        Private API is under /ess/ and public api is under /rs/esm
-        Returns None if HTTP error, Timeout or TooManyRedirects if raw=False
+        Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
+        If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
+        In any way, the ESM response is unpacked by `msiempy.NitroSession.unpack_resp`
+
+        Parameters :
+            - `method`
+            - `http`
+            - `data`
+            - `callback`
+            - `raw`
+            - `secure`
+
+        Returns : 
+            - a `dict` or `list` object 
+            - the `resquest.Response` object if raw=True
+            - `result.text` if `requests.HTTPError`, 
+            - `None` if Timeout or TooManyRedirects if raw=False
+
+         Note : Private API is under /ess/ and public api is under /rs/esm  
+
         &#34;&#34;&#34;
 
         url=str()
@@ -592,7 +609,7 @@ class NitroSession():
         if method == method.upper():
             privateApiCall=True
             url = self.BASE_URL_PRIV
-            data = self._format_params(method, **data)
+            data = self.format_params(method, **data)
             log.debug(&#39;Private API call : &#39;+str(method)+&#39; Formatted params : &#39;+str(data))
         
         #Normal API calls
@@ -631,17 +648,15 @@ class NitroSession():
                     # _InvalidFilter (228)
                     # _IndexNotTurnedOn (49)
                     # Status Code 500: Error processing request, see server logs for more details 
-                    # &lt;Response [400]&gt;
-                    400 Client Error: 400 for url: https://207.179.200.58:4443/rs/esm/ipsGetAlertData Cannot construct instance of `com.mcafee.siem.api.data.alert.EsmAlertId`
                     # Input Validation Error
                     # By creating a new class
                     &#34;&#34;&#34;
 
                 else: #
-                    result = self._unpack_resp(result)
+                    result = self.unpack_resp(result)
 
                     if privateApiCall :
-                        result = self._format_priv_resp(result)
+                        result = self.format_priv_resp(result)
 
                     if callback:
                         result = callback(result)
@@ -717,7 +732,7 @@ class NitroSession():
             self._logged=self._login()
 
         try :
-            return self._request(method, http, data, callback, raw, secure)
+            return self.esm_request(method, http, data, callback, raw, secure)
 
         except ConnectionError as e:
             log.critical(e)
@@ -777,9 +792,9 @@ class NitroSession():
     
 
     @staticmethod
-    def _format_params(cmd, **params):
+    def format_params(cmd, **params):
         &#34;&#34;&#34;
-        Format private API call.
+        Format private API call.  
         From mfe_saw project at https://github.com/andywalden/mfe_saw
         &#34;&#34;&#34;
         params = {k: v for k, v in params.items() if v is not None}
@@ -792,9 +807,9 @@ class NitroSession():
         return params
 
     @staticmethod
-    def _format_priv_resp(resp):
+    def format_priv_resp(resp):
         &#34;&#34;&#34;
-        Format response from private API
+        Format response from private API.  
         From mfe_saw project at https://github.com/andywalden/mfe_saw
         &#34;&#34;&#34;
         resp = re.search(&#39;Response=(.*)&#39;, resp).group(1)
@@ -813,7 +828,7 @@ class NitroSession():
         return formatted
 
     @staticmethod
-    def _unpack_resp(response) :
+    def unpack_resp(response) :
         &#34;&#34;&#34;Unpack data from response.
         Args: 
             response: requests.Response response object
@@ -2645,8 +2660,8 @@ and update dict values accordingly.</p>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></li>
-<li><a title="msiempy.alarm.Alarm" href="alarm.html#msiempy.alarm.Alarm">Alarm</a></li>
 <li><a title="msiempy.device.DataSource" href="device.html#msiempy.device.DataSource">DataSource</a></li>
+<li><a title="msiempy.alarm.Alarm" href="alarm.html#msiempy.alarm.Alarm">Alarm</a></li>
 <li><a title="msiempy.watchlist.Watchlist" href="watchlist.html#msiempy.watchlist.Watchlist">Watchlist</a></li>
 </ul>
 <h3>Instance variables</h3>
@@ -3565,11 +3580,6 @@ Use logout() to reinstanciate NitroSession.
     NitroConfig object.
     &#34;&#34;&#34;
     
-    executor = None
-    &#34;&#34;&#34;
-    Executor object.
-    &#34;&#34;&#34;
-
     PARAMS = {
         &#34;login&#34;: (&#34;login&#34;,
                 &#34;&#34;&#34;{&#34;username&#34;: &#34;%(username)s&#34;,
@@ -3721,11 +3731,11 @@ Use logout() to reinstanciate NitroSession.
                                         &#34;&#34;&#34;{&#34;TID&#34;: &#34;%(id)s&#34;}&#34;&#34;&#34;),
 
 
-            &#34;ack_alarms&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
+            &#34;ack_alarms&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;::%(ids)s}}&#34;&#34;&#34;),
 
-            &#34;unack_alarms&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
+            &#34;unack_alarms&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:%(ids)s}}&#34;&#34;&#34;),
 
-            &#34;delete_alarms&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:%(ids)s}&#34;&#34;&#34;),
+            &#34;delete_alarms&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:%(ids)s}}&#34;&#34;&#34;),
             
             &#34;get_possible_filters&#34; : ( &#34;&#34;&#34;qryGetFilterFields&#34;&#34;&#34;, None ),
 
@@ -3790,16 +3800,16 @@ Use logout() to reinstanciate NitroSession.
             
             &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
     }
-    &#34;&#34;&#34;
+    __pdoc__[&#39;PARAMS&#39;] = &#34;&#34;&#34;
     This structure provide a central place to aggregate API methods and parameters. 
-    The parameters are stored as docstrings to support string replacement.
+    The parameters are stored as docstrings to support string replacement.  
 
-    Args:
+    Args:  
         method (str): Dict key associated with desired function
         Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
 
-    Returns:
-        tuple: (string, string)
+    Returns:  
+        tuple: (string, string)  
 
         The first string is the method name that is actually used as
         the URI or passed to the ESM. The second string is the params
@@ -3807,10 +3817,16 @@ Use logout() to reinstanciate NitroSession.
         interpolated as documented in the Attributes.
 
     Example:
-        method, params = params[&#34;login&#34;].format(username, password)
+        method, params = PARAMS.get(&#34;login&#34;).format(username, password)  
+        See : `msiempy.NitroSession.request`
 
     Important note : Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
-    &#34;&#34;&#34;
+
+    Content :  
+    ```
+    %(content)s
+    ```
+    &#34;&#34;&#34;.format(content=PARAMS)
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -3847,13 +3863,29 @@ Use logout() to reinstanciate NitroSession.
                 quiet=self.config.quiet,
                 logfile=self.config.logfile)
 
-    def _request(self, method, http, data=None, callback=None, raw=False, secure=False):
+
+    def esm_request(self, method, http, data=None, callback=None, raw=False, secure=False):
         &#34;&#34;&#34;
-        Helper method that format the request, handle the basic parsing of the SIEM result 
-        as well as other errors.        
-        If method is all upper cases, it&#39;s a private API call.
-        Private API is under /ess/ and public api is under /rs/esm
-        Returns None if HTTP error, Timeout or TooManyRedirects if raw=False
+        Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
+        If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
+        In any way, the ESM response is unpacked by `msiempy.NitroSession.unpack_resp`
+
+        Parameters :
+            - `method`
+            - `http`
+            - `data`
+            - `callback`
+            - `raw`
+            - `secure`
+
+        Returns : 
+            - a `dict` or `list` object 
+            - the `resquest.Response` object if raw=True
+            - `result.text` if `requests.HTTPError`, 
+            - `None` if Timeout or TooManyRedirects if raw=False
+
+         Note : Private API is under /ess/ and public api is under /rs/esm  
+
         &#34;&#34;&#34;
 
         url=str()
@@ -3864,7 +3896,7 @@ Use logout() to reinstanciate NitroSession.
         if method == method.upper():
             privateApiCall=True
             url = self.BASE_URL_PRIV
-            data = self._format_params(method, **data)
+            data = self.format_params(method, **data)
             log.debug(&#39;Private API call : &#39;+str(method)+&#39; Formatted params : &#39;+str(data))
         
         #Normal API calls
@@ -3903,17 +3935,15 @@ Use logout() to reinstanciate NitroSession.
                     # _InvalidFilter (228)
                     # _IndexNotTurnedOn (49)
                     # Status Code 500: Error processing request, see server logs for more details 
-                    # &lt;Response [400]&gt;
-                    400 Client Error: 400 for url: https://207.179.200.58:4443/rs/esm/ipsGetAlertData Cannot construct instance of `com.mcafee.siem.api.data.alert.EsmAlertId`
                     # Input Validation Error
                     # By creating a new class
                     &#34;&#34;&#34;
 
                 else: #
-                    result = self._unpack_resp(result)
+                    result = self.unpack_resp(result)
 
                     if privateApiCall :
-                        result = self._format_priv_resp(result)
+                        result = self.format_priv_resp(result)
 
                     if callback:
                         result = callback(result)
@@ -3989,7 +4019,7 @@ Use logout() to reinstanciate NitroSession.
             self._logged=self._login()
 
         try :
-            return self._request(method, http, data, callback, raw, secure)
+            return self.esm_request(method, http, data, callback, raw, secure)
 
         except ConnectionError as e:
             log.critical(e)
@@ -4049,9 +4079,9 @@ Use logout() to reinstanciate NitroSession.
     
 
     @staticmethod
-    def _format_params(cmd, **params):
+    def format_params(cmd, **params):
         &#34;&#34;&#34;
-        Format private API call.
+        Format private API call.  
         From mfe_saw project at https://github.com/andywalden/mfe_saw
         &#34;&#34;&#34;
         params = {k: v for k, v in params.items() if v is not None}
@@ -4064,9 +4094,9 @@ Use logout() to reinstanciate NitroSession.
         return params
 
     @staticmethod
-    def _format_priv_resp(resp):
+    def format_priv_resp(resp):
         &#34;&#34;&#34;
-        Format response from private API
+        Format response from private API.  
         From mfe_saw project at https://github.com/andywalden/mfe_saw
         &#34;&#34;&#34;
         resp = re.search(&#39;Response=(.*)&#39;, resp).group(1)
@@ -4085,7 +4115,7 @@ Use logout() to reinstanciate NitroSession.
         return formatted
 
     @staticmethod
-    def _unpack_resp(response) :
+    def unpack_resp(response) :
         &#34;&#34;&#34;Unpack data from response.
         Args: 
             response: requests.Response response object
@@ -4119,41 +4149,226 @@ Use logout() to reinstanciate NitroSession.
 </dd>
 <dt id="msiempy.NitroSession.PARAMS"><code class="name">var <span class="ident">PARAMS</span></code></dt>
 <dd>
-<section class="desc"><p>This structure provide a central place to aggregate API methods and parameters.
-The parameters are stored as docstrings to support string replacement.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>method</code></strong> :&ensp;<code>str</code></dt>
-<dd>Dict key associated with desired function</dd>
-</dl>
-<p>Use normal dict access, PARAMS["method"], or PARAMS.get("method")</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><strong><code>tuple</code></strong></dt>
-<dd>(string, string)</dd>
-<dt><code>The</code> <code>first</code> <code>string</code> <code>is</code> <code>the</code> <code>method</code> <code>name</code> <code>that</code> <code>is</code> <code>actually</code> <code>used</code> <code>as</code></dt>
-<dd>&nbsp;</dd>
-<dt><code>the</code> <code>URI</code> or <code>passed</code> <code>to</code> <code>the</code> <code>ESM.</code> <code>The</code> <code>second</code> <code>string</code> <code>is</code> <code>the</code> <code>params</code></dt>
-<dd>&nbsp;</dd>
-<dt><code>required</code> <code>for</code> <code>that</code> <code>method.</code> <code>Some</code> <code>params</code> <code>require</code> <code>variables</code> <code>be</code></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>interpolated as documented in the Attributes.</p>
-<h2 id="example">Example</h2>
-<p>method, params = params["login"].format(username, password)
-Important note : Do not use sigle quotes (') to delimit data into the interpolated strings !</p></section>
+<section class="desc"></section>
 </dd>
 <dt id="msiempy.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>
 <section class="desc"><p>NitroConfig object.</p></section>
 </dd>
-<dt id="msiempy.NitroSession.executor"><code class="name">var <span class="ident">executor</span></code></dt>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="msiempy.NitroSession.format_params"><code class="name flex">
+<span>def <span class="ident">format_params</span></span>(<span>cmd, **params)</span>
+</code></dt>
 <dd>
-<section class="desc"><p>Executor object.</p></section>
+<section class="desc"><p>Format private API call.<br>
+From mfe_saw project at <a href="https://github.com/andywalden/mfe_saw">https://github.com/andywalden/mfe_saw</a></p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@staticmethod
+def format_params(cmd, **params):
+    &#34;&#34;&#34;
+    Format private API call.  
+    From mfe_saw project at https://github.com/andywalden/mfe_saw
+    &#34;&#34;&#34;
+    params = {k: v for k, v in params.items() if v is not None}
+    params = &#39;%14&#39;.join([k + &#39;%13&#39; + v + &#39;%13&#39; for (k, v) in params.items()])
+    
+    if params:
+        params = &#39;Request=API%13&#39; + cmd + &#39;%13%14&#39; + params + &#39;%14&#39;
+    else:
+        params = &#39;Request=API%13&#39; + cmd + &#39;%13%14&#39;
+    return params</code></pre>
+</details>
+</dd>
+<dt id="msiempy.NitroSession.format_priv_resp"><code class="name flex">
+<span>def <span class="ident">format_priv_resp</span></span>(<span>resp)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Format response from private API.<br>
+From mfe_saw project at <a href="https://github.com/andywalden/mfe_saw">https://github.com/andywalden/mfe_saw</a></p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@staticmethod
+def format_priv_resp(resp):
+    &#34;&#34;&#34;
+    Format response from private API.  
+    From mfe_saw project at https://github.com/andywalden/mfe_saw
+    &#34;&#34;&#34;
+    resp = re.search(&#39;Response=(.*)&#39;, resp).group(1)
+    resp = resp.replace(&#39;%14&#39;, &#39; &#39;)
+    pairs = resp.split()
+    formatted = {}
+    for pair in pairs:
+        pair = pair.replace(&#39;%13&#39;, &#39; &#39;)
+        pair = pair.split()
+        key = pair[0]
+        if key == &#39;ITEMS&#39;:
+            value = pair[-1]
+        else:
+            value = urllib.parse.unquote(pair[-1])
+        formatted[key] = value
+    return formatted</code></pre>
+</details>
+</dd>
+<dt id="msiempy.NitroSession.unpack_resp"><code class="name flex">
+<span>def <span class="ident">unpack_resp</span></span>(<span>response)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Unpack data from response.
+Args:
+response: requests.Response response object
+Returns a list, a dict or a string</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@staticmethod
+def unpack_resp(response) :
+    &#34;&#34;&#34;Unpack data from response.
+    Args: 
+        response: requests.Response response object
+    Returns a list, a dict or a string
+    &#34;&#34;&#34;
+    try :
+        data = response.json()
+        if isinstance(response.json(), dict):
+            try:
+                data = data[&#39;value&#39;]
+            except KeyError:
+                try:
+                    data = data[&#39;return&#39;]
+                except KeyError:
+                    pass
+        
+    except json.decoder.JSONDecodeError:
+        data = response.text
+
+    return data</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="msiempy.NitroSession.esm_request"><code class="name flex">
+<span>def <span class="ident">esm_request</span></span>(<span>self, method, http, data=None, callback=None, raw=False, secure=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.
+<br>
+If method is all upper cases, it's going to be formatted as a private API call. See <a title="msiempy.NitroSession.format_params" href="#msiempy.NitroSession.format_params"><code>NitroSession.format_params()</code></a> and <a title="msiempy.NitroSession.format_priv_resp" href="#msiempy.NitroSession.format_priv_resp"><code>NitroSession.format_priv_resp()</code></a>
+In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpack_resp" href="#msiempy.NitroSession.unpack_resp"><code>NitroSession.unpack_resp()</code></a></p>
+<p>Parameters :
+- <code>method</code>
+- <code>http</code>
+- <code>data</code>
+- <code>callback</code>
+- <code>raw</code>
+- <code>secure</code></p>
+<p>Returns :
+- a <code>dict</code> or <code>list</code> object
+- the <code>resquest.Response</code> object if raw=True
+- <code>result.text</code> if <code>requests.HTTPError</code>,
+- <code>None</code> if Timeout or TooManyRedirects if raw=False</p>
+<p>Note : Private API is under /ess/ and public api is under /rs/esm</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def esm_request(self, method, http, data=None, callback=None, raw=False, secure=False):
+    &#34;&#34;&#34;
+    Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
+    If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
+    In any way, the ESM response is unpacked by `msiempy.NitroSession.unpack_resp`
+
+    Parameters :
+        - `method`
+        - `http`
+        - `data`
+        - `callback`
+        - `raw`
+        - `secure`
+
+    Returns : 
+        - a `dict` or `list` object 
+        - the `resquest.Response` object if raw=True
+        - `result.text` if `requests.HTTPError`, 
+        - `None` if Timeout or TooManyRedirects if raw=False
+
+     Note : Private API is under /ess/ and public api is under /rs/esm  
+
+    &#34;&#34;&#34;
+
+    url=str()
+    privateApiCall=False
+    result=None
+
+    #Handling private API calls formatting
+    if method == method.upper():
+        privateApiCall=True
+        url = self.BASE_URL_PRIV
+        data = self.format_params(method, **data)
+        log.debug(&#39;Private API call : &#39;+str(method)+&#39; Formatted params : &#39;+str(data))
+    
+    #Normal API calls
+    else:
+        url = self.BASE_URL
+        if data:
+            data = json.dumps(data)
+
+    #Logging the data request if not secure | Logs anyway the method
+    log.debug(&#39;Requesting HTTP &#39;+http+&#39; &#39;+ method + 
+        (&#39; with data &#39;+str(data) if (data is not None and not secure) else &#39;&#39;) )
+
+    try :
+        result = requests.request(
+            http,
+            urllib.parse.urljoin(url.format(self.config.host), method),
+            data=data, 
+            headers=self._headers,
+            verify=self.config.ssl_verify,
+            timeout=self.config.timeout
+        )
+
+        if raw :
+            log.debug(&#39;Returning raw requests Response object :&#39;+str(result))
+            return result
+
+        else:
+            try:
+                result.raise_for_status()
+
+            except requests.HTTPError as e :
+                log.error(str(e)+&#39; &#39;+str(result.text))
+                return result.text
+                &#34;&#34;&#34;
+                #TODO handle expired session error, result unavailable / other siem errors
+                # _InvalidFilter (228)
+                # _IndexNotTurnedOn (49)
+                # Status Code 500: Error processing request, see server logs for more details 
+                # Input Validation Error
+                # By creating a new class
+                &#34;&#34;&#34;
+
+            else: #
+                result = self.unpack_resp(result)
+
+                if privateApiCall :
+                    result = self.format_priv_resp(result)
+
+                if callback:
+                    result = callback(result)
+
+                log.debug(&#39;Result &#39;+str(result)[:100]+&#39;[...]&#39;)
+
+                return result
+
+    #Soft errors
+    except requests.exceptions.Timeout as e:
+        log.error(e)
+        return None
+    except requests.exceptions.TooManyRedirects as e :
+        log.error(e)
+        return None</code></pre>
+</details>
+</dd>
 <dt id="msiempy.NitroSession.logout"><code class="name flex">
 <span>def <span class="ident">logout</span></span>(<span>self)</span>
 </code></dt>
@@ -4233,7 +4448,7 @@ a new session will be instanciated next time.</p></section>
         self._logged=self._login()
 
     try :
-        return self._request(method, http, data, callback, raw, secure)
+        return self.esm_request(method, http, data, callback, raw, secure)
 
     except ConnectionError as e:
         log.critical(e)
@@ -4339,9 +4554,12 @@ a new session will be instanciated next time.</p></section>
 <li><code><a title="msiempy.NitroSession.BASE_URL_PRIV" href="#msiempy.NitroSession.BASE_URL_PRIV">BASE_URL_PRIV</a></code></li>
 <li><code><a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS">PARAMS</a></code></li>
 <li><code><a title="msiempy.NitroSession.config" href="#msiempy.NitroSession.config">config</a></code></li>
-<li><code><a title="msiempy.NitroSession.executor" href="#msiempy.NitroSession.executor">executor</a></code></li>
+<li><code><a title="msiempy.NitroSession.esm_request" href="#msiempy.NitroSession.esm_request">esm_request</a></code></li>
+<li><code><a title="msiempy.NitroSession.format_params" href="#msiempy.NitroSession.format_params">format_params</a></code></li>
+<li><code><a title="msiempy.NitroSession.format_priv_resp" href="#msiempy.NitroSession.format_priv_resp">format_priv_resp</a></code></li>
 <li><code><a title="msiempy.NitroSession.logout" href="#msiempy.NitroSession.logout">logout</a></code></li>
 <li><code><a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request">request</a></code></li>
+<li><code><a title="msiempy.NitroSession.unpack_resp" href="#msiempy.NitroSession.unpack_resp">unpack_resp</a></code></li>
 </ul>
 </li>
 </ul>

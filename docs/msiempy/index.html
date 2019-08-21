@@ -533,13 +533,15 @@ class NitroSession():
         method, params = PARAMS.get(&#34;login&#34;).format(username, password)  
         See : `msiempy.NitroSession.request`
 
-    Important note : Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
+    Important note : 
+        Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
     Content :  
     ```
     %(content)s
     ```
-    &#34;&#34;&#34; % dict(content=PARAMS)
+    &#34;&#34;&#34; % dict(content=str(PARAMS).replace(&#39;\n&#39;, &#34;&#34;&#34;  
+    &#34;&#34;&#34;))
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -3820,13 +3822,15 @@ Use logout() to reinstanciate NitroSession.
         method, params = PARAMS.get(&#34;login&#34;).format(username, password)  
         See : `msiempy.NitroSession.request`
 
-    Important note : Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
+    Important note : 
+        Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
     Content :  
     ```
     %(content)s
     ```
-    &#34;&#34;&#34; % dict(content=PARAMS)
+    &#34;&#34;&#34; % dict(content=str(PARAMS).replace(&#39;\n&#39;, &#34;&#34;&#34;  
+    &#34;&#34;&#34;))
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -4169,7 +4173,8 @@ interpolated as documented in the Attributes.
 <dt><strong><code>See</code></strong> :&ensp;<code>&lt;a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"&gt;</code>NitroSession.request()<code>&lt;/a&gt;</code></dt>
 <dd>&nbsp;</dd>
 </dl>
-<p>Important note : Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
+<p>Important note :
+Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 <dl>
 <dt><strong><code>Content</code></strong> :&ensp;</dt>
 <dd>&nbsp;</dd>

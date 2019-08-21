@@ -522,9 +522,7 @@ Args:
     Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
 
 Returns:  
-    tuple: (string, string)  
-
-    The first string is the method name that is actually used as
+    - `tuple `: (string, string) : The first string is the method name that is actually used as
     the URI or passed to the ESM. The second string is the params
     required for that method. Some params require variables be
     interpolated as documented in the Attributes.
@@ -537,9 +535,9 @@ Important note :
     Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
 Content :  
-    ```
     %(content)s
-    ``` &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1))
+    &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1).replace(&#39;\n&#39;,&#34;&#34;&#34;  
+    &#34;&#34;&#34;))
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -3809,9 +3807,7 @@ Args:
     Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
 
 Returns:  
-    tuple: (string, string)  
-
-    The first string is the method name that is actually used as
+    - `tuple `: (string, string) : The first string is the method name that is actually used as
     the URI or passed to the ESM. The second string is the params
     required for that method. Some params require variables be
     interpolated as documented in the Attributes.
@@ -3824,9 +3820,9 @@ Important note :
     Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
 Content :  
-    ```
     %(content)s
-    ``` &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1))
+    &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1).replace(&#39;\n&#39;,&#34;&#34;&#34;  
+    &#34;&#34;&#34;))
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -4156,13 +4152,10 @@ The parameters are stored as docstrings to support string replacement.
 method (str): Dict key associated with desired function
 Use normal dict access, PARAMS["method"], or PARAMS.get("method")</p>
 <p>Returns:<br>
-tuple: (string, string)
-</p>
-<pre><code>The first string is the method name that is actually used as
+- <code>tuple</code>: (string, string) : The first string is the method name that is actually used as
 the URI or passed to the ESM. The second string is the params
 required for that method. Some params require variables be
-interpolated as documented in the Attributes.
-</code></pre>
+interpolated as documented in the Attributes.</p>
 <h2 id="example">Example</h2>
 <dl>
 <dt>method, params = PARAMS.get("login").format(username, password)</dt>
@@ -4173,53 +4166,51 @@ interpolated as documented in the Attributes.
 Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 <dl>
 <dt><strong><code>Content</code></strong> :&ensp;</dt>
-<dd>```
-{</dd>
-</dl>
-<p>"login": [
-"login",
+<dd>{<br>
+"login": [<br>
+"login",<br>
 "{"username": "%(username)s",\n
 "password" : "%(password)s",\n
 "locale": "en_US",\n
 "os": "Win32"}\n
-"
-],
-"get_devtree": [
-"GRP_GETVIRTUALGROUPIPSLISTDATA",
+"<br>
+],<br>
+"get_devtree": [<br>
+"GRP_GETVIRTUALGROUPIPSLISTDATA",<br>
 "{"ITEMS": "#{DC1 + DC2}",\n
 "DID": "1",\n
 "HD": "F",\n
 "NS": "0"}\n
-"
-],
-"get_zones_devtree": [
-"GRP_GETVIRTUALGROUPIPSLISTDATA",
+"<br>
+],<br>
+"get_zones_devtree": [<br>
+"GRP_GETVIRTUALGROUPIPSLISTDATA",<br>
 "{"ITEMS": "#{DC1 + DC2}",\n
 "DID": "3",\n
 "HD": "F",\n
 "NS": "0"}\n
-"
-],
-"req_client_str": [
-"DS_GETDSCLIENTLIST",
+"<br>
+],<br>
+"req_client_str": [<br>
+"DS_GETDSCLIENTLIST",<br>
 "{"DSID": "%(_ds_id)s",\n
 "SEARCH": ""}\n
-"
-],
-"get_rfile": [
-"MISC_READFILE",
+"<br>
+],<br>
+"get_rfile": [<br>
+"MISC_READFILE",<br>
 "{"FNAME": "%(_ftoken)s",\n
 "SPOS": "0",\n
 "NBYTES": "0"}\n
-"
-],
-"get_wfile": [
-"MISC_WRITEFILE",
+"<br>
+],<br>
+"get_wfile": [<br>
+"MISC_WRITEFILE",<br>
 "{"DATA1": "%(_ds_id)s",\n
-"
-],
-"map_dtree": [
-"map_dtree",
+"<br>
+],<br>
+"map_dtree": [<br>
+"map_dtree",<br>
 "{"dev_type": "%(dev_type)s",\n
 "name": "%(ds_name)s",\n
 "ds_id": "%(ds_id)s",\n
@@ -4235,10 +4226,10 @@ Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 "syslog_tls": "",\n
 "client_groups": "%(client_groups)s"\n
 }\n
-"
-],
-"add_ds": [
-"dsAddDataSource",
+"<br>
+],<br>
+"add_ds": [<br>
+"dsAddDataSource",<br>
 "{"datasource": {\n
 "parentId": {"id": "%(parent_id)s"},\n
 "name": "%(name)s",\n
@@ -4253,10 +4244,10 @@ Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 "enabled": "%(enabled)s",\n
 "idmId": "%(idm_id)s",\n
 "parameters": %(parameters)s\n
-}}"
-],
-"add_client": [
-"DS_ADDDSCLIENT",
+}}"<br>
+],<br>
+"add_client": [<br>
+"DS_ADDDSCLIENT",<br>
 "{"PID": "%(parent_id)s",\n
 "NAME": "%(name)s",\n
 "ENABLED": "%(enabled)s",\n
@@ -4268,43 +4259,43 @@ Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 "MASKFLAG": "%(maskflag)s",\n
 "PORT": "%(port)s",\n
 "USETLS": "%(syslog_tls)s"\n
-}"
-],
-"get_recs": [
-"devGetDeviceList?filterByRights=false",
+}"<br>
+],<br>
+"get_recs": [<br>
+"devGetDeviceList?filterByRights=false",<br>
 "{"types": ["RECEIVER"]}\n
-"
-],
-"get_dstypes": [
-"dsGetDataSourceTypes",
+"<br>
+],<br>
+"get_dstypes": [<br>
+"dsGetDataSourceTypes",<br>
 "{"receiverId": {"id": "%(rec_id)s"}\n
 }\n
-"
-],
-"del_ds": [
-"dsDeleteDataSource",
+"<br>
+],<br>
+"del_ds": [<br>
+"dsDeleteDataSource",<br>
 "{"receiverId": {"id": "%(parent_id)s"},\n
 "datasourceId": {"id": "%(ds_id)s"}}\n
-"
-],
-"del_client": [
-"DS_DELETEDSCLIENTS",
-null
-],
-"ds_last_times": [
-"QRY%5FGETDEVICELASTALERTTIME",
-"{}"
-],
-"zonetree": [
-"zoneGetZoneTree",
-null
-],
-"ds_by_type": [
-"QRY_GETDEVICECOUNTBYTYPE",
-null
-],
-"_dev_types": [
-"dev_type_map",
+"<br>
+],<br>
+"del_client": [<br>
+"DS_DELETEDSCLIENTS",<br>
+null<br>
+],<br>
+"ds_last_times": [<br>
+"QRY%5FGETDEVICELASTALERTTIME",<br>
+"{}"<br>
+],<br>
+"zonetree": [<br>
+"zoneGetZoneTree",<br>
+null<br>
+],<br>
+"ds_by_type": [<br>
+"QRY_GETDEVICECOUNTBYTYPE",<br>
+null<br>
+],<br>
+"_dev_types": [<br>
+"dev_type_map",<br>
 "{"1": "zone",\n
 "2": "ERC",\n
 "3": "datasource",\n
@@ -4326,64 +4317,64 @@ null
 "25": "Enterprise Log Search (ELS)",\n
 "254": "client_group",\n
 "256": "client"}\n
-"
-],
-"ds_details": [
-"dsGetDataSourceDetail",
+"<br>
+],<br>
+"ds_details": [<br>
+"dsGetDataSourceDetail",<br>
 "{"datasourceId": \n
 {"id": "%(ds_id)s"}}\n
-"
-],
-"get_alarms_custom_time": [
-"alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;customStart=%(start_time)s&amp;customEnd=%(end_time)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s",
-null
-],
-"get_alarms": [
-"alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s",
-null
-],
-"get_alarm_details": [
-"notifyGetTriggeredNotification",
-"{"id":%(id)s}"
-],
-"get_alarm_details_int": [
-"NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL",
-"{"TID": "%(id)s"}"
-],
-"ack_alarms": [
-"alarmAcknowledgeTriggeredAlarm",
-"{"triggeredIds":{"alarmIdList"::%(ids)s}}"
-],
-"unack_alarms": [
-"alarmUnacknowledgeTriggeredAlarm",
-"{"triggeredIds":{"alarmIdList":%(ids)s}}"
-],
-"delete_alarms": [
-"alarmDeleteTriggeredAlarm",
-"{"triggeredIds":{"alarmIdList":%(ids)s}}"
-],
-"get_possible_filters": [
-"qryGetFilterFields",
-null
-],
-"get_possible_fields": [
-"qryGetSelectFields?type=%(type)s&amp;groupType=%(groupType)s",
-null
-],
-"get_esm_time": [
-"essmgtGetESSTime",
-null
-],
-"logout": [
-"logout",
-null
-],
-"get_user_locale": [
-"getUserLocale",
-null
-],
-"event_query_custom_time": [
-"qryExecuteDetail?type=EVENT&amp;reverse=false",
+"<br>
+],<br>
+"get_alarms_custom_time": [<br>
+"alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;customStart=%(start_time)s&amp;customEnd=%(end_time)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s",<br>
+null<br>
+],<br>
+"get_alarms": [<br>
+"alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s",<br>
+null<br>
+],<br>
+"get_alarm_details": [<br>
+"notifyGetTriggeredNotification",<br>
+"{"id":%(id)s}"<br>
+],<br>
+"get_alarm_details_int": [<br>
+"NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL",<br>
+"{"TID": "%(id)s"}"<br>
+],<br>
+"ack_alarms": [<br>
+"alarmAcknowledgeTriggeredAlarm",<br>
+"{"triggeredIds":{"alarmIdList"::%(ids)s}}"<br>
+],<br>
+"unack_alarms": [<br>
+"alarmUnacknowledgeTriggeredAlarm",<br>
+"{"triggeredIds":{"alarmIdList":%(ids)s}}"<br>
+],<br>
+"delete_alarms": [<br>
+"alarmDeleteTriggeredAlarm",<br>
+"{"triggeredIds":{"alarmIdList":%(ids)s}}"<br>
+],<br>
+"get_possible_filters": [<br>
+"qryGetFilterFields",<br>
+null<br>
+],<br>
+"get_possible_fields": [<br>
+"qryGetSelectFields?type=%(type)s&amp;groupType=%(groupType)s",<br>
+null<br>
+],<br>
+"get_esm_time": [<br>
+"essmgtGetESSTime",<br>
+null<br>
+],<br>
+"logout": [<br>
+"logout",<br>
+null<br>
+],<br>
+"get_user_locale": [<br>
+"getUserLocale",<br>
+null<br>
+],<br>
+"event_query_custom_time": [<br>
+"qryExecuteDetail?type=EVENT&amp;reverse=false",<br>
 "{\n
 "config": {\n
 "timeRange": "%(time_range)s",\n
@@ -4394,10 +4385,10 @@ null
 "limit":%(limit)s,\n
 "offset":%(offset)s\n
 }\n
-}"
-],
-"event_query": [
-"qryExecuteDetail?type=EVENT&amp;reverse=false",
+}"<br>
+],<br>
+"event_query": [<br>
+"qryExecuteDetail?type=EVENT&amp;reverse=false",<br>
 "{\n
 "config": {\n
 "timeRange":"%(time_range)s",\n
@@ -4406,60 +4397,60 @@ null
 "limit":%(limit)s,\n
 "offset":%(offset)s\n
 }\n
-}"
-],
-"query_status": [
-"qryGetStatus",
-"{"resultID": %(resultID)s}"
-],
-"query_result": [
-"qryGetResults?startPos=%(startPos)s&amp;numRows=%(numRows)s&amp;reverse=false",
-"{"resultID": %(resultID)s}"
-],
-"time_zones": [
-"userGetTimeZones",
-null
-],
-"add_note_to_event": [
-"ipsAddAlertNote",
+}"<br>
+],<br>
+"query_status": [<br>
+"qryGetStatus",<br>
+"{"resultID": %(resultID)s}"<br>
+],<br>
+"query_result": [<br>
+"qryGetResults?startPos=%(startPos)s&amp;numRows=%(numRows)s&amp;reverse=false",<br>
+"{"resultID": %(resultID)s}"<br>
+],<br>
+"time_zones": [<br>
+"userGetTimeZones",<br>
+null<br>
+],<br>
+"add_note_to_event": [<br>
+"ipsAddAlertNote",<br>
 "{\n
 "id": {"value": "%(id)s"},\n
 "note": {"note": "%(note)s"}\n
-}"
-],
-"get_watchlists_no_filters": [
-"sysGetWatchlists?hidden=%(hidden)s&amp;dynamic=%(dynamic)s&amp;writeOnly=%(writeOnly)s&amp;indexedOnly=%(indexedOnly)s",
-null
-],
-"get_watchlist_details": [
-"sysGetWatchlistDetails",
-"{"id": %(id)s}"
-],
-"add_watchlist_values": [
-"sysAddWatchlistValues",
+}"<br>
+],<br>
+"get_watchlists_no_filters": [<br>
+"sysGetWatchlists?hidden=%(hidden)s&amp;dynamic=%(dynamic)s&amp;writeOnly=%(writeOnly)s&amp;indexedOnly=%(indexedOnly)s",<br>
+null<br>
+],<br>
+"get_watchlist_details": [<br>
+"sysGetWatchlistDetails",<br>
+"{"id": %(id)s}"<br>
+],<br>
+"add_watchlist_values": [<br>
+"sysAddWatchlistValues",<br>
 "{\n
 "watchlist": %(watchlist)s,\n
 "values": %(values)s,\n
-}"
-],
-"get_watchlist_values": [
-"sysGetWatchlistValues?pos=%(pos)s&amp;count=%(count)s",
-"{"file": {"id": "%(id)s"}}"
-],
-"get_alert_data": [
-"ipsGetAlertData",
-"{"id": {"value":"%(id)s"}}"
-],
-"get_sys_info": [
-"SYS_GETSYSINFO",
-"{}"
-],
-"build_stamp": [
-"essmgtGetBuildStamp",
-null
-]
-}
-``` </p></section>
+}"<br>
+],<br>
+"get_watchlist_values": [<br>
+"sysGetWatchlistValues?pos=%(pos)s&amp;count=%(count)s",<br>
+"{"file": {"id": "%(id)s"}}"<br>
+],<br>
+"get_alert_data": [<br>
+"ipsGetAlertData",<br>
+"{"id": {"value":"%(id)s"}}"<br>
+],<br>
+"get_sys_info": [<br>
+"SYS_GETSYSINFO",<br>
+"{}"<br>
+],<br>
+"build_stamp": [<br>
+"essmgtGetBuildStamp",<br>
+null<br>
+]<br>
+}</dd>
+</dl></section>
 </dd>
 <dt id="msiempy.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>

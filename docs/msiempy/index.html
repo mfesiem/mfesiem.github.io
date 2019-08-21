@@ -514,34 +514,32 @@ class NitroSession():
             &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
     }
     __pdoc__[&#39;NitroSession.PARAMS&#39;] = &#34;&#34;&#34;
-    This structure provide a central place to aggregate API methods and parameters. 
-    The parameters are stored as docstrings to support string replacement.  
+This structure provide a central place to aggregate API methods and parameters. 
+The parameters are stored as docstrings to support string replacement.  
 
-    Args:  
-        method (str): Dict key associated with desired function
-        Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
+Args:  
+    method (str): Dict key associated with desired function
+    Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
 
-    Returns:  
-        tuple: (string, string)  
+Returns:  
+    tuple: (string, string)  
 
-        The first string is the method name that is actually used as
-        the URI or passed to the ESM. The second string is the params
-        required for that method. Some params require variables be
-        interpolated as documented in the Attributes.
+    The first string is the method name that is actually used as
+    the URI or passed to the ESM. The second string is the params
+    required for that method. Some params require variables be
+    interpolated as documented in the Attributes.
 
-    Example:
-        method, params = PARAMS.get(&#34;login&#34;).format(username, password)  
-        See : `msiempy.NitroSession.request`
+Example:
+    method, params = PARAMS.get(&#34;login&#34;).format(username, password)  
+    See : `msiempy.NitroSession.request`
 
-    Important note : 
-        Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
+Important note : 
+    Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
-    Content :  
-        ```
-        %(content)s
-        ```
-    
-    &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1))
+Content :  
+    ```
+    %(content)s
+    ``` &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1))
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -3803,34 +3801,32 @@ Use logout() to reinstanciate NitroSession.
             &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
     }
     __pdoc__[&#39;NitroSession.PARAMS&#39;] = &#34;&#34;&#34;
-    This structure provide a central place to aggregate API methods and parameters. 
-    The parameters are stored as docstrings to support string replacement.  
+This structure provide a central place to aggregate API methods and parameters. 
+The parameters are stored as docstrings to support string replacement.  
 
-    Args:  
-        method (str): Dict key associated with desired function
-        Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
+Args:  
+    method (str): Dict key associated with desired function
+    Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
 
-    Returns:  
-        tuple: (string, string)  
+Returns:  
+    tuple: (string, string)  
 
-        The first string is the method name that is actually used as
-        the URI or passed to the ESM. The second string is the params
-        required for that method. Some params require variables be
-        interpolated as documented in the Attributes.
+    The first string is the method name that is actually used as
+    the URI or passed to the ESM. The second string is the params
+    required for that method. Some params require variables be
+    interpolated as documented in the Attributes.
 
-    Example:
-        method, params = PARAMS.get(&#34;login&#34;).format(username, password)  
-        See : `msiempy.NitroSession.request`
+Example:
+    method, params = PARAMS.get(&#34;login&#34;).format(username, password)  
+    See : `msiempy.NitroSession.request`
 
-    Important note : 
-        Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
+Important note : 
+    Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
-    Content :  
-        ```
-        %(content)s
-        ```
-    
-    &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1))
+Content :  
+    ```
+    %(content)s
+    ``` &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1))
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -4153,32 +4149,33 @@ Use logout() to reinstanciate NitroSession.
 </dd>
 <dt id="msiempy.NitroSession.PARAMS"><code class="name">var <span class="ident">PARAMS</span></code></dt>
 <dd>
-<section class="desc"><pre><code>This structure provide a central place to aggregate API methods and parameters. 
+<section class="desc"><p>This structure provide a central place to aggregate API methods and parameters.
 The parameters are stored as docstrings to support string replacement.
-
-Args:  
-    method (str): Dict key associated with desired function
-    Use normal dict access, PARAMS["method"], or PARAMS.get("method")
-
-Returns:  
-    tuple: (string, string)
-
-    The first string is the method name that is actually used as
-    the URI or passed to the ESM. The second string is the params
-    required for that method. Some params require variables be
-    interpolated as documented in the Attributes.
-
-Example:
-    method, params = PARAMS.get("login").format(username, password)  
-    See : &lt;a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"&gt;`NitroSession.request()`&lt;/a&gt;
-
-Important note : 
-    Do not use sigle quotes (') to delimit data into the interpolated strings !
-
-Content :  
-    ```
-    {
+</p>
+<p>Args:<br>
+method (str): Dict key associated with desired function
+Use normal dict access, PARAMS["method"], or PARAMS.get("method")</p>
+<p>Returns:<br>
+tuple: (string, string)
+</p>
+<pre><code>The first string is the method name that is actually used as
+the URI or passed to the ESM. The second string is the params
+required for that method. Some params require variables be
+interpolated as documented in the Attributes.
 </code></pre>
+<h2 id="example">Example</h2>
+<dl>
+<dt>method, params = PARAMS.get("login").format(username, password)</dt>
+<dt><strong><code>See</code></strong> :&ensp;<code>&lt;a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"&gt;</code>NitroSession.request()<code>&lt;/a&gt;</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<p>Important note :
+Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
+<dl>
+<dt><strong><code>Content</code></strong> :&ensp;</dt>
+<dd>```
+{</dd>
+</dl>
 <p>"login": [
 "login",
 "{"username": "%(username)s",\n
@@ -4462,7 +4459,7 @@ null
 null
 ]
 }
-```</p></section>
+``` </p></section>
 </dd>
 <dt id="msiempy.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>

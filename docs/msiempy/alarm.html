@@ -35,6 +35,9 @@ from . import NitroDict, NitroList, FilteredQueryList
 from .event import EventManager, Event
 from .__utils__ import regex_match, convert_to_time_obj, dehexify
 
+
+__pdoc__={}
+
 class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
     AlarmManager class.
@@ -155,21 +158,34 @@ class AlarmManager(FilteredQueryList):
         self._alarm_filters = list(tuple())
         self._event_filters = list(tuple())
 
-    def load_data(self, **kwargs):
+    def load_data(self, *args, **kwargs):
         &#34;&#34;&#34;
-        Specialized load_data() method that convert the `msiempy.base.FilteredQueryList.load_data()` result to AlarmManager object.
-        kwargs are passed to super().load_data()
-        &#34;&#34;&#34;
-        return AlarmManager(alist=super().load_data(**kwargs))
+        Specialized AlarmManager load_data method.  
+        Use super `msiempy.FilteredQueryList.load_data` implementation.
+        TODO : Use better polymorphism and do not cast here.
+        
+        Parameters :
+        - `*args, **kwargs` : See `msiempy.FilteredQueryList.load_data` and `msiempy.alarm.AlarmManager.qry_load_data`
 
-    def _load_data(self, workers, no_detailed_filter=False, use_query=False, extra_fields=[]):
+        Returns : `msiempy.alarm.AlarmManager`
         &#34;&#34;&#34;
-        Method that loads the data.
-            -&gt; Fetch the complete list of alarms 
-            -&gt; Filter depending on alarms related filters 
-            -&gt; load events details
-            -&gt; Filter depending on event related filters
-            
+        return AlarmManager(alist=super().load_data(*args, **kwargs))
+
+    def qry_load_data(self, workers, no_detailed_filter=False, use_query=False, extra_fields=[], **kwargs):
+        &#34;&#34;&#34;
+        Method that loads the data :
+            -&gt; Fetch the list of alarms and load alarms details  
+            -&gt; Filter depending on alarms related filters  
+            -&gt; Load the events details  
+            -&gt; Filter depending on event related filters  
+
+        Parameters:  
+        - `workers` : Number of asynchronous workers  
+        - `no_detailed_filter` : Don&#39;t load detailed alarms and events infos, you can only filter based on `msiempy.alarm.Alarm.ALARM_FILTER_FIELDS` values  
+        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.1 or greater  
+        - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
+        - `**kwargs` : Not used
+
         &#34;&#34;&#34;
 
         if self.time_range == &#39;CUSTOM&#39; :
@@ -206,7 +222,7 @@ class AlarmManager(FilteredQueryList):
             log.info(&#34;Getting events infos...&#34;)
             event_detailed = self.perform(Alarm.load_events, 
                 list(alarm_detailed),
-                func_args=dict(use_query=use_query),
+                func_args=dict(use_query=use_query, extra_fields=extra_fields),
                 asynch=True, 
                 progress=True, 
                 workers=workers)
@@ -222,7 +238,7 @@ class AlarmManager(FilteredQueryList):
 
     def _alarm_match(self, alarm):
         &#34;&#34;&#34;
-        Filter method that is going to return True if the passed alarm match any alarm related filters.
+        Internal filter method that is going to return True if the passed alarm match any alarm related filters.
         &#34;&#34;&#34;
         match=True
         for alarm_filter in self._alarm_filters :
@@ -238,7 +254,7 @@ class AlarmManager(FilteredQueryList):
         
     def _event_match(self, alarm):
         &#34;&#34;&#34;
-        Filter method that is going to return True if the passed alarm match any event related filters.
+        Internal filter method that is going to return True if the passed alarm match any event related filters.
         &#34;&#34;&#34;
         match=True
         for event_filter in self._event_filters :
@@ -280,9 +296,7 @@ class Alarm(NitroDict):
         [&#39;unacknowledged&#39;, &#39;unack&#39;,],
         [&#39;&#39;, &#39;all&#39;, &#39;both&#39;]
     ]
-    &#34;&#34;&#34;
-    Possible alarm statuses : `&#39;acknowledged&#39;, &#39;unacknowledged&#39; or &#39;&#39;`. Some synonims can also be used, see source code.
-    &#34;&#34;&#34;
+    __pdoc__[&#39;Alarm.POSSIBLE_ALARM_STATUS&#39;]=&#34;&#34;&#34;Possible alarm statuses : ```%(statuses)s```&#34;&#34;&#34; % dict(statuses=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in POSSIBLE_ALARM_STATUS]))
 
     ALARM_FILTER_FIELDS = [(&#39;id&#39;,),
     (&#39;summary&#39;,&#39;sum&#39;),
@@ -293,17 +307,14 @@ class Alarm(NitroDict):
     (&#39;acknowledgedUsername&#39;,&#39;ackuser&#39;),
     (&#39;alarmName&#39;,&#39;name&#39;),
     ]
-    &#34;&#34;&#34;
-    Possible fields usable in a alarm filter : `&#39;id&#39;, &#39;summary&#39;, &#39;assignee&#39;, &#39;severity&#39;, &#39;triggeredDate&#39;, &#39;acknowledgedDate&#39;, &#39;acknowledgedUsername&#39;, &#39;alarmName&#39;`. 
-    Some synonims can also be used, see source code.
-    &#34;&#34;&#34;
+    __pdoc__[&#39;Alarm.ALARM_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible alarm related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_FILTER_FIELDS]))
 
     ALARM_EVENT_FILTER_FIELDS=[
-    (&#34;ruleName&#34;,&#39;msg&#39;,&#39;rulemsg&#39;),
-    (&#34;srcIp&#34;,&#39;srcip&#39;),
-    (&#34;destIp&#34;,&#39;dstip&#39;),
-    (&#34;protocol&#34;,&#39;prot&#39;),
-    (&#34;lastTime&#34;,&#39;date&#39;),
+    (&#34;ruleName&#34;),
+    (&#34;srcIp&#34;,),
+    (&#34;destIp&#34;,),
+    (&#34;protocol&#34;,),
+    (&#34;lastTime&#34;,),
     (&#34;subtype&#34;,),
     (&#34;destPort&#34;,),
     (&#34;destMac&#34;,),
@@ -320,33 +331,11 @@ class Alarm(NitroDict):
     (&#34;domain&#34;,),
     (&#34;ipsId&#34;,),
     ]
-    &#34;&#34;&#34;
-    Possible fields usable in a event filter : ```(&#34;ruleName&#34;,&#39;msg&#39;,&#39;rulemsg&#39;),
-    (&#34;srcIp&#34;,&#39;srcip&#39;),
-    (&#34;destIp&#34;,&#39;dstip&#39;),
-    (&#34;protocol&#34;,&#39;prot&#39;),
-    (&#34;lastTime&#34;,&#39;date&#39;),
-    (&#34;subtype&#34;,),
-    (&#34;destPort&#34;,),
-    (&#34;destMac&#34;,),
-    (&#34;srcMac&#34;,),
-    (&#34;srcPort&#34;,),
-    (&#34;deviceName&#34;,),
-    (&#34;sigId&#34;,),
-    (&#34;normId&#34;,),
-    (&#34;srcUser&#34;,),
-    (&#34;destUser&#34;,),
-    (&#34;normMessage&#34;,),
-    (&#34;normDesc&#34;,),
-    (&#34;host&#34;,),
-    (&#34;domain&#34;,),
-    (&#34;ipsId&#34;,),```
+    __pdoc__[&#39;Alarm.ALARM_EVENT_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible event related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_EVENT_FILTER_FIELDS]))
 
-    &#34;&#34;&#34;
-
-    ALARM_DEFAULT_FIELDS=[&#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39;] #could also be [&#39;id&#39;,&#39;alarmName&#39;, &#39;triggeredDate&#39;, &#39;events&#39;]
-    &#34;&#34;&#34;Defaulfs fields : `&#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39;` (not used , may be for printing with `msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)
-    &#34;&#34;&#34;
+    ALARM_DEFAULT_FIELDS=[&#39;id&#39;,&#39;alarmName&#39;, &#39;summary&#39;,&#39;triggeredDate&#39;, &#39;acknowledgedUsername&#39;]
+    __pdoc__[&#39;Alarm.ALARM_DEFAULT_FIELDS&#39;]=&#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
+    (not used , may be for printing with `msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join(ALARM_DEFAULT_FIELDS))
 
     def __init__(self, *arg, **kwargs):
         &#34;&#34;&#34;Creates a empty Alarm.
@@ -397,8 +386,8 @@ class Alarm(NitroDict):
         Retreive the genuine Event object from an Alarm.
         Warning : This method will only load the details of the first triggering event.  
         Parameters:  
-        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.
-        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.
+        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
         &#34;&#34;&#34;
         #Retreive the alert id from the event&#39;s string
         events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
@@ -527,9 +516,7 @@ class Alarm(NitroDict):
         [&#39;unacknowledged&#39;, &#39;unack&#39;,],
         [&#39;&#39;, &#39;all&#39;, &#39;both&#39;]
     ]
-    &#34;&#34;&#34;
-    Possible alarm statuses : `&#39;acknowledged&#39;, &#39;unacknowledged&#39; or &#39;&#39;`. Some synonims can also be used, see source code.
-    &#34;&#34;&#34;
+    __pdoc__[&#39;Alarm.POSSIBLE_ALARM_STATUS&#39;]=&#34;&#34;&#34;Possible alarm statuses : ```%(statuses)s```&#34;&#34;&#34; % dict(statuses=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in POSSIBLE_ALARM_STATUS]))
 
     ALARM_FILTER_FIELDS = [(&#39;id&#39;,),
     (&#39;summary&#39;,&#39;sum&#39;),
@@ -540,17 +527,14 @@ class Alarm(NitroDict):
     (&#39;acknowledgedUsername&#39;,&#39;ackuser&#39;),
     (&#39;alarmName&#39;,&#39;name&#39;),
     ]
-    &#34;&#34;&#34;
-    Possible fields usable in a alarm filter : `&#39;id&#39;, &#39;summary&#39;, &#39;assignee&#39;, &#39;severity&#39;, &#39;triggeredDate&#39;, &#39;acknowledgedDate&#39;, &#39;acknowledgedUsername&#39;, &#39;alarmName&#39;`. 
-    Some synonims can also be used, see source code.
-    &#34;&#34;&#34;
+    __pdoc__[&#39;Alarm.ALARM_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible alarm related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_FILTER_FIELDS]))
 
     ALARM_EVENT_FILTER_FIELDS=[
-    (&#34;ruleName&#34;,&#39;msg&#39;,&#39;rulemsg&#39;),
-    (&#34;srcIp&#34;,&#39;srcip&#39;),
-    (&#34;destIp&#34;,&#39;dstip&#39;),
-    (&#34;protocol&#34;,&#39;prot&#39;),
-    (&#34;lastTime&#34;,&#39;date&#39;),
+    (&#34;ruleName&#34;),
+    (&#34;srcIp&#34;,),
+    (&#34;destIp&#34;,),
+    (&#34;protocol&#34;,),
+    (&#34;lastTime&#34;,),
     (&#34;subtype&#34;,),
     (&#34;destPort&#34;,),
     (&#34;destMac&#34;,),
@@ -567,33 +551,11 @@ class Alarm(NitroDict):
     (&#34;domain&#34;,),
     (&#34;ipsId&#34;,),
     ]
-    &#34;&#34;&#34;
-    Possible fields usable in a event filter : ```(&#34;ruleName&#34;,&#39;msg&#39;,&#39;rulemsg&#39;),
-    (&#34;srcIp&#34;,&#39;srcip&#39;),
-    (&#34;destIp&#34;,&#39;dstip&#39;),
-    (&#34;protocol&#34;,&#39;prot&#39;),
-    (&#34;lastTime&#34;,&#39;date&#39;),
-    (&#34;subtype&#34;,),
-    (&#34;destPort&#34;,),
-    (&#34;destMac&#34;,),
-    (&#34;srcMac&#34;,),
-    (&#34;srcPort&#34;,),
-    (&#34;deviceName&#34;,),
-    (&#34;sigId&#34;,),
-    (&#34;normId&#34;,),
-    (&#34;srcUser&#34;,),
-    (&#34;destUser&#34;,),
-    (&#34;normMessage&#34;,),
-    (&#34;normDesc&#34;,),
-    (&#34;host&#34;,),
-    (&#34;domain&#34;,),
-    (&#34;ipsId&#34;,),```
+    __pdoc__[&#39;Alarm.ALARM_EVENT_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible event related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_EVENT_FILTER_FIELDS]))
 
-    &#34;&#34;&#34;
-
-    ALARM_DEFAULT_FIELDS=[&#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39;] #could also be [&#39;id&#39;,&#39;alarmName&#39;, &#39;triggeredDate&#39;, &#39;events&#39;]
-    &#34;&#34;&#34;Defaulfs fields : `&#39;triggeredDate&#39;,&#39;alarmName&#39;,&#39;status&#39;,&#39;sourceIp&#39;,&#39;destIp&#39;,&#39;ruleMessage&#39;` (not used , may be for printing with `msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)
-    &#34;&#34;&#34;
+    ALARM_DEFAULT_FIELDS=[&#39;id&#39;,&#39;alarmName&#39;, &#39;summary&#39;,&#39;triggeredDate&#39;, &#39;acknowledgedUsername&#39;]
+    __pdoc__[&#39;Alarm.ALARM_DEFAULT_FIELDS&#39;]=&#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
+    (not used , may be for printing with `msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join(ALARM_DEFAULT_FIELDS))
 
     def __init__(self, *arg, **kwargs):
         &#34;&#34;&#34;Creates a empty Alarm.
@@ -644,8 +606,8 @@ class Alarm(NitroDict):
         Retreive the genuine Event object from an Alarm.
         Warning : This method will only load the details of the first triggering event.  
         Parameters:  
-        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.
-        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.
+        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
         &#34;&#34;&#34;
         #Retreive the alert id from the event&#39;s string
         events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
@@ -732,39 +694,20 @@ class Alarm(NitroDict):
 <dl>
 <dt id="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS"><code class="name">var <span class="ident">ALARM_DEFAULT_FIELDS</span></code></dt>
 <dd>
-<section class="desc"><p>Defaulfs fields : <code>'triggeredDate','alarmName','status','sourceIp','destIp','ruleMessage'</code> (not used , may be for printing with <code>msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)</code>)</p></section>
+<section class="desc"><p>Defaulfs fields : <code>id, alarmName, summary, triggeredDate, acknowledgedUsername</code>
+(not used , may be for printing with <code>msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)</code>)</p></section>
 </dd>
 <dt id="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_EVENT_FILTER_FIELDS</span></code></dt>
 <dd>
-<section class="desc"><p>Possible fields usable in a event filter : <code>("ruleName",'msg','rulemsg'),
-("srcIp",'srcip'),
-("destIp",'dstip'),
-("protocol",'prot'),
-("lastTime",'date'),
-("subtype",),
-("destPort",),
-("destMac",),
-("srcMac",),
-("srcPort",),
-("deviceName",),
-("sigId",),
-("normId",),
-("srcUser",),
-("destUser",),
-("normMessage",),
-("normDesc",),
-("host",),
-("domain",),
-("ipsId",),</code></p></section>
+<section class="desc"><p>Possible event related fields usable in a filter : <code>r/u/l/e/N/a/m/e, srcIp, destIp, protocol, lastTime, subtype, destPort, destMac, srcMac, srcPort, deviceName, sigId, normId, srcUser, destUser, normMessage, normDesc, host, domain, ipsId</code></p></section>
 </dd>
 <dt id="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_FILTER_FIELDS</span></code></dt>
 <dd>
-<section class="desc"><p>Possible fields usable in a alarm filter : <code>'id', 'summary', 'assignee', 'severity', 'triggeredDate', 'acknowledgedDate', 'acknowledgedUsername', 'alarmName'</code>.
-Some synonims can also be used, see source code.</p></section>
+<section class="desc"><p>Possible alarm related fields usable in a filter : <code>id, summary/sum, assignee/user, severity/sever, triggeredDate/trigdate, acknowledgedDate/ackdate, acknowledgedUsername/ackuser, alarmName/name</code></p></section>
 </dd>
 <dt id="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS"><code class="name">var <span class="ident">POSSIBLE_ALARM_STATUS</span></code></dt>
 <dd>
-<section class="desc"><p>Possible alarm statuses : <code>'acknowledged', 'unacknowledged' or ''</code>. Some synonims can also be used, see source code.</p></section>
+<section class="desc"><p>Possible alarm statuses : <code>acknowledged/ack, unacknowledged/unack, /all/both</code></p></section>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -834,8 +777,8 @@ Delete the alarm.</p></section>
 <section class="desc"><p>Retreive the genuine Event object from an Alarm.
 Warning : This method will only load the details of the first triggering event.<br>
 Parameters:<br>
-- <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.
-- <code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query.</p></section>
+- <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.<br>
+- <code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a></p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def load_events(self, use_query=False, extra_fields=[]):
@@ -843,8 +786,8 @@ Parameters:<br>
     Retreive the genuine Event object from an Alarm.
     Warning : This method will only load the details of the first triggering event.  
     Parameters:  
-    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.
-    - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.
+    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+    - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
     &#34;&#34;&#34;
     #Retreive the alert id from the event&#39;s string
     events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
@@ -1085,21 +1028,34 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
         self._alarm_filters = list(tuple())
         self._event_filters = list(tuple())
 
-    def load_data(self, **kwargs):
+    def load_data(self, *args, **kwargs):
         &#34;&#34;&#34;
-        Specialized load_data() method that convert the `msiempy.base.FilteredQueryList.load_data()` result to AlarmManager object.
-        kwargs are passed to super().load_data()
-        &#34;&#34;&#34;
-        return AlarmManager(alist=super().load_data(**kwargs))
+        Specialized AlarmManager load_data method.  
+        Use super `msiempy.FilteredQueryList.load_data` implementation.
+        TODO : Use better polymorphism and do not cast here.
+        
+        Parameters :
+        - `*args, **kwargs` : See `msiempy.FilteredQueryList.load_data` and `msiempy.alarm.AlarmManager.qry_load_data`
 
-    def _load_data(self, workers, no_detailed_filter=False, use_query=False, extra_fields=[]):
+        Returns : `msiempy.alarm.AlarmManager`
         &#34;&#34;&#34;
-        Method that loads the data.
-            -&gt; Fetch the complete list of alarms 
-            -&gt; Filter depending on alarms related filters 
-            -&gt; load events details
-            -&gt; Filter depending on event related filters
-            
+        return AlarmManager(alist=super().load_data(*args, **kwargs))
+
+    def qry_load_data(self, workers, no_detailed_filter=False, use_query=False, extra_fields=[], **kwargs):
+        &#34;&#34;&#34;
+        Method that loads the data :
+            -&gt; Fetch the list of alarms and load alarms details  
+            -&gt; Filter depending on alarms related filters  
+            -&gt; Load the events details  
+            -&gt; Filter depending on event related filters  
+
+        Parameters:  
+        - `workers` : Number of asynchronous workers  
+        - `no_detailed_filter` : Don&#39;t load detailed alarms and events infos, you can only filter based on `msiempy.alarm.Alarm.ALARM_FILTER_FIELDS` values  
+        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.1 or greater  
+        - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
+        - `**kwargs` : Not used
+
         &#34;&#34;&#34;
 
         if self.time_range == &#39;CUSTOM&#39; :
@@ -1136,7 +1092,7 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
             log.info(&#34;Getting events infos...&#34;)
             event_detailed = self.perform(Alarm.load_events, 
                 list(alarm_detailed),
-                func_args=dict(use_query=use_query),
+                func_args=dict(use_query=use_query, extra_fields=extra_fields),
                 asynch=True, 
                 progress=True, 
                 workers=workers)
@@ -1152,7 +1108,7 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
 
     def _alarm_match(self, alarm):
         &#34;&#34;&#34;
-        Filter method that is going to return True if the passed alarm match any alarm related filters.
+        Internal filter method that is going to return True if the passed alarm match any alarm related filters.
         &#34;&#34;&#34;
         match=True
         for alarm_filter in self._alarm_filters :
@@ -1168,7 +1124,7 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
         
     def _event_match(self, alarm):
         &#34;&#34;&#34;
-        Filter method that is going to return True if the passed alarm match any event related filters.
+        Internal filter method that is going to return True if the passed alarm match any event related filters.
         &#34;&#34;&#34;
         match=True
         for event_filter in self._event_filters :
@@ -1296,19 +1252,114 @@ Takes also care of the differents synonims fields can have.</p></section>
 </details>
 </dd>
 <dt id="msiempy.alarm.AlarmManager.load_data"><code class="name flex">
-<span>def <span class="ident">load_data</span></span>(<span>self, **kwargs)</span>
+<span>def <span class="ident">load_data</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Specialized load_data() method that convert the <code>msiempy.base.FilteredQueryList.load_data()</code> result to AlarmManager object.
-kwargs are passed to super().load_data()</p></section>
+<section class="desc"><p>Specialized AlarmManager load_data method.<br>
+Use super <a title="msiempy.FilteredQueryList.load_data" href="index.html#msiempy.FilteredQueryList.load_data"><code>FilteredQueryList.load_data()</code></a> implementation.
+TODO : Use better polymorphism and do not cast here.</p>
+<p>Parameters :
+- <code>*args, **kwargs</code> : See <a title="msiempy.FilteredQueryList.load_data" href="index.html#msiempy.FilteredQueryList.load_data"><code>FilteredQueryList.load_data()</code></a> and <a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data"><code>AlarmManager.qry_load_data()</code></a></p>
+<p>Returns : <a title="msiempy.alarm.AlarmManager" href="#msiempy.alarm.AlarmManager"><code>AlarmManager</code></a></p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def load_data(self, **kwargs):
+<pre><code class="python">def load_data(self, *args, **kwargs):
     &#34;&#34;&#34;
-    Specialized load_data() method that convert the `msiempy.base.FilteredQueryList.load_data()` result to AlarmManager object.
-    kwargs are passed to super().load_data()
+    Specialized AlarmManager load_data method.  
+    Use super `msiempy.FilteredQueryList.load_data` implementation.
+    TODO : Use better polymorphism and do not cast here.
+    
+    Parameters :
+    - `*args, **kwargs` : See `msiempy.FilteredQueryList.load_data` and `msiempy.alarm.AlarmManager.qry_load_data`
+
+    Returns : `msiempy.alarm.AlarmManager`
     &#34;&#34;&#34;
-    return AlarmManager(alist=super().load_data(**kwargs))</code></pre>
+    return AlarmManager(alist=super().load_data(*args, **kwargs))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.AlarmManager.qry_load_data"><code class="name flex">
+<span>def <span class="ident">qry_load_data</span></span>(<span>self, workers, no_detailed_filter=False, use_query=False, extra_fields=[], **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Method that loads the data :
+-&gt; Fetch the list of alarms and load alarms details<br>
+-&gt; Filter depending on alarms related filters<br>
+-&gt; Load the events details<br>
+-&gt; Filter depending on event related filters
+</p>
+<p>Parameters:<br>
+- <code>workers</code> : Number of asynchronous workers<br>
+- <code>no_detailed_filter</code> : Don't load detailed alarms and events infos, you can only filter based on <a title="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_FILTER_FIELDS"><code>Alarm.ALARM_FILTER_FIELDS</code></a> values<br>
+- <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.1 or greater<br>
+- <code>extra_fields</code> :
+Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a><br>
+- <code>**kwargs</code> : Not used</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def qry_load_data(self, workers, no_detailed_filter=False, use_query=False, extra_fields=[], **kwargs):
+    &#34;&#34;&#34;
+    Method that loads the data :
+        -&gt; Fetch the list of alarms and load alarms details  
+        -&gt; Filter depending on alarms related filters  
+        -&gt; Load the events details  
+        -&gt; Filter depending on event related filters  
+
+    Parameters:  
+    - `workers` : Number of asynchronous workers  
+    - `no_detailed_filter` : Don&#39;t load detailed alarms and events infos, you can only filter based on `msiempy.alarm.Alarm.ALARM_FILTER_FIELDS` values  
+    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.1 or greater  
+    - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
+    - `**kwargs` : Not used
+
+    &#34;&#34;&#34;
+
+    if self.time_range == &#39;CUSTOM&#39; :
+        no_filtered_alarms=self.nitro.request(
+            &#39;get_alarms_custom_time&#39;,
+            time_range=self.time_range,
+            start_time=self.start_time,
+            end_time=self.end_time,
+            status=self.status_filter,
+            page_size=self.page_size,
+            page_number=self.page_number
+            )
+
+    else :
+        no_filtered_alarms=self.nitro.request(
+            &#39;get_alarms&#39;,
+            time_range=self.time_range,
+            status=self.status_filter,
+            page_size=self.page_size,
+            page_number=self.page_number
+            )
+            
+    alarm_based_filtered = AlarmManager(alist=[a for a in no_filtered_alarms if self._alarm_match(a)])
+
+    if not no_detailed_filter :
+
+        log.info(&#34;Getting alarms infos...&#34;)
+        alarm_detailed = self.perform(Alarm.load_details,
+            list(alarm_based_filtered),
+            asynch=True,
+            progress=True,
+            workers=workers)
+
+        log.info(&#34;Getting events infos...&#34;)
+        event_detailed = self.perform(Alarm.load_events, 
+            list(alarm_detailed),
+            func_args=dict(use_query=use_query, extra_fields=extra_fields),
+            asynch=True, 
+            progress=True, 
+            workers=workers)
+
+        filtered_alarms = AlarmManager(alist=[a for a in event_detailed if self._event_match(a)])
+
+    else :
+        filtered_alarms = alarm_based_filtered
+
+    log.info(str(len(filtered_alarms)) + &#34; alarms matching your filter(s)&#34;)
+
+    return (( filtered_alarms , len(no_filtered_alarms)&lt;self.page_size ))</code></pre>
 </details>
 </dd>
 </dl>
@@ -1316,9 +1367,7 @@ kwargs are passed to super().load_data()</p></section>
 <ul class="hlist">
 <li><code><b><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.FilteredQueryList.DEFAULT_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.end_time" href="index.html#msiempy.FilteredQueryList.end_time">end_time</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
@@ -1368,11 +1417,12 @@ kwargs are passed to super().load_data()</p></section>
 </li>
 <li>
 <h4><code><a title="msiempy.alarm.AlarmManager" href="#msiempy.alarm.AlarmManager">AlarmManager</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="msiempy.alarm.AlarmManager.add_filter" href="#msiempy.alarm.AlarmManager.add_filter">add_filter</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.clear_filters" href="#msiempy.alarm.AlarmManager.clear_filters">clear_filters</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.filters" href="#msiempy.alarm.AlarmManager.filters">filters</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.load_data" href="#msiempy.alarm.AlarmManager.load_data">load_data</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data">qry_load_data</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.status_filter" href="#msiempy.alarm.AlarmManager.status_filter">status_filter</a></code></li>
 </ul>
 </li>

@@ -243,7 +243,7 @@ class EventManager(FilteredQueryList):
         &#34;&#34;&#34;
         return self.nitro.request(&#39;get_possible_fields&#39;, type=self.TYPE, groupType=self.GROUPTYPE)
 
-    def _load_data(self, workers):
+    def qry_load_data(self, **kwargs):
         &#34;&#34;&#34;&#34;
             Concrete helper method to execute the query and load the data : 
                 -&gt; Submit the query -&gt; wait -&gt; get the events -&gt; parse -
@@ -252,6 +252,10 @@ class EventManager(FilteredQueryList):
                       tuple (items, completed).
             
             (1) aka EventManager
+
+            Parameters:
+            - `**kwargs` : Not used
+ 
         &#34;&#34;&#34;
         query_infos=dict()
 
@@ -292,19 +296,20 @@ class EventManager(FilteredQueryList):
         self.data=events
         return((events,len(events)&lt;self.limit))
 
-    def load_data(self, **kwargs):
+    def load_data(self, *args, **kwargs):
         &#34;&#34;&#34;
-        Specialized EventManager load_data method.
-        Use super load_data implementation.
-        You could decide not to use the splitting feature by 
-            calling directly _load_data() 
-            kwargs are passed to super().load_data()
+        Specialized EventManager load_data method.  
+        Use super load_data implementation.  
+        TODO : Use better polymorphism and do not cast here.
+        
+        Parameters :
+        - `*args, **kwargs` : See `msiempy.FilteredQueryList.load_data` and `msiempy.event.EventManager.qry_load_data`
         &#34;&#34;&#34;
-        return EventManager(alist=super().load_data(**kwargs))
+        return EventManager(alist=super().load_data(*args, **kwargs))
 
     def _wait_for(self, resultID, sleep_time=0.35):
         &#34;&#34;&#34;
-        Internal method called by _load_data
+        Internal method called by qry_load_data
         Wait and sleep - for `sleep_time` duration in seconds -
             until the query is completed
         
@@ -321,7 +326,7 @@ class EventManager(FilteredQueryList):
     def _get_events(self, resultID, startPos=0, numRows=None):
         &#34;&#34;&#34;
         Internal method that will get the query events, 
-            called by _load_data
+            called by qry_load_data
         by default, numRows correspond to limit
         &#34;&#34;&#34;
         
@@ -481,7 +486,12 @@ class Event(NitroDict):
         
         if use_query == True :
 
-            e = EventManager(time_range=&#39;CURRENT_YEAR&#39;, filters=[(&#39;IPSIDAlertID&#39;,id)], compute_time_range=False, fields=extra_fields).load_data()
+            e = EventManager(time_range=&#39;CURRENT_YEAR&#39;,
+                filters=[(&#39;IPSIDAlertID&#39;,id)],
+                compute_time_range=False,
+                fields=extra_fields,
+                limit=2).load_data()
+
             if len(e) == 1 :
                 return e[0]
             else :
@@ -949,7 +959,12 @@ and update dict values accordingly.</p>
         
         if use_query == True :
 
-            e = EventManager(time_range=&#39;CURRENT_YEAR&#39;, filters=[(&#39;IPSIDAlertID&#39;,id)], compute_time_range=False, fields=extra_fields).load_data()
+            e = EventManager(time_range=&#39;CURRENT_YEAR&#39;,
+                filters=[(&#39;IPSIDAlertID&#39;,id)],
+                compute_time_range=False,
+                fields=extra_fields,
+                limit=2).load_data()
+
             if len(e) == 1 :
                 return e[0]
             else :
@@ -1033,7 +1048,12 @@ Parameters :
     
     if use_query == True :
 
-        e = EventManager(time_range=&#39;CURRENT_YEAR&#39;, filters=[(&#39;IPSIDAlertID&#39;,id)], compute_time_range=False, fields=extra_fields).load_data()
+        e = EventManager(time_range=&#39;CURRENT_YEAR&#39;,
+            filters=[(&#39;IPSIDAlertID&#39;,id)],
+            compute_time_range=False,
+            fields=extra_fields,
+            limit=2).load_data()
+
         if len(e) == 1 :
             return e[0]
         else :
@@ -1337,7 +1357,7 @@ Defaulted to True cause the query splitting implies computing the time_range any
         &#34;&#34;&#34;
         return self.nitro.request(&#39;get_possible_fields&#39;, type=self.TYPE, groupType=self.GROUPTYPE)
 
-    def _load_data(self, workers):
+    def qry_load_data(self, **kwargs):
         &#34;&#34;&#34;&#34;
             Concrete helper method to execute the query and load the data : 
                 -&gt; Submit the query -&gt; wait -&gt; get the events -&gt; parse -
@@ -1346,6 +1366,10 @@ Defaulted to True cause the query splitting implies computing the time_range any
                       tuple (items, completed).
             
             (1) aka EventManager
+
+            Parameters:
+            - `**kwargs` : Not used
+ 
         &#34;&#34;&#34;
         query_infos=dict()
 
@@ -1386,19 +1410,20 @@ Defaulted to True cause the query splitting implies computing the time_range any
         self.data=events
         return((events,len(events)&lt;self.limit))
 
-    def load_data(self, **kwargs):
+    def load_data(self, *args, **kwargs):
         &#34;&#34;&#34;
-        Specialized EventManager load_data method.
-        Use super load_data implementation.
-        You could decide not to use the splitting feature by 
-            calling directly _load_data() 
-            kwargs are passed to super().load_data()
+        Specialized EventManager load_data method.  
+        Use super load_data implementation.  
+        TODO : Use better polymorphism and do not cast here.
+        
+        Parameters :
+        - `*args, **kwargs` : See `msiempy.FilteredQueryList.load_data` and `msiempy.event.EventManager.qry_load_data`
         &#34;&#34;&#34;
-        return EventManager(alist=super().load_data(**kwargs))
+        return EventManager(alist=super().load_data(*args, **kwargs))
 
     def _wait_for(self, resultID, sleep_time=0.35):
         &#34;&#34;&#34;
-        Internal method called by _load_data
+        Internal method called by qry_load_data
         Wait and sleep - for `sleep_time` duration in seconds -
             until the query is completed
         
@@ -1415,7 +1440,7 @@ Defaulted to True cause the query splitting implies computing the time_range any
     def _get_events(self, resultID, startPos=0, numRows=None):
         &#34;&#34;&#34;
         Internal method that will get the query events, 
-            called by _load_data
+            called by qry_load_data
         by default, numRows correspond to limit
         &#34;&#34;&#34;
         
@@ -1576,25 +1601,96 @@ The list is loaded from the SIEM.</p></section>
 </details>
 </dd>
 <dt id="msiempy.event.EventManager.load_data"><code class="name flex">
-<span>def <span class="ident">load_data</span></span>(<span>self, **kwargs)</span>
+<span>def <span class="ident">load_data</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Specialized EventManager load_data method.
-Use super load_data implementation.
-You could decide not to use the splitting feature by
-calling directly _load_data()
-kwargs are passed to super().load_data()</p></section>
+<section class="desc"><p>Specialized EventManager load_data method.<br>
+Use super load_data implementation.<br>
+TODO : Use better polymorphism and do not cast here.</p>
+<p>Parameters :
+- <code>*args, **kwargs</code> : See <a title="msiempy.FilteredQueryList.load_data" href="index.html#msiempy.FilteredQueryList.load_data"><code>FilteredQueryList.load_data()</code></a> and <a title="msiempy.event.EventManager.qry_load_data" href="#msiempy.event.EventManager.qry_load_data"><code>EventManager.qry_load_data()</code></a></p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def load_data(self, **kwargs):
+<pre><code class="python">def load_data(self, *args, **kwargs):
     &#34;&#34;&#34;
-    Specialized EventManager load_data method.
-    Use super load_data implementation.
-    You could decide not to use the splitting feature by 
-        calling directly _load_data() 
-        kwargs are passed to super().load_data()
+    Specialized EventManager load_data method.  
+    Use super load_data implementation.  
+    TODO : Use better polymorphism and do not cast here.
+    
+    Parameters :
+    - `*args, **kwargs` : See `msiempy.FilteredQueryList.load_data` and `msiempy.event.EventManager.qry_load_data`
     &#34;&#34;&#34;
-    return EventManager(alist=super().load_data(**kwargs))</code></pre>
+    return EventManager(alist=super().load_data(*args, **kwargs))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.EventManager.qry_load_data"><code class="name flex">
+<span>def <span class="ident">qry_load_data</span></span>(<span>self, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>"
+Concrete helper method to execute the query and load the data :
+-&gt; Submit the query -&gt; wait -&gt; get the events -&gt; parse -
+-&gt; convert to EventManager -&gt;
+set self.data and return
+Returns a tuple ( list of Events(1) ,the status of the query )
+tuple (items, completed).</p>
+<p>(1) aka EventManager</p>
+<p>Parameters:
+- <code>**kwargs</code> : Not used</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def qry_load_data(self, **kwargs):
+    &#34;&#34;&#34;&#34;
+        Concrete helper method to execute the query and load the data : 
+            -&gt; Submit the query -&gt; wait -&gt; get the events -&gt; parse -
+                -&gt; convert to EventManager -&gt;  set self.data and return 
+        Returns a tuple ( list of Events(1) ,the status of the query )
+                  tuple (items, completed).
+        
+        (1) aka EventManager
+
+        Parameters:
+        - `**kwargs` : Not used
+
+    &#34;&#34;&#34;
+    query_infos=dict()
+
+    #Queries api calls are very different if the time range is custom.
+    if self.time_range == &#39;CUSTOM&#39; :
+        query_infos=self.nitro.request(
+            &#39;event_query_custom_time&#39;,
+            time_range=self.time_range,
+            start_time=self.start_time,
+            end_time=self.end_time,
+            #order=self.order, TODO support order
+            fields=format_fields_for_query(self.fields),
+            filters=self.filters,
+            limit=self.limit,
+            offset=0, #TODO remove old ref that is useless
+            includeTotal=False
+            )
+
+    else :
+        query_infos=self.nitro.request(
+            &#39;event_query&#39;,
+            time_range=self.time_range,
+            #order=self.order, TODO support order
+            fields=format_fields_for_query(self.fields),
+            filters=self.filters,
+            limit=self.limit,
+            offset=0, #TODO remove old ref that is useless
+            includeTotal=False
+            )
+    
+    log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
+    self._wait_for(query_infos[&#39;resultID&#39;])
+    events_raw=self._get_events(query_infos[&#39;resultID&#39;])
+
+    events=EventManager(alist=events_raw)
+    #log.debug(&#34;Data loaded : &#34;+str(events))
+    
+    self.data=events
+    return((events,len(events)&lt;self.limit))</code></pre>
 </details>
 </dd>
 </dl>
@@ -1602,9 +1698,7 @@ kwargs are passed to super().load_data()</p></section>
 <ul class="hlist">
 <li><code><b><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.FilteredQueryList.DEFAULT_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.end_time" href="index.html#msiempy.FilteredQueryList.end_time">end_time</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
@@ -2313,6 +2407,7 @@ def text(self):
 <li><code><a title="msiempy.event.EventManager.get_possible_fields" href="#msiempy.event.EventManager.get_possible_fields">get_possible_fields</a></code></li>
 <li><code><a title="msiempy.event.EventManager.load_data" href="#msiempy.event.EventManager.load_data">load_data</a></code></li>
 <li><code><a title="msiempy.event.EventManager.order" href="#msiempy.event.EventManager.order">order</a></code></li>
+<li><code><a title="msiempy.event.EventManager.qry_load_data" href="#msiempy.event.EventManager.qry_load_data">qry_load_data</a></code></li>
 <li><code><a title="msiempy.event.EventManager.time_range" href="#msiempy.event.EventManager.time_range">time_range</a></code></li>
 </ul>
 </li>

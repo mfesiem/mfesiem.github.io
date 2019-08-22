@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
 <title>msiempy API documentation</title>
-<meta name="description" content="Welcome to the **msiempy** module documentation. The pythonic way to deal with McFee esm API …" />
+<meta name="description" content="Welcome to the **msiempy** module documentation. The pythonic way to deal with McAfee SIEM API …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,12 +20,14 @@
 <h1 class="title">Module <code>msiempy</code></h1>
 </header>
 <section id="section-intro">
-<h1 id="welcome-to-the-msiempy-module-documentation-the-pythonic-way-to-deal-with-mcfee-esm-api">Welcome to the <strong>msiempy</strong> module documentation. The pythonic way to deal with McFee esm API.</h1>
-<p>Classes listed in this module are used by other classes in sub-modules to build specialized objects and functions. If you with to see concrete example of code, <strong>head to one of the sub-modules</strong> !
+<h1 id="welcome-to-the-msiempy-module-documentation-the-pythonic-way-to-deal-with-mcafee-siem-api">Welcome to the <strong>msiempy</strong> module documentation. The pythonic way to deal with McAfee SIEM API.</h1>
+<p>GitHub : <a href="https://github.com/mfesiem/msiempy">https://github.com/mfesiem/msiempy</a>
+</p>
+<p>Classes listed in this module are base to other classes in sub-modules that offers specialized objects and functions.
 </p>
 <p>This API offers two main types of objects to interact with the SIEM : <a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a>, <a title="msiempy.NitroDict" href="#msiempy.NitroDict"><code>NitroDict</code></a>.
 <a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a>s have default behaviours related to parallel execution, string representation generation and search feature.
-Whereas <a title="msiempy.NitroDict" href="#msiempy.NitroDict"><code>NitroDict</code></a> that doesn't have any specific behaviours. Both inheriths from <a title="msiempy.NitroObject" href="#msiempy.NitroObject"><code>NitroObject</code></a>.
+Whereas <a title="msiempy.NitroDict" href="#msiempy.NitroDict"><code>NitroDict</code></a> that doesn't have any specific behaviours. Both inheriths from <a title="msiempy.NitroObject" href="#msiempy.NitroObject"><code>NitroObject</code></a> that handle a reference to a single <a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> object.
 </p>
 <p><a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> is the point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
 It uses <a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroConfig</code></a> to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
@@ -34,13 +36,15 @@ It uses <a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroCo
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
-&#34;&#34;&#34;# Welcome to the **msiempy** module documentation. The pythonic way to deal with McFee esm API.  
+&#34;&#34;&#34;# Welcome to the **msiempy** module documentation. The pythonic way to deal with McAfee SIEM API.  
 
-Classes listed in this module are used by other classes in sub-modules to build specialized objects and functions. If you with to see concrete example of code, **head to one of the sub-modules** !  
+GitHub : https://github.com/mfesiem/msiempy  
+
+Classes listed in this module are base to other classes in sub-modules that offers specialized objects and functions.  
 
 This API offers two main types of objects to interact with the SIEM : `msiempy.NitroList`, `msiempy.NitroDict`. 
 `msiempy.NitroList`s have default behaviours related to parallel execution, string representation generation and search feature.
-Whereas `msiempy.NitroDict` that doesn&#39;t have any specific behaviours. Both inheriths from `msiempy.NitroObject`.  
+Whereas `msiempy.NitroDict` that doesn&#39;t have any specific behaviours. Both inheriths from `msiempy.NitroObject` that handle a reference to a single `msiempy.NitroSession` object.  
 
 `msiempy.NitroSession` is the point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
 It uses `msiempy.NitroConfig` to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.  
@@ -95,7 +99,7 @@ class NitroConfig(configparser.ConfigParser):
     If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values. 
     Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:  
 
-    - For Windows:  %APPDATA%\\  
+    - For Windows:  `%APPDATA%\\`
     - For Mac :     $HOME/  
     - For Linux :   $XDG_CONFIG_HOME/ or : $HOME/
 
@@ -153,7 +157,7 @@ class NitroConfig(configparser.ConfigParser):
         self.read_dict(self.DEFAULT_CONF_DICT)
     
         if not path :
-            self._path = self._find_ini_location()
+            self._path = self.find_ini_location()
         else : 
             self._path = path
 
@@ -238,11 +242,12 @@ class NitroConfig(configparser.ConfigParser):
 
    
     @staticmethod
-    def _find_ini_location():
+    def find_ini_location():
         &#39;&#39;&#39;
-        Returns the location of a supposed conf.ini file the conf.ini file,
+        Returns the location of a supposed conf.ini file the `conf.ini` file.  
+        If folder ./.msiem exists, assume the `conf.ini` file is in there.
         If the file doesn&#39;t exist, will still return the location.
-        Do not create a file nor directory.
+        Do not create a file nor directory, you must call `msiempy.NitroConfig.write`.
         &#39;&#39;&#39;
         conf_path_dir=None
 
@@ -273,12 +278,10 @@ class NitroSession():
     &#39;&#39;&#39;
 
     BASE_URL = &#39;https://{}/rs/esm/&#39;
-    &#34;&#34;&#34;API v2 base url.
-    &#34;&#34;&#34;
+    __pdoc__[&#39;NitroSession.BASE_URL&#39;]=&#34;&#34;&#34;API v2 base url: `%(url)s`&#34;&#34;&#34; % dict(url=&#39;, &#39;.join(BASE_URL))
 
     BASE_URL_PRIV = &#39;https://{}/ess/&#39;
-    &#34;&#34;&#34;Private API base URL.
-    &#34;&#34;&#34;
+    __pdoc__[&#39;NitroSession.BASE_URL_PRIV&#39;]=&#34;&#34;&#34;Private API base URL: `%(url)s`&#34;&#34;&#34; % dict(url=&#39;, &#39;.join(BASE_URL_PRIV))
 
     __initiated__ = False
     &#34;&#34;&#34;
@@ -291,7 +294,7 @@ class NitroSession():
     
     config = None
     &#34;&#34;&#34;
-    NitroConfig object.
+    `msiempy.NitroConfig` object.
     &#34;&#34;&#34;
     
     PARAMS = {
@@ -515,31 +518,30 @@ class NitroSession():
             &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
     }
     __pdoc__[&#39;NitroSession.PARAMS&#39;] = &#34;&#34;&#34;
-This structure provide a central place to aggregate API methods and parameters. 
-The parameters are stored as docstrings to support string replacement.  
+        This structure provide a central place to aggregate API methods and parameters. 
+        The parameters are stored as docstrings to support string replacement.  
 
-Args:  
-    method (str): Dict key associated with desired function
-    Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
+        Args:  
+            method (str): Dict key associated with desired function
+            Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
 
-Returns:  
-    - `tuple `: (string, string) : The first string is the method name that is actually used as
-    the URI or passed to the ESM. The second string is the params
-    required for that method. Some params require variables be
-    interpolated as documented in the Attributes.
+        Returns:  
+            - `tuple `: (string, string) : The first string is the method name that is actually used as
+            the URI or passed to the ESM. The second string is the params
+            required for that method. Some params require variables be
+            interpolated as documented in the Attributes.
 
-Example:
-    method, params = PARAMS.get(&#34;login&#34;).format(username, password)  
-    See : `msiempy.NitroSession.request`
+        Example:
+            `method, params = PARAMS.get(&#34;login&#34;).format(username, password)`. See : `msiempy.NitroSession.request`
 
-Important note : 
-    Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
+        Important note : 
+            Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
-Content :  
-    %(content)s
-    &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1).replace(&#39;\n&#39;,&#34;&#34;&#34;  
-    &#34;&#34;&#34;)[:1300]+&#34;&#34;&#34; [...] and more..  
-    See around: https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266
+        Content :  
+            %(content)s
+            &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=4).replace(&#39;\n&#39;,&#34;&#34;&#34;  
+    &#34;&#34;&#34;)[:130]+&#34;&#34;&#34; [...] and more..  
+    See : https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266
     &#34;&#34;&#34;)
         
     def __str__(self):
@@ -675,9 +677,8 @@ Content :
             return None
         
     def login(self):
-        &#34;&#34;&#34;
-        Internal method that will be called when the user is not logged yet.
-        Throws NitroError if login fails
+        &#34;&#34;&#34;Authentication is done lazily upon the first call to ``msiempy.NitroSession.request` method, but you can still do it manually by calling this method.  
+        Throws `msiempy.NitroError` if login fails
         &#34;&#34;&#34;
         userb64 = tob64(self.config.user)
         passb64 = self.config.passwd
@@ -706,7 +707,7 @@ Content :
 
             - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
             - `**kwargs` Can contain :
-                - `misiempy.NitroSession.esm_request` arguments except `method` and `data`
+                - `msiempy.NitroSession.esm_request` arguments except `method` and `data`
                 - Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Check the file to be sure of the keyword arguments.  
 
             Returns : 
@@ -1083,7 +1084,7 @@ class NitroList(collections.UserList, NitroObject):
 
     @property
     def text(self):
-        &#34;&#34;&#34;The text properti is a shorcut to get_text() with no arguments.
+        &#34;&#34;&#34;The text property is a shorcut to get_text() with no arguments.
         &#34;&#34;&#34;
         return self.get_text()
         
@@ -1251,9 +1252,7 @@ class FilteredQueryList(NitroList):
     &#34;&#34;&#34;
     
     DEFAULT_TIME_RANGE=&#34;CURRENT_DAY&#34;
-    &#34;&#34;&#34;
-    If you don&#39;t specify any `time_range`, act like if it was &#34;CURRENT_DAY&#34;.
-    &#34;&#34;&#34;
+    __pdoc__[&#39;FilteredQueryList.DEFAULT_TIME_RANGE&#39;]=&#34;&#34;&#34;Default time range : %(default)s&#34;&#34;&#34; % dict(default=DEFAULT_TIME_RANGE)
 
     POSSIBLE_TIME_RANGE=[
             &#34;CUSTOM&#34;,
@@ -1275,26 +1274,8 @@ class FilteredQueryList(NitroList):
             &#34;CURRENT_YEAR&#34;,
             &#34;PREVIOUS_YEAR&#34;
     ]
-    &#34;&#34;&#34;
-    List of possible time ranges : `&#34;CUSTOM&#34;,
-            &#34;LAST_MINUTE&#34;,
-            &#34;LAST_10_MINUTES&#34;,
-            &#34;LAST_30_MINUTES&#34;,
-            &#34;LAST_HOUR&#34;,
-            &#34;CURRENT_DAY&#34;,
-            &#34;PREVIOUS_DAY&#34;,
-            &#34;LAST_24_HOURS&#34;,
-            &#34;LAST_2_DAYS&#34;,
-            &#34;LAST_3_DAYS&#34;,
-            &#34;CURRENT_WEEK&#34;,
-            &#34;PREVIOUS_WEEK&#34;,
-            &#34;CURRENT_MONTH&#34;,
-            &#34;PREVIOUS_MONTH&#34;,
-            &#34;CURRENT_QUARTER&#34;,
-            &#34;PREVIOUS_QUARTER&#34;,
-            &#34;CURRENT_YEAR&#34;,
-            &#34;PREVIOUS_YEAR&#34;`
-    &#34;&#34;&#34;
+    __pdoc__[&#39;FilteredQueryList.POSSIBLE_TIME_RANGE&#39;]=&#34;&#34;&#34;
+    List of possible time ranges : `%(timeranges)s`&#34;&#34;&#34; % dict(timeranges=&#39;, &#39;.join(POSSIBLE_TIME_RANGE))
 
     def __init__(self, time_range=None, start_time=None, end_time=None, filters=None, 
         load_async=True, requests_size=500, max_query_depth=0,
@@ -1305,7 +1286,7 @@ class FilteredQueryList(NitroList):
         Parameters:  
     
         - `time_range` : Query time range. String representation of a time range. 
-            See `msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE`
+            See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`
         - `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
         - `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
         - `filters` : List of filters applied to the query.
@@ -1360,7 +1341,7 @@ class FilteredQueryList(NitroList):
     @property
     def time_range(self):
         &#34;&#34;&#34;
-        Query time range. See `msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+        Query time range. See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`.
         Default to `msiempy.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
         Note that the time range is upper cased automatically.
         Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
@@ -1387,9 +1368,9 @@ class FilteredQueryList(NitroList):
     @property
     def start_time(self):
         &#34;&#34;&#34;
-        Start time of the query in the right SIEM format. See `msiempy\__utils__.format_esm_time()`
-        Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.
-        If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.
+        Start time of the query in the right SIEM format.  
+        Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.  
+        If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.  
         &#34;&#34;&#34;
         return format_esm_time(self._start_time)
 
@@ -1407,9 +1388,9 @@ class FilteredQueryList(NitroList):
     @property
     def end_time(self):
         &#34;&#34;&#34;
-        End time of the query in the right SIEM format.  See `msiempy\__utils__.format_esm_time()`
-        Use _end_time to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.
-        If `None`, equivalent CURRENT_DAY ends now. Raises `ValueError` if not the right type.
+        End time of the query in the right SIEM format.  
+        Use `_end_time` property to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.  
+        If `None`, equivalent CURRENT_DAY. Raises `ValueError` if not the right type.
         &#34;&#34;&#34;
         return format_esm_time(self._end_time)
 
@@ -1428,9 +1409,9 @@ class FilteredQueryList(NitroList):
     def filters(self):
         &#34;&#34;&#34; 
         Filter property : Returns a list of filters.
-        Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
-        None value will call `msiempy.query.FilteredQueryList.clear_filters()`
-        Raises `AttributeError` if type not supported.
+        Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
+        `None value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
+        Raises : `AttributeError` if type not supported.
         TODO find a better solution to integrate the filter propertie
         &#34;&#34;&#34;
         raise NotImplementedError()
@@ -1464,41 +1445,37 @@ class FilteredQueryList(NitroList):
         pass 
 
     @abc.abstractmethod
-    def _load_data(self, workers):
+    def qry_load_data(self, **kwargs):
         &#34;&#34;&#34;
+        Method to load the data from the SIEM.
         Rturn a tuple (items, completed).
         completed = True if all the data that should be load is loaded.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
-    def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;, *args, **kwargs):
-        &#34;&#34;&#34;
-        Method to load the data from the SIEM.
-        Split the query in defferents time slots if the query apprears not to be completed.
-        Splitting is done by duplicating current object, setting different times,
-        and re-loading results. First your query time is split in slots of size `delta` 
-        if the sub queries are not completed, divide them in the number of `slots`, this step is
-        If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the query list.
+    def load_data(self, workers=10, slots=10, delta=None, **kwargs):
+        &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
+        Split the query in defferents time slots if the query apprears not to be completed. It wraps around `msiempy.FilteredQueryList.qry_load_data`.    
+        If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the `msiempy.FilteredQueryList`.
 
-        Returns a FilteredQueryList.
-        
-        Note :
-            IF you looking for load_async = True/False, you should pass this to the constructor method `msiempy.FilteredQueryList`
-                or by setting the attribute manually like `manager.load_asynch=True`
-            Only the first query is loaded asynchronously.
+        Note :  
+        If you looking for `load_async`, you should pass this to the constructor method `msiempy.FilteredQueryList` or by setting the attribute manually like `manager.load_asynch=True`
+        Only the first query is loaded asynchronously.
 
         Parameters:  
     
-        - `workers` : numbre of parrallels task
+        - `workers` : numbre of parrallels task  
         - `slots` : number of time slots the query can be divided. The loading bar is 
-            divided according to the number of slots
-        - `delta` : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
-            with dateutil.
-        
+            divided according to the number of slots  
+        - `delta` : exemple : &#39;6h30m&#39;, the query will be firstly divided in chuncks according to the time delta read
+            with dateutil.  
+        - `**kwargs` : concrete additionnal `qry_load_data` parameters  
+
+        Returns : `msiempy.FilteredQueryList`
         &#34;&#34;&#34;
 
-        items, completed = self._load_data(workers=workers, *args, **kwargs)
+        items, completed = self.qry_load_data(workers=workers, **kwargs)
 
         if not completed :
             #If not completed the query is split and items aren&#39;t actually used
@@ -1515,14 +1492,16 @@ class FilteredQueryList(NitroList):
                     #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
                     times=divide_times(start, end, delta=parse_timedelta(delta))
                     
-                else :times=divide_times(start, end, slots=slots)
-                        #IGONORING THE CONFIG ### : self.nitro.config.slots)
+                else : 
+                    times=divide_times(start, end, slots=slots)
+
+                if workers &gt; len(times) :
+                    log.warning(&#34;The numbre of slots is smaller than the number of workers, only &#34;+str(len(times))+&#34; asynch workers will be used when you could use up to &#34;+str(workers)+&#34;. Number of slots should be greater than the number of workers for better performance.&#34;)
                 
                 sub_queries=list()
 
                 for time in times :
-                    &#34;&#34;&#34;
-                    &#34;&#34;&#34;
+                    #Divide the query in sub queries
                     sub_query = copy.copy(self)
                     sub_query.__parent__=self
                     sub_query.compute_time_range=False
@@ -1531,9 +1510,8 @@ class FilteredQueryList(NitroList):
                     sub_query.end_time=time[1].isoformat()
                     sub_query.load_async=False
                     sub_query.query_depth_ttl=self.query_depth_ttl-1
-                    #sub_query.requests_size=requests_size
+                    
                     sub_queries.append(sub_query)
-
             
                 results = self.perform(FilteredQueryList.load_data, sub_queries, 
                     #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
@@ -1548,11 +1526,11 @@ class FilteredQueryList(NitroList):
                 
             else :
                 if not self.__root_parent__.not_completed :
-                    log.warning(&#34;The query won&#39;t fully complete. Try to divide in more slots or increase the requests_size&#34;)
+                    log.warning(&#34;The query is not complete... Try to divide in more slots or increase the requests_size, page_size or limit&#34;)
                     self.__root_parent__.not_completed=True
 
         self.data=items
-        return(NitroList(alist=items)) #return self ?</code></pre>
+        return(self)</code></pre>
 </details>
 </section>
 <section>
@@ -1596,7 +1574,7 @@ Provide time ranged filtered query wrapper.</p>
 </p>
 <ul>
 <li><code>time_range</code> : Query time range. String representation of a time range.
-See <code>msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE</code></li>
+See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE"><code>FilteredQueryList.POSSIBLE_TIME_RANGE</code></a></li>
 <li><code>start_time</code> : Query starting time, can be a string or a datetime object. Parsed with dateutil.</li>
 <li><code>end_time</code> : Query endding time, can be a string or a datetime object. Parsed with dateutil.</li>
 <li><code>filters</code> : List of filters applied to the query.</li>
@@ -1616,9 +1594,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
     &#34;&#34;&#34;
     
     DEFAULT_TIME_RANGE=&#34;CURRENT_DAY&#34;
-    &#34;&#34;&#34;
-    If you don&#39;t specify any `time_range`, act like if it was &#34;CURRENT_DAY&#34;.
-    &#34;&#34;&#34;
+    __pdoc__[&#39;FilteredQueryList.DEFAULT_TIME_RANGE&#39;]=&#34;&#34;&#34;Default time range : %(default)s&#34;&#34;&#34; % dict(default=DEFAULT_TIME_RANGE)
 
     POSSIBLE_TIME_RANGE=[
             &#34;CUSTOM&#34;,
@@ -1640,26 +1616,8 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
             &#34;CURRENT_YEAR&#34;,
             &#34;PREVIOUS_YEAR&#34;
     ]
-    &#34;&#34;&#34;
-    List of possible time ranges : `&#34;CUSTOM&#34;,
-            &#34;LAST_MINUTE&#34;,
-            &#34;LAST_10_MINUTES&#34;,
-            &#34;LAST_30_MINUTES&#34;,
-            &#34;LAST_HOUR&#34;,
-            &#34;CURRENT_DAY&#34;,
-            &#34;PREVIOUS_DAY&#34;,
-            &#34;LAST_24_HOURS&#34;,
-            &#34;LAST_2_DAYS&#34;,
-            &#34;LAST_3_DAYS&#34;,
-            &#34;CURRENT_WEEK&#34;,
-            &#34;PREVIOUS_WEEK&#34;,
-            &#34;CURRENT_MONTH&#34;,
-            &#34;PREVIOUS_MONTH&#34;,
-            &#34;CURRENT_QUARTER&#34;,
-            &#34;PREVIOUS_QUARTER&#34;,
-            &#34;CURRENT_YEAR&#34;,
-            &#34;PREVIOUS_YEAR&#34;`
-    &#34;&#34;&#34;
+    __pdoc__[&#39;FilteredQueryList.POSSIBLE_TIME_RANGE&#39;]=&#34;&#34;&#34;
+    List of possible time ranges : `%(timeranges)s`&#34;&#34;&#34; % dict(timeranges=&#39;, &#39;.join(POSSIBLE_TIME_RANGE))
 
     def __init__(self, time_range=None, start_time=None, end_time=None, filters=None, 
         load_async=True, requests_size=500, max_query_depth=0,
@@ -1670,7 +1628,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
         Parameters:  
     
         - `time_range` : Query time range. String representation of a time range. 
-            See `msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE`
+            See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`
         - `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
         - `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
         - `filters` : List of filters applied to the query.
@@ -1725,7 +1683,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
     @property
     def time_range(self):
         &#34;&#34;&#34;
-        Query time range. See `msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+        Query time range. See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`.
         Default to `msiempy.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
         Note that the time range is upper cased automatically.
         Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
@@ -1752,9 +1710,9 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
     @property
     def start_time(self):
         &#34;&#34;&#34;
-        Start time of the query in the right SIEM format. See `msiempy\__utils__.format_esm_time()`
-        Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.
-        If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.
+        Start time of the query in the right SIEM format.  
+        Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.  
+        If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.  
         &#34;&#34;&#34;
         return format_esm_time(self._start_time)
 
@@ -1772,9 +1730,9 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
     @property
     def end_time(self):
         &#34;&#34;&#34;
-        End time of the query in the right SIEM format.  See `msiempy\__utils__.format_esm_time()`
-        Use _end_time to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.
-        If `None`, equivalent CURRENT_DAY ends now. Raises `ValueError` if not the right type.
+        End time of the query in the right SIEM format.  
+        Use `_end_time` property to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.  
+        If `None`, equivalent CURRENT_DAY. Raises `ValueError` if not the right type.
         &#34;&#34;&#34;
         return format_esm_time(self._end_time)
 
@@ -1793,9 +1751,9 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
     def filters(self):
         &#34;&#34;&#34; 
         Filter property : Returns a list of filters.
-        Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
-        None value will call `msiempy.query.FilteredQueryList.clear_filters()`
-        Raises `AttributeError` if type not supported.
+        Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
+        `None value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
+        Raises : `AttributeError` if type not supported.
         TODO find a better solution to integrate the filter propertie
         &#34;&#34;&#34;
         raise NotImplementedError()
@@ -1829,41 +1787,37 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
         pass 
 
     @abc.abstractmethod
-    def _load_data(self, workers):
+    def qry_load_data(self, **kwargs):
         &#34;&#34;&#34;
+        Method to load the data from the SIEM.
         Rturn a tuple (items, completed).
         completed = True if all the data that should be load is loaded.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
-    def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;, *args, **kwargs):
-        &#34;&#34;&#34;
-        Method to load the data from the SIEM.
-        Split the query in defferents time slots if the query apprears not to be completed.
-        Splitting is done by duplicating current object, setting different times,
-        and re-loading results. First your query time is split in slots of size `delta` 
-        if the sub queries are not completed, divide them in the number of `slots`, this step is
-        If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the query list.
+    def load_data(self, workers=10, slots=10, delta=None, **kwargs):
+        &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
+        Split the query in defferents time slots if the query apprears not to be completed. It wraps around `msiempy.FilteredQueryList.qry_load_data`.    
+        If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the `msiempy.FilteredQueryList`.
 
-        Returns a FilteredQueryList.
-        
-        Note :
-            IF you looking for load_async = True/False, you should pass this to the constructor method `msiempy.FilteredQueryList`
-                or by setting the attribute manually like `manager.load_asynch=True`
-            Only the first query is loaded asynchronously.
+        Note :  
+        If you looking for `load_async`, you should pass this to the constructor method `msiempy.FilteredQueryList` or by setting the attribute manually like `manager.load_asynch=True`
+        Only the first query is loaded asynchronously.
 
         Parameters:  
     
-        - `workers` : numbre of parrallels task
+        - `workers` : numbre of parrallels task  
         - `slots` : number of time slots the query can be divided. The loading bar is 
-            divided according to the number of slots
-        - `delta` : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
-            with dateutil.
-        
+            divided according to the number of slots  
+        - `delta` : exemple : &#39;6h30m&#39;, the query will be firstly divided in chuncks according to the time delta read
+            with dateutil.  
+        - `**kwargs` : concrete additionnal `qry_load_data` parameters  
+
+        Returns : `msiempy.FilteredQueryList`
         &#34;&#34;&#34;
 
-        items, completed = self._load_data(workers=workers, *args, **kwargs)
+        items, completed = self.qry_load_data(workers=workers, **kwargs)
 
         if not completed :
             #If not completed the query is split and items aren&#39;t actually used
@@ -1880,14 +1834,16 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
                     #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
                     times=divide_times(start, end, delta=parse_timedelta(delta))
                     
-                else :times=divide_times(start, end, slots=slots)
-                        #IGONORING THE CONFIG ### : self.nitro.config.slots)
+                else : 
+                    times=divide_times(start, end, slots=slots)
+
+                if workers &gt; len(times) :
+                    log.warning(&#34;The numbre of slots is smaller than the number of workers, only &#34;+str(len(times))+&#34; asynch workers will be used when you could use up to &#34;+str(workers)+&#34;. Number of slots should be greater than the number of workers for better performance.&#34;)
                 
                 sub_queries=list()
 
                 for time in times :
-                    &#34;&#34;&#34;
-                    &#34;&#34;&#34;
+                    #Divide the query in sub queries
                     sub_query = copy.copy(self)
                     sub_query.__parent__=self
                     sub_query.compute_time_range=False
@@ -1896,9 +1852,8 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
                     sub_query.end_time=time[1].isoformat()
                     sub_query.load_async=False
                     sub_query.query_depth_ttl=self.query_depth_ttl-1
-                    #sub_query.requests_size=requests_size
+                    
                     sub_queries.append(sub_query)
-
             
                 results = self.perform(FilteredQueryList.load_data, sub_queries, 
                     #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
@@ -1913,11 +1868,11 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
                 
             else :
                 if not self.__root_parent__.not_completed :
-                    log.warning(&#34;The query won&#39;t fully complete. Try to divide in more slots or increase the requests_size&#34;)
+                    log.warning(&#34;The query is not complete... Try to divide in more slots or increase the requests_size, page_size or limit&#34;)
                     self.__root_parent__.not_completed=True
 
         self.data=items
-        return(NitroList(alist=items)) #return self ?</code></pre>
+        return(self)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1942,46 +1897,28 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 <dl>
 <dt id="msiempy.FilteredQueryList.DEFAULT_TIME_RANGE"><code class="name">var <span class="ident">DEFAULT_TIME_RANGE</span></code></dt>
 <dd>
-<section class="desc"><p>If you don't specify any <code>time_range</code>, act like if it was "CURRENT_DAY".</p></section>
+<section class="desc"><p>Default time range : CURRENT_DAY</p></section>
 </dd>
 <dt id="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE"><code class="name">var <span class="ident">POSSIBLE_TIME_RANGE</span></code></dt>
 <dd>
-<section class="desc"><p>List of possible time ranges : <code>"CUSTOM",
-"LAST_MINUTE",
-"LAST_10_MINUTES",
-"LAST_30_MINUTES",
-"LAST_HOUR",
-"CURRENT_DAY",
-"PREVIOUS_DAY",
-"LAST_24_HOURS",
-"LAST_2_DAYS",
-"LAST_3_DAYS",
-"CURRENT_WEEK",
-"PREVIOUS_WEEK",
-"CURRENT_MONTH",
-"PREVIOUS_MONTH",
-"CURRENT_QUARTER",
-"PREVIOUS_QUARTER",
-"CURRENT_YEAR",
-"PREVIOUS_YEAR"</code></p></section>
+<section class="desc"><p>List of possible time ranges : <code>CUSTOM, LAST_MINUTE, LAST_10_MINUTES, LAST_30_MINUTES, LAST_HOUR, CURRENT_DAY, PREVIOUS_DAY, LAST_24_HOURS, LAST_2_DAYS, LAST_3_DAYS, CURRENT_WEEK, PREVIOUS_WEEK, CURRENT_MONTH, PREVIOUS_MONTH, CURRENT_QUARTER, PREVIOUS_QUARTER, CURRENT_YEAR, PREVIOUS_YEAR</code></p></section>
 </dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="msiempy.FilteredQueryList.end_time"><code class="name">var <span class="ident">end_time</span></code></dt>
 <dd>
-<section class="desc"><p>End time of the query in the right SIEM format.
-See <code>msiempy\__utils__.format_esm_time()</code>
-Use _end_time to get the datetime object. You can set the <code>end_time</code> as a <code>str</code> or a <code>datetime</code>.
-If <code>None</code>, equivalent CURRENT_DAY ends now. Raises <code>ValueError</code> if not the right type.</p></section>
+<section class="desc"><p>End time of the query in the right SIEM format.<br>
+Use <code>_end_time</code> property to get the datetime object. You can set the <code>end_time</code> as a <code>str</code> or a <code>datetime</code>.<br>
+If <code>None</code>, equivalent CURRENT_DAY. Raises <code>ValueError</code> if not the right type.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
 def end_time(self):
     &#34;&#34;&#34;
-    End time of the query in the right SIEM format.  See `msiempy\__utils__.format_esm_time()`
-    Use _end_time to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.
-    If `None`, equivalent CURRENT_DAY ends now. Raises `ValueError` if not the right type.
+    End time of the query in the right SIEM format.  
+    Use `_end_time` property to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.  
+    If `None`, equivalent CURRENT_DAY. Raises `ValueError` if not the right type.
     &#34;&#34;&#34;
     return format_esm_time(self._end_time)</code></pre>
 </details>
@@ -1989,9 +1926,9 @@ def end_time(self):
 <dt id="msiempy.FilteredQueryList.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
 <section class="desc"><p>Filter property : Returns a list of filters.
-Can be set with list of tuple(field, [values]) or <a title="msiempy.event.QueryFilter" href="event.html#msiempy.event.QueryFilter"><code>QueryFilter</code></a> in the case of a <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a> query. A single tuple is also accepted.
-None value will call <code>msiempy.query.FilteredQueryList.clear_filters()</code>
-Raises <code>AttributeError</code> if type not supported.
+Can be set with list of tuple(field, [values]) or <a title="msiempy.event.QueryFilter" href="event.html#msiempy.event.QueryFilter"><code>QueryFilter</code></a> in the case of a <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a> query. A single tuple is also accepted.<br>
+<code>None value will call</code>msiempy.query.FilteredQueryList.clear_filters()<code>.
+Raises :</code>AttributeError` if type not supported.
 TODO find a better solution to integrate the filter propertie</p></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1999,9 +1936,9 @@ TODO find a better solution to integrate the filter propertie</p></section>
 def filters(self):
     &#34;&#34;&#34; 
     Filter property : Returns a list of filters.
-    Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
-    None value will call `msiempy.query.FilteredQueryList.clear_filters()`
-    Raises `AttributeError` if type not supported.
+    Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
+    `None value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
+    Raises : `AttributeError` if type not supported.
     TODO find a better solution to integrate the filter propertie
     &#34;&#34;&#34;
     raise NotImplementedError()</code></pre>
@@ -2009,24 +1946,24 @@ def filters(self):
 </dd>
 <dt id="msiempy.FilteredQueryList.start_time"><code class="name">var <span class="ident">start_time</span></code></dt>
 <dd>
-<section class="desc"><p>Start time of the query in the right SIEM format. See <code>msiempy\__utils__.format_esm_time()</code>
-Use <code>_start_time</code> to get the datetime object. You can set the <code>star_time</code> as a <code>str</code> or a <code>datetime</code>.
+<section class="desc"><p>Start time of the query in the right SIEM format.<br>
+Use <code>_start_time</code> to get the datetime object. You can set the <code>star_time</code> as a <code>str</code> or a <code>datetime</code>.<br>
 If <code>None</code>, equivalent CURRENT_DAY start 00:00:00. Raises <code>ValueError</code> if not the right type.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
 def start_time(self):
     &#34;&#34;&#34;
-    Start time of the query in the right SIEM format. See `msiempy\__utils__.format_esm_time()`
-    Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.
-    If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.
+    Start time of the query in the right SIEM format.  
+    Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.  
+    If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.  
     &#34;&#34;&#34;
     return format_esm_time(self._start_time)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.FilteredQueryList.time_range"><code class="name">var <span class="ident">time_range</span></code></dt>
 <dd>
-<section class="desc"><p>Query time range. See <code>msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE</code>.
+<section class="desc"><p>Query time range. See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE"><code>FilteredQueryList.POSSIBLE_TIME_RANGE</code></a>.
 Default to <a title="msiempy.FilteredQueryList.DEFAULT_TIME_RANGE" href="#msiempy.FilteredQueryList.DEFAULT_TIME_RANGE"><code>FilteredQueryList.DEFAULT_TIME_RANGE</code></a> (CURRENT_DAY).
 Note that the time range is upper cased automatically.
 Raises <code>VallueError</code> if unrecognized time range is set and <code>AttributeError</code> if not the right type.</p></section>
@@ -2035,7 +1972,7 @@ Raises <code>VallueError</code> if unrecognized time range is set and <code>Attr
 <pre><code class="python">@property
 def time_range(self):
     &#34;&#34;&#34;
-    Query time range. See `msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+    Query time range. See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`.
     Default to `msiempy.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
     Note that the time range is upper cased automatically.
     Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
@@ -2075,59 +2012,56 @@ def clear_filters(self):
 </details>
 </dd>
 <dt id="msiempy.FilteredQueryList.load_data"><code class="name flex">
-<span>def <span class="ident">load_data</span></span>(<span>self, workers=15, slots=4, delta='24h', *args, **kwargs)</span>
+<span>def <span class="ident">load_data</span></span>(<span>self, workers=10, slots=10, delta=None, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Method to load the data from the SIEM.
-Split the query in defferents time slots if the query apprears not to be completed.
-Splitting is done by duplicating current object, setting different times,
-and re-loading results. First your query time is split in slots of size <code>delta</code>
-if the sub queries are not completed, divide them in the number of <code>slots</code>, this step is
-If you're looking for <code>max_query_depth</code>, it's define at the creation of the query list.</p>
-<p>Returns a FilteredQueryList.</p>
-<p>Note :
-IF you looking for load_async = True/False, you should pass this to the constructor method <a title="msiempy.FilteredQueryList" href="#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a>
-or by setting the attribute manually like <code>manager.load_asynch=True</code>
+<section class="desc"><p>Load the data from the SIEM into the manager list.<br>
+Split the query in defferents time slots if the query apprears not to be completed. It wraps around <a title="msiempy.FilteredQueryList.qry_load_data" href="#msiempy.FilteredQueryList.qry_load_data"><code>FilteredQueryList.qry_load_data()</code></a>.
+<br>
+If you're looking for <code>max_query_depth</code>, it's define at the creation of the <a title="msiempy.FilteredQueryList" href="#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a>.</p>
+<p>Note :<br>
+If you looking for <code>load_async</code>, you should pass this to the constructor method <a title="msiempy.FilteredQueryList" href="#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a> or by setting the attribute manually like <code>manager.load_asynch=True</code>
 Only the first query is loaded asynchronously.</p>
 <p>Parameters:
 </p>
 <ul>
-<li><code>workers</code> : numbre of parrallels task</li>
+<li><code>workers</code> : numbre of parrallels task
+</li>
 <li><code>slots</code> : number of time slots the query can be divided. The loading bar is
-divided according to the number of slots</li>
-<li><code>delta</code> : exemple : '24h', the query will be firstly divided in chuncks according to the time delta read
-with dateutil.</li>
-</ul></section>
+divided according to the number of slots
+</li>
+<li><code>delta</code> : exemple : '6h30m', the query will be firstly divided in chuncks according to the time delta read
+with dateutil.
+</li>
+<li><code>**kwargs</code> : concrete additionnal <code>qry_load_data</code> parameters
+</li>
+</ul>
+<p>Returns : <a title="msiempy.FilteredQueryList" href="#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a></p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractmethod
-def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;, *args, **kwargs):
-    &#34;&#34;&#34;
-    Method to load the data from the SIEM.
-    Split the query in defferents time slots if the query apprears not to be completed.
-    Splitting is done by duplicating current object, setting different times,
-    and re-loading results. First your query time is split in slots of size `delta` 
-    if the sub queries are not completed, divide them in the number of `slots`, this step is
-    If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the query list.
+def load_data(self, workers=10, slots=10, delta=None, **kwargs):
+    &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
+    Split the query in defferents time slots if the query apprears not to be completed. It wraps around `msiempy.FilteredQueryList.qry_load_data`.    
+    If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the `msiempy.FilteredQueryList`.
 
-    Returns a FilteredQueryList.
-    
-    Note :
-        IF you looking for load_async = True/False, you should pass this to the constructor method `msiempy.FilteredQueryList`
-            or by setting the attribute manually like `manager.load_asynch=True`
-        Only the first query is loaded asynchronously.
+    Note :  
+    If you looking for `load_async`, you should pass this to the constructor method `msiempy.FilteredQueryList` or by setting the attribute manually like `manager.load_asynch=True`
+    Only the first query is loaded asynchronously.
 
     Parameters:  
 
-    - `workers` : numbre of parrallels task
+    - `workers` : numbre of parrallels task  
     - `slots` : number of time slots the query can be divided. The loading bar is 
-        divided according to the number of slots
-    - `delta` : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
-        with dateutil.
-    
+        divided according to the number of slots  
+    - `delta` : exemple : &#39;6h30m&#39;, the query will be firstly divided in chuncks according to the time delta read
+        with dateutil.  
+    - `**kwargs` : concrete additionnal `qry_load_data` parameters  
+
+    Returns : `msiempy.FilteredQueryList`
     &#34;&#34;&#34;
 
-    items, completed = self._load_data(workers=workers, *args, **kwargs)
+    items, completed = self.qry_load_data(workers=workers, **kwargs)
 
     if not completed :
         #If not completed the query is split and items aren&#39;t actually used
@@ -2144,14 +2078,16 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;, *args, **kwargs):
                 #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
                 times=divide_times(start, end, delta=parse_timedelta(delta))
                 
-            else :times=divide_times(start, end, slots=slots)
-                    #IGONORING THE CONFIG ### : self.nitro.config.slots)
+            else : 
+                times=divide_times(start, end, slots=slots)
+
+            if workers &gt; len(times) :
+                log.warning(&#34;The numbre of slots is smaller than the number of workers, only &#34;+str(len(times))+&#34; asynch workers will be used when you could use up to &#34;+str(workers)+&#34;. Number of slots should be greater than the number of workers for better performance.&#34;)
             
             sub_queries=list()
 
             for time in times :
-                &#34;&#34;&#34;
-                &#34;&#34;&#34;
+                #Divide the query in sub queries
                 sub_query = copy.copy(self)
                 sub_query.__parent__=self
                 sub_query.compute_time_range=False
@@ -2160,9 +2096,8 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;, *args, **kwargs):
                 sub_query.end_time=time[1].isoformat()
                 sub_query.load_async=False
                 sub_query.query_depth_ttl=self.query_depth_ttl-1
-                #sub_query.requests_size=requests_size
+                
                 sub_queries.append(sub_query)
-
         
             results = self.perform(FilteredQueryList.load_data, sub_queries, 
                 #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
@@ -2177,11 +2112,30 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;, *args, **kwargs):
             
         else :
             if not self.__root_parent__.not_completed :
-                log.warning(&#34;The query won&#39;t fully complete. Try to divide in more slots or increase the requests_size&#34;)
+                log.warning(&#34;The query is not complete... Try to divide in more slots or increase the requests_size, page_size or limit&#34;)
                 self.__root_parent__.not_completed=True
 
     self.data=items
-    return(NitroList(alist=items)) #return self ?</code></pre>
+    return(self)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.FilteredQueryList.qry_load_data"><code class="name flex">
+<span>def <span class="ident">qry_load_data</span></span>(<span>self, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Method to load the data from the SIEM.
+Rturn a tuple (items, completed).
+completed = True if all the data that should be load is loaded.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def qry_load_data(self, **kwargs):
+    &#34;&#34;&#34;
+    Method to load the data from the SIEM.
+    Rturn a tuple (items, completed).
+    completed = True if all the data that should be load is loaded.
+    &#34;&#34;&#34;
+    pass</code></pre>
 </details>
 </dd>
 </dl>
@@ -2212,8 +2166,7 @@ Secondly, if no <code>.msiem/</code> directory exists in the current directory, 
 </p>
 <ul>
 <li>For Windows:
-%APPDATA%\
-</li>
+<code>%APPDATA%\</code></li>
 <li>For Mac :
 $HOME/
 </li>
@@ -2235,7 +2188,7 @@ $XDG_CONFIG_HOME/ or : $HOME/</li>
     If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values. 
     Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:  
 
-    - For Windows:  %APPDATA%\\  
+    - For Windows:  `%APPDATA%\\`
     - For Mac :     $HOME/  
     - For Linux :   $XDG_CONFIG_HOME/ or : $HOME/
 
@@ -2293,7 +2246,7 @@ $XDG_CONFIG_HOME/ or : $HOME/</li>
         self.read_dict(self.DEFAULT_CONF_DICT)
     
         if not path :
-            self._path = self._find_ini_location()
+            self._path = self.find_ini_location()
         else : 
             self._path = path
 
@@ -2378,11 +2331,12 @@ $XDG_CONFIG_HOME/ or : $HOME/</li>
 
    
     @staticmethod
-    def _find_ini_location():
+    def find_ini_location():
         &#39;&#39;&#39;
-        Returns the location of a supposed conf.ini file the conf.ini file,
+        Returns the location of a supposed conf.ini file the `conf.ini` file.  
+        If folder ./.msiem exists, assume the `conf.ini` file is in there.
         If the file doesn&#39;t exist, will still return the location.
-        Do not create a file nor directory.
+        Do not create a file nor directory, you must call `msiempy.NitroConfig.write`.
         &#39;&#39;&#39;
         conf_path_dir=None
 
@@ -2443,6 +2397,50 @@ timeout = 30
 ssl_verify = False
 output = text #Not used yet
 </code></pre></section>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="msiempy.NitroConfig.find_ini_location"><code class="name flex">
+<span>def <span class="ident">find_ini_location</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns the location of a supposed conf.ini file the <code>conf.ini</code> file.<br>
+If folder ./.msiem exists, assume the <code>conf.ini</code> file is in there.
+If the file doesn't exist, will still return the location.
+Do not create a file nor directory, you must call <a title="msiempy.NitroConfig.write" href="#msiempy.NitroConfig.write"><code>NitroConfig.write()</code></a>.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@staticmethod
+def find_ini_location():
+    &#39;&#39;&#39;
+    Returns the location of a supposed conf.ini file the `conf.ini` file.  
+    If folder ./.msiem exists, assume the `conf.ini` file is in there.
+    If the file doesn&#39;t exist, will still return the location.
+    Do not create a file nor directory, you must call `msiempy.NitroConfig.write`.
+    &#39;&#39;&#39;
+    conf_path_dir=None
+
+    if os.path.isdir(&#39;./&#39;+NitroConfig.CONF_DIR):
+        conf_path_dir=&#39;./&#39;
+
+    elif &#39;APPDATA&#39; in os.environ:
+            conf_path_dir = os.environ[&#39;APPDATA&#39;]
+
+    elif &#39;XDG_CONFIG_HOME&#39; in os.environ:  
+        conf_path_dir = os.environ[&#39;XDG_CONFIG_HOME&#39;]
+
+    elif &#39;HOME&#39; in os.environ:  
+        conf_path_dir = os.path.join(os.environ[&#39;HOME&#39;])
+        
+    else:
+        conf_path_dir=&#39;./&#39;
+    
+    #Join configuartion filename with supposed parent directory
+    conf_path=(os.path.join(conf_path_dir, NitroConfig.CONFIG_FILE_NAME))
+
+    return(conf_path)</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Instance variables</h3>
@@ -2665,8 +2663,8 @@ and update dict values accordingly.</p>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></li>
-<li><a title="msiempy.device.DataSource" href="device.html#msiempy.device.DataSource">DataSource</a></li>
 <li><a title="msiempy.alarm.Alarm" href="alarm.html#msiempy.alarm.Alarm">Alarm</a></li>
+<li><a title="msiempy.device.DataSource" href="device.html#msiempy.device.DataSource">DataSource</a></li>
 <li><a title="msiempy.watchlist.Watchlist" href="watchlist.html#msiempy.watchlist.Watchlist">Watchlist</a></li>
 </ul>
 <h3>Instance variables</h3>
@@ -2891,7 +2889,7 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
 
     @property
     def text(self):
-        &#34;&#34;&#34;The text properti is a shorcut to get_text() with no arguments.
+        &#34;&#34;&#34;The text property is a shorcut to get_text() with no arguments.
         &#34;&#34;&#34;
         return self.get_text()
         
@@ -3105,12 +3103,12 @@ def keys(self):
 </dd>
 <dt id="msiempy.NitroList.text"><code class="name">var <span class="ident">text</span></code></dt>
 <dd>
-<section class="desc"><p>The text properti is a shorcut to get_text() with no arguments.</p></section>
+<section class="desc"><p>The text property is a shorcut to get_text() with no arguments.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@property
 def text(self):
-    &#34;&#34;&#34;The text properti is a shorcut to get_text() with no arguments.
+    &#34;&#34;&#34;The text property is a shorcut to get_text() with no arguments.
     &#34;&#34;&#34;
     return self.get_text()</code></pre>
 </details>
@@ -3564,12 +3562,10 @@ Use logout() to reinstanciate NitroSession.
     &#39;&#39;&#39;
 
     BASE_URL = &#39;https://{}/rs/esm/&#39;
-    &#34;&#34;&#34;API v2 base url.
-    &#34;&#34;&#34;
+    __pdoc__[&#39;NitroSession.BASE_URL&#39;]=&#34;&#34;&#34;API v2 base url: `%(url)s`&#34;&#34;&#34; % dict(url=&#39;, &#39;.join(BASE_URL))
 
     BASE_URL_PRIV = &#39;https://{}/ess/&#39;
-    &#34;&#34;&#34;Private API base URL.
-    &#34;&#34;&#34;
+    __pdoc__[&#39;NitroSession.BASE_URL_PRIV&#39;]=&#34;&#34;&#34;Private API base URL: `%(url)s`&#34;&#34;&#34; % dict(url=&#39;, &#39;.join(BASE_URL_PRIV))
 
     __initiated__ = False
     &#34;&#34;&#34;
@@ -3582,7 +3578,7 @@ Use logout() to reinstanciate NitroSession.
     
     config = None
     &#34;&#34;&#34;
-    NitroConfig object.
+    `msiempy.NitroConfig` object.
     &#34;&#34;&#34;
     
     PARAMS = {
@@ -3806,31 +3802,30 @@ Use logout() to reinstanciate NitroSession.
             &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
     }
     __pdoc__[&#39;NitroSession.PARAMS&#39;] = &#34;&#34;&#34;
-This structure provide a central place to aggregate API methods and parameters. 
-The parameters are stored as docstrings to support string replacement.  
+        This structure provide a central place to aggregate API methods and parameters. 
+        The parameters are stored as docstrings to support string replacement.  
 
-Args:  
-    method (str): Dict key associated with desired function
-    Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
+        Args:  
+            method (str): Dict key associated with desired function
+            Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
 
-Returns:  
-    - `tuple `: (string, string) : The first string is the method name that is actually used as
-    the URI or passed to the ESM. The second string is the params
-    required for that method. Some params require variables be
-    interpolated as documented in the Attributes.
+        Returns:  
+            - `tuple `: (string, string) : The first string is the method name that is actually used as
+            the URI or passed to the ESM. The second string is the params
+            required for that method. Some params require variables be
+            interpolated as documented in the Attributes.
 
-Example:
-    method, params = PARAMS.get(&#34;login&#34;).format(username, password)  
-    See : `msiempy.NitroSession.request`
+        Example:
+            `method, params = PARAMS.get(&#34;login&#34;).format(username, password)`. See : `msiempy.NitroSession.request`
 
-Important note : 
-    Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
+        Important note : 
+            Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
-Content :  
-    %(content)s
-    &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1).replace(&#39;\n&#39;,&#34;&#34;&#34;  
-    &#34;&#34;&#34;)[:1300]+&#34;&#34;&#34; [...] and more..  
-    See around: https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266
+        Content :  
+            %(content)s
+            &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=4).replace(&#39;\n&#39;,&#34;&#34;&#34;  
+    &#34;&#34;&#34;)[:130]+&#34;&#34;&#34; [...] and more..  
+    See : https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266
     &#34;&#34;&#34;)
         
     def __str__(self):
@@ -3966,9 +3961,8 @@ Content :
             return None
         
     def login(self):
-        &#34;&#34;&#34;
-        Internal method that will be called when the user is not logged yet.
-        Throws NitroError if login fails
+        &#34;&#34;&#34;Authentication is done lazily upon the first call to ``msiempy.NitroSession.request` method, but you can still do it manually by calling this method.  
+        Throws `msiempy.NitroError` if login fails
         &#34;&#34;&#34;
         userb64 = tob64(self.config.user)
         passb64 = self.config.passwd
@@ -3997,7 +3991,7 @@ Content :
 
             - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
             - `**kwargs` Can contain :
-                - `misiempy.NitroSession.esm_request` arguments except `method` and `data`
+                - `msiempy.NitroSession.esm_request` arguments except `method` and `data`
                 - Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Check the file to be sure of the keyword arguments.  
 
             Returns : 
@@ -4150,84 +4144,44 @@ Content :
 <dl>
 <dt id="msiempy.NitroSession.BASE_URL"><code class="name">var <span class="ident">BASE_URL</span></code></dt>
 <dd>
-<section class="desc"><p>API v2 base url.</p></section>
+<section class="desc"><p>API v2 base url: <code>h, t, t, p, s, :, /, /, {, }, /, r, s, /, e, s, m, /</code></p></section>
 </dd>
 <dt id="msiempy.NitroSession.BASE_URL_PRIV"><code class="name">var <span class="ident">BASE_URL_PRIV</span></code></dt>
 <dd>
-<section class="desc"><p>Private API base URL.</p></section>
+<section class="desc"><p>Private API base URL: <code>h, t, t, p, s, :, /, /, {, }, /, e, s, s, /</code></p></section>
 </dd>
 <dt id="msiempy.NitroSession.PARAMS"><code class="name">var <span class="ident">PARAMS</span></code></dt>
 <dd>
-<section class="desc"><p>This structure provide a central place to aggregate API methods and parameters.
+<section class="desc"><pre><code>This structure provide a central place to aggregate API methods and parameters. 
 The parameters are stored as docstrings to support string replacement.
-</p>
-<p>Args:<br>
-method (str): Dict key associated with desired function
-Use normal dict access, PARAMS["method"], or PARAMS.get("method")</p>
-<p>Returns:<br>
-- <code>tuple</code>: (string, string) : The first string is the method name that is actually used as
-the URI or passed to the ESM. The second string is the params
-required for that method. Some params require variables be
-interpolated as documented in the Attributes.</p>
-<h2 id="example">Example</h2>
-<dl>
-<dt>method, params = PARAMS.get("login").format(username, password)</dt>
-<dt><strong><code>See</code></strong> :&ensp;<code>&lt;a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"&gt;</code>NitroSession.request()<code>&lt;/a&gt;</code></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Important note :
-Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
-<dl>
-<dt><strong><code>Content</code></strong> :&ensp;</dt>
-<dd>{<br>
-"login": [<br>
-"login",<br>
-"{"username": "%(username)s",\n
-"password" : "%(password)s",\n
-"locale": "en_US",\n
-"os": "Win32"}\n
-"<br>
-],<br>
-"get_devtree": [<br>
-"GRP_GETVIRTUALGROUPIPSLISTDATA",<br>
-"{"ITEMS": "#{DC1 + DC2}",\n
-"DID": "1",\n
-"HD": "F",\n
-"NS": "0"}\n
-"<br>
-],<br>
-"get_zones_devtree": [<br>
-"GRP_GETVIRTUALGROUPIPSLISTDATA",<br>
-"{"ITEMS": "#{DC1 + DC2}",\n
-"DID": "3",\n
-"HD": "F",\n
-"NS": "0"}\n
-"<br>
-],<br>
-"req_client_str": [<br>
-"DS_GETDSCLIENTLIST",<br>
-"{"DSID": "%(_ds_id)s",\n
-"SEARCH": ""}\n
-"<br>
-],<br>
-"get_rfile": [<br>
-"MISC_READFILE",<br>
-"{"FNAME": "%(_ftoken)s",\n
-"SPOS": "0",\n
-"NBYTES": "0"}\n
-"<br>
-],<br>
-"get_wfile": [<br>
-"MISC_WRITEFILE",<br>
-"{"DATA1": "%(_ds_id)s",\n
-"<br>
-[&hellip;] and more..<br>
-See around: <a href="https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266">https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266</a></dd>
-</dl></section>
+
+Args:  
+    method (str): Dict key associated with desired function
+    Use normal dict access, PARAMS["method"], or PARAMS.get("method")
+
+Returns:  
+    - `tuple `: (string, string) : The first string is the method name that is actually used as
+    the URI or passed to the ESM. The second string is the params
+    required for that method. Some params require variables be
+    interpolated as documented in the Attributes.
+
+Example:
+    `method, params = PARAMS.get("login").format(username, password)`. See : &lt;a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"&gt;`NitroSession.request()`&lt;/a&gt;
+
+Important note : 
+    Do not use sigle quotes (') to delimit data into the interpolated strings !
+
+Content :  
+    {  
+"login": [  
+    "login",  
+    "{\"username\": \"%(username)s\",\n                    \"password\" :  [...] and more..
+</code></pre>
+<p>See : <a href="https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266">https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266</a></p></section>
 </dd>
 <dt id="msiempy.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>
-<section class="desc"><p>NitroConfig object.</p></section>
+<section class="desc"><p><a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroConfig</code></a> object.</p></section>
 </dd>
 </dl>
 <h3>Static methods</h3>
@@ -4448,14 +4402,13 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
 <span>def <span class="ident">login</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Internal method that will be called when the user is not logged yet.
-Throws NitroError if login fails</p></section>
+<section class="desc"><p>Authentication is done lazily upon the first call to <code>&lt;a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"&gt;</code>NitroSession.request()<code>&lt;/a&gt; method, but you can still do it manually by calling this method.
+Throws &lt;a title="msiempy.NitroError" href="#msiempy.NitroError"&gt;</code>NitroError`</a> if login fails</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def login(self):
-    &#34;&#34;&#34;
-    Internal method that will be called when the user is not logged yet.
-    Throws NitroError if login fails
+    &#34;&#34;&#34;Authentication is done lazily upon the first call to ``msiempy.NitroSession.request` method, but you can still do it manually by calling this method.  
+    Throws `msiempy.NitroError` if login fails
     &#34;&#34;&#34;
     userb64 = tob64(self.config.user)
     passb64 = self.config.passwd
@@ -4507,7 +4460,7 @@ Parameters:
 <li><code>request</code>: Keyword corresponding to the request name in <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a> mapping.
 </li>
 <li><code>**kwargs</code> Can contain :<ul>
-<li><code>misiempy.NitroSession.esm_request</code> arguments except <code>method</code> and <code>data</code></li>
+<li><a title="msiempy.NitroSession.esm_request" href="#msiempy.NitroSession.esm_request"><code>NitroSession.esm_request()</code></a> arguments except <code>method</code> and <code>data</code></li>
 <li>Interpolation parameters that will be match to <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a> templates. Check the file to be sure of the keyword arguments.
 </li>
 </ul>
@@ -4529,7 +4482,7 @@ Parameters:
 
         - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
         - `**kwargs` Can contain :
-            - `misiempy.NitroSession.esm_request` arguments except `method` and `data`
+            - `msiempy.NitroSession.esm_request` arguments except `method` and `data`
             - Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Check the file to be sure of the keyword arguments.  
 
         Returns : 
@@ -4584,7 +4537,7 @@ Parameters:
 <h1>Index</h1>
 <div class="toc">
 <ul>
-<li><a href="#welcome-to-the-msiempy-module-documentation-the-pythonic-way-to-deal-with-mcfee-esm-api">Welcome to the msiempy module documentation. The pythonic way to deal with McFee esm API.</a></li>
+<li><a href="#welcome-to-the-msiempy-module-documentation-the-pythonic-way-to-deal-with-mcafee-siem-api">Welcome to the msiempy module documentation. The pythonic way to deal with McAfee SIEM API.</a></li>
 </ul>
 </div>
 <ul id="index">
@@ -4608,6 +4561,7 @@ Parameters:
 <li><code><a title="msiempy.FilteredQueryList.end_time" href="#msiempy.FilteredQueryList.end_time">end_time</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.filters" href="#msiempy.FilteredQueryList.filters">filters</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.load_data" href="#msiempy.FilteredQueryList.load_data">load_data</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.qry_load_data" href="#msiempy.FilteredQueryList.qry_load_data">qry_load_data</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.start_time" href="#msiempy.FilteredQueryList.start_time">start_time</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.time_range" href="#msiempy.FilteredQueryList.time_range">time_range</a></code></li>
 </ul>
@@ -4618,6 +4572,7 @@ Parameters:
 <li><code><a title="msiempy.NitroConfig.CONFIG_FILE_NAME" href="#msiempy.NitroConfig.CONFIG_FILE_NAME">CONFIG_FILE_NAME</a></code></li>
 <li><code><a title="msiempy.NitroConfig.CONF_DIR" href="#msiempy.NitroConfig.CONF_DIR">CONF_DIR</a></code></li>
 <li><code><a title="msiempy.NitroConfig.DEFAULT_CONF_DICT" href="#msiempy.NitroConfig.DEFAULT_CONF_DICT">DEFAULT_CONF_DICT</a></code></li>
+<li><code><a title="msiempy.NitroConfig.find_ini_location" href="#msiempy.NitroConfig.find_ini_location">find_ini_location</a></code></li>
 <li><code><a title="msiempy.NitroConfig.host" href="#msiempy.NitroConfig.host">host</a></code></li>
 <li><code><a title="msiempy.NitroConfig.iset" href="#msiempy.NitroConfig.iset">iset</a></code></li>
 <li><code><a title="msiempy.NitroConfig.logfile" href="#msiempy.NitroConfig.logfile">logfile</a></code></li>

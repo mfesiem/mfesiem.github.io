@@ -1014,7 +1014,7 @@ class NitroList(collections.UserList, NitroObject):
         return manager_keys
 
 
-    def get_text(self, compact=False, fields=None, max_column_width=120):
+    def get_text(self, compact=False, fields=None, max_column_width=120, get_text_nest_attr={}):
         &#34;&#34;&#34;
         Return a acsii table string representation of the manager list
 
@@ -1023,6 +1023,7 @@ class NitroList(collections.UserList, NitroObject):
         - `compact`: Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.  
         - `fields`: list of fields you want in the table is None : default fields are returned by .keys attribute and sorted.  
         - `max_column_width`: when using prettytable (not compact)  
+        - `get_text_nest_attr`: attributes passed to the nested NitroList elements. Useful to control events appearence.
 
         It&#39;s an expesive thing to do on big ammount of data !
         &#34;&#34;&#34;
@@ -1044,7 +1045,7 @@ class NitroList(collections.UserList, NitroObject):
                     try :
                         table.add_row([&#39;\n&#39;.join(textwrap.wrap(str(item[field]), width=max_column_width))
                             if not isinstance(item[field], NitroList)
-                            else item[field].get_text() for field in fields])
+                            else item[field].get_text(**get_text_nest_attr) for field in fields])
                     
                     except (KeyError, IndexError) as err :
                         log.error(&#34;Inconsistent NitroList state, some fields aren&#39;t present in the dict keys. Try calling _norm_dicts() method : &#34;+str(err))
@@ -2815,7 +2816,7 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
         return manager_keys
 
 
-    def get_text(self, compact=False, fields=None, max_column_width=120):
+    def get_text(self, compact=False, fields=None, max_column_width=120, get_text_nest_attr={}):
         &#34;&#34;&#34;
         Return a acsii table string representation of the manager list
 
@@ -2824,6 +2825,7 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
         - `compact`: Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.  
         - `fields`: list of fields you want in the table is None : default fields are returned by .keys attribute and sorted.  
         - `max_column_width`: when using prettytable (not compact)  
+        - `get_text_nest_attr`: attributes passed to the nested NitroList elements. Useful to control events appearence.
 
         It&#39;s an expesive thing to do on big ammount of data !
         &#34;&#34;&#34;
@@ -2845,7 +2847,7 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
                     try :
                         table.add_row([&#39;\n&#39;.join(textwrap.wrap(str(item[field]), width=max_column_width))
                             if not isinstance(item[field], NitroList)
-                            else item[field].get_text() for field in fields])
+                            else item[field].get_text(**get_text_nest_attr) for field in fields])
                     
                     except (KeyError, IndexError) as err :
                         log.error(&#34;Inconsistent NitroList state, some fields aren&#39;t present in the dict keys. Try calling _norm_dicts() method : &#34;+str(err))
@@ -3114,7 +3116,7 @@ def text(self):
 <h3>Methods</h3>
 <dl>
 <dt id="msiempy.NitroList.get_text"><code class="name flex">
-<span>def <span class="ident">get_text</span></span>(<span>self, compact=False, fields=None, max_column_width=120)</span>
+<span>def <span class="ident">get_text</span></span>(<span>self, compact=False, fields=None, max_column_width=120, get_text_nest_attr={})</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Return a acsii table string representation of the manager list</p>
@@ -3127,11 +3129,12 @@ def text(self):
 </li>
 <li><code>max_column_width</code>: when using prettytable (not compact)
 </li>
+<li><code>get_text_nest_attr</code>: attributes passed to the nested NitroList elements. Useful to control events appearence.</li>
 </ul>
 <p>It's an expesive thing to do on big ammount of data !</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def get_text(self, compact=False, fields=None, max_column_width=120):
+<pre><code class="python">def get_text(self, compact=False, fields=None, max_column_width=120, get_text_nest_attr={}):
     &#34;&#34;&#34;
     Return a acsii table string representation of the manager list
 
@@ -3140,6 +3143,7 @@ def text(self):
     - `compact`: Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.  
     - `fields`: list of fields you want in the table is None : default fields are returned by .keys attribute and sorted.  
     - `max_column_width`: when using prettytable (not compact)  
+    - `get_text_nest_attr`: attributes passed to the nested NitroList elements. Useful to control events appearence.
 
     It&#39;s an expesive thing to do on big ammount of data !
     &#34;&#34;&#34;
@@ -3161,7 +3165,7 @@ def text(self):
                 try :
                     table.add_row([&#39;\n&#39;.join(textwrap.wrap(str(item[field]), width=max_column_width))
                         if not isinstance(item[field], NitroList)
-                        else item[field].get_text() for field in fields])
+                        else item[field].get_text(**get_text_nest_attr) for field in fields])
                 
                 except (KeyError, IndexError) as err :
                     log.error(&#34;Inconsistent NitroList state, some fields aren&#39;t present in the dict keys. Try calling _norm_dicts() method : &#34;+str(err))

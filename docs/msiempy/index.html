@@ -69,6 +69,7 @@ from prettytable import MSWORD_FRIENDLY
 import datetime
 import functools
 import textwrap
+import inspect
 
 from .__utils__ import regex_match, tob64, format_esm_time, convert_to_time_obj, timerange_gettimes, parse_timedelta, divide_times
 
@@ -537,7 +538,9 @@ Important note :
 Content :  
     %(content)s
     &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1).replace(&#39;\n&#39;,&#34;&#34;&#34;  
-    &#34;&#34;&#34;))
+    &#34;&#34;&#34;)[:1300]+&#34;&#34;&#34; [...] and more..  
+    See around: https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266
+    &#34;&#34;&#34;)
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -575,19 +578,19 @@ Content :
                 logfile=self.config.logfile)
 
 
-    def esm_request(self, method, http, data=None, callback=None, raw=False, secure=False):
+    def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False):
         &#34;&#34;&#34;
         Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
         If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
         In any way, the ESM response is unpacked by `msiempy.NitroSession.unpack_resp`
 
         Parameters :
-            - `method`
-            - `http`
-            - `data`
-            - `callback`
-            - `raw`
-            - `secure`
+            - `method` : ESM API enpoint name and url parameters
+            - `http`: HTTP method.  
+            - `data` : dict data to send
+            - `callback` : function to apply afterwards
+            - `raw` : If true will return the Response object from requests module. 
+            - `secure` : If true will not log the content of the request.  
 
         Returns : 
             - a `dict` or `list` object 
@@ -603,6 +606,10 @@ Content :
         privateApiCall=False
         result=None
 
+        #Logging the data request if not secure | Logs anyway the method
+        log.debug(&#39;Requesting HTTP &#39;+str(http)+&#39; &#39;+ str(method) + 
+            (&#39; with data &#39;+str(data) if (data is not None and not secure) else &#39;&#39;) )
+        log.debug(locals())
         #Handling private API calls formatting
         if method == method.upper():
             privateApiCall=True
@@ -615,10 +622,6 @@ Content :
             url = self.BASE_URL
             if data:
                 data = json.dumps(data)
-
-        #Logging the data request if not secure | Logs anyway the method
-        log.debug(&#39;Requesting HTTP &#39;+http+&#39; &#39;+ method + 
-            (&#39; with data &#39;+str(data) if (data is not None and not secure) else &#39;&#39;) )
 
         try :
             result = requests.request(
@@ -671,7 +674,7 @@ Content :
             log.error(e)
             return None
         
-    def _login(self):
+    def login(self):
         &#34;&#34;&#34;
         Internal method that will be called when the user is not logged yet.
         Throws NitroError if login fails
@@ -694,43 +697,52 @@ Content :
         else:
             raise NitroError(&#39;ESM Login Error: Response empty&#39;)
 
-    def request(self, request, http=&#39;post&#39;, callback=None, raw=False, secure=False, **params):
+    def request(self, request, **kwargs):
         &#34;&#34;&#34;
             This method is the centralized interface of all requests going to the SIEM.  
-
+            It interpolates `**params` with `msiempy.NitroSession.PARAMS` docstrings and build a valid datastructure with `ast`.  
+            Wrapper around the `msiempy.NitroSession.esm_request` method.
             Parameters:  
 
             - `request`: Keyword corresponding to the request name in `msiempy.params` mapping.  
-            - `http`: HTTP method.  
-            - `callback`: A callable to execute on the returned object if needed.  
-            - `raw`: If true will return the Response object from requests module.  
-            - `secure`: If true will not log the content of the request.  
-            - `**params`: Interpolation parameters that will be match to `msiempy.params` templates. Check the file to be sure of the keyword arguments.  
+            - `**kwargs` Can contain :
+                - `misiempy.NitroSession.esm_request` arguments except `method` and `data`
+                - Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Check the file to be sure of the keyword arguments.  
 
-            Returns None if HTTP error, Timeout or TooManyRedirects if raw=False.
+            Returns : 
+            - a `dict` or `list` object  
+            - the `resquest.Response` object if raw=True  
+            - `result.text` if `requests.HTTPError`,   
+            - `None` if Timeout or TooManyRedirects if raw=False  
         &#34;&#34;&#34;
-        log.debug(&#34;Calling nitro request : {} params={} http={} raw={} secure={} callback={}&#34;.format(
-            str(request), str(params) if not secure else &#39;***&#39;, str(http), str(raw), str(secure), str(callback)
-        ))
+        log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
+            str(request), str(kwargs) if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
 
         method, data = self.PARAMS.get(request)
 
         if data is not None :
-            data =  data % params
+            data =  data % kwargs
             data = ast.literal_eval((data.replace(&#39;\n&#39;,&#39;&#39;).replace(&#39;\t&#39;,&#39;&#39;)))
            
         if method is not None:
             try :
-                method = method % params
+                method = method % kwargs
             except TypeError as err :
                 if (&#39;must be real number, not dict&#39; in str(err)):
                     log.warning(&#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;)
 
         if not self._logged and method != &#39;login&#39;:
-            self._logged=self._login()
+            self._logged=self.login()
 
         try :
-            return self.esm_request(method, http, data, callback, raw, secure)
+            #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
+            esm_request_args = inspect.getargspec(self.esm_request)[0]
+            params={}
+            for arg in kwargs :
+                if arg in esm_request_args:
+                    params[arg]=kwargs[arg]
+            
+            return self.esm_request(method=method, data=data, **params)
 
         except ConnectionError as e:
             log.critical(e)
@@ -757,11 +769,9 @@ Content :
 
         log.setLevel(logging.DEBUG)
 
-        formatter = logging.Formatter(&#39;%(asctime)s - %(levelname)s - %(message)s&#39;)
-
         std = logging.StreamHandler()
         std.setLevel(logging.DEBUG)
-        std.setFormatter(formatter)
+        std.setFormatter(logging.Formatter(&#39;%(levelname)s - %(message)s&#39;))
 
         if verbose :
             std.setLevel(logging.DEBUG)
@@ -770,9 +780,6 @@ Content :
         else :
             std.setLevel(logging.INFO)
 
-        
-            
-            
         log.handlers=[]
         
         log.addHandler(std)
@@ -3822,7 +3829,9 @@ Important note :
 Content :  
     %(content)s
     &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=1).replace(&#39;\n&#39;,&#34;&#34;&#34;  
-    &#34;&#34;&#34;))
+    &#34;&#34;&#34;)[:1300]+&#34;&#34;&#34; [...] and more..  
+    See around: https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266
+    &#34;&#34;&#34;)
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -3860,19 +3869,19 @@ Content :
                 logfile=self.config.logfile)
 
 
-    def esm_request(self, method, http, data=None, callback=None, raw=False, secure=False):
+    def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False):
         &#34;&#34;&#34;
         Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
         If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
         In any way, the ESM response is unpacked by `msiempy.NitroSession.unpack_resp`
 
         Parameters :
-            - `method`
-            - `http`
-            - `data`
-            - `callback`
-            - `raw`
-            - `secure`
+            - `method` : ESM API enpoint name and url parameters
+            - `http`: HTTP method.  
+            - `data` : dict data to send
+            - `callback` : function to apply afterwards
+            - `raw` : If true will return the Response object from requests module. 
+            - `secure` : If true will not log the content of the request.  
 
         Returns : 
             - a `dict` or `list` object 
@@ -3888,6 +3897,10 @@ Content :
         privateApiCall=False
         result=None
 
+        #Logging the data request if not secure | Logs anyway the method
+        log.debug(&#39;Requesting HTTP &#39;+str(http)+&#39; &#39;+ str(method) + 
+            (&#39; with data &#39;+str(data) if (data is not None and not secure) else &#39;&#39;) )
+        log.debug(locals())
         #Handling private API calls formatting
         if method == method.upper():
             privateApiCall=True
@@ -3900,10 +3913,6 @@ Content :
             url = self.BASE_URL
             if data:
                 data = json.dumps(data)
-
-        #Logging the data request if not secure | Logs anyway the method
-        log.debug(&#39;Requesting HTTP &#39;+http+&#39; &#39;+ method + 
-            (&#39; with data &#39;+str(data) if (data is not None and not secure) else &#39;&#39;) )
 
         try :
             result = requests.request(
@@ -3956,7 +3965,7 @@ Content :
             log.error(e)
             return None
         
-    def _login(self):
+    def login(self):
         &#34;&#34;&#34;
         Internal method that will be called when the user is not logged yet.
         Throws NitroError if login fails
@@ -3979,43 +3988,52 @@ Content :
         else:
             raise NitroError(&#39;ESM Login Error: Response empty&#39;)
 
-    def request(self, request, http=&#39;post&#39;, callback=None, raw=False, secure=False, **params):
+    def request(self, request, **kwargs):
         &#34;&#34;&#34;
             This method is the centralized interface of all requests going to the SIEM.  
-
+            It interpolates `**params` with `msiempy.NitroSession.PARAMS` docstrings and build a valid datastructure with `ast`.  
+            Wrapper around the `msiempy.NitroSession.esm_request` method.
             Parameters:  
 
             - `request`: Keyword corresponding to the request name in `msiempy.params` mapping.  
-            - `http`: HTTP method.  
-            - `callback`: A callable to execute on the returned object if needed.  
-            - `raw`: If true will return the Response object from requests module.  
-            - `secure`: If true will not log the content of the request.  
-            - `**params`: Interpolation parameters that will be match to `msiempy.params` templates. Check the file to be sure of the keyword arguments.  
+            - `**kwargs` Can contain :
+                - `misiempy.NitroSession.esm_request` arguments except `method` and `data`
+                - Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Check the file to be sure of the keyword arguments.  
 
-            Returns None if HTTP error, Timeout or TooManyRedirects if raw=False.
+            Returns : 
+            - a `dict` or `list` object  
+            - the `resquest.Response` object if raw=True  
+            - `result.text` if `requests.HTTPError`,   
+            - `None` if Timeout or TooManyRedirects if raw=False  
         &#34;&#34;&#34;
-        log.debug(&#34;Calling nitro request : {} params={} http={} raw={} secure={} callback={}&#34;.format(
-            str(request), str(params) if not secure else &#39;***&#39;, str(http), str(raw), str(secure), str(callback)
-        ))
+        log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
+            str(request), str(kwargs) if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
 
         method, data = self.PARAMS.get(request)
 
         if data is not None :
-            data =  data % params
+            data =  data % kwargs
             data = ast.literal_eval((data.replace(&#39;\n&#39;,&#39;&#39;).replace(&#39;\t&#39;,&#39;&#39;)))
            
         if method is not None:
             try :
-                method = method % params
+                method = method % kwargs
             except TypeError as err :
                 if (&#39;must be real number, not dict&#39; in str(err)):
                     log.warning(&#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;)
 
         if not self._logged and method != &#39;login&#39;:
-            self._logged=self._login()
+            self._logged=self.login()
 
         try :
-            return self.esm_request(method, http, data, callback, raw, secure)
+            #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
+            esm_request_args = inspect.getargspec(self.esm_request)[0]
+            params={}
+            for arg in kwargs :
+                if arg in esm_request_args:
+                    params[arg]=kwargs[arg]
+            
+            return self.esm_request(method=method, data=data, **params)
 
         except ConnectionError as e:
             log.critical(e)
@@ -4042,11 +4060,9 @@ Content :
 
         log.setLevel(logging.DEBUG)
 
-        formatter = logging.Formatter(&#39;%(asctime)s - %(levelname)s - %(message)s&#39;)
-
         std = logging.StreamHandler()
         std.setLevel(logging.DEBUG)
-        std.setFormatter(formatter)
+        std.setFormatter(logging.Formatter(&#39;%(levelname)s - %(message)s&#39;))
 
         if verbose :
             std.setLevel(logging.DEBUG)
@@ -4055,9 +4071,6 @@ Content :
         else :
             std.setLevel(logging.INFO)
 
-        
-            
-            
         log.handlers=[]
         
         log.addHandler(std)
@@ -4208,248 +4221,8 @@ Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 "MISC_WRITEFILE",<br>
 "{"DATA1": "%(_ds_id)s",\n
 "<br>
-],<br>
-"map_dtree": [<br>
-"map_dtree",<br>
-"{"dev_type": "%(dev_type)s",\n
-"name": "%(ds_name)s",\n
-"ds_id": "%(ds_id)s",\n
-"enabled": "%(enabled)s",\n
-"ds_ip": "%(ds_ip)s",\n
-"hostname" : "%(hostname)s",\n
-"typeID": "%(type_id)s",\n
-"vendor": "",\n
-"model": "",\n
-"tz_id": "",\n
-"date_order": "",\n
-"port": "",\n
-"syslog_tls": "",\n
-"client_groups": "%(client_groups)s"\n
-}\n
-"<br>
-],<br>
-"add_ds": [<br>
-"dsAddDataSource",<br>
-"{"datasource": {\n
-"parentId": {"id": "%(parent_id)s"},\n
-"name": "%(name)s",\n
-"id": {"id": "%(ds_id)s"},\n
-"typeId": {"id": "%(type_id)s"},\n
-"childEnabled": "%(child_enabled)s",\n
-"childCount": "%(child_count)s",\n
-"childType": "%(child_type)s",\n
-"ipAddress": "%(ds_ip)s",\n
-"zoneId": "%(zone_id)s",\n
-"url": "%(url)s",\n
-"enabled": "%(enabled)s",\n
-"idmId": "%(idm_id)s",\n
-"parameters": %(parameters)s\n
-}}"<br>
-],<br>
-"add_client": [<br>
-"DS_ADDDSCLIENT",<br>
-"{"PID": "%(parent_id)s",\n
-"NAME": "%(name)s",\n
-"ENABLED": "%(enabled)s",\n
-"IP": "%(ds_ip)s",\n
-"HOST": "%(hostname)s",\n
-"TYPE": "%(type_id)s",\n
-"TZID": "%(tz_id)s",\n
-"DORDER": "%(dorder)s",\n
-"MASKFLAG": "%(maskflag)s",\n
-"PORT": "%(port)s",\n
-"USETLS": "%(syslog_tls)s"\n
-}"<br>
-],<br>
-"get_recs": [<br>
-"devGetDeviceList?filterByRights=false",<br>
-"{"types": ["RECEIVER"]}\n
-"<br>
-],<br>
-"get_dstypes": [<br>
-"dsGetDataSourceTypes",<br>
-"{"receiverId": {"id": "%(rec_id)s"}\n
-}\n
-"<br>
-],<br>
-"del_ds": [<br>
-"dsDeleteDataSource",<br>
-"{"receiverId": {"id": "%(parent_id)s"},\n
-"datasourceId": {"id": "%(ds_id)s"}}\n
-"<br>
-],<br>
-"del_client": [<br>
-"DS_DELETEDSCLIENTS",<br>
-null<br>
-],<br>
-"ds_last_times": [<br>
-"QRY%5FGETDEVICELASTALERTTIME",<br>
-"{}"<br>
-],<br>
-"zonetree": [<br>
-"zoneGetZoneTree",<br>
-null<br>
-],<br>
-"ds_by_type": [<br>
-"QRY_GETDEVICECOUNTBYTYPE",<br>
-null<br>
-],<br>
-"_dev_types": [<br>
-"dev_type_map",<br>
-"{"1": "zone",\n
-"2": "ERC",\n
-"3": "datasource",\n
-"4": "Database Event Monitor (DBM)",\n
-"5": "DBM Database",\n
-"7": "Policy Auditor",\n
-"10": "Application Data Monitor (ADM)",\n
-"12": "ELM",\n
-"14": "Local ESM",\n
-"15": "Advanced Correlation Engine (ACE)",\n
-"16": "Asset datasource",\n
-"17": "Score-based Correlation",\n
-"19": "McAfee ePolicy Orchestrator (ePO)",\n
-"20": "EPO",\n
-"21": "McAfee Network Security Manager (NSM)",\n
-"22": "McAfee Network Security Platform (NSP)",\n
-"23": "NSP Port",\n
-"24": "McAfee Vulnerability Manager (MVM)",\n
-"25": "Enterprise Log Search (ELS)",\n
-"254": "client_group",\n
-"256": "client"}\n
-"<br>
-],<br>
-"ds_details": [<br>
-"dsGetDataSourceDetail",<br>
-"{"datasourceId": \n
-{"id": "%(ds_id)s"}}\n
-"<br>
-],<br>
-"get_alarms_custom_time": [<br>
-"alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;customStart=%(start_time)s&amp;customEnd=%(end_time)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s",<br>
-null<br>
-],<br>
-"get_alarms": [<br>
-"alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s",<br>
-null<br>
-],<br>
-"get_alarm_details": [<br>
-"notifyGetTriggeredNotification",<br>
-"{"id":%(id)s}"<br>
-],<br>
-"get_alarm_details_int": [<br>
-"NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL",<br>
-"{"TID": "%(id)s"}"<br>
-],<br>
-"ack_alarms": [<br>
-"alarmAcknowledgeTriggeredAlarm",<br>
-"{"triggeredIds":{"alarmIdList"::%(ids)s}}"<br>
-],<br>
-"unack_alarms": [<br>
-"alarmUnacknowledgeTriggeredAlarm",<br>
-"{"triggeredIds":{"alarmIdList":%(ids)s}}"<br>
-],<br>
-"delete_alarms": [<br>
-"alarmDeleteTriggeredAlarm",<br>
-"{"triggeredIds":{"alarmIdList":%(ids)s}}"<br>
-],<br>
-"get_possible_filters": [<br>
-"qryGetFilterFields",<br>
-null<br>
-],<br>
-"get_possible_fields": [<br>
-"qryGetSelectFields?type=%(type)s&amp;groupType=%(groupType)s",<br>
-null<br>
-],<br>
-"get_esm_time": [<br>
-"essmgtGetESSTime",<br>
-null<br>
-],<br>
-"logout": [<br>
-"logout",<br>
-null<br>
-],<br>
-"get_user_locale": [<br>
-"getUserLocale",<br>
-null<br>
-],<br>
-"event_query_custom_time": [<br>
-"qryExecuteDetail?type=EVENT&amp;reverse=false",<br>
-"{\n
-"config": {\n
-"timeRange": "%(time_range)s",\n
-"customStart": "%(start_time)s",\n
-"customEnd": "%(end_time)s",\n
-"fields":%(fields)s,\n
-"filters":%(filters)s,\n
-"limit":%(limit)s,\n
-"offset":%(offset)s\n
-}\n
-}"<br>
-],<br>
-"event_query": [<br>
-"qryExecuteDetail?type=EVENT&amp;reverse=false",<br>
-"{\n
-"config": {\n
-"timeRange":"%(time_range)s",\n
-"fields":%(fields)s,\n
-"filters":%(filters)s,\n
-"limit":%(limit)s,\n
-"offset":%(offset)s\n
-}\n
-}"<br>
-],<br>
-"query_status": [<br>
-"qryGetStatus",<br>
-"{"resultID": %(resultID)s}"<br>
-],<br>
-"query_result": [<br>
-"qryGetResults?startPos=%(startPos)s&amp;numRows=%(numRows)s&amp;reverse=false",<br>
-"{"resultID": %(resultID)s}"<br>
-],<br>
-"time_zones": [<br>
-"userGetTimeZones",<br>
-null<br>
-],<br>
-"add_note_to_event": [<br>
-"ipsAddAlertNote",<br>
-"{\n
-"id": {"value": "%(id)s"},\n
-"note": {"note": "%(note)s"}\n
-}"<br>
-],<br>
-"get_watchlists_no_filters": [<br>
-"sysGetWatchlists?hidden=%(hidden)s&amp;dynamic=%(dynamic)s&amp;writeOnly=%(writeOnly)s&amp;indexedOnly=%(indexedOnly)s",<br>
-null<br>
-],<br>
-"get_watchlist_details": [<br>
-"sysGetWatchlistDetails",<br>
-"{"id": %(id)s}"<br>
-],<br>
-"add_watchlist_values": [<br>
-"sysAddWatchlistValues",<br>
-"{\n
-"watchlist": %(watchlist)s,\n
-"values": %(values)s,\n
-}"<br>
-],<br>
-"get_watchlist_values": [<br>
-"sysGetWatchlistValues?pos=%(pos)s&amp;count=%(count)s",<br>
-"{"file": {"id": "%(id)s"}}"<br>
-],<br>
-"get_alert_data": [<br>
-"ipsGetAlertData",<br>
-"{"id": {"value":"%(id)s"}}"<br>
-],<br>
-"get_sys_info": [<br>
-"SYS_GETSYSINFO",<br>
-"{}"<br>
-],<br>
-"build_stamp": [<br>
-"essmgtGetBuildStamp",<br>
-null<br>
-]<br>
-}</dd>
+[&hellip;] and more..<br>
+See around: <a href="https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266">https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266</a></dd>
 </dl></section>
 </dd>
 <dt id="msiempy.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>
@@ -4551,7 +4324,7 @@ def unpack_resp(response) :
 <h3>Methods</h3>
 <dl>
 <dt id="msiempy.NitroSession.esm_request"><code class="name flex">
-<span>def <span class="ident">esm_request</span></span>(<span>self, method, http, data=None, callback=None, raw=False, secure=False)</span>
+<span>def <span class="ident">esm_request</span></span>(<span>self, method, data, http='post', callback=None, raw=False, secure=False)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.
@@ -4559,12 +4332,13 @@ def unpack_resp(response) :
 If method is all upper cases, it's going to be formatted as a private API call. See <a title="msiempy.NitroSession.format_params" href="#msiempy.NitroSession.format_params"><code>NitroSession.format_params()</code></a> and <a title="msiempy.NitroSession.format_priv_resp" href="#msiempy.NitroSession.format_priv_resp"><code>NitroSession.format_priv_resp()</code></a>
 In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpack_resp" href="#msiempy.NitroSession.unpack_resp"><code>NitroSession.unpack_resp()</code></a></p>
 <p>Parameters :
-- <code>method</code>
-- <code>http</code>
-- <code>data</code>
-- <code>callback</code>
-- <code>raw</code>
-- <code>secure</code></p>
+- <code>method</code> : ESM API enpoint name and url parameters
+- <code>http</code>: HTTP method.<br>
+- <code>data</code> : dict data to send
+- <code>callback</code> : function to apply afterwards
+- <code>raw</code> : If true will return the Response object from requests module.
+- <code>secure</code> : If true will not log the content of the request.
+</p>
 <p>Returns :
 - a <code>dict</code> or <code>list</code> object
 - the <code>resquest.Response</code> object if raw=True
@@ -4573,19 +4347,19 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
 <p>Note : Private API is under /ess/ and public api is under /rs/esm</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def esm_request(self, method, http, data=None, callback=None, raw=False, secure=False):
+<pre><code class="python">def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False):
     &#34;&#34;&#34;
     Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
     If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
     In any way, the ESM response is unpacked by `msiempy.NitroSession.unpack_resp`
 
     Parameters :
-        - `method`
-        - `http`
-        - `data`
-        - `callback`
-        - `raw`
-        - `secure`
+        - `method` : ESM API enpoint name and url parameters
+        - `http`: HTTP method.  
+        - `data` : dict data to send
+        - `callback` : function to apply afterwards
+        - `raw` : If true will return the Response object from requests module. 
+        - `secure` : If true will not log the content of the request.  
 
     Returns : 
         - a `dict` or `list` object 
@@ -4601,6 +4375,10 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
     privateApiCall=False
     result=None
 
+    #Logging the data request if not secure | Logs anyway the method
+    log.debug(&#39;Requesting HTTP &#39;+str(http)+&#39; &#39;+ str(method) + 
+        (&#39; with data &#39;+str(data) if (data is not None and not secure) else &#39;&#39;) )
+    log.debug(locals())
     #Handling private API calls formatting
     if method == method.upper():
         privateApiCall=True
@@ -4613,10 +4391,6 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
         url = self.BASE_URL
         if data:
             data = json.dumps(data)
-
-    #Logging the data request if not secure | Logs anyway the method
-    log.debug(&#39;Requesting HTTP &#39;+http+&#39; &#39;+ method + 
-        (&#39; with data &#39;+str(data) if (data is not None and not secure) else &#39;&#39;) )
 
     try :
         result = requests.request(
@@ -4670,6 +4444,38 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
         return None</code></pre>
 </details>
 </dd>
+<dt id="msiempy.NitroSession.login"><code class="name flex">
+<span>def <span class="ident">login</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Internal method that will be called when the user is not logged yet.
+Throws NitroError if login fails</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def login(self):
+    &#34;&#34;&#34;
+    Internal method that will be called when the user is not logged yet.
+    Throws NitroError if login fails
+    &#34;&#34;&#34;
+    userb64 = tob64(self.config.user)
+    passb64 = self.config.passwd
+    
+    resp = self.request(&#39;login&#39;, username=userb64, password=passb64, raw=True, secure=True)
+    
+    if resp is not None :
+        if resp.status_code in [400, 401]:
+            raise NitroError(&#39;Invalid username or password for the ESM&#39;)
+        elif 402 &lt;= resp.status_code &lt;= 600:
+            raise NitroError(&#39;ESM Login Error:&#39;, resp.text)
+   
+        self._headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
+        self._headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
+
+        return True
+    else:
+        raise NitroError(&#39;ESM Login Error: Response empty&#39;)</code></pre>
+</details>
+</dd>
 <dt id="msiempy.NitroSession.logout"><code class="name flex">
 <span>def <span class="ident">logout</span></span>(<span>self)</span>
 </code></dt>
@@ -4689,67 +4495,77 @@ a new session will be instanciated next time.</p></section>
 </details>
 </dd>
 <dt id="msiempy.NitroSession.request"><code class="name flex">
-<span>def <span class="ident">request</span></span>(<span>self, request, http='post', callback=None, raw=False, secure=False, **params)</span>
+<span>def <span class="ident">request</span></span>(<span>self, request, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>This method is the centralized interface of all requests going to the SIEM.
-</p>
-<p>Parameters:
+<section class="desc"><p>This method is the centralized interface of all requests going to the SIEM.<br>
+It interpolates <code>**params</code> with <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a> docstrings and build a valid datastructure with <code>ast</code>.<br>
+Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.NitroSession.esm_request"><code>NitroSession.esm_request()</code></a> method.
+Parameters:
 </p>
 <ul>
 <li><code>request</code>: Keyword corresponding to the request name in <code>msiempy.params</code> mapping.
 </li>
-<li><code>http</code>: HTTP method.
-</li>
-<li><code>callback</code>: A callable to execute on the returned object if needed.
-</li>
-<li><code>raw</code>: If true will return the Response object from requests module.
-</li>
-<li><code>secure</code>: If true will not log the content of the request.
-</li>
-<li><code>**params</code>: Interpolation parameters that will be match to <code>msiempy.params</code> templates. Check the file to be sure of the keyword arguments.
+<li><code>**kwargs</code> Can contain :<ul>
+<li><code>misiempy.NitroSession.esm_request</code> arguments except <code>method</code> and <code>data</code></li>
+<li>Interpolation parameters that will be match to <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a> templates. Check the file to be sure of the keyword arguments.
 </li>
 </ul>
-<p>Returns None if HTTP error, Timeout or TooManyRedirects if raw=False.</p></section>
+</li>
+</ul>
+<p>Returns :
+- a <code>dict</code> or <code>list</code> object<br>
+- the <code>resquest.Response</code> object if raw=True<br>
+- <code>result.text</code> if <code>requests.HTTPError</code>, <br>
+- <code>None</code> if Timeout or TooManyRedirects if raw=False</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def request(self, request, http=&#39;post&#39;, callback=None, raw=False, secure=False, **params):
+<pre><code class="python">def request(self, request, **kwargs):
     &#34;&#34;&#34;
         This method is the centralized interface of all requests going to the SIEM.  
-
+        It interpolates `**params` with `msiempy.NitroSession.PARAMS` docstrings and build a valid datastructure with `ast`.  
+        Wrapper around the `msiempy.NitroSession.esm_request` method.
         Parameters:  
 
         - `request`: Keyword corresponding to the request name in `msiempy.params` mapping.  
-        - `http`: HTTP method.  
-        - `callback`: A callable to execute on the returned object if needed.  
-        - `raw`: If true will return the Response object from requests module.  
-        - `secure`: If true will not log the content of the request.  
-        - `**params`: Interpolation parameters that will be match to `msiempy.params` templates. Check the file to be sure of the keyword arguments.  
+        - `**kwargs` Can contain :
+            - `misiempy.NitroSession.esm_request` arguments except `method` and `data`
+            - Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Check the file to be sure of the keyword arguments.  
 
-        Returns None if HTTP error, Timeout or TooManyRedirects if raw=False.
+        Returns : 
+        - a `dict` or `list` object  
+        - the `resquest.Response` object if raw=True  
+        - `result.text` if `requests.HTTPError`,   
+        - `None` if Timeout or TooManyRedirects if raw=False  
     &#34;&#34;&#34;
-    log.debug(&#34;Calling nitro request : {} params={} http={} raw={} secure={} callback={}&#34;.format(
-        str(request), str(params) if not secure else &#39;***&#39;, str(http), str(raw), str(secure), str(callback)
-    ))
+    log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
+        str(request), str(kwargs) if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
 
     method, data = self.PARAMS.get(request)
 
     if data is not None :
-        data =  data % params
+        data =  data % kwargs
         data = ast.literal_eval((data.replace(&#39;\n&#39;,&#39;&#39;).replace(&#39;\t&#39;,&#39;&#39;)))
        
     if method is not None:
         try :
-            method = method % params
+            method = method % kwargs
         except TypeError as err :
             if (&#39;must be real number, not dict&#39; in str(err)):
                 log.warning(&#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;)
 
     if not self._logged and method != &#39;login&#39;:
-        self._logged=self._login()
+        self._logged=self.login()
 
     try :
-        return self.esm_request(method, http, data, callback, raw, secure)
+        #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
+        esm_request_args = inspect.getargspec(self.esm_request)[0]
+        params={}
+        for arg in kwargs :
+            if arg in esm_request_args:
+                params[arg]=kwargs[arg]
+        
+        return self.esm_request(method=method, data=data, **params)
 
     except ConnectionError as e:
         log.critical(e)
@@ -4858,6 +4674,7 @@ a new session will be instanciated next time.</p></section>
 <li><code><a title="msiempy.NitroSession.esm_request" href="#msiempy.NitroSession.esm_request">esm_request</a></code></li>
 <li><code><a title="msiempy.NitroSession.format_params" href="#msiempy.NitroSession.format_params">format_params</a></code></li>
 <li><code><a title="msiempy.NitroSession.format_priv_resp" href="#msiempy.NitroSession.format_priv_resp">format_priv_resp</a></code></li>
+<li><code><a title="msiempy.NitroSession.login" href="#msiempy.NitroSession.login">login</a></code></li>
 <li><code><a title="msiempy.NitroSession.logout" href="#msiempy.NitroSession.logout">logout</a></code></li>
 <li><code><a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request">request</a></code></li>
 <li><code><a title="msiempy.NitroSession.unpack_resp" href="#msiempy.NitroSession.unpack_resp">unpack_resp</a></code></li>

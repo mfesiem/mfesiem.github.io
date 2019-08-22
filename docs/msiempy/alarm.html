@@ -179,12 +179,15 @@ class AlarmManager(FilteredQueryList):
             -&gt; Load the events details  
             -&gt; Filter depending on event related filters  
 
-        Parameters:  
+        Parameters :  
+
         - `workers` : Number of asynchronous workers  
         - `no_detailed_filter` : Don&#39;t load detailed alarms and events infos, you can only filter based on `msiempy.alarm.Alarm.ALARM_FILTER_FIELDS` values  
         - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.1 or greater  
         - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
         - `**kwargs` : Not used
+
+        Returns : `tuple` : ( `msiempy.alarm.AlarmManager`, Status of the query : `completed` )
 
         &#34;&#34;&#34;
 
@@ -310,7 +313,7 @@ class Alarm(NitroDict):
     __pdoc__[&#39;Alarm.ALARM_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible alarm related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_FILTER_FIELDS]))
 
     ALARM_EVENT_FILTER_FIELDS=[
-    (&#34;ruleName&#34;),
+    (&#34;ruleName&#34;,),
     (&#34;srcIp&#34;,),
     (&#34;destIp&#34;,),
     (&#34;protocol&#34;,),
@@ -530,7 +533,7 @@ class Alarm(NitroDict):
     __pdoc__[&#39;Alarm.ALARM_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible alarm related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_FILTER_FIELDS]))
 
     ALARM_EVENT_FILTER_FIELDS=[
-    (&#34;ruleName&#34;),
+    (&#34;ruleName&#34;,),
     (&#34;srcIp&#34;,),
     (&#34;destIp&#34;,),
     (&#34;protocol&#34;,),
@@ -699,7 +702,7 @@ class Alarm(NitroDict):
 </dd>
 <dt id="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_EVENT_FILTER_FIELDS</span></code></dt>
 <dd>
-<section class="desc"><p>Possible event related fields usable in a filter : <code>r/u/l/e/N/a/m/e, srcIp, destIp, protocol, lastTime, subtype, destPort, destMac, srcMac, srcPort, deviceName, sigId, normId, srcUser, destUser, normMessage, normDesc, host, domain, ipsId</code></p></section>
+<section class="desc"><p>Possible event related fields usable in a filter : <code>ruleName, srcIp, destIp, protocol, lastTime, subtype, destPort, destMac, srcMac, srcPort, deviceName, sigId, normId, srcUser, destUser, normMessage, normDesc, host, domain, ipsId</code></p></section>
 </dd>
 <dt id="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_FILTER_FIELDS</span></code></dt>
 <dd>
@@ -1049,12 +1052,15 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
             -&gt; Load the events details  
             -&gt; Filter depending on event related filters  
 
-        Parameters:  
+        Parameters :  
+
         - `workers` : Number of asynchronous workers  
         - `no_detailed_filter` : Don&#39;t load detailed alarms and events infos, you can only filter based on `msiempy.alarm.Alarm.ALARM_FILTER_FIELDS` values  
         - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.1 or greater  
         - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
         - `**kwargs` : Not used
+
+        Returns : `tuple` : ( `msiempy.alarm.AlarmManager`, Status of the query : `completed` )
 
         &#34;&#34;&#34;
 
@@ -1287,13 +1293,21 @@ TODO : Use better polymorphism and do not cast here.</p>
 -&gt; Load the events details<br>
 -&gt; Filter depending on event related filters
 </p>
-<p>Parameters:<br>
-- <code>workers</code> : Number of asynchronous workers<br>
-- <code>no_detailed_filter</code> : Don't load detailed alarms and events infos, you can only filter based on <a title="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_FILTER_FIELDS"><code>Alarm.ALARM_FILTER_FIELDS</code></a> values<br>
-- <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.1 or greater<br>
-- <code>extra_fields</code> :
-Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a><br>
-- <code>**kwargs</code> : Not used</p></section>
+<p>Parameters :
+</p>
+<ul>
+<li><code>workers</code> : Number of asynchronous workers
+</li>
+<li><code>no_detailed_filter</code> : Don't load detailed alarms and events infos, you can only filter based on <a title="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_FILTER_FIELDS"><code>Alarm.ALARM_FILTER_FIELDS</code></a> values
+</li>
+<li><code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.1 or greater
+</li>
+<li><code>extra_fields</code> :
+Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a>
+</li>
+<li><code>**kwargs</code> : Not used</li>
+</ul>
+<p>Returns : <code>tuple</code> : ( <a title="msiempy.alarm.AlarmManager" href="#msiempy.alarm.AlarmManager"><code>AlarmManager</code></a>, Status of the query : <code>completed</code> )</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def qry_load_data(self, workers, no_detailed_filter=False, use_query=False, extra_fields=[], **kwargs):
@@ -1304,12 +1318,15 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
         -&gt; Load the events details  
         -&gt; Filter depending on event related filters  
 
-    Parameters:  
+    Parameters :  
+
     - `workers` : Number of asynchronous workers  
     - `no_detailed_filter` : Don&#39;t load detailed alarms and events infos, you can only filter based on `msiempy.alarm.Alarm.ALARM_FILTER_FIELDS` values  
     - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.1 or greater  
     - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
     - `**kwargs` : Not used
+
+    Returns : `tuple` : ( `msiempy.alarm.AlarmManager`, Status of the query : `completed` )
 
     &#34;&#34;&#34;
 

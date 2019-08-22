@@ -268,7 +268,7 @@ class NitroConfig(configparser.ConfigParser):
 
 class NitroSession():
     &#39;&#39;&#39;NitroSession object represent the point of convergence of every request to the McFee ESM
-    It provides standard dialogue with the esm with agument interpolation with `msiempy.params`.
+    It provides standard dialogue with the esm with agument interpolation with `msiempy.NitroSession.PARAMS`.
     Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once. 
     &#39;&#39;&#39;
 
@@ -704,7 +704,7 @@ Content :
             Wrapper around the `msiempy.NitroSession.esm_request` method.
             Parameters:  
 
-            - `request`: Keyword corresponding to the request name in `msiempy.params` mapping.  
+            - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
             - `**kwargs` Can contain :
                 - `misiempy.NitroSession.esm_request` arguments except `method` and `data`
                 - Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Check the file to be sure of the keyword arguments.  
@@ -1305,7 +1305,7 @@ class FilteredQueryList(NitroList):
         Parameters:  
     
         - `time_range` : Query time range. String representation of a time range. 
-            See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`
+            See `msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE`
         - `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
         - `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
         - `filters` : List of filters applied to the query.
@@ -1360,8 +1360,8 @@ class FilteredQueryList(NitroList):
     @property
     def time_range(self):
         &#34;&#34;&#34;
-        Query time range. See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
-        Default to `msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
+        Query time range. See `msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+        Default to `msiempy.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
         Note that the time range is upper cased automatically.
         Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
         &#34;&#34;&#34;
@@ -1428,7 +1428,7 @@ class FilteredQueryList(NitroList):
     def filters(self):
         &#34;&#34;&#34; 
         Filter property : Returns a list of filters.
-        Can be set with list of tuple(field, [values]) or `msiempy.query.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
+        Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
         None value will call `msiempy.query.FilteredQueryList.clear_filters()`
         Raises `AttributeError` if type not supported.
         TODO find a better solution to integrate the filter propertie
@@ -1484,7 +1484,7 @@ class FilteredQueryList(NitroList):
         Returns a FilteredQueryList.
         
         Note :
-            IF you looking for load_async = True/False, you should pass this to the constructor method `msiempy.query.FilteredQueryList`
+            IF you looking for load_async = True/False, you should pass this to the constructor method `msiempy.FilteredQueryList`
                 or by setting the attribute manually like `manager.load_asynch=True`
             Only the first query is loaded asynchronously.
 
@@ -1596,7 +1596,7 @@ Provide time ranged filtered query wrapper.</p>
 </p>
 <ul>
 <li><code>time_range</code> : Query time range. String representation of a time range.
-See <code>msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE</code></li>
+See <code>msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE</code></li>
 <li><code>start_time</code> : Query starting time, can be a string or a datetime object. Parsed with dateutil.</li>
 <li><code>end_time</code> : Query endding time, can be a string or a datetime object. Parsed with dateutil.</li>
 <li><code>filters</code> : List of filters applied to the query.</li>
@@ -1670,7 +1670,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
         Parameters:  
     
         - `time_range` : Query time range. String representation of a time range. 
-            See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`
+            See `msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE`
         - `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
         - `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
         - `filters` : List of filters applied to the query.
@@ -1725,8 +1725,8 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
     @property
     def time_range(self):
         &#34;&#34;&#34;
-        Query time range. See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
-        Default to `msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
+        Query time range. See `msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+        Default to `msiempy.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
         Note that the time range is upper cased automatically.
         Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
         &#34;&#34;&#34;
@@ -1793,7 +1793,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
     def filters(self):
         &#34;&#34;&#34; 
         Filter property : Returns a list of filters.
-        Can be set with list of tuple(field, [values]) or `msiempy.query.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
+        Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
         None value will call `msiempy.query.FilteredQueryList.clear_filters()`
         Raises `AttributeError` if type not supported.
         TODO find a better solution to integrate the filter propertie
@@ -1849,7 +1849,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
         Returns a FilteredQueryList.
         
         Note :
-            IF you looking for load_async = True/False, you should pass this to the constructor method `msiempy.query.FilteredQueryList`
+            IF you looking for load_async = True/False, you should pass this to the constructor method `msiempy.FilteredQueryList`
                 or by setting the attribute manually like `manager.load_asynch=True`
             Only the first query is loaded asynchronously.
 
@@ -1989,7 +1989,7 @@ def end_time(self):
 <dt id="msiempy.FilteredQueryList.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
 <section class="desc"><p>Filter property : Returns a list of filters.
-Can be set with list of tuple(field, [values]) or <code>msiempy.query.QueryFilter</code> in the case of a <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a> query. A single tuple is also accepted.
+Can be set with list of tuple(field, [values]) or <a title="msiempy.event.QueryFilter" href="event.html#msiempy.event.QueryFilter"><code>QueryFilter</code></a> in the case of a <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a> query. A single tuple is also accepted.
 None value will call <code>msiempy.query.FilteredQueryList.clear_filters()</code>
 Raises <code>AttributeError</code> if type not supported.
 TODO find a better solution to integrate the filter propertie</p></section>
@@ -1999,7 +1999,7 @@ TODO find a better solution to integrate the filter propertie</p></section>
 def filters(self):
     &#34;&#34;&#34; 
     Filter property : Returns a list of filters.
-    Can be set with list of tuple(field, [values]) or `msiempy.query.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
+    Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
     None value will call `msiempy.query.FilteredQueryList.clear_filters()`
     Raises `AttributeError` if type not supported.
     TODO find a better solution to integrate the filter propertie
@@ -2026,8 +2026,8 @@ def start_time(self):
 </dd>
 <dt id="msiempy.FilteredQueryList.time_range"><code class="name">var <span class="ident">time_range</span></code></dt>
 <dd>
-<section class="desc"><p>Query time range. See <code>msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE</code>.
-Default to <code>msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE</code> (CURRENT_DAY).
+<section class="desc"><p>Query time range. See <code>msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE</code>.
+Default to <a title="msiempy.FilteredQueryList.DEFAULT_TIME_RANGE" href="#msiempy.FilteredQueryList.DEFAULT_TIME_RANGE"><code>FilteredQueryList.DEFAULT_TIME_RANGE</code></a> (CURRENT_DAY).
 Note that the time range is upper cased automatically.
 Raises <code>VallueError</code> if unrecognized time range is set and <code>AttributeError</code> if not the right type.</p></section>
 <details class="source">
@@ -2035,8 +2035,8 @@ Raises <code>VallueError</code> if unrecognized time range is set and <code>Attr
 <pre><code class="python">@property
 def time_range(self):
     &#34;&#34;&#34;
-    Query time range. See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
-    Default to `msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
+    Query time range. See `msiempy.event.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+    Default to `msiempy.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
     Note that the time range is upper cased automatically.
     Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
     &#34;&#34;&#34;
@@ -2086,7 +2086,7 @@ if the sub queries are not completed, divide them in the number of <code>slots</
 If you're looking for <code>max_query_depth</code>, it's define at the creation of the query list.</p>
 <p>Returns a FilteredQueryList.</p>
 <p>Note :
-IF you looking for load_async = True/False, you should pass this to the constructor method <code>msiempy.query.FilteredQueryList</code>
+IF you looking for load_async = True/False, you should pass this to the constructor method <a title="msiempy.FilteredQueryList" href="#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a>
 or by setting the attribute manually like <code>manager.load_asynch=True</code>
 Only the first query is loaded asynchronously.</p>
 <p>Parameters:
@@ -2113,7 +2113,7 @@ def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;, *args, **kwargs):
     Returns a FilteredQueryList.
     
     Note :
-        IF you looking for load_async = True/False, you should pass this to the constructor method `msiempy.query.FilteredQueryList`
+        IF you looking for load_async = True/False, you should pass this to the constructor method `msiempy.FilteredQueryList`
             or by setting the attribute manually like `manager.load_asynch=True`
         Only the first query is loaded asynchronously.
 
@@ -3542,7 +3542,7 @@ def refresh(self):
 </code></dt>
 <dd>
 <section class="desc"><p>NitroSession object represent the point of convergence of every request to the McFee ESM
-It provides standard dialogue with the esm with agument interpolation with <code>msiempy.params</code>.
+It provides standard dialogue with the esm with agument interpolation with <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a>.
 Internal <code>__dict__</code> refers to a unique instance of dict and thus, properties can be instanciated only once. </p>
 <p>The init method is called every time you call NitroSession() constructor.
 But the properties are actually initiated only once.
@@ -3559,7 +3559,7 @@ Use logout() to reinstanciate NitroSession.
 <summary>Source code</summary>
 <pre><code class="python">class NitroSession():
     &#39;&#39;&#39;NitroSession object represent the point of convergence of every request to the McFee ESM
-    It provides standard dialogue with the esm with agument interpolation with `msiempy.params`.
+    It provides standard dialogue with the esm with agument interpolation with `msiempy.NitroSession.PARAMS`.
     Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once. 
     &#39;&#39;&#39;
 
@@ -3995,7 +3995,7 @@ Content :
             Wrapper around the `msiempy.NitroSession.esm_request` method.
             Parameters:  
 
-            - `request`: Keyword corresponding to the request name in `msiempy.params` mapping.  
+            - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
             - `**kwargs` Can contain :
                 - `misiempy.NitroSession.esm_request` arguments except `method` and `data`
                 - Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Check the file to be sure of the keyword arguments.  
@@ -4504,7 +4504,7 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
 Parameters:
 </p>
 <ul>
-<li><code>request</code>: Keyword corresponding to the request name in <code>msiempy.params</code> mapping.
+<li><code>request</code>: Keyword corresponding to the request name in <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a> mapping.
 </li>
 <li><code>**kwargs</code> Can contain :<ul>
 <li><code>misiempy.NitroSession.esm_request</code> arguments except <code>method</code> and <code>data</code></li>
@@ -4527,7 +4527,7 @@ Parameters:
         Wrapper around the `msiempy.NitroSession.esm_request` method.
         Parameters:  
 
-        - `request`: Keyword corresponding to the request name in `msiempy.params` mapping.  
+        - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
         - `**kwargs` Can contain :
             - `misiempy.NitroSession.esm_request` arguments except `method` and `data`
             - Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Check the file to be sure of the keyword arguments.  

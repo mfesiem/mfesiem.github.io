@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.3" />
+<title>msiempy.static.all_commands API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>msiempy.static.all_commands</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">__pdoc__={} #Init pdoc overwrite engine to document stuff dynamically
+ALL_COMMANDS=&#34;&#34;&#34;&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34; standalone=&#34;yes&#34;?&gt;
+&lt;esmCommandList
+        xmlns=&#34;http://mcafee.com/siem/api/v3&#34;&gt;
+        &lt;esmCommand name=&#34;alarmAcknowledgeTriggeredAlarm&#34;&gt;
+                &lt;description&gt;Mark a triggered alarm as acknowledged&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;alarmDeleteTriggeredAlarm&#34;&gt;
+                &lt;description&gt;Delete a triggered alarm&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;alarmGetTriggeredAlarms&#34;&gt;
+                &lt;description&gt;Retrieves a paged list of alarms that have been triggered&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;alarmUnacknowledgeTriggeredAlarm&#34;&gt;
+                &lt;description&gt;Mark a triggered alarm as unacknowledged&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;assetGetAssetDetailsObject&#34;&gt;
+                &lt;description&gt;Gets asset Details&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;assetGetAssetThreats&#34;&gt;
+                &lt;description&gt;Gets asset threats&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;assetGetOSList&#34;&gt;
+                &lt;description&gt;Gets all SOs&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;blAddEditNSMBlacklistEntry&#34;&gt;
+                &lt;description&gt;Adds or edits a blacklist entry&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;blDeleteNSMBlacklistEntries&#34;&gt;
+                &lt;description&gt;Deletes a list of blacklist entries&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;blEnableGlobalBlacklistingForSensor&#34;&gt;
+                &lt;description&gt;Sets the enabled state for global blacklisting on the specified sensor&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;blGetAllUseGlobalBlacklist&#34;&gt;
+                &lt;description&gt;Gets the list of blacklists&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;blGetBlacklist&#34;&gt;
+                &lt;description&gt;Gets the global blacklist entries&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;blGetSensorBlacklistEntries&#34;&gt;
+                &lt;description&gt;Gets the entries for the blacklist sensor&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;blSetUseGlobalBlacklist&#34;&gt;
+                &lt;description&gt;Updates the blacklists to use global blacklisting&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;blSubmitGlobalBlacklist&#34;&gt;
+                &lt;description&gt;Updates the entries for the global blacklist&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseAddCase&#34;&gt;
+                &lt;description&gt;Add a case to the system.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseAddCaseStatus&#34;&gt;
+                &lt;description&gt;Add a case status&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseAddOrganization&#34;&gt;
+                &lt;description&gt;Add a case organization&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseDeleteCaseStatus&#34;&gt;
+                &lt;description&gt;Delete a case status.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseEditCase&#34;&gt;
+                &lt;description&gt;Edit an existing case.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseEditCaseStatus&#34;&gt;
+                &lt;description&gt;Edit a case status&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseEditOrganization&#34;&gt;
+                &lt;description&gt;Edit a case organization&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseGetCaseDetail&#34;&gt;
+                &lt;description&gt;Get detail on an existing case.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseGetCaseEventsDetail&#34;&gt;
+                &lt;description&gt;Get case events details&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseGetCaseList&#34;&gt;
+                &lt;description&gt;Get a list of cases from the system&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseGetCaseStatusList&#34;&gt;
+                &lt;description&gt;Get a list of valid case statuses from the system&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseGetCaseUsers&#34;&gt;
+                &lt;description&gt;Get case users&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;caseGetOrganizationList&#34;&gt;
+                &lt;description&gt;Get case organizations&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;devGetDeviceList&#34;&gt;
+                &lt;description&gt;Get a list of all devices defined in the system.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;devGetDeviceListRaw&#34;&gt;
+                &lt;description&gt;Get a list of all devices defined in the system. This was added to
+ accommodate the number precision limitations of JavaScript. (A BigInt will
+ round the last digit or two on IPSIDs)&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;dsAddDataSource&#34;&gt;
+                &lt;description&gt;Add a data source.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;dsAddDataSourceList&#34;&gt;
+                &lt;description&gt;Add a list of data sources.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;dsDeleteDataSource&#34;&gt;
+                &lt;description&gt;Delete a data source.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;dsEditDataSource&#34;&gt;
+                &lt;description&gt;Edit a data source&#39;s properties.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;dsGetDataSourceDetail&#34;&gt;
+                &lt;description&gt;Get the details for a specifc data sources.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;dsGetDataSourceList&#34;&gt;
+                &lt;description&gt;Get a list of defined data sources.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;dsGetDataSourceTypes&#34;&gt;
+                &lt;description&gt;Get all data source types.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;dsGetDataSourceXml&#34;&gt;
+                &lt;description&gt;XML datasource list&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;dsGetEpoList&#34;&gt;
+                &lt;description&gt;Get a list of valid ePO servers for the given target IPs&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;dsGetUserDefinedDataSources&#34;&gt;
+                &lt;description&gt;Get user defined data sources.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;dsSetUserDefinedDataSources&#34;&gt;
+                &lt;description&gt;Set user defined data sources.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;elmDeviceHasELM&#34;&gt;
+                &lt;description&gt;Returns the ELM configuration for a device&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;elmDownloadLogFileForEvent&#34;&gt;
+                &lt;description&gt;Gets the download information for an ELM archive&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;elmGetElmList&#34;&gt;
+                &lt;description&gt;Get a list of ELM/ELS devices&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;essmgtGetBuildStamp&#34;&gt;
+                &lt;description&gt;Gets the ESM build Stamp&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;essmgtGetESSTime&#34;&gt;
+                &lt;description&gt;Get the system time of the ESM Device&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;geoGetGeoLocRegionList&#34;&gt;
+                &lt;description&gt;Get the top level geo locations&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;geoGetGeoLocs&#34;&gt;
+                &lt;description&gt;Get geo locations within the given location&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;getActionList&#34;&gt;
+                &lt;description&gt;Get actionsn&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;getActiveResponseCollectors&#34;&gt;
+                &lt;description&gt;Get a list of Active Response Collectors&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;getUserLocale&#34;&gt;
+                &lt;description&gt;Get user session locale&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;getUsersInGroups&#34;&gt;
+                &lt;description&gt;list of users that can be shared with&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;grpFindDeviceInTree&#34;&gt;
+                &lt;description&gt;Gets the parent for the specified device.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;grpGetDSAgents&#34;&gt;
+                &lt;description&gt;Gets the datasource agents for a datasource&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;grpGetDeviceProperties&#34;&gt;
+                &lt;description&gt;gets details of a device&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;grpGetDeviceTree&#34;&gt;
+                &lt;description&gt;Gets the basic device tree structure with only basic properties loaded. Each
+ entry in the returned list is a root node in the tree.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;grpGetDeviceTreeEx&#34;&gt;
+                &lt;description&gt;This version of the call returns more detail per device than getDeviceList, wrapped in an
+ esmDeviceList object.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;grpGetDisplayList&#34;&gt;
+                &lt;description&gt;This method gets all of the diplays for the ESM&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;grpGetSystemTree&#34;&gt;
+                &lt;description&gt;This API returns the system tree as an array of root nodes.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;grpSearchDeviceNamesInTree&#34;&gt;
+                &lt;description&gt;Searches the device tree for devices/groups/clients that match the name specified.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;ipsAddAlertNote&#34;&gt;
+                &lt;description&gt;This function sets the note for the event&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;ipsGetAFValues&#34;&gt;
+                &lt;description&gt;This function gets the alert flow values&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;ipsGetAlertData&#34;&gt;
+                &lt;description&gt;Gets alert data&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;ipsGetCorrRawEvents&#34;&gt;
+                &lt;description&gt;Get the corr raw events&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;ipsGetFlowData&#34;&gt;
+                &lt;description&gt;Gets the flow data values&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;ipsGetIpsNames&#34;&gt;
+                &lt;description&gt;Get the names for ipsids entered&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;ipsIsEventCorrelation&#34;&gt;
+                &lt;description&gt;Get a list of all event correlations.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;miscGetRemedyEventEmailData&#34;&gt;
+                &lt;description&gt;Gets the data to send to the remedy&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;miscJobStatus&#34;&gt;
+                &lt;description&gt;This gets the job status&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;miscJobsDetails&#34;&gt;
+                &lt;description&gt;Gets jobs details&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;miscKeepAlive&#34;&gt;
+                &lt;description&gt;Keeps the session alive.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;miscMaskIPAddress&#34;&gt;
+                &lt;description&gt;This masks a given ip Address using the mask specified&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;miscSendTestEmail&#34;&gt;
+                &lt;description&gt;Send a test email with the Email Server Settings&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;miscSetRemedyCaseID&#34;&gt;
+                &lt;description&gt;Sets the remedy case id for the specified alert&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyAddAddress&#34;&gt;
+                &lt;description&gt;Add a notification recipient address&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyAddCaseIDToTrigAlarm&#34;&gt;
+                &lt;description&gt;Adds a case to a triggered alarm&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyAddGroup&#34;&gt;
+                &lt;description&gt;Add a notification Email group&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyDeleteAddress&#34;&gt;
+                &lt;description&gt;Remove notification recipient address(es)&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyDeleteGroup&#34;&gt;
+                &lt;description&gt;Delete a group of email recipients&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyEditAddress&#34;&gt;
+                &lt;description&gt;Edit a notification recipient address&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyEditGroup&#34;&gt;
+                &lt;description&gt;Edit a group of email recipients&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyGetAddressList&#34;&gt;
+                &lt;description&gt;Get list of recipient addresses by type&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyGetEmailGroupList&#34;&gt;
+                &lt;description&gt;Get the list of Email Groups&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyGetNotificationSettings&#34;&gt;
+                &lt;description&gt;Get the email server settings&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyGetTriggeredNotification&#34;&gt;
+                &lt;description&gt;Get the triggered notification&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyGetTriggeredNotificationDetail&#34;&gt;
+                &lt;description&gt;Gets the details for the triggered alarm&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifyGetVisualTriggeredAlarms&#34;&gt;
+                &lt;description&gt;Gets the list of triggered visual alarms&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifySetNotificationSettings&#34;&gt;
+                &lt;description&gt;Set the email server settings&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;notifySetTriggeredAlarmAssignee&#34;&gt;
+                &lt;description&gt;Assignes a user to a triggered alarm&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;plcyGetAssetGroupsList&#34;&gt;
+                &lt;description&gt;Get all asset groups defined in the system&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;plcyGetAssetList&#34;&gt;
+                &lt;description&gt;Get all assets defined in the system&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;plcyGetNormalizedRules&#34;&gt;
+                &lt;description&gt;Get all normalized rules based on display options given&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;plcyGetPolicyList&#34;&gt;
+                &lt;description&gt;Get the list of all policies defined in the ESM.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;plcyGetTagList&#34;&gt;
+                &lt;description&gt;Get tags&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;plcyGetVariableList&#34;&gt;
+                &lt;description&gt;Get all variables defined in the system&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryClose&#34;&gt;
+                &lt;description&gt;Closes the query results, must be called after a query&#39;s results have been processed. If no
+ exception is thrown, the close operation completed normally.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryDeleteAlertFlowData&#34;&gt;
+                &lt;description&gt;Deletes one or more events or flows.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryExecute&#34;&gt;
+                &lt;description&gt;Execute a query against the database.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryExecuteDetail&#34;&gt;
+                &lt;description&gt;Execute a standard detail (non-grouped) query.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryExecuteGrouped&#34;&gt;
+                &lt;description&gt;Execute a grouped query on a field. The configuration&#39;s filter is required. In addition,
+ a filter of IPSID is required for the query to be valid.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryGetCorrEventDataForID&#34;&gt;
+                &lt;description&gt;Get the source events and flows for a given correlated event ID&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryGetFilterFields&#34;&gt;
+                &lt;description&gt;Get all fields that can be used in query filters, with type information for each field.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryGetFilterSet&#34;&gt;
+                &lt;description&gt;Returns a filter set by id.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryGetFilterSetList&#34;&gt;
+                &lt;description&gt;This method returns all the folder structure of a filterSet&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryGetIocData&#34;&gt;
+                &lt;description&gt;Gets all relevant data about a specific IOC.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryGetResults&#34;&gt;
+                &lt;description&gt;Get the results for a query.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryGetSelectFields&#34;&gt;
+                &lt;description&gt;Get the fields available for selecting in queries. The groupType can be used to filter the fields to only ones that can be used
+ to group results in a particular way. For example, if you want all fields that can be grouped to count the number of events per group,
+ the groupType should be COUNT. If not provided, it is equivalent to passing NO_GROUP which returns all available select fields regardless
+ of whether they can be used in grouped queries. This is useful for getting available fields for detail queries. (qryExecuteDetail)&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryGetStatus&#34;&gt;
+                &lt;description&gt;Get the status for a query that has been executed.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryGetTrendTimeSlice&#34;&gt;
+                &lt;description&gt;Qry get trend time slice.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryGetWmiTypes&#34;&gt;
+                &lt;description&gt;Get a list of WMI Types&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qryMarkAsReviewed&#34;&gt;
+                &lt;description&gt;Mark an event(s) as reviewed.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;qrySaveFilterSet&#34;&gt;
+                &lt;description&gt;Save a new FilterSet or update it&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;rskGetCorrelationTriggerInfo&#34;&gt;
+                &lt;description&gt;Return Esm Correlation Trigger Info&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;runActiveResponseSearch&#34;&gt;
+                &lt;description&gt;Execute a ActiveResponse search and return the results&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysAddWatchlist&#34;&gt;
+                &lt;description&gt;Add a watchlist to the system.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysAddWatchlistValues&#34;&gt;
+                &lt;description&gt;Add values to a watchlist. This call is not supported for hidden watchlists, for example GTI.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysCanEditItems&#34;&gt;
+                &lt;description&gt;Gets the items that can or can&#39;t be edited&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysEditWatchlist&#34;&gt;
+                &lt;description&gt;Edit properties of a watchlist. (Watchlist Type will not be modified) This call is not supported for hidden watchlists, for example GTI.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysGetAllChanges&#34;&gt;
+                &lt;description&gt;Returns all changes since the last check.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysGetDataAllocation&#34;&gt;
+                &lt;description&gt;Returns the database allocation information for index and data drives.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysGetFilterFieldsList&#34;&gt;
+                &lt;description&gt;This method returns the user filter list.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysGetMaxDays&#34;&gt;
+                &lt;description&gt;Get the number of days that events and flows are stored and the time frame when new events and flows may be added to the database.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysGetSelectProfileList&#34;&gt;
+                &lt;description&gt;Returns the selected profile type list&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysGetSysInfo&#34;&gt;
+                &lt;description&gt;This method returns all the overview system information.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysGetWatchlistDetails&#34;&gt;
+                &lt;description&gt;Get detailed information about a watchlist.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysGetWatchlistFields&#34;&gt;
+                &lt;description&gt;Get watchlist fields/types.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysGetWatchlistValues&#34;&gt;
+                &lt;description&gt;Read the content of a watchlist value file. Note that the EsmFileData object will contain information on how many bytes were read, as well as the total size of the
+ file. The size of the data returned may be less than count, depending on the amount of file data available. Note that the watchlist file property on EsmWatchlistDetails
+ is used as a parameter to this call. The file will contain the values as they existed when the call to sysGetWatchlistDetails was made. If subsequent changes
+ were made to the watchlist after getting the details, another EsmWatchlistDetails object should be obtained by calling sysGetWatchlistDetails before using its
+ EsmWatchlistFile object to retrieve the updated list of watchlist values. This call is not supported for hidden watchlists, for example GTI.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysGetWatchlists&#34;&gt;
+                &lt;description&gt;Return basic information on all watchlists in the system&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysRemoveWatchlist&#34;&gt;
+                &lt;description&gt;Remove watchlist/s from the system. This call is not supported for hidden watchlists, for example GTI.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;sysRemoveWatchlistValues&#34;&gt;
+                &lt;description&gt;Remove values from a watchlist. This call is not supported for hidden watchlists, for example GTI.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userAddAccessGroup&#34;&gt;
+                &lt;description&gt;Add an access group&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userAddUser&#34;&gt;
+                &lt;description&gt;Add a user to the system.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userCaseList&#34;&gt;
+                &lt;description&gt;Get a filtered list of cases from the system&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userDeleteAccessGroup&#34;&gt;
+                &lt;description&gt;Delete an access group.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userDeleteUser&#34;&gt;
+                &lt;description&gt;Delete a user from the system.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userEditAccessGroup&#34;&gt;
+                &lt;description&gt;Edit properties of an access group.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userEditUser&#34;&gt;
+                &lt;description&gt;Used by the master user to update information about another user.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userGetAccessGroupDetail&#34;&gt;
+                &lt;description&gt;Get extended information about an access group.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userGetAccessGroupList&#34;&gt;
+                &lt;description&gt;Get all user access groups defined in the system.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userGetRightsList&#34;&gt;
+                &lt;description&gt;Get all rights defined in the system.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userGetTimeZones&#34;&gt;
+                &lt;description&gt;Get a list of timezones this system recognizes&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userGetUserList&#34;&gt;
+                &lt;description&gt;Get a list of all users.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userGetUserRights&#34;&gt;
+                &lt;description&gt;Get all rights defined for the current user.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userGetUserTimeFrame&#34;&gt;
+                &lt;description&gt;User time frame&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userLogout&#34;&gt;
+                &lt;description&gt;Log the user out of their SIEM session&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userModifyUser&#34;&gt;
+                &lt;description&gt;Changes the user password&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;userSetAutoGetPacket&#34;&gt;
+                &lt;description&gt;This function sets the new state of the Auto-Get Packet for the current user.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;zoneAddSubZone&#34;&gt;
+                &lt;description&gt;Add a new subzone under a zone&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;zoneAddZone&#34;&gt;
+                &lt;description&gt;Create a new zone.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;zoneDeleteSubZone&#34;&gt;
+                &lt;description&gt;Delete the sub zone&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;zoneDeleteZone&#34;&gt;
+                &lt;description&gt;Delete the zone&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;zoneEditSubZone&#34;&gt;
+                &lt;description&gt;Edit the given sub zone. Note that ID must be set to an existing sub zone for this
+ to work properly. The ID value will be set if the zone was gotten from zoneGetSubZone().&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;zoneEditZone&#34;&gt;
+                &lt;description&gt;Edit the given zone. Note that ID must be set to an existing zone for this
+ to work properly. The ID value will be set if the zone was gotten from zoneGetZone().&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;zoneGetSubZone&#34;&gt;
+                &lt;description&gt;Get detailed information on a sub zone&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;zoneGetTopLevelZones&#34;&gt;
+                &lt;description&gt;Gets the top level zones&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;zoneGetZone&#34;&gt;
+                &lt;description&gt;Get extended detail on a zone.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+        &lt;esmCommand name=&#34;zoneGetZoneTree&#34;&gt;
+                &lt;description&gt;Get the full tree of zones defined in the ESM.&lt;/description&gt;
+        &lt;/esmCommand&gt;
+&lt;/esmCommandList&gt;&#34;&#34;&#34;
+__pdoc__[&#39;.all_filters.ALL_COMMANDS&#39;] = &#34;&#34;&#34;This structure provide a list of possible fields that can be used as a filter query.  
+See : `msiempy.event.FieldFilter`
+
+    Content :
+        %(content)s
+        &#34;&#34;&#34; % dict(content=ALL_COMMANDS.replace(&#39;\n&#39;,&#34;&#34;&#34;  
+    &#34;&#34;&#34;)+&#34;&#34;&#34;  
+    See : https://github.com/mfesiem/msiempy/blob/master/msiempy/static/all_commands.py
+    &#34;&#34;&#34;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="msiempy.static" href="index.html">msiempy.static</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.3</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

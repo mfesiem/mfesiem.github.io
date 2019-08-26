@@ -30,8 +30,8 @@ import time
 import json
 import abc
 import collections
-import datetime
 import logging
+from datetime import datetime
 log = logging.getLogger(&#39;msiempy&#39;)
 
 from . import NitroObject, NitroDict, NitroError, FilteredQueryList
@@ -459,14 +459,17 @@ class Event(NitroDict):
         Set the event&#39;s note. Desctructive action.
         &#34;&#34;&#34;
         if len(note) &gt;= 4000:
-            log.warning(&#34;The note is longer than 4000 characters, only the first 4000 characters will be kept. The maximum accepted by the SIEM is 4096 characters.&#34;)
-            note=note[:4000]+&#39;\n\n----- MAXIMUM NOTE LENGHT REACHED, THE NOTE HAS BEEN TRUNCATED (sorry) -----&#39;
+            log.warning(&#34;The note is longer than 4000 characters, only the&#34; 
+                         &#34;first 4000 characters will be kept. The maximum&#34; 
+                         &#34;accepted by the SIEM is 4096 characters.&#34;)
+            note=note[:4000]+&#39;\n\n--NOTE HAS BEEN TRUNCATED--&#39;
 
-        self.nitro.request(&#34;add_note_to_event&#34;, 
+        timestamp = datetime.now().strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)
+        note = note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)
+        note = timestamp + &#39; - &#39; + note
+        self.nitro.request(&#34;add_note_to_event_int&#34;, 
             id=self.data[&#34;Alert.IPSIDAlertID&#34;],
-            note=&#34;NOTE (msiempy-{}) : \\n{}&#34;.format(
-                str(datetime.datetime.now()),
-                note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)))
+            note=note)
 
     def add_note(self, note):
         &#34;&#34;&#34;Deprecated, please use set_note() method instead.&#34;&#34;&#34;
@@ -932,14 +935,17 @@ and update dict values accordingly.</p>
         Set the event&#39;s note. Desctructive action.
         &#34;&#34;&#34;
         if len(note) &gt;= 4000:
-            log.warning(&#34;The note is longer than 4000 characters, only the first 4000 characters will be kept. The maximum accepted by the SIEM is 4096 characters.&#34;)
-            note=note[:4000]+&#39;\n\n----- MAXIMUM NOTE LENGHT REACHED, THE NOTE HAS BEEN TRUNCATED (sorry) -----&#39;
+            log.warning(&#34;The note is longer than 4000 characters, only the&#34; 
+                         &#34;first 4000 characters will be kept. The maximum&#34; 
+                         &#34;accepted by the SIEM is 4096 characters.&#34;)
+            note=note[:4000]+&#39;\n\n--NOTE HAS BEEN TRUNCATED--&#39;
 
-        self.nitro.request(&#34;add_note_to_event&#34;, 
+        timestamp = datetime.now().strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)
+        note = note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)
+        note = timestamp + &#39; - &#39; + note
+        self.nitro.request(&#34;add_note_to_event_int&#34;, 
             id=self.data[&#34;Alert.IPSIDAlertID&#34;],
-            note=&#34;NOTE (msiempy-{}) : \\n{}&#34;.format(
-                str(datetime.datetime.now()),
-                note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)))
+            note=note)
 
     def add_note(self, note):
         &#34;&#34;&#34;Deprecated, please use set_note() method instead.&#34;&#34;&#34;
@@ -1077,14 +1083,17 @@ and update dict values accordingly.</p>
     Set the event&#39;s note. Desctructive action.
     &#34;&#34;&#34;
     if len(note) &gt;= 4000:
-        log.warning(&#34;The note is longer than 4000 characters, only the first 4000 characters will be kept. The maximum accepted by the SIEM is 4096 characters.&#34;)
-        note=note[:4000]+&#39;\n\n----- MAXIMUM NOTE LENGHT REACHED, THE NOTE HAS BEEN TRUNCATED (sorry) -----&#39;
+        log.warning(&#34;The note is longer than 4000 characters, only the&#34; 
+                     &#34;first 4000 characters will be kept. The maximum&#34; 
+                     &#34;accepted by the SIEM is 4096 characters.&#34;)
+        note=note[:4000]+&#39;\n\n--NOTE HAS BEEN TRUNCATED--&#39;
 
-    self.nitro.request(&#34;add_note_to_event&#34;, 
+    timestamp = datetime.now().strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)
+    note = note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)
+    note = timestamp + &#39; - &#39; + note
+    self.nitro.request(&#34;add_note_to_event_int&#34;, 
         id=self.data[&#34;Alert.IPSIDAlertID&#34;],
-        note=&#34;NOTE (msiempy-{}) : \\n{}&#34;.format(
-            str(datetime.datetime.now()),
-            note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)))</code></pre>
+        note=note)</code></pre>
 </details>
 </dd>
 </dl>

@@ -35,10 +35,10 @@ from . import NitroDict, NitroList
 class WatchlistManager(NitroList):
     &#34;&#34;&#34;
     Summary of ESM watchlists.
-    
+
     Example:
         wlman = WatchlistManager()
-        for wl in wlman: 
+        for wl in wlman:
             if wl[&#39;name&#39;] == &#39;IPs-To-Block-On-IPS-24hrs&#39;: break
         wl.add_values([&#39;1.1.1.2&#39;, &#39;2.2.2.1&#39;, &#39;3.3.3.1&#39;])
 
@@ -49,19 +49,28 @@ class WatchlistManager(NitroList):
         Initialize the watchlist manager.
         &#34;&#34;&#34;
         super().__init__(*args, **kwargs)
-        self.data = self.nitro.request(&#39;get_watchlists_no_filters&#39;, 
+        self.get_watchlist_summary()
+
+    def get_watchlist_summary(self):
+        self.data = self.nitro.request(&#39;get_watchlists_no_filters&#39;,
             hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
 
         #Casting all data to Watchlist objects, better way to do it ?
-        collections.UserList.__init__(self, 
-            [Watchlist(adict=item) for item in self.data 
+        collections.UserList.__init__(self,
+            [Watchlist(adict=item) for item in self.data
                 if isinstance(item, (dict, NitroDict))])
-                
+
     def load_details(self):
         &#34;&#34;&#34;
         Load a summary of existing watchlists.
         &#34;&#34;&#34;
         self.perform(Watchlist.load_details, asynch=False, progress=True)
+
+    def refresh(self):
+        &#34;&#34;&#34;
+        Reloads the watchlist summary.
+        &#34;&#34;&#34;
+        self.get_watchlist_summary()
 
     def add(self, name, wl_type):
         &#34;&#34;&#34;
@@ -83,25 +92,37 @@ class WatchlistManager(NitroList):
                                        HostID,
                                        ObjectID,
                                        Filename,
-                                       File_Hash                
+                                       File_Hash
         &#34;&#34;&#34;
         self.nitro.request(&#39;add_watchlist&#39;, name=name, wl_type=wl_type)
+
+    def remove(self, wl_id_list):
+        &#34;&#34;&#34;
+        Remove watchlist(s).
+
+        Args:
+            wl_ids (list): list of watchlist IDs
+
+        Example:
+            1, 2, 3
+        &#34;&#34;&#34;
+        self.nitro.request(&#39;remove_watchlists&#39;, wl_id_list=wl_id_list)
 
     def get_wl_types(self):
         &#34;&#34;&#34;
         Get a list of watchlist types.
-        
+
         Returns:
             list of watchlist types.
         &#34;&#34;&#34;
         return self.nitro.request(&#39;get_wl_types&#39;)
-        
+
 class Watchlist(NitroDict):
     &#34;&#34;&#34;
 
     Complete list of watchlist fields (not values) once load with load_details()
 
-    Dictionary keys: 
+    Dictionary keys:
 
     - `name`: The name of the watchlist
     - `type`: The watchlist type
@@ -116,7 +137,7 @@ class Watchlist(NitroDict):
     - `id`: The id of the watchlist
     - `values`: values
     - And others...
-    
+
     &#34;&#34;&#34;
 
     def __init__(self, *args, **kwargs):
@@ -126,7 +147,7 @@ class Watchlist(NitroDict):
         &#34;&#34;&#34;
         Add values to static watchlist.
         Args:
-            values (list): list of values 
+            values (list): list of values
         &#34;&#34;&#34;
         self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)
 
@@ -134,14 +155,14 @@ class Watchlist(NitroDict):
         &#34;&#34;&#34;
         Retrieve watchlist details for ID.
         Args:
-            id (str): watchlist ID 
+            id (str): watchlist ID
         &#34;&#34;&#34;
         info=self.nitro.request(&#39;get_watchlist_details&#39;, id=id)
         return info
 
     def load_details(self):
         &#34;&#34;&#34;
-        
+
         &#34;&#34;&#34;
         the_id = self.data[&#39;id&#39;]
         self.data.update(self.data_from_id(the_id))
@@ -169,7 +190,7 @@ class Watchlist(NitroDict):
 </code></dt>
 <dd>
 <section class="desc"><p>Complete list of watchlist fields (not values) once load with load_details()</p>
-<p>Dictionary keys: </p>
+<p>Dictionary keys:</p>
 <ul>
 <li><code>name</code>: The name of the watchlist</li>
 <li><code>type</code>: The watchlist type</li>
@@ -202,7 +223,7 @@ and update dict values accordingly.</p>
 
     Complete list of watchlist fields (not values) once load with load_details()
 
-    Dictionary keys: 
+    Dictionary keys:
 
     - `name`: The name of the watchlist
     - `type`: The watchlist type
@@ -217,7 +238,7 @@ and update dict values accordingly.</p>
     - `id`: The id of the watchlist
     - `values`: values
     - And others...
-    
+
     &#34;&#34;&#34;
 
     def __init__(self, *args, **kwargs):
@@ -227,7 +248,7 @@ and update dict values accordingly.</p>
         &#34;&#34;&#34;
         Add values to static watchlist.
         Args:
-            values (list): list of values 
+            values (list): list of values
         &#34;&#34;&#34;
         self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)
 
@@ -235,14 +256,14 @@ and update dict values accordingly.</p>
         &#34;&#34;&#34;
         Retrieve watchlist details for ID.
         Args:
-            id (str): watchlist ID 
+            id (str): watchlist ID
         &#34;&#34;&#34;
         info=self.nitro.request(&#39;get_watchlist_details&#39;, id=id)
         return info
 
     def load_details(self):
         &#34;&#34;&#34;
-        
+
         &#34;&#34;&#34;
         the_id = self.data[&#39;id&#39;]
         self.data.update(self.data_from_id(the_id))
@@ -285,7 +306,7 @@ and update dict values accordingly.</p>
     &#34;&#34;&#34;
     Add values to static watchlist.
     Args:
-        values (list): list of values 
+        values (list): list of values
     &#34;&#34;&#34;
     self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)</code></pre>
 </details>
@@ -306,7 +327,7 @@ and update dict values accordingly.</p>
     &#34;&#34;&#34;
     Retrieve watchlist details for ID.
     Args:
-        id (str): watchlist ID 
+        id (str): watchlist ID
     &#34;&#34;&#34;
     info=self.nitro.request(&#39;get_watchlist_details&#39;, id=id)
     return info</code></pre>
@@ -321,7 +342,7 @@ and update dict values accordingly.</p>
 <summary>Source code</summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;
-    
+
     &#34;&#34;&#34;
     the_id = self.data[&#39;id&#39;]
     self.data.update(self.data_from_id(the_id))
@@ -372,10 +393,10 @@ Initialize the watchlist manager.</p></section>
 <pre><code class="python">class WatchlistManager(NitroList):
     &#34;&#34;&#34;
     Summary of ESM watchlists.
-    
+
     Example:
         wlman = WatchlistManager()
-        for wl in wlman: 
+        for wl in wlman:
             if wl[&#39;name&#39;] == &#39;IPs-To-Block-On-IPS-24hrs&#39;: break
         wl.add_values([&#39;1.1.1.2&#39;, &#39;2.2.2.1&#39;, &#39;3.3.3.1&#39;])
 
@@ -386,19 +407,28 @@ Initialize the watchlist manager.</p></section>
         Initialize the watchlist manager.
         &#34;&#34;&#34;
         super().__init__(*args, **kwargs)
-        self.data = self.nitro.request(&#39;get_watchlists_no_filters&#39;, 
+        self.get_watchlist_summary()
+
+    def get_watchlist_summary(self):
+        self.data = self.nitro.request(&#39;get_watchlists_no_filters&#39;,
             hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
 
         #Casting all data to Watchlist objects, better way to do it ?
-        collections.UserList.__init__(self, 
-            [Watchlist(adict=item) for item in self.data 
+        collections.UserList.__init__(self,
+            [Watchlist(adict=item) for item in self.data
                 if isinstance(item, (dict, NitroDict))])
-                
+
     def load_details(self):
         &#34;&#34;&#34;
         Load a summary of existing watchlists.
         &#34;&#34;&#34;
         self.perform(Watchlist.load_details, asynch=False, progress=True)
+
+    def refresh(self):
+        &#34;&#34;&#34;
+        Reloads the watchlist summary.
+        &#34;&#34;&#34;
+        self.get_watchlist_summary()
 
     def add(self, name, wl_type):
         &#34;&#34;&#34;
@@ -420,14 +450,26 @@ Initialize the watchlist manager.</p></section>
                                        HostID,
                                        ObjectID,
                                        Filename,
-                                       File_Hash                
+                                       File_Hash
         &#34;&#34;&#34;
         self.nitro.request(&#39;add_watchlist&#39;, name=name, wl_type=wl_type)
+
+    def remove(self, wl_id_list):
+        &#34;&#34;&#34;
+        Remove watchlist(s).
+
+        Args:
+            wl_ids (list): list of watchlist IDs
+
+        Example:
+            1, 2, 3
+        &#34;&#34;&#34;
+        self.nitro.request(&#39;remove_watchlists&#39;, wl_id_list=wl_id_list)
 
     def get_wl_types(self):
         &#34;&#34;&#34;
         Get a list of watchlist types.
-        
+
         Returns:
             list of watchlist types.
         &#34;&#34;&#34;
@@ -498,9 +540,26 @@ File_Hash</dd>
                                    HostID,
                                    ObjectID,
                                    Filename,
-                                   File_Hash                
+                                   File_Hash
     &#34;&#34;&#34;
     self.nitro.request(&#39;add_watchlist&#39;, name=name, wl_type=wl_type)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.watchlist.WatchlistManager.get_watchlist_summary"><code class="name flex">
+<span>def <span class="ident">get_watchlist_summary</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_watchlist_summary(self):
+    self.data = self.nitro.request(&#39;get_watchlists_no_filters&#39;,
+        hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
+
+    #Casting all data to Watchlist objects, better way to do it ?
+    collections.UserList.__init__(self,
+        [Watchlist(adict=item) for item in self.data
+            if isinstance(item, (dict, NitroDict))])</code></pre>
 </details>
 </dd>
 <dt id="msiempy.watchlist.WatchlistManager.get_wl_types"><code class="name flex">
@@ -515,7 +574,7 @@ File_Hash</dd>
 <pre><code class="python">def get_wl_types(self):
     &#34;&#34;&#34;
     Get a list of watchlist types.
-    
+
     Returns:
         list of watchlist types.
     &#34;&#34;&#34;
@@ -536,6 +595,50 @@ File_Hash</dd>
     self.perform(Watchlist.load_details, asynch=False, progress=True)</code></pre>
 </details>
 </dd>
+<dt id="msiempy.watchlist.WatchlistManager.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Reloads the watchlist summary.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def refresh(self):
+    &#34;&#34;&#34;
+    Reloads the watchlist summary.
+    &#34;&#34;&#34;
+    self.get_watchlist_summary()</code></pre>
+</details>
+</dd>
+<dt id="msiempy.watchlist.WatchlistManager.remove"><code class="name flex">
+<span>def <span class="ident">remove</span></span>(<span>self, wl_id_list)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Remove watchlist(s).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>wl_ids</code></strong> :&ensp;<code>list</code></dt>
+<dd>list of watchlist IDs</dd>
+</dl>
+<h2 id="example">Example</h2>
+<dl>
+<dt><strong><code>1</code></strong>, <strong><code>2</code></strong>, <strong><code>3</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def remove(self, wl_id_list):
+    &#34;&#34;&#34;
+    Remove watchlist(s).
+
+    Args:
+        wl_ids (list): list of watchlist IDs
+
+    Example:
+        1, 2, 3
+    &#34;&#34;&#34;
+    self.nitro.request(&#39;remove_watchlists&#39;, wl_id_list=wl_id_list)</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -546,7 +649,6 @@ File_Hash</dd>
 <li><code><a title="msiempy.NitroList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
 <li><code><a title="msiempy.NitroList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
 <li><code><a title="msiempy.NitroList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
-<li><code><a title="msiempy.NitroList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.NitroList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
 <li><code><a title="msiempy.NitroList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
 </ul>
@@ -582,8 +684,11 @@ File_Hash</dd>
 <h4><code><a title="msiempy.watchlist.WatchlistManager" href="#msiempy.watchlist.WatchlistManager">WatchlistManager</a></code></h4>
 <ul class="">
 <li><code><a title="msiempy.watchlist.WatchlistManager.add" href="#msiempy.watchlist.WatchlistManager.add">add</a></code></li>
+<li><code><a title="msiempy.watchlist.WatchlistManager.get_watchlist_summary" href="#msiempy.watchlist.WatchlistManager.get_watchlist_summary">get_watchlist_summary</a></code></li>
 <li><code><a title="msiempy.watchlist.WatchlistManager.get_wl_types" href="#msiempy.watchlist.WatchlistManager.get_wl_types">get_wl_types</a></code></li>
 <li><code><a title="msiempy.watchlist.WatchlistManager.load_details" href="#msiempy.watchlist.WatchlistManager.load_details">load_details</a></code></li>
+<li><code><a title="msiempy.watchlist.WatchlistManager.refresh" href="#msiempy.watchlist.WatchlistManager.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.watchlist.WatchlistManager.remove" href="#msiempy.watchlist.WatchlistManager.remove">remove</a></code></li>
 </ul>
 </li>
 </ul>

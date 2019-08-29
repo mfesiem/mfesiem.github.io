@@ -32,7 +32,10 @@ Whereas <a title="msiempy.NitroDict" href="#msiempy.NitroDict"><code>NitroDict</
 <p><a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> is the point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
 It uses <a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroConfig</code></a> to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
 </p>
-<p>Class diagram : <a href="https://mfesiem.github.io/docs/msiempy/classes.png.">https://mfesiem.github.io/docs/msiempy/classes.png.</a> Packages : <a href="https://mfesiem.github.io/docs/msiempy/packages.png">https://mfesiem.github.io/docs/msiempy/packages.png</a></p>
+<p>Class diagram : <a href="https://mfesiem.github.io/docs/msiempy/classes.png">https://mfesiem.github.io/docs/msiempy/classes.png</a><br>
+Packages : <a href="https://mfesiem.github.io/docs/msiempy/packages.png">https://mfesiem.github.io/docs/msiempy/packages.png</a>
+</p>
+<p>Only working with SIEM version &gt;=11.2.1 (and maybe &gt;=10.4.1)</p>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
@@ -49,7 +52,10 @@ Whereas `msiempy.NitroDict` that doesn&#39;t have any specific behaviours. Both 
 `msiempy.NitroSession` is the point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
 It uses `msiempy.NitroConfig` to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.  
 
-Class diagram : https://mfesiem.github.io/docs/msiempy/classes.png. Packages : https://mfesiem.github.io/docs/msiempy/packages.png
+Class diagram : https://mfesiem.github.io/docs/msiempy/classes.png  
+Packages : https://mfesiem.github.io/docs/msiempy/packages.png  
+
+Only working with SIEM version &gt;=11.2.1 (and maybe &gt;=10.4.1)
 &#34;&#34;&#34;
 
 import logging
@@ -602,9 +608,8 @@ class NitroSession():
         self.__dict__ = NitroSession.__unique_state__
         
         #Init properties only once
-        if not self.__initiated__ :
+        if NitroSession.__initiated__ == False :
             NitroSession.__initiated__ = True
-            log.info(&#39;New NitroSession instance&#39;)
             
             #Private attributes
             self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
@@ -618,6 +623,8 @@ class NitroSession():
             self._init_log(verbose=self.config.verbose,
                 quiet=self.config.quiet,
                 logfile=self.config.logfile)
+
+            log.info(&#39;New NitroSession instance&#39;)
 
 
     def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False):
@@ -650,8 +657,8 @@ class NitroSession():
 
         #Logging the data request if not secure | Logs anyway the method
         log.debug(&#39;Requesting HTTP &#39;+str(http)+&#39; &#39;+ str(method) + 
-            (&#39; with data &#39;+str(data) if (data is not None and not secure) else &#39;&#39;) )
-        log.debug(locals())
+            (&#39; with data &#39;+str(data) if not secure else &#39; ***&#39;) )
+        
         #Handling private API calls formatting
         if method == method.upper():
             privateApiCall=True
@@ -676,16 +683,14 @@ class NitroSession():
             )
 
             if raw :
-                log.debug(&#39;Returning raw requests Response object :&#39;+str(result))
+                log.debug(&#39;Returning raw requests Response object : &#39;+str(result)+ &#39; &#39; + str(result.text))
                 return result
 
             else:
                 try:
                     result.raise_for_status()
-
                 except requests.HTTPError as e :
-                    log.error(str(e)+&#39; &#39;+str(result.text))
-                    return result.text
+                    raise(requests.HTTPError(str(e)+ &#39; &#39; +str(result.text)+ &#39; &#39; + str(result.__dict__)))
                     &#34;&#34;&#34;
                     #TODO handle expired session error, result unavailable / other siem errors
                     # _InvalidFilter (228)
@@ -693,6 +698,7 @@ class NitroSession():
                     # Status Code 500: Error processing request, see server logs for more details 
                     # Input Validation Error
                     # By creating a new class
+                    # ERROR_InvalidSession (1)
                     &#34;&#34;&#34;
 
                 else: #
@@ -734,6 +740,7 @@ class NitroSession():
             self._headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
             self._headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
     
+            self._logged=True
             return True
         else:
             raise NitroError(&#39;ESM Login Error: Response empty&#39;)
@@ -758,7 +765,7 @@ class NitroSession():
             - `None` if Timeout or TooManyRedirects if raw=False  
         &#34;&#34;&#34;
         log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
-            str(request), str(kwargs) if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
+            str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
 
         method, data = self.PARAMS.get(request)
 
@@ -774,7 +781,7 @@ class NitroSession():
                     log.warning(&#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;)
 
         if not self._logged and method != &#39;login&#39;:
-            self._logged=self.login()
+            self.login()
 
         try :
             #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
@@ -3925,9 +3932,8 @@ Use logout() to reinstanciate NitroSession.
         self.__dict__ = NitroSession.__unique_state__
         
         #Init properties only once
-        if not self.__initiated__ :
+        if NitroSession.__initiated__ == False :
             NitroSession.__initiated__ = True
-            log.info(&#39;New NitroSession instance&#39;)
             
             #Private attributes
             self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
@@ -3941,6 +3947,8 @@ Use logout() to reinstanciate NitroSession.
             self._init_log(verbose=self.config.verbose,
                 quiet=self.config.quiet,
                 logfile=self.config.logfile)
+
+            log.info(&#39;New NitroSession instance&#39;)
 
 
     def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False):
@@ -3973,8 +3981,8 @@ Use logout() to reinstanciate NitroSession.
 
         #Logging the data request if not secure | Logs anyway the method
         log.debug(&#39;Requesting HTTP &#39;+str(http)+&#39; &#39;+ str(method) + 
-            (&#39; with data &#39;+str(data) if (data is not None and not secure) else &#39;&#39;) )
-        log.debug(locals())
+            (&#39; with data &#39;+str(data) if not secure else &#39; ***&#39;) )
+        
         #Handling private API calls formatting
         if method == method.upper():
             privateApiCall=True
@@ -3999,16 +4007,14 @@ Use logout() to reinstanciate NitroSession.
             )
 
             if raw :
-                log.debug(&#39;Returning raw requests Response object :&#39;+str(result))
+                log.debug(&#39;Returning raw requests Response object : &#39;+str(result)+ &#39; &#39; + str(result.text))
                 return result
 
             else:
                 try:
                     result.raise_for_status()
-
                 except requests.HTTPError as e :
-                    log.error(str(e)+&#39; &#39;+str(result.text))
-                    return result.text
+                    raise(requests.HTTPError(str(e)+ &#39; &#39; +str(result.text)+ &#39; &#39; + str(result.__dict__)))
                     &#34;&#34;&#34;
                     #TODO handle expired session error, result unavailable / other siem errors
                     # _InvalidFilter (228)
@@ -4016,6 +4022,7 @@ Use logout() to reinstanciate NitroSession.
                     # Status Code 500: Error processing request, see server logs for more details 
                     # Input Validation Error
                     # By creating a new class
+                    # ERROR_InvalidSession (1)
                     &#34;&#34;&#34;
 
                 else: #
@@ -4057,6 +4064,7 @@ Use logout() to reinstanciate NitroSession.
             self._headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
             self._headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
     
+            self._logged=True
             return True
         else:
             raise NitroError(&#39;ESM Login Error: Response empty&#39;)
@@ -4081,7 +4089,7 @@ Use logout() to reinstanciate NitroSession.
             - `None` if Timeout or TooManyRedirects if raw=False  
         &#34;&#34;&#34;
         log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
-            str(request), str(kwargs) if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
+            str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
 
         method, data = self.PARAMS.get(request)
 
@@ -4097,7 +4105,7 @@ Use logout() to reinstanciate NitroSession.
                     log.warning(&#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;)
 
         if not self._logged and method != &#39;login&#39;:
-            self._logged=self.login()
+            self.login()
 
         try :
             #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
@@ -4411,8 +4419,8 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
 
     #Logging the data request if not secure | Logs anyway the method
     log.debug(&#39;Requesting HTTP &#39;+str(http)+&#39; &#39;+ str(method) + 
-        (&#39; with data &#39;+str(data) if (data is not None and not secure) else &#39;&#39;) )
-    log.debug(locals())
+        (&#39; with data &#39;+str(data) if not secure else &#39; ***&#39;) )
+    
     #Handling private API calls formatting
     if method == method.upper():
         privateApiCall=True
@@ -4437,16 +4445,14 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
         )
 
         if raw :
-            log.debug(&#39;Returning raw requests Response object :&#39;+str(result))
+            log.debug(&#39;Returning raw requests Response object : &#39;+str(result)+ &#39; &#39; + str(result.text))
             return result
 
         else:
             try:
                 result.raise_for_status()
-
             except requests.HTTPError as e :
-                log.error(str(e)+&#39; &#39;+str(result.text))
-                return result.text
+                raise(requests.HTTPError(str(e)+ &#39; &#39; +str(result.text)+ &#39; &#39; + str(result.__dict__)))
                 &#34;&#34;&#34;
                 #TODO handle expired session error, result unavailable / other siem errors
                 # _InvalidFilter (228)
@@ -4454,6 +4460,7 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
                 # Status Code 500: Error processing request, see server logs for more details 
                 # Input Validation Error
                 # By creating a new class
+                # ERROR_InvalidSession (1)
                 &#34;&#34;&#34;
 
             else: #
@@ -4504,6 +4511,7 @@ Throws <a title="msiempy.NitroError" href="#msiempy.NitroError"><code>NitroError
         self._headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
         self._headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
 
+        self._logged=True
         return True
     else:
         raise NitroError(&#39;ESM Login Error: Response empty&#39;)</code></pre>
@@ -4574,7 +4582,7 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
         - `None` if Timeout or TooManyRedirects if raw=False  
     &#34;&#34;&#34;
     log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
-        str(request), str(kwargs) if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
+        str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
 
     method, data = self.PARAMS.get(request)
 
@@ -4590,7 +4598,7 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
                 log.warning(&#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;)
 
     if not self._logged and method != &#39;login&#39;:
-        self._logged=self.login()
+        self.login()
 
     try :
         #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.

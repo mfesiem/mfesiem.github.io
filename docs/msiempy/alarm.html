@@ -246,6 +246,8 @@ class AlarmManager(FilteredQueryList):
         match=True
         for alarm_filter in self._alarm_filters :
             match=False
+            if alarm_filter[0] not in alarm:
+                break
             value = str(alarm[alarm_filter[0]]) #Can only match strings
             for filter_value in alarm_filter[1]:
                 if regex_match(filter_value.lower(), value.lower()):
@@ -262,9 +264,11 @@ class AlarmManager(FilteredQueryList):
         match=True
         for event_filter in self._event_filters :
             match=False
-            values = [str(event[event_filter[0]]) for event in alarm[&#39;events&#39;]] #Can only match strings
+            if event_filter[0] not in alarm[&#39;events&#39;][0]:
+                break
+            value = str(alarm[&#39;events&#39;][0][event_filter[0]])
             for filter_value in event_filter[1]:
-                if any(regex_match(filter_value.lower(), value.lower()) for value in values):
+                if regex_match(filter_value.lower(), value.lower()) :
                     match=True
                     break
             if not match :
@@ -392,16 +396,22 @@ class Alarm(NitroDict):
         - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
         - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
         &#34;&#34;&#34;
-        #Retreive the alert id from the event&#39;s string
-        events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
-        the_id = events_data[0]+&#39;|&#39;+events_data[1]
+        if isinstance(self.data[&#39;events&#39;], str):
 
-        #instanciate the event
-        the_first_event=Event()
-        the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
+            #Retreive the alert id from the event&#39;s string
+            events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
+            the_id = events_data[0]+&#39;|&#39;+events_data[1]
 
-        #set it as the only item of the event list
-        self.data[&#39;events&#39;]= [ the_first_event ]
+            #instanciate the event
+            the_first_event=Event()
+            the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
+
+            #set it as the only item of the event list
+            self.data[&#39;events&#39;]= [ the_first_event ]
+
+        else:
+            log.warning(&#39;The alarm {} ({}) has no events associated&#39;.format(self.data[&#39;alarmName&#39;], self.data[&#39;triggeredDate&#39;]))
+            self.data[&#39;events&#39;]= [ Event() ]
 
         return self
 
@@ -612,16 +622,22 @@ class Alarm(NitroDict):
         - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
         - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
         &#34;&#34;&#34;
-        #Retreive the alert id from the event&#39;s string
-        events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
-        the_id = events_data[0]+&#39;|&#39;+events_data[1]
+        if isinstance(self.data[&#39;events&#39;], str):
 
-        #instanciate the event
-        the_first_event=Event()
-        the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
+            #Retreive the alert id from the event&#39;s string
+            events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
+            the_id = events_data[0]+&#39;|&#39;+events_data[1]
 
-        #set it as the only item of the event list
-        self.data[&#39;events&#39;]= [ the_first_event ]
+            #instanciate the event
+            the_first_event=Event()
+            the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
+
+            #set it as the only item of the event list
+            self.data[&#39;events&#39;]= [ the_first_event ]
+
+        else:
+            log.warning(&#39;The alarm {} ({}) has no events associated&#39;.format(self.data[&#39;alarmName&#39;], self.data[&#39;triggeredDate&#39;]))
+            self.data[&#39;events&#39;]= [ Event() ]
 
         return self
 
@@ -792,16 +808,22 @@ Parameters:<br>
     - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
     - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
     &#34;&#34;&#34;
-    #Retreive the alert id from the event&#39;s string
-    events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
-    the_id = events_data[0]+&#39;|&#39;+events_data[1]
+    if isinstance(self.data[&#39;events&#39;], str):
 
-    #instanciate the event
-    the_first_event=Event()
-    the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
+        #Retreive the alert id from the event&#39;s string
+        events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
+        the_id = events_data[0]+&#39;|&#39;+events_data[1]
 
-    #set it as the only item of the event list
-    self.data[&#39;events&#39;]= [ the_first_event ]
+        #instanciate the event
+        the_first_event=Event()
+        the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
+
+        #set it as the only item of the event list
+        self.data[&#39;events&#39;]= [ the_first_event ]
+
+    else:
+        log.warning(&#39;The alarm {} ({}) has no events associated&#39;.format(self.data[&#39;alarmName&#39;], self.data[&#39;triggeredDate&#39;]))
+        self.data[&#39;events&#39;]= [ Event() ]
 
     return self</code></pre>
 </details>
@@ -1119,6 +1141,8 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
         match=True
         for alarm_filter in self._alarm_filters :
             match=False
+            if alarm_filter[0] not in alarm:
+                break
             value = str(alarm[alarm_filter[0]]) #Can only match strings
             for filter_value in alarm_filter[1]:
                 if regex_match(filter_value.lower(), value.lower()):
@@ -1135,9 +1159,11 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
         match=True
         for event_filter in self._event_filters :
             match=False
-            values = [str(event[event_filter[0]]) for event in alarm[&#39;events&#39;]] #Can only match strings
+            if event_filter[0] not in alarm[&#39;events&#39;][0]:
+                break
+            value = str(alarm[&#39;events&#39;][0][event_filter[0]])
             for filter_value in event_filter[1]:
-                if any(regex_match(filter_value.lower(), value.lower()) for value in values):
+                if regex_match(filter_value.lower(), value.lower()) :
                     match=True
                     break
             if not match :

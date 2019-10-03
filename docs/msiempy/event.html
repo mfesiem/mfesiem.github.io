@@ -31,11 +31,15 @@ import json
 import abc
 import collections
 import logging
+import copy
 from datetime import datetime
 log = logging.getLogger(&#39;msiempy&#39;)
 
 from . import NitroObject, NitroDict, NitroError, FilteredQueryList
-from .__utils__ import timerange_gettimes, parse_query_result, format_fields_for_query
+from .__utils__ import timerange_gettimes, parse_query_result, format_fields_for_query, divide_times, parse_timedelta
+
+class InDepthQueryList(FilteredQueryList):
+    pass
 
 class EventManager(FilteredQueryList):
     &#34;&#34;&#34;Interface to query and manage events.
@@ -55,7 +59,12 @@ class EventManager(FilteredQueryList):
     # event fields, should be loaded once (when the session start ?)
     _possible_fields = []
 
-    def __init__(self, fields=None, order=None, limit=None, filters=None, compute_time_range=True, *args, **kwargs):
+    def __init__(self, fields=None, 
+        order=None, limit=500, filters=None, 
+        compute_time_range=True, #to remove ~&gt; use it just when max_query_depth&gt;0
+        max_query_depth=0, #to move to load_data()
+        __parent__=None,
+        *args, **kwargs):
         &#34;&#34;&#34;
         Paramters:  
            
@@ -75,6 +84,9 @@ class EventManager(FilteredQueryList):
         if you wish to use advanced filtering.
         - `compute_time_range` : False if you want to send the actualy time_range in parameter for the initial query.
             Defaulted to True cause the query splitting implies computing the time_range anyway.
+        - `max_query_depth` : maximum number of supplement reccursions of division of the query times
+            Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
+            the list is (500*5)*(500*5)*(500*5) = 15625000000
         - `*args, **kwargs` : Parameters passed to `msiempy.FilteredQueryList`
            
             
@@ -105,6 +117,13 @@ class EventManager(FilteredQueryList):
                 
         &#34;&#34;&#34;
 
+        #Store the query parent 
+        self.__parent__=__parent__
+
+        #Store the query ttl
+        self.__init_max_query_depth__=max_query_depth
+        self.query_depth_ttl=max_query_depth
+
         #Declaring attributes
         self._filters=list()
         self._order=dict()
@@ -125,7 +144,7 @@ class EventManager(FilteredQueryList):
         #Setting limit according to config or limit argument
         #TODO Try to load queries with a limit of 10k and get result as chucks of 500 with starPost nbRows
         #   and compare efficiency
-        self.limit=self.requests_size if limit is None else int(limit)
+        self.limit=int(limit)
         #we can ignore Access to member &#39;requests_size&#39; before its definition line 95pylint(access-member-before-definition)
         #It&#39;s define in FilteredQueryList __init__()
 
@@ -243,15 +262,12 @@ class EventManager(FilteredQueryList):
         &#34;&#34;&#34;
         return self.nitro.request(&#39;get_possible_fields&#39;, type=self.TYPE, groupType=self.GROUPTYPE)
 
-    def qry_load_data(self, **kwargs):
+    def qry_load_data(self):
         &#34;&#34;&#34;&#34;
         Concrete helper method to execute the query and load the data : 
             -&gt; Submit the query 
             -&gt; Wait the query to be executed
             -&gt; Get and parse the events
-        
-        Parameters :  
-        - `**kwargs` : Not used  
 
         Returns : `tuple` : ( `msiempy.event.EventManager`, Status of the query : `completed` )
 
@@ -295,6 +311,7 @@ class EventManager(FilteredQueryList):
         self.data=events
         return((events,len(events)&lt;self.limit))
 
+    &#39;&#39;&#39;
     def load_data(self, *args, **kwargs):
         &#34;&#34;&#34;
         Specialized EventManager load_data method.  
@@ -305,6 +322,86 @@ class EventManager(FilteredQueryList):
         - `*args, **kwargs` : See `msiempy.FilteredQueryList.load_data` and `msiempy.event.EventManager.qry_load_data`
         &#34;&#34;&#34;
         return EventManager(alist=super().load_data(*args, **kwargs))
+        &#39;&#39;&#39;
+        
+
+    def load_data(self, workers=10, slots=10, delta=None, **kwargs):
+        &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
+        Split the query in defferents time slots if the query apprears not to be completed. It wraps around `msiempy.FilteredQueryList.qry_load_data`.    
+        If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the `msiempy.FilteredQueryList`.
+
+        Note :  
+        If you looking for `load_async`, you should pass this to the constructor method `msiempy.FilteredQueryList` or by setting the attribute manually like `manager.load_asynch=True`
+        Only the first query is loaded asynchronously.
+
+        Parameters:  
+    
+        - `workers` : numbre of parrallels tasks, should be equal or less than the number of slots.  
+        - `slots` : number of time slots the query can be divided. The loading bar is 
+            divided according to the number of slots  
+        - `delta` : exemple : &#39;6h30m&#39;, the query will be firstly divided in chuncks according to the time delta read
+            with dateutil.  
+        - `**kwargs` : Same as `msiempy.event.EventManager.qry_load_data` parameters  
+
+        Returns : `msiempy.event.EventManager`
+        &#34;&#34;&#34;
+
+        items, completed = self.qry_load_data()
+
+        if not completed :
+            #If not completed the query is split and items aren&#39;t actually used
+
+            if self.query_depth_ttl &gt; 0 :
+                #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
+
+                if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
+                    start, end = timerange_gettimes(self.time_range)
+                else :
+                    start, end = self.start_time, self.end_time
+
+                if self.__parent__ == None and isinstance(delta, str) :
+                    #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
+                    times=divide_times(start, end, delta=parse_timedelta(delta))
+                    
+                else : 
+                    times=divide_times(start, end, slots=slots)
+
+                if workers &gt; len(times) :
+                    log.warning(&#34;The numbre of slots is smaller than the number of workers, only &#34;+str(len(times))+&#34; asynch workers will be used when you could use up to &#34;+str(workers)+&#34;. Number of slots should be greater than the number of workers for better performance.&#34;)
+                
+                sub_queries=list()
+
+                for time in times :
+                    #Divide the query in sub queries
+                    sub_query = copy.copy(self)
+                    sub_query.__parent__=self
+                    sub_query.compute_time_range=False
+                    sub_query.time_range=&#39;CUSTOM&#39;
+                    sub_query.start_time=time[0].isoformat()
+                    sub_query.end_time=time[1].isoformat()
+                    sub_query.load_async=False
+                    sub_query.query_depth_ttl=self.query_depth_ttl-1
+                    
+                    sub_queries.append(sub_query)
+            
+                results = self.perform(EventManager.load_data, sub_queries, 
+                    #The sub query is asynch only when it&#39;s the first query (root parent)
+                    asynch=self.__parent__==None,
+                    progress=self.__parent__==None, 
+                    message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
+                    func_args=dict(slots=slots),
+                    workers=workers)
+
+                #Flatten the list of lists in a list
+                items=[item for sublist in results for item in sublist]
+                
+            else :
+                if not self.__root_parent__.not_completed :
+                    log.warning(&#34;The query is not complete... Try to divide in more slots or increase the limit&#34;)
+                    self.__root_parent__.not_completed=True
+
+        self.data=items
+        return(self)
 
     def _wait_for(self, resultID, sleep_time=0.35):
         &#34;&#34;&#34;
@@ -346,6 +443,16 @@ class EventManager(FilteredQueryList):
         events=parse_query_result(result[&#39;columns&#39;], result[&#39;rows&#39;])
         #log.debug(&#34;Events parsed : &#34;+str(events))
         return events
+
+    @property
+    def __root_parent__(self):
+        &#34;&#34;&#34;
+        Internal method that return the first query of the query tree
+        &#34;&#34;&#34;
+        if self.__parent__==None:
+            return self
+        else :
+            return self.__parent__.__root_parent__
           
 class Event(NitroDict):
 
@@ -509,8 +616,7 @@ class Event(NitroDict):
 
         elif use_query == False :
             return self.nitro.request(&#39;get_alert_data&#39;, id=id)
-
-    
+   
 class QueryFilter(NitroObject):
     &#34;&#34;&#34;Base class for all SIEM query objects, declares the `config_dict` abstract property in order to dump the filter as JSON.
     &#34;&#34;&#34;
@@ -1133,7 +1239,7 @@ and update dict values accordingly.</p>
 </dd>
 <dt id="msiempy.event.EventManager"><code class="flex name class">
 <span>class <span class="ident">EventManager</span></span>
-<span>(</span><span>fields=None, order=None, limit=None, filters=None, compute_time_range=True, *args, **kwargs)</span>
+<span>(</span><span>fields=None, order=None, limit=500, filters=None, compute_time_range=True, max_query_depth=0, *args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Interface to query and manage events.
@@ -1157,6 +1263,9 @@ Structure must be in correct format
 if you wish to use advanced filtering.</li>
 <li><code>compute_time_range</code> : False if you want to send the actualy time_range in parameter for the initial query.
 Defaulted to True cause the query splitting implies computing the time_range anyway.</li>
+<li><code>max_query_depth</code> : maximum number of supplement reccursions of division of the query times
+Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of
+the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 <li><code>*args, **kwargs</code> : Parameters passed to <a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a></li>
 </ul>
 <p>Notes :</p>
@@ -1202,7 +1311,12 @@ Defaulted to True cause the query splitting implies computing the time_range any
     # event fields, should be loaded once (when the session start ?)
     _possible_fields = []
 
-    def __init__(self, fields=None, order=None, limit=None, filters=None, compute_time_range=True, *args, **kwargs):
+    def __init__(self, fields=None, 
+        order=None, limit=500, filters=None, 
+        compute_time_range=True, #to remove ~&gt; use it just when max_query_depth&gt;0
+        max_query_depth=0, #to move to load_data()
+        __parent__=None,
+        *args, **kwargs):
         &#34;&#34;&#34;
         Paramters:  
            
@@ -1222,6 +1336,9 @@ Defaulted to True cause the query splitting implies computing the time_range any
         if you wish to use advanced filtering.
         - `compute_time_range` : False if you want to send the actualy time_range in parameter for the initial query.
             Defaulted to True cause the query splitting implies computing the time_range anyway.
+        - `max_query_depth` : maximum number of supplement reccursions of division of the query times
+            Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
+            the list is (500*5)*(500*5)*(500*5) = 15625000000
         - `*args, **kwargs` : Parameters passed to `msiempy.FilteredQueryList`
            
             
@@ -1252,6 +1369,13 @@ Defaulted to True cause the query splitting implies computing the time_range any
                 
         &#34;&#34;&#34;
 
+        #Store the query parent 
+        self.__parent__=__parent__
+
+        #Store the query ttl
+        self.__init_max_query_depth__=max_query_depth
+        self.query_depth_ttl=max_query_depth
+
         #Declaring attributes
         self._filters=list()
         self._order=dict()
@@ -1272,7 +1396,7 @@ Defaulted to True cause the query splitting implies computing the time_range any
         #Setting limit according to config or limit argument
         #TODO Try to load queries with a limit of 10k and get result as chucks of 500 with starPost nbRows
         #   and compare efficiency
-        self.limit=self.requests_size if limit is None else int(limit)
+        self.limit=int(limit)
         #we can ignore Access to member &#39;requests_size&#39; before its definition line 95pylint(access-member-before-definition)
         #It&#39;s define in FilteredQueryList __init__()
 
@@ -1390,15 +1514,12 @@ Defaulted to True cause the query splitting implies computing the time_range any
         &#34;&#34;&#34;
         return self.nitro.request(&#39;get_possible_fields&#39;, type=self.TYPE, groupType=self.GROUPTYPE)
 
-    def qry_load_data(self, **kwargs):
+    def qry_load_data(self):
         &#34;&#34;&#34;&#34;
         Concrete helper method to execute the query and load the data : 
             -&gt; Submit the query 
             -&gt; Wait the query to be executed
             -&gt; Get and parse the events
-        
-        Parameters :  
-        - `**kwargs` : Not used  
 
         Returns : `tuple` : ( `msiempy.event.EventManager`, Status of the query : `completed` )
 
@@ -1442,6 +1563,7 @@ Defaulted to True cause the query splitting implies computing the time_range any
         self.data=events
         return((events,len(events)&lt;self.limit))
 
+    &#39;&#39;&#39;
     def load_data(self, *args, **kwargs):
         &#34;&#34;&#34;
         Specialized EventManager load_data method.  
@@ -1452,6 +1574,86 @@ Defaulted to True cause the query splitting implies computing the time_range any
         - `*args, **kwargs` : See `msiempy.FilteredQueryList.load_data` and `msiempy.event.EventManager.qry_load_data`
         &#34;&#34;&#34;
         return EventManager(alist=super().load_data(*args, **kwargs))
+        &#39;&#39;&#39;
+        
+
+    def load_data(self, workers=10, slots=10, delta=None, **kwargs):
+        &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
+        Split the query in defferents time slots if the query apprears not to be completed. It wraps around `msiempy.FilteredQueryList.qry_load_data`.    
+        If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the `msiempy.FilteredQueryList`.
+
+        Note :  
+        If you looking for `load_async`, you should pass this to the constructor method `msiempy.FilteredQueryList` or by setting the attribute manually like `manager.load_asynch=True`
+        Only the first query is loaded asynchronously.
+
+        Parameters:  
+    
+        - `workers` : numbre of parrallels tasks, should be equal or less than the number of slots.  
+        - `slots` : number of time slots the query can be divided. The loading bar is 
+            divided according to the number of slots  
+        - `delta` : exemple : &#39;6h30m&#39;, the query will be firstly divided in chuncks according to the time delta read
+            with dateutil.  
+        - `**kwargs` : Same as `msiempy.event.EventManager.qry_load_data` parameters  
+
+        Returns : `msiempy.event.EventManager`
+        &#34;&#34;&#34;
+
+        items, completed = self.qry_load_data()
+
+        if not completed :
+            #If not completed the query is split and items aren&#39;t actually used
+
+            if self.query_depth_ttl &gt; 0 :
+                #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
+
+                if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
+                    start, end = timerange_gettimes(self.time_range)
+                else :
+                    start, end = self.start_time, self.end_time
+
+                if self.__parent__ == None and isinstance(delta, str) :
+                    #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
+                    times=divide_times(start, end, delta=parse_timedelta(delta))
+                    
+                else : 
+                    times=divide_times(start, end, slots=slots)
+
+                if workers &gt; len(times) :
+                    log.warning(&#34;The numbre of slots is smaller than the number of workers, only &#34;+str(len(times))+&#34; asynch workers will be used when you could use up to &#34;+str(workers)+&#34;. Number of slots should be greater than the number of workers for better performance.&#34;)
+                
+                sub_queries=list()
+
+                for time in times :
+                    #Divide the query in sub queries
+                    sub_query = copy.copy(self)
+                    sub_query.__parent__=self
+                    sub_query.compute_time_range=False
+                    sub_query.time_range=&#39;CUSTOM&#39;
+                    sub_query.start_time=time[0].isoformat()
+                    sub_query.end_time=time[1].isoformat()
+                    sub_query.load_async=False
+                    sub_query.query_depth_ttl=self.query_depth_ttl-1
+                    
+                    sub_queries.append(sub_query)
+            
+                results = self.perform(EventManager.load_data, sub_queries, 
+                    #The sub query is asynch only when it&#39;s the first query (root parent)
+                    asynch=self.__parent__==None,
+                    progress=self.__parent__==None, 
+                    message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
+                    func_args=dict(slots=slots),
+                    workers=workers)
+
+                #Flatten the list of lists in a list
+                items=[item for sublist in results for item in sublist]
+                
+            else :
+                if not self.__root_parent__.not_completed :
+                    log.warning(&#34;The query is not complete... Try to divide in more slots or increase the limit&#34;)
+                    self.__root_parent__.not_completed=True
+
+        self.data=items
+        return(self)
 
     def _wait_for(self, resultID, sleep_time=0.35):
         &#34;&#34;&#34;
@@ -1492,7 +1694,17 @@ Defaulted to True cause the query splitting implies computing the time_range any
             log.error(&#34;You requested duplicated fields, the parsed fields/values results will be missmatched !&#34;)
         events=parse_query_result(result[&#39;columns&#39;], result[&#39;rows&#39;])
         #log.debug(&#34;Events parsed : &#34;+str(events))
-        return events</code></pre>
+        return events
+
+    @property
+    def __root_parent__(self):
+        &#34;&#34;&#34;
+        Internal method that return the first query of the query tree
+        &#34;&#34;&#34;
+        if self.__parent__==None:
+            return self
+        else :
+            return self.__parent__.__root_parent__</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1633,30 +1845,114 @@ The list is loaded from the SIEM.</p></section>
 </details>
 </dd>
 <dt id="msiempy.event.EventManager.load_data"><code class="name flex">
-<span>def <span class="ident">load_data</span></span>(<span>self, *args, **kwargs)</span>
+<span>def <span class="ident">load_data</span></span>(<span>self, workers=10, slots=10, delta=None, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Specialized EventManager load_data method.<br>
-Use super load_data implementation.<br>
-TODO : Use better polymorphism and do not cast here.</p>
-<p>Parameters :
-- <code>*args, **kwargs</code> : See <a title="msiempy.FilteredQueryList.load_data" href="index.html#msiempy.FilteredQueryList.load_data"><code>FilteredQueryList.load_data()</code></a> and <a title="msiempy.event.EventManager.qry_load_data" href="#msiempy.event.EventManager.qry_load_data"><code>EventManager.qry_load_data()</code></a></p></section>
+<section class="desc"><p>Load the data from the SIEM into the manager list.<br>
+Split the query in defferents time slots if the query apprears not to be completed. It wraps around <a title="msiempy.FilteredQueryList.qry_load_data" href="index.html#msiempy.FilteredQueryList.qry_load_data"><code>FilteredQueryList.qry_load_data()</code></a>.
+<br>
+If you're looking for <code>max_query_depth</code>, it's define at the creation of the <a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a>.</p>
+<p>Note :<br>
+If you looking for <code>load_async</code>, you should pass this to the constructor method <a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a> or by setting the attribute manually like <code>manager.load_asynch=True</code>
+Only the first query is loaded asynchronously.</p>
+<p>Parameters:
+</p>
+<ul>
+<li><code>workers</code> : numbre of parrallels tasks, should be equal or less than the number of slots.
+</li>
+<li><code>slots</code> : number of time slots the query can be divided. The loading bar is
+divided according to the number of slots
+</li>
+<li><code>delta</code> : exemple : '6h30m', the query will be firstly divided in chuncks according to the time delta read
+with dateutil.
+</li>
+<li><code>**kwargs</code> : Same as <a title="msiempy.event.EventManager.qry_load_data" href="#msiempy.event.EventManager.qry_load_data"><code>EventManager.qry_load_data()</code></a> parameters
+</li>
+</ul>
+<p>Returns : <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a></p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def load_data(self, *args, **kwargs):
+<pre><code class="python">def load_data(self, workers=10, slots=10, delta=None, **kwargs):
+    &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
+    Split the query in defferents time slots if the query apprears not to be completed. It wraps around `msiempy.FilteredQueryList.qry_load_data`.    
+    If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the `msiempy.FilteredQueryList`.
+
+    Note :  
+    If you looking for `load_async`, you should pass this to the constructor method `msiempy.FilteredQueryList` or by setting the attribute manually like `manager.load_asynch=True`
+    Only the first query is loaded asynchronously.
+
+    Parameters:  
+
+    - `workers` : numbre of parrallels tasks, should be equal or less than the number of slots.  
+    - `slots` : number of time slots the query can be divided. The loading bar is 
+        divided according to the number of slots  
+    - `delta` : exemple : &#39;6h30m&#39;, the query will be firstly divided in chuncks according to the time delta read
+        with dateutil.  
+    - `**kwargs` : Same as `msiempy.event.EventManager.qry_load_data` parameters  
+
+    Returns : `msiempy.event.EventManager`
     &#34;&#34;&#34;
-    Specialized EventManager load_data method.  
-    Use super load_data implementation.  
-    TODO : Use better polymorphism and do not cast here.
-    
-    Parameters :
-    - `*args, **kwargs` : See `msiempy.FilteredQueryList.load_data` and `msiempy.event.EventManager.qry_load_data`
-    &#34;&#34;&#34;
-    return EventManager(alist=super().load_data(*args, **kwargs))</code></pre>
+
+    items, completed = self.qry_load_data()
+
+    if not completed :
+        #If not completed the query is split and items aren&#39;t actually used
+
+        if self.query_depth_ttl &gt; 0 :
+            #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
+
+            if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
+                start, end = timerange_gettimes(self.time_range)
+            else :
+                start, end = self.start_time, self.end_time
+
+            if self.__parent__ == None and isinstance(delta, str) :
+                #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
+                times=divide_times(start, end, delta=parse_timedelta(delta))
+                
+            else : 
+                times=divide_times(start, end, slots=slots)
+
+            if workers &gt; len(times) :
+                log.warning(&#34;The numbre of slots is smaller than the number of workers, only &#34;+str(len(times))+&#34; asynch workers will be used when you could use up to &#34;+str(workers)+&#34;. Number of slots should be greater than the number of workers for better performance.&#34;)
+            
+            sub_queries=list()
+
+            for time in times :
+                #Divide the query in sub queries
+                sub_query = copy.copy(self)
+                sub_query.__parent__=self
+                sub_query.compute_time_range=False
+                sub_query.time_range=&#39;CUSTOM&#39;
+                sub_query.start_time=time[0].isoformat()
+                sub_query.end_time=time[1].isoformat()
+                sub_query.load_async=False
+                sub_query.query_depth_ttl=self.query_depth_ttl-1
+                
+                sub_queries.append(sub_query)
+        
+            results = self.perform(EventManager.load_data, sub_queries, 
+                #The sub query is asynch only when it&#39;s the first query (root parent)
+                asynch=self.__parent__==None,
+                progress=self.__parent__==None, 
+                message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
+                func_args=dict(slots=slots),
+                workers=workers)
+
+            #Flatten the list of lists in a list
+            items=[item for sublist in results for item in sublist]
+            
+        else :
+            if not self.__root_parent__.not_completed :
+                log.warning(&#34;The query is not complete... Try to divide in more slots or increase the limit&#34;)
+                self.__root_parent__.not_completed=True
+
+    self.data=items
+    return(self)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.event.EventManager.qry_load_data"><code class="name flex">
-<span>def <span class="ident">qry_load_data</span></span>(<span>self, **kwargs)</span>
+<span>def <span class="ident">qry_load_data</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>"
@@ -1664,21 +1960,15 @@ Concrete helper method to execute the query and load the data :
 -&gt; Submit the query
 -&gt; Wait the query to be executed
 -&gt; Get and parse the events</p>
-<p>Parameters :<br>
-- <code>**kwargs</code> : Not used
-</p>
 <p>Returns : <code>tuple</code> : ( <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a>, Status of the query : <code>completed</code> )</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def qry_load_data(self, **kwargs):
+<pre><code class="python">def qry_load_data(self):
     &#34;&#34;&#34;&#34;
     Concrete helper method to execute the query and load the data : 
         -&gt; Submit the query 
         -&gt; Wait the query to be executed
         -&gt; Get and parse the events
-    
-    Parameters :  
-    - `**kwargs` : Not used  
 
     Returns : `tuple` : ( `msiempy.event.EventManager`, Status of the query : `completed` )
 
@@ -2255,6 +2545,69 @@ def config_dict(self):
 </li>
 </ul>
 </dd>
+<dt id="msiempy.event.InDepthQueryList"><code class="flex name class">
+<span>class <span class="ident">InDepthQueryList</span></span>
+<span>(</span><span>time_range=None, start_time=None, end_time=None, filters=None, load_async=True, *arg, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class for query based managers : AlarmManager, EventManager
+FilteredQueryList object can handle time_ranges and time splitting.
+Provide time ranged filtered query wrapper.</p>
+<p>Abstract base class that handles the time ranges operations, loading data from the SIEM.</p>
+<p>Parameters:
+</p>
+<ul>
+<li><code>time_range</code> : Query time range. String representation of a time range.
+See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE"><code>FilteredQueryList.POSSIBLE_TIME_RANGE</code></a></li>
+<li><code>start_time</code> : Query starting time, can be a string or a datetime object. Parsed with dateutil.</li>
+<li><code>end_time</code> : Query endding time, can be a string or a datetime object. Parsed with dateutil.</li>
+<li><code>filters</code> : List of filters applied to the query.</li>
+<li><code>load_async</code> : Load asynchonously the sub-queries. Defaulted to True.</li>
+</ul></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class InDepthQueryList(FilteredQueryList):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></li>
+<li><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></li>
+<li>collections.UserList</li>
+<li>collections.abc.MutableSequence</li>
+<li>collections.abc.Sequence</li>
+<li>collections.abc.Reversible</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.FilteredQueryList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.add_filter" href="index.html#msiempy.FilteredQueryList.add_filter">add_filter</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.clear_filters" href="index.html#msiempy.FilteredQueryList.clear_filters">clear_filters</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.end_time" href="index.html#msiempy.FilteredQueryList.end_time">end_time</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.filters" href="index.html#msiempy.FilteredQueryList.filters">filters</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.load_data" href="index.html#msiempy.FilteredQueryList.load_data">load_data</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.qry_load_data" href="index.html#msiempy.FilteredQueryList.qry_load_data">qry_load_data</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.start_time" href="index.html#msiempy.FilteredQueryList.start_time">start_time</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.time_range" href="index.html#msiempy.FilteredQueryList.time_range">time_range</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="msiempy.event.QueryFilter"><code class="flex name class">
 <span>class <span class="ident">QueryFilter</span></span>
 </code></dt>
@@ -2462,6 +2815,9 @@ def text(self):
 <ul class="">
 <li><code><a title="msiempy.event.GroupFilter.config_dict" href="#msiempy.event.GroupFilter.config_dict">config_dict</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="msiempy.event.InDepthQueryList" href="#msiempy.event.InDepthQueryList">InDepthQueryList</a></code></h4>
 </li>
 <li>
 <h4><code><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></code></h4>

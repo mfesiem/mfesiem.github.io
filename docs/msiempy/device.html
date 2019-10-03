@@ -1025,6 +1025,9 @@ class DevTree(NitroList):
             ftoken (str): instance name set by 
         
         &#34;&#34;&#34;
+        # Need to test ESM with large client list to see if
+        # multiple requests may be necessary here.
+
         resp = self.nitro.request(&#39;get_rfile&#39;, ftoken=ftoken)
         return dehexify(resp[&#39;DATA&#39;])
 
@@ -2193,6 +2196,9 @@ __contains__    Returns bool as to whether a datasource name, IP,
             ftoken (str): instance name set by 
         
         &#34;&#34;&#34;
+        # Need to test ESM with large client list to see if
+        # multiple requests may be necessary here.
+
         resp = self.nitro.request(&#39;get_rfile&#39;, ftoken=ftoken)
         return dehexify(resp[&#39;DATA&#39;])
 

@@ -144,47 +144,15 @@ class Watchlist(NitroDict):
     - And others...
 
     &#34;&#34;&#34;
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if id in kwargs:
-            self.id = id
-        else:
-            self.id = 0
-        self.name = None
-        self.active = True
-        self.type = None
-        self.type_id = None
-        self.custom_type = False
-        self.dynamic = False
-        self.source = 0
-        self.search = None
-        self.update_type = &#39;EVERY_SO_MANY_MINUTES&#39;
-        self.update_day = 0
-        self.update_min = 0
-        self.ipsid = 0
-        self.job_tracker_url = None
-        self.job_tracker_port = None
-        self.post_args = None
-        self.ssl_check = False
-        self.method = 0
-        self.ignore_regex = None
-        self.groups = None
-        self.mount_point = None
-        self.path = None
-        self.port = None
-        self.lookup = None
-        self.line_skip = None
-        self.delimit_regex = None
-        self.record_count = 0
-        self.scored = False
-        self.__dict__.update(kwargs)
 
-    def values(self):
-        exclude = [&#39;data&#39;, &#39;adict&#39;, &#39;nitro&#39;,&#39;kwargs&#39;]
-        return [val for key, val in self.__dict__.items()
-                    if not key.startswith(&#39;_&#39;)
-                    if key not in exclude]
+    def __repr__(self):
+        return self.data.__repr__()
+    
+    def __iter__(self):
+        for data in self.data:
+            yield data
 
     def add_values(self, values):
         &#34;&#34;&#34;
@@ -205,17 +173,44 @@ class Watchlist(NitroDict):
 
     def load_details(self):
         &#34;&#34;&#34;
+        Load Watchlist details.
+        &#34;&#34;&#34;
+        self.data.update(self.data_from_id(self.data[&#39;id&#39;]))
 
+    def load_values(self):
         &#34;&#34;&#34;
-        the_id = self.data[&#39;id&#39;]
-        self.data.update(self.data_from_id(the_id))
-        self.data[&#39;id&#39;]=the_id
+        Load Watchlist values.
+        &#34;&#34;&#34;
+        wl_details = self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;])
 
-    def load_values(self, count=50):
-        &#34;&#34;&#34;
-        Not properly tested yet.
-        &#34;&#34;&#34;
-        self.data[&#39;values&#39;]=self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;], pos=0, count=count)</code></pre>
+        try:
+            file = wl_details[&#39;WLVFILE&#39;]
+        except KeyError:
+            print(&#39;ESM Error: Is watchlist valid?&#39;)
+
+        pos = 0
+        nbytes = 0
+        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+
+        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
+            print(&#39;Single file. Size: {}. BREAD: {}&#39;.format(resp[&#39;FSIZE&#39;], resp[&#39;BREAD&#39;]))
+            self.data[&#39;values&#39;] = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
+            self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+            return
+
+        data = []
+        data.append(resp[&#39;DATA&#39;])
+        file_size = int(resp[&#39;FSIZE&#39;])
+        collected = int(resp[&#39;BREAD&#39;])
+
+        while file_size &gt; collected:
+            pos += int(resp[&#39;BREAD&#39;])
+            nbytes = file_size - collected
+            resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+            collected += int(resp[&#39;BREAD&#39;])
+            data.append(resp[&#39;DATA&#39;])
+        self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)
+        resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)</code></pre>
 </details>
 </section>
 <section>
@@ -283,47 +278,15 @@ and update dict values accordingly.</p>
     - And others...
 
     &#34;&#34;&#34;
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if id in kwargs:
-            self.id = id
-        else:
-            self.id = 0
-        self.name = None
-        self.active = True
-        self.type = None
-        self.type_id = None
-        self.custom_type = False
-        self.dynamic = False
-        self.source = 0
-        self.search = None
-        self.update_type = &#39;EVERY_SO_MANY_MINUTES&#39;
-        self.update_day = 0
-        self.update_min = 0
-        self.ipsid = 0
-        self.job_tracker_url = None
-        self.job_tracker_port = None
-        self.post_args = None
-        self.ssl_check = False
-        self.method = 0
-        self.ignore_regex = None
-        self.groups = None
-        self.mount_point = None
-        self.path = None
-        self.port = None
-        self.lookup = None
-        self.line_skip = None
-        self.delimit_regex = None
-        self.record_count = 0
-        self.scored = False
-        self.__dict__.update(kwargs)
 
-    def values(self):
-        exclude = [&#39;data&#39;, &#39;adict&#39;, &#39;nitro&#39;,&#39;kwargs&#39;]
-        return [val for key, val in self.__dict__.items()
-                    if not key.startswith(&#39;_&#39;)
-                    if key not in exclude]
+    def __repr__(self):
+        return self.data.__repr__()
+    
+    def __iter__(self):
+        for data in self.data:
+            yield data
 
     def add_values(self, values):
         &#34;&#34;&#34;
@@ -344,17 +307,44 @@ and update dict values accordingly.</p>
 
     def load_details(self):
         &#34;&#34;&#34;
+        Load Watchlist details.
+        &#34;&#34;&#34;
+        self.data.update(self.data_from_id(self.data[&#39;id&#39;]))
 
+    def load_values(self):
         &#34;&#34;&#34;
-        the_id = self.data[&#39;id&#39;]
-        self.data.update(self.data_from_id(the_id))
-        self.data[&#39;id&#39;]=the_id
+        Load Watchlist values.
+        &#34;&#34;&#34;
+        wl_details = self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;])
 
-    def load_values(self, count=50):
-        &#34;&#34;&#34;
-        Not properly tested yet.
-        &#34;&#34;&#34;
-        self.data[&#39;values&#39;]=self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;], pos=0, count=count)</code></pre>
+        try:
+            file = wl_details[&#39;WLVFILE&#39;]
+        except KeyError:
+            print(&#39;ESM Error: Is watchlist valid?&#39;)
+
+        pos = 0
+        nbytes = 0
+        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+
+        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
+            print(&#39;Single file. Size: {}. BREAD: {}&#39;.format(resp[&#39;FSIZE&#39;], resp[&#39;BREAD&#39;]))
+            self.data[&#39;values&#39;] = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
+            self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+            return
+
+        data = []
+        data.append(resp[&#39;DATA&#39;])
+        file_size = int(resp[&#39;FSIZE&#39;])
+        collected = int(resp[&#39;BREAD&#39;])
+
+        while file_size &gt; collected:
+            pos += int(resp[&#39;BREAD&#39;])
+            nbytes = file_size - collected
+            resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+            collected += int(resp[&#39;BREAD&#39;])
+            data.append(resp[&#39;DATA&#39;])
+        self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)
+        resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -418,44 +408,57 @@ and update dict values accordingly.</p>
 <span>def <span class="ident">load_details</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Load Watchlist details.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;
-
+    Load Watchlist details.
     &#34;&#34;&#34;
-    the_id = self.data[&#39;id&#39;]
-    self.data.update(self.data_from_id(the_id))
-    self.data[&#39;id&#39;]=the_id</code></pre>
+    self.data.update(self.data_from_id(self.data[&#39;id&#39;]))</code></pre>
 </details>
 </dd>
 <dt id="msiempy.watchlist.Watchlist.load_values"><code class="name flex">
-<span>def <span class="ident">load_values</span></span>(<span>self, count=50)</span>
+<span>def <span class="ident">load_values</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Not properly tested yet.</p></section>
+<section class="desc"><p>Load Watchlist values.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def load_values(self, count=50):
+<pre><code class="python">def load_values(self):
     &#34;&#34;&#34;
-    Not properly tested yet.
+    Load Watchlist values.
     &#34;&#34;&#34;
-    self.data[&#39;values&#39;]=self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;], pos=0, count=count)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.watchlist.Watchlist.values"><code class="name flex">
-<span>def <span class="ident">values</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>D.values() -&gt; an object providing a view on D's values</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def values(self):
-    exclude = [&#39;data&#39;, &#39;adict&#39;, &#39;nitro&#39;,&#39;kwargs&#39;]
-    return [val for key, val in self.__dict__.items()
-                if not key.startswith(&#39;_&#39;)
-                if key not in exclude]</code></pre>
+    wl_details = self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;])
+
+    try:
+        file = wl_details[&#39;WLVFILE&#39;]
+    except KeyError:
+        print(&#39;ESM Error: Is watchlist valid?&#39;)
+
+    pos = 0
+    nbytes = 0
+    resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+
+    if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
+        print(&#39;Single file. Size: {}. BREAD: {}&#39;.format(resp[&#39;FSIZE&#39;], resp[&#39;BREAD&#39;]))
+        self.data[&#39;values&#39;] = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
+        self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+        return
+
+    data = []
+    data.append(resp[&#39;DATA&#39;])
+    file_size = int(resp[&#39;FSIZE&#39;])
+    collected = int(resp[&#39;BREAD&#39;])
+
+    while file_size &gt; collected:
+        pos += int(resp[&#39;BREAD&#39;])
+        nbytes = file_size - collected
+        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+        collected += int(resp[&#39;BREAD&#39;])
+        data.append(resp[&#39;DATA&#39;])
+    self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)
+    resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)</code></pre>
 </details>
 </dd>
 </dl>
@@ -783,7 +786,6 @@ File_Hash</dd>
 <li><code><a title="msiempy.watchlist.Watchlist.data_from_id" href="#msiempy.watchlist.Watchlist.data_from_id">data_from_id</a></code></li>
 <li><code><a title="msiempy.watchlist.Watchlist.load_details" href="#msiempy.watchlist.Watchlist.load_details">load_details</a></code></li>
 <li><code><a title="msiempy.watchlist.Watchlist.load_values" href="#msiempy.watchlist.Watchlist.load_values">load_values</a></code></li>
-<li><code><a title="msiempy.watchlist.Watchlist.values" href="#msiempy.watchlist.Watchlist.values">values</a></code></li>
 </ul>
 </li>
 <li>

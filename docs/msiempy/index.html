@@ -73,7 +73,6 @@ import collections
 import tqdm
 import copy
 import csv
-import sys
 import concurrent.futures
 import prettytable
 from prettytable import MSWORD_FRIENDLY
@@ -81,7 +80,7 @@ import datetime
 import functools
 import textwrap
 import inspect
-from io import StringIO
+
 from .__utils__ import regex_match, tob64, format_esm_time, convert_to_time_obj, timerange_gettimes, parse_timedelta, divide_times
 
 
@@ -338,15 +337,6 @@ class NitroSession():
                     &#34;NBYTES&#34;: &#34;0&#34;}
                     &#34;&#34;&#34;),
 
-        &#34;del_rfile&#34;: (&#34;ESSMGT_DELETEFILE&#34;,
-                    &#34;&#34;&#34;{&#34;FN&#34;: &#34;%(ftoken)s&#34;}&#34;&#34;&#34;),
-
-        &#34;get_rfile2&#34;: (&#34;MISC_READFILE&#34;,
-                    &#34;&#34;&#34;{&#34;FNAME&#34;: &#34;%(ftoken)s&#34;,
-                    &#34;SPOS&#34;: &#34;%(pos)s&#34;,
-                    &#34;NBYTES&#34;: &#34;%(nbytes)s&#34;}
-                    &#34;&#34;&#34;),
-
         &#34;get_wfile&#34;: (&#34;MISC_WRITEFILE&#34;,
                     &#34;&#34;&#34;{&#34;DATA1&#34;: &#34;%(_ds_id)s&#34;,
                     &#34;&#34;&#34;),
@@ -528,7 +518,7 @@ class NitroSession():
                 &#34;watchlist&#34;: {
                     &#34;name&#34;: &#34;%(name)s&#34;,
                     &#34;type&#34;: {&#34;name&#34;: &#34;%(wl_type)s&#34;,
-                              &#34;id&#34;: 0},
+                              &#34;id&#34;: &#34;%(id)s&#34;},
                     &#34;customType&#34;: {&#34;name&#34;: &#34;&#34;,
                                    &#34;id&#34;: 0},
                     &#34;dynamic&#34;: &#34;False&#34;,
@@ -564,8 +554,7 @@ class NitroSession():
                 &#34;values&#34;: %(values)s,
                 }&#34;&#34;&#34;),
 
-            &#34;get_watchlist_values&#34;: (&#34;SYS_GETWATCHLISTDETAILS&#34;,
-                                            &#34;&#34;&#34;{&#34;WID&#34;: &#34;%(id)s&#34;, &#34;LIM&#34;: &#34;T&#34;}&#34;&#34;&#34;),
+            &#34;get_watchlist_values&#34;: (&#34;&#34;&#34;sysGetWatchlistValues?pos=%(pos)s&amp;count=%(count)s&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;file&#34;: {&#34;id&#34;: &#34;%(id)s&#34;}}&#34;&#34;&#34;),
 
             &#34;remove_watchlists&#34;: (&#34;&#34;&#34;sysRemoveWatchlist&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;ids&#34;: {&#34;watchlistIdList&#34;: [&#34;%(wl_id_list)s&#34;]}}&#34;&#34;&#34;),
 
@@ -635,7 +624,7 @@ class NitroSession():
                 quiet=self.config.quiet,
                 logfile=self.config.logfile)
 
-            log.info(&#39;New ESM session instance is created with : &#39;+str(self.config.host))
+            log.info(&#39;New NitroSession instance&#39;)
 
 
     def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False):
@@ -690,9 +679,7 @@ class NitroSession():
                 data=data, 
                 headers=self._headers,
                 verify=self.config.ssl_verify,
-                timeout=self.config.timeout,
-                # Uncomment for debugging.
-                #proxies={&#34;http&#34;: &#34;http://127.0.0.1:8888&#34;, &#34;https&#34;:&#34;http:127.0.0.1:8888&#34;}
+                timeout=self.config.timeout
             )
 
             if raw :
@@ -703,10 +690,7 @@ class NitroSession():
                 try:
                     result.raise_for_status()
                 except requests.HTTPError as e :
-                    log.error(&#39;\n&#39; + str(e)+ &#39; &#39; +str(result.text) + &#39;\nSee debug log for more infos.&#39;)
-                    log.debug(str(e)+ &#39; &#39; +str(result.text)+ &#39; &#39; + str(result.__dict__))
-                    exit(423)
-                    
+                    raise(requests.HTTPError(str(e)+ &#39; &#39; +str(result.text)+ &#39; &#39; + str(result.__dict__)))
                     &#34;&#34;&#34;
                     #TODO handle expired session error, result unavailable / other siem errors
                     # _InvalidFilter (228)
@@ -1076,18 +1060,13 @@ class NitroList(collections.UserList, NitroObject):
         return manager_keys
 
 
-    def get_text(self, format=&#39;pprint&#39;, fields=None, 
-                        max_column_width=120, get_text_nest_attr={}):
+    def get_text(self, compact=False, fields=None, max_column_width=120, get_text_nest_attr={}):
         &#34;&#34;&#34;
         Return a acsii table string representation of the manager list
 
         Parameters:  
 
-        - `format`: 
-              pprint: Returns a spaced table separated by |
-              compact: Returns a non-spaced table separated by |
-              csv: Returns data with header and comma separated values. 
-              
+        - `compact`: Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.  
         - `fields`: list of fields you want in the table is None : default fields are returned by .keys attribute and sorted.  
         - `max_column_width`: when using prettytable (not compact)  
         - `get_text_nest_attr`: attributes passed to the nested NitroList elements. Useful to control events appearence.
@@ -1101,35 +1080,7 @@ class NitroList(collections.UserList, NitroObject):
         if len(self) == 0 :
             return(&#39;The list is empty&#39;)
 
-        if format == &#39;csv&#39;:
-            file = StringIO()
-            dw = csv.DictWriter(file, self.data[0].keys())
-            dw.writeheader()
-            dw.writerows(self.data)
-            text = file.getvalue()
-        elif format == &#39;compact&#39;:
-            text=&#39;|_&#39;
-            for field in fields :
-                text+=field
-                text+=&#39;_|_&#39;
-            text=text[0:len(text)-1]
-            text+=&#39;\n&#39;
-            for item in self.data:
-                if isinstance(item, (dict, NitroDict)):
-                    text+=&#39;| &#39;
-                    for field in fields :
-                        if isinstance(item[field], NitroList):
-                            text+=item[field].get_text(format=&#39;compact&#39;)
-                        else:
-                            text+=(str(item[field]))
-                            text+=&#39; | &#39;
-                    text=text[0:len(text)-1]
-                else : log.warning(&#34;Unnapropriate list element type, doesn&#39;t show on the list : {}&#34;.format(str(item)))
-                    #text+=textwrap.wrap(str(item),width=max_column_width)
-                text+=&#39;\n&#39;
-            text=text[0:len(text)-1]
-            
-        else:
+        if not compact : #Table
             table = prettytable.PrettyTable()
             table.set_style(MSWORD_FRIENDLY)
             table.field_names=fields
@@ -1149,9 +1100,34 @@ class NitroList(collections.UserList, NitroObject):
                     except Exception as err :
                         if &#34;Row has incorrect number of values&#34; in str(err):
                             log.error(&#34;Inconsistent NitroList state, some fields aren&#39;t present or too many are present : {}&#34;.format(str(err)))
+
                 else : log.warning(&#34;Unnapropriate list element type, doesn&#39;t show on the list : {}&#34;.format(str(item)))
+
             text=table.get_string()
+
+        elif compact is True :
+            text=&#39;|_&#39;
+            for field in fields :
+                text+=field
+                text+=&#39;_|_&#39;
+            text=text[0:len(text)-1]
+            text+=&#39;\n&#39;
+            for item in self.data:
+                if isinstance(item, (dict, NitroDict)):
+                    text+=&#39;| &#39;
+                    for field in fields :
+                        if isinstance(item[field], NitroList):
+                            text+=item[field].get_text(compact=True)
+                        else:
+                            text+=(str(item[field]))
+                            text+=&#39; | &#39;
+                    text=text[0:len(text)-1]
+                else : log.warning(&#34;Unnapropriate list element type, doesn&#39;t show on the list : {}&#34;.format(str(item)))
+                    #text+=textwrap.wrap(str(item),width=max_column_width)
+                text+=&#39;\n&#39;
+            text=text[0:len(text)-1]
         return text
+
 
 
     @property
@@ -1265,14 +1241,13 @@ class NitroList(collections.UserList, NitroObject):
 
         #Printing message if specified.
         tqdm_args=dict()
-
         #The message will appear on loading bar if progress is True
         if progress is True :
             tqdm_args=dict(desc=&#39;Loading...&#39;, total=len(elements))
             if message is not None:
                 tqdm_args[&#39;desc&#39;]=message
-        elif message is not None:
-            log.info(message)
+
+        
 
         #Runs the callable on list on executor or by iterating
         if asynch == True :
@@ -1351,7 +1326,8 @@ class FilteredQueryList(NitroList):
     List of possible time ranges : `%(timeranges)s`&#34;&#34;&#34; % dict(timeranges=&#39;, &#39;.join(POSSIBLE_TIME_RANGE))
 
     def __init__(self, time_range=None, start_time=None, end_time=None, filters=None, 
-        load_async=True, *arg, **kwargs):
+        load_async=True, requests_size=500, max_query_depth=0,
+            __parent__=None, *arg, **kwargs):
         &#34;&#34;&#34;
         Abstract base class that handles the time ranges operations, loading data from the SIEM.
 
@@ -1362,24 +1338,18 @@ class FilteredQueryList(NitroList):
         - `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
         - `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
         - `filters` : List of filters applied to the query.
-        - `load_async` : Load asynchonously the sub-queries. Defaulted to True.       
+        - `load_async` : Load asynchonously the sub-queries. Defaulted to True.
+        - `requests_size` : number of items per request.
+        - `max_query_depth` : maximum number of supplement reccursions of division of the query times
+            Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
+            the list is (500*5)*(500*5)*(500*5) = 15625000000
             
         &#34;&#34;&#34;
 
-        #handled eventual deprecated arguments
-        if &#39;max_query_depth&#39; in kwargs :
-            log.warning(&#39;Deprecated : `max_query_depth` argument has been removed from FilteredQueryList, it\&#39;s now a specilized EventManager argument only. You can remove this argument.&#39;)
-            del kwargs[&#39;max_query_depth&#39;]
-        if &#39;requests_size&#39; in kwargs :
-            log.warning(&#39;Deprecated : `requests_size` argument has been removed from FilteredQueryList, use `page_size` (Alarms) or `limit` (Events) arguments.&#39;)
-            del kwargs[&#39;requests_size&#39;]
-        if &#39;load_async&#39; in kwargs :
-            log.warning(&#39;Deprecated : `load_async` argument has been removed from FilteredQueryList. Queries are now always loaded asynchronously...&#39;)
-            del kwargs[&#39;load_async&#39;]
-
         super().__init__(*arg, **kwargs)
 
-        
+        #Store the query parent 
+        self.__parent__=__parent__
         self.not_completed=False
 
         #self.nitro.config.default_rows #nb rows per request : eq limit/page_size = requests_size
@@ -1401,6 +1371,20 @@ class FilteredQueryList(NitroList):
             self.time_range=time_range
 
         self.load_async=load_async
+        self.requests_size=requests_size
+        self.__init_max_query_depth__=max_query_depth
+        self.query_depth_ttl=max_query_depth
+
+
+    @property
+    def __root_parent__(self):
+        &#34;&#34;&#34;
+        Internal method that return the first query of the query tree
+        &#34;&#34;&#34;
+        if self.__parent__==None:
+            return self
+        else :
+            return self.__parent__.__root_parent__
 
     @property
     def time_range(self):
@@ -1498,33 +1482,103 @@ class FilteredQueryList(NitroList):
     
     @abc.abstractmethod
     def add_filter(self, filter):
-        &#34;&#34;&#34;Add a filter to the query.  
-        Abstract declaration.
+        &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
     def clear_filters(self):
-        &#34;&#34;&#34;Remove all filters to the query.  
-        Abstract declaration.
+        &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
         &#34;&#34;&#34;
         pass 
 
     @abc.abstractmethod
-    def qry_load_data(self, *args, **kwargs):
+    def qry_load_data(self, **kwargs):
         &#34;&#34;&#34;
-        Method to load the data from the SIEM.  
-        Rturn a tuple (items, completed).  
-        completed = True if all the data that should be load is loaded.  
-        Abstract declaration.
+        Method to load the data from the SIEM.
+        Rturn a tuple (items, completed).
+        completed = True if all the data that should be load is loaded.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
-    def load_data(self, *args, **kwargs):
+    def load_data(self, workers=10, slots=10, delta=None, **kwargs):
         &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
-        Abstract declaration.&#34;&#34;&#34;
-        pass</code></pre>
+        Split the query in defferents time slots if the query apprears not to be completed. It wraps around `msiempy.FilteredQueryList.qry_load_data`.    
+        If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the `msiempy.FilteredQueryList`.
+
+        Note :  
+        If you looking for `load_async`, you should pass this to the constructor method `msiempy.FilteredQueryList` or by setting the attribute manually like `manager.load_asynch=True`
+        Only the first query is loaded asynchronously.
+
+        Parameters:  
+    
+        - `workers` : numbre of parrallels task  
+        - `slots` : number of time slots the query can be divided. The loading bar is 
+            divided according to the number of slots  
+        - `delta` : exemple : &#39;6h30m&#39;, the query will be firstly divided in chuncks according to the time delta read
+            with dateutil.  
+        - `**kwargs` : concrete additionnal `qry_load_data` parameters  
+
+        Returns : `msiempy.FilteredQueryList`
+        &#34;&#34;&#34;
+
+        items, completed = self.qry_load_data(workers=workers, **kwargs)
+
+        if not completed :
+            #If not completed the query is split and items aren&#39;t actually used
+
+            if self.query_depth_ttl &gt; 0 :
+                #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
+
+                if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
+                    start, end = timerange_gettimes(self.time_range)
+                else :
+                    start, end = self.start_time, self.end_time
+
+                if self.__parent__ == None and isinstance(delta, str) :
+                    #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
+                    times=divide_times(start, end, delta=parse_timedelta(delta))
+                    
+                else : 
+                    times=divide_times(start, end, slots=slots)
+
+                if workers &gt; len(times) :
+                    log.warning(&#34;The numbre of slots is smaller than the number of workers, only &#34;+str(len(times))+&#34; asynch workers will be used when you could use up to &#34;+str(workers)+&#34;. Number of slots should be greater than the number of workers for better performance.&#34;)
+                
+                sub_queries=list()
+
+                for time in times :
+                    #Divide the query in sub queries
+                    sub_query = copy.copy(self)
+                    sub_query.__parent__=self
+                    sub_query.compute_time_range=False
+                    sub_query.time_range=&#39;CUSTOM&#39;
+                    sub_query.start_time=time[0].isoformat()
+                    sub_query.end_time=time[1].isoformat()
+                    sub_query.load_async=False
+                    sub_query.query_depth_ttl=self.query_depth_ttl-1
+                    
+                    sub_queries.append(sub_query)
+            
+                results = self.perform(FilteredQueryList.load_data, sub_queries, 
+                    #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
+                    asynch=False if not self.load_async else (self.__parent__==None),
+                    progress=self.__parent__==None, 
+                    message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
+                    func_args=dict(slots=slots),
+                    workers=workers)
+
+                #Flatten the list of lists in a list
+                items=[item for sublist in results for item in sublist]
+                
+            else :
+                if not self.__root_parent__.not_completed :
+                    log.warning(&#34;The query is not complete... Try to divide in more slots or increase the requests_size, page_size or limit&#34;)
+                    self.__root_parent__.not_completed=True
+
+        self.data=items
+        return(self)</code></pre>
 </details>
 </section>
 <section>
@@ -1534,13 +1588,47 @@ class FilteredQueryList(NitroList):
 <dd>
 <section class="desc"><p>Provide alarm management.</p></section>
 </dd>
+<dt><code class="name"><a title="msiempy.base" href="base.html">msiempy.base</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="msiempy.config" href="config.html">msiempy.config</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="msiempy.datasource" href="datasource.html">msiempy.datasource</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
 <dt><code class="name"><a title="msiempy.device" href="device.html">msiempy.device</a></code></dt>
 <dd>
 <section class="desc"><p>Provide ESM, ERC and data source management.</p></section>
 </dd>
+<dt><code class="name"><a title="msiempy.error" href="error.html">msiempy.error</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
 <dt><code class="name"><a title="msiempy.event" href="event.html">msiempy.event</a></code></dt>
 <dd>
 <section class="desc"><p>Provide event management.</p></section>
+</dd>
+<dt><code class="name"><a title="msiempy.params" href="params.html">msiempy.params</a></code></dt>
+<dd>
+<section class="desc"><p>This module imports a dict into the msiem core class to provide
+a central place to aggregate API methods and parameters. The params
+are stored as …</p></section>
+</dd>
+<dt><code class="name"><a title="msiempy.query" href="query.html">msiempy.query</a></code></dt>
+<dd>
+<section class="desc"><p>Provide time ranged filtered query wrapper.</p></section>
+</dd>
+<dt><code class="name"><a title="msiempy.session" href="session.html">msiempy.session</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="msiempy.utils" href="utils.html">msiempy.utils</a></code></dt>
+<dd>
+<section class="desc"><p>A few quick static util methods.</p></section>
 </dd>
 <dt><code class="name"><a title="msiempy.watchlist" href="watchlist.html">msiempy.watchlist</a></code></dt>
 <dd>
@@ -1557,7 +1645,7 @@ class FilteredQueryList(NitroList):
 <dl>
 <dt id="msiempy.FilteredQueryList"><code class="flex name class">
 <span>class <span class="ident">FilteredQueryList</span></span>
-<span>(</span><span>time_range=None, start_time=None, end_time=None, filters=None, load_async=True, *arg, **kwargs)</span>
+<span>(</span><span>time_range=None, start_time=None, end_time=None, filters=None, load_async=True, requests_size=500, max_query_depth=0, *arg, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base class for query based managers : AlarmManager, EventManager
@@ -1573,6 +1661,10 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.Filt
 <li><code>end_time</code> : Query endding time, can be a string or a datetime object. Parsed with dateutil.</li>
 <li><code>filters</code> : List of filters applied to the query.</li>
 <li><code>load_async</code> : Load asynchonously the sub-queries. Defaulted to True.</li>
+<li><code>requests_size</code> : number of items per request.</li>
+<li><code>max_query_depth</code> : maximum number of supplement reccursions of division of the query times
+Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of
+the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 </ul></section>
 <details class="source">
 <summary>Source code</summary>
@@ -1610,7 +1702,8 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.Filt
     List of possible time ranges : `%(timeranges)s`&#34;&#34;&#34; % dict(timeranges=&#39;, &#39;.join(POSSIBLE_TIME_RANGE))
 
     def __init__(self, time_range=None, start_time=None, end_time=None, filters=None, 
-        load_async=True, *arg, **kwargs):
+        load_async=True, requests_size=500, max_query_depth=0,
+            __parent__=None, *arg, **kwargs):
         &#34;&#34;&#34;
         Abstract base class that handles the time ranges operations, loading data from the SIEM.
 
@@ -1621,24 +1714,18 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.Filt
         - `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
         - `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
         - `filters` : List of filters applied to the query.
-        - `load_async` : Load asynchonously the sub-queries. Defaulted to True.       
+        - `load_async` : Load asynchonously the sub-queries. Defaulted to True.
+        - `requests_size` : number of items per request.
+        - `max_query_depth` : maximum number of supplement reccursions of division of the query times
+            Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
+            the list is (500*5)*(500*5)*(500*5) = 15625000000
             
         &#34;&#34;&#34;
 
-        #handled eventual deprecated arguments
-        if &#39;max_query_depth&#39; in kwargs :
-            log.warning(&#39;Deprecated : `max_query_depth` argument has been removed from FilteredQueryList, it\&#39;s now a specilized EventManager argument only. You can remove this argument.&#39;)
-            del kwargs[&#39;max_query_depth&#39;]
-        if &#39;requests_size&#39; in kwargs :
-            log.warning(&#39;Deprecated : `requests_size` argument has been removed from FilteredQueryList, use `page_size` (Alarms) or `limit` (Events) arguments.&#39;)
-            del kwargs[&#39;requests_size&#39;]
-        if &#39;load_async&#39; in kwargs :
-            log.warning(&#39;Deprecated : `load_async` argument has been removed from FilteredQueryList. Queries are now always loaded asynchronously...&#39;)
-            del kwargs[&#39;load_async&#39;]
-
         super().__init__(*arg, **kwargs)
 
-        
+        #Store the query parent 
+        self.__parent__=__parent__
         self.not_completed=False
 
         #self.nitro.config.default_rows #nb rows per request : eq limit/page_size = requests_size
@@ -1660,6 +1747,20 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.Filt
             self.time_range=time_range
 
         self.load_async=load_async
+        self.requests_size=requests_size
+        self.__init_max_query_depth__=max_query_depth
+        self.query_depth_ttl=max_query_depth
+
+
+    @property
+    def __root_parent__(self):
+        &#34;&#34;&#34;
+        Internal method that return the first query of the query tree
+        &#34;&#34;&#34;
+        if self.__parent__==None:
+            return self
+        else :
+            return self.__parent__.__root_parent__
 
     @property
     def time_range(self):
@@ -1757,33 +1858,103 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.Filt
     
     @abc.abstractmethod
     def add_filter(self, filter):
-        &#34;&#34;&#34;Add a filter to the query.  
-        Abstract declaration.
+        &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
     def clear_filters(self):
-        &#34;&#34;&#34;Remove all filters to the query.  
-        Abstract declaration.
+        &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
         &#34;&#34;&#34;
         pass 
 
     @abc.abstractmethod
-    def qry_load_data(self, *args, **kwargs):
+    def qry_load_data(self, **kwargs):
         &#34;&#34;&#34;
-        Method to load the data from the SIEM.  
-        Rturn a tuple (items, completed).  
-        completed = True if all the data that should be load is loaded.  
-        Abstract declaration.
+        Method to load the data from the SIEM.
+        Rturn a tuple (items, completed).
+        completed = True if all the data that should be load is loaded.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
-    def load_data(self, *args, **kwargs):
+    def load_data(self, workers=10, slots=10, delta=None, **kwargs):
         &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
-        Abstract declaration.&#34;&#34;&#34;
-        pass</code></pre>
+        Split the query in defferents time slots if the query apprears not to be completed. It wraps around `msiempy.FilteredQueryList.qry_load_data`.    
+        If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the `msiempy.FilteredQueryList`.
+
+        Note :  
+        If you looking for `load_async`, you should pass this to the constructor method `msiempy.FilteredQueryList` or by setting the attribute manually like `manager.load_asynch=True`
+        Only the first query is loaded asynchronously.
+
+        Parameters:  
+    
+        - `workers` : numbre of parrallels task  
+        - `slots` : number of time slots the query can be divided. The loading bar is 
+            divided according to the number of slots  
+        - `delta` : exemple : &#39;6h30m&#39;, the query will be firstly divided in chuncks according to the time delta read
+            with dateutil.  
+        - `**kwargs` : concrete additionnal `qry_load_data` parameters  
+
+        Returns : `msiempy.FilteredQueryList`
+        &#34;&#34;&#34;
+
+        items, completed = self.qry_load_data(workers=workers, **kwargs)
+
+        if not completed :
+            #If not completed the query is split and items aren&#39;t actually used
+
+            if self.query_depth_ttl &gt; 0 :
+                #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
+
+                if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
+                    start, end = timerange_gettimes(self.time_range)
+                else :
+                    start, end = self.start_time, self.end_time
+
+                if self.__parent__ == None and isinstance(delta, str) :
+                    #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
+                    times=divide_times(start, end, delta=parse_timedelta(delta))
+                    
+                else : 
+                    times=divide_times(start, end, slots=slots)
+
+                if workers &gt; len(times) :
+                    log.warning(&#34;The numbre of slots is smaller than the number of workers, only &#34;+str(len(times))+&#34; asynch workers will be used when you could use up to &#34;+str(workers)+&#34;. Number of slots should be greater than the number of workers for better performance.&#34;)
+                
+                sub_queries=list()
+
+                for time in times :
+                    #Divide the query in sub queries
+                    sub_query = copy.copy(self)
+                    sub_query.__parent__=self
+                    sub_query.compute_time_range=False
+                    sub_query.time_range=&#39;CUSTOM&#39;
+                    sub_query.start_time=time[0].isoformat()
+                    sub_query.end_time=time[1].isoformat()
+                    sub_query.load_async=False
+                    sub_query.query_depth_ttl=self.query_depth_ttl-1
+                    
+                    sub_queries.append(sub_query)
+            
+                results = self.perform(FilteredQueryList.load_data, sub_queries, 
+                    #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
+                    asynch=False if not self.load_async else (self.__parent__==None),
+                    progress=self.__parent__==None, 
+                    message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
+                    func_args=dict(slots=slots),
+                    workers=workers)
+
+                #Flatten the list of lists in a list
+                items=[item for sublist in results for item in sublist]
+                
+            else :
+                if not self.__root_parent__.not_completed :
+                    log.warning(&#34;The query is not complete... Try to divide in more slots or increase the requests_size, page_size or limit&#34;)
+                    self.__root_parent__.not_completed=True
+
+        self.data=items
+        return(self)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1801,7 +1972,6 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.Filt
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="msiempy.event.InDepthQueryList" href="event.html#msiempy.event.InDepthQueryList">InDepthQueryList</a></li>
 <li><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></li>
 <li><a title="msiempy.alarm.AlarmManager" href="alarm.html#msiempy.alarm.AlarmManager">AlarmManager</a></li>
 </ul>
@@ -1899,14 +2069,12 @@ def time_range(self):
 <span>def <span class="ident">add_filter</span></span>(<span>self, filter)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Add a filter to the query.<br>
-Abstract declaration.</p></section>
+<section class="desc"><p>Method that figures out the way to add a filter to the query.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractmethod
 def add_filter(self, filter):
-    &#34;&#34;&#34;Add a filter to the query.  
-    Abstract declaration.
+    &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
     &#34;&#34;&#34;
     pass</code></pre>
 </details>
@@ -1915,50 +2083,139 @@ def add_filter(self, filter):
 <span>def <span class="ident">clear_filters</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Remove all filters to the query.<br>
-Abstract declaration.</p></section>
+<section class="desc"><p>Method that fiures out the way to remove all filters to the query.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractmethod
 def clear_filters(self):
-    &#34;&#34;&#34;Remove all filters to the query.  
-    Abstract declaration.
+    &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
     &#34;&#34;&#34;
     pass </code></pre>
 </details>
 </dd>
 <dt id="msiempy.FilteredQueryList.load_data"><code class="name flex">
-<span>def <span class="ident">load_data</span></span>(<span>self, *args, **kwargs)</span>
+<span>def <span class="ident">load_data</span></span>(<span>self, workers=10, slots=10, delta=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Load the data from the SIEM into the manager list.<br>
-Abstract declaration.</p></section>
+Split the query in defferents time slots if the query apprears not to be completed. It wraps around <a title="msiempy.FilteredQueryList.qry_load_data" href="#msiempy.FilteredQueryList.qry_load_data"><code>FilteredQueryList.qry_load_data()</code></a>.
+<br>
+If you're looking for <code>max_query_depth</code>, it's define at the creation of the <a title="msiempy.FilteredQueryList" href="#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a>.</p>
+<p>Note :<br>
+If you looking for <code>load_async</code>, you should pass this to the constructor method <a title="msiempy.FilteredQueryList" href="#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a> or by setting the attribute manually like <code>manager.load_asynch=True</code>
+Only the first query is loaded asynchronously.</p>
+<p>Parameters:
+</p>
+<ul>
+<li><code>workers</code> : numbre of parrallels task
+</li>
+<li><code>slots</code> : number of time slots the query can be divided. The loading bar is
+divided according to the number of slots
+</li>
+<li><code>delta</code> : exemple : '6h30m', the query will be firstly divided in chuncks according to the time delta read
+with dateutil.
+</li>
+<li><code>**kwargs</code> : concrete additionnal <code>qry_load_data</code> parameters
+</li>
+</ul>
+<p>Returns : <a title="msiempy.FilteredQueryList" href="#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a></p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractmethod
-def load_data(self, *args, **kwargs):
+def load_data(self, workers=10, slots=10, delta=None, **kwargs):
     &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
-    Abstract declaration.&#34;&#34;&#34;
-    pass</code></pre>
+    Split the query in defferents time slots if the query apprears not to be completed. It wraps around `msiempy.FilteredQueryList.qry_load_data`.    
+    If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the `msiempy.FilteredQueryList`.
+
+    Note :  
+    If you looking for `load_async`, you should pass this to the constructor method `msiempy.FilteredQueryList` or by setting the attribute manually like `manager.load_asynch=True`
+    Only the first query is loaded asynchronously.
+
+    Parameters:  
+
+    - `workers` : numbre of parrallels task  
+    - `slots` : number of time slots the query can be divided. The loading bar is 
+        divided according to the number of slots  
+    - `delta` : exemple : &#39;6h30m&#39;, the query will be firstly divided in chuncks according to the time delta read
+        with dateutil.  
+    - `**kwargs` : concrete additionnal `qry_load_data` parameters  
+
+    Returns : `msiempy.FilteredQueryList`
+    &#34;&#34;&#34;
+
+    items, completed = self.qry_load_data(workers=workers, **kwargs)
+
+    if not completed :
+        #If not completed the query is split and items aren&#39;t actually used
+
+        if self.query_depth_ttl &gt; 0 :
+            #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
+
+            if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
+                start, end = timerange_gettimes(self.time_range)
+            else :
+                start, end = self.start_time, self.end_time
+
+            if self.__parent__ == None and isinstance(delta, str) :
+                #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
+                times=divide_times(start, end, delta=parse_timedelta(delta))
+                
+            else : 
+                times=divide_times(start, end, slots=slots)
+
+            if workers &gt; len(times) :
+                log.warning(&#34;The numbre of slots is smaller than the number of workers, only &#34;+str(len(times))+&#34; asynch workers will be used when you could use up to &#34;+str(workers)+&#34;. Number of slots should be greater than the number of workers for better performance.&#34;)
+            
+            sub_queries=list()
+
+            for time in times :
+                #Divide the query in sub queries
+                sub_query = copy.copy(self)
+                sub_query.__parent__=self
+                sub_query.compute_time_range=False
+                sub_query.time_range=&#39;CUSTOM&#39;
+                sub_query.start_time=time[0].isoformat()
+                sub_query.end_time=time[1].isoformat()
+                sub_query.load_async=False
+                sub_query.query_depth_ttl=self.query_depth_ttl-1
+                
+                sub_queries.append(sub_query)
+        
+            results = self.perform(FilteredQueryList.load_data, sub_queries, 
+                #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
+                asynch=False if not self.load_async else (self.__parent__==None),
+                progress=self.__parent__==None, 
+                message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
+                func_args=dict(slots=slots),
+                workers=workers)
+
+            #Flatten the list of lists in a list
+            items=[item for sublist in results for item in sublist]
+            
+        else :
+            if not self.__root_parent__.not_completed :
+                log.warning(&#34;The query is not complete... Try to divide in more slots or increase the requests_size, page_size or limit&#34;)
+                self.__root_parent__.not_completed=True
+
+    self.data=items
+    return(self)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.FilteredQueryList.qry_load_data"><code class="name flex">
-<span>def <span class="ident">qry_load_data</span></span>(<span>self, *args, **kwargs)</span>
+<span>def <span class="ident">qry_load_data</span></span>(<span>self, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Method to load the data from the SIEM.<br>
-Rturn a tuple (items, completed).<br>
-completed = True if all the data that should be load is loaded.<br>
-Abstract declaration.</p></section>
+<section class="desc"><p>Method to load the data from the SIEM.
+Rturn a tuple (items, completed).
+completed = True if all the data that should be load is loaded.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">@abc.abstractmethod
-def qry_load_data(self, *args, **kwargs):
+def qry_load_data(self, **kwargs):
     &#34;&#34;&#34;
-    Method to load the data from the SIEM.  
-    Rturn a tuple (items, completed).  
-    completed = True if all the data that should be load is loaded.  
-    Abstract declaration.
+    Method to load the data from the SIEM.
+    Rturn a tuple (items, completed).
+    completed = True if all the data that should be load is loaded.
     &#34;&#34;&#34;
     pass</code></pre>
 </details>
@@ -1998,7 +2255,7 @@ If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/con
 <ul>
 <li><code>path</code>: Config file special path, if path is left None, will automatically look for it.
 </li>
-<li><code>config</code>: Manual config dict. ex: <code>{'general':{'verbose':True}}</code>.</li>
+<li><a title="msiempy.config" href="config.html"><code>msiempy.config</code></a>: Manual config dict. ex: <code>{'general':{'verbose':True}}</code>.</li>
 <li><code>*args, **kwargs</code> : Passed to <code>configparser.ConfigParser.__init__()</code> method.</li>
 </ul></section>
 <details class="source">
@@ -2484,8 +2741,8 @@ and update dict values accordingly.</p>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></li>
-<li><a title="msiempy.device.DataSource" href="device.html#msiempy.device.DataSource">DataSource</a></li>
 <li><a title="msiempy.alarm.Alarm" href="alarm.html#msiempy.alarm.Alarm">Alarm</a></li>
+<li><a title="msiempy.device.DataSource" href="device.html#msiempy.device.DataSource">DataSource</a></li>
 <li><a title="msiempy.watchlist.Watchlist" href="watchlist.html#msiempy.watchlist.Watchlist">Watchlist</a></li>
 </ul>
 <h3>Instance variables</h3>
@@ -2639,18 +2896,13 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
         return manager_keys
 
 
-    def get_text(self, format=&#39;pprint&#39;, fields=None, 
-                        max_column_width=120, get_text_nest_attr={}):
+    def get_text(self, compact=False, fields=None, max_column_width=120, get_text_nest_attr={}):
         &#34;&#34;&#34;
         Return a acsii table string representation of the manager list
 
         Parameters:  
 
-        - `format`: 
-              pprint: Returns a spaced table separated by |
-              compact: Returns a non-spaced table separated by |
-              csv: Returns data with header and comma separated values. 
-              
+        - `compact`: Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.  
         - `fields`: list of fields you want in the table is None : default fields are returned by .keys attribute and sorted.  
         - `max_column_width`: when using prettytable (not compact)  
         - `get_text_nest_attr`: attributes passed to the nested NitroList elements. Useful to control events appearence.
@@ -2664,35 +2916,7 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
         if len(self) == 0 :
             return(&#39;The list is empty&#39;)
 
-        if format == &#39;csv&#39;:
-            file = StringIO()
-            dw = csv.DictWriter(file, self.data[0].keys())
-            dw.writeheader()
-            dw.writerows(self.data)
-            text = file.getvalue()
-        elif format == &#39;compact&#39;:
-            text=&#39;|_&#39;
-            for field in fields :
-                text+=field
-                text+=&#39;_|_&#39;
-            text=text[0:len(text)-1]
-            text+=&#39;\n&#39;
-            for item in self.data:
-                if isinstance(item, (dict, NitroDict)):
-                    text+=&#39;| &#39;
-                    for field in fields :
-                        if isinstance(item[field], NitroList):
-                            text+=item[field].get_text(format=&#39;compact&#39;)
-                        else:
-                            text+=(str(item[field]))
-                            text+=&#39; | &#39;
-                    text=text[0:len(text)-1]
-                else : log.warning(&#34;Unnapropriate list element type, doesn&#39;t show on the list : {}&#34;.format(str(item)))
-                    #text+=textwrap.wrap(str(item),width=max_column_width)
-                text+=&#39;\n&#39;
-            text=text[0:len(text)-1]
-            
-        else:
+        if not compact : #Table
             table = prettytable.PrettyTable()
             table.set_style(MSWORD_FRIENDLY)
             table.field_names=fields
@@ -2712,9 +2936,34 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
                     except Exception as err :
                         if &#34;Row has incorrect number of values&#34; in str(err):
                             log.error(&#34;Inconsistent NitroList state, some fields aren&#39;t present or too many are present : {}&#34;.format(str(err)))
+
                 else : log.warning(&#34;Unnapropriate list element type, doesn&#39;t show on the list : {}&#34;.format(str(item)))
+
             text=table.get_string()
+
+        elif compact is True :
+            text=&#39;|_&#39;
+            for field in fields :
+                text+=field
+                text+=&#39;_|_&#39;
+            text=text[0:len(text)-1]
+            text+=&#39;\n&#39;
+            for item in self.data:
+                if isinstance(item, (dict, NitroDict)):
+                    text+=&#39;| &#39;
+                    for field in fields :
+                        if isinstance(item[field], NitroList):
+                            text+=item[field].get_text(compact=True)
+                        else:
+                            text+=(str(item[field]))
+                            text+=&#39; | &#39;
+                    text=text[0:len(text)-1]
+                else : log.warning(&#34;Unnapropriate list element type, doesn&#39;t show on the list : {}&#34;.format(str(item)))
+                    #text+=textwrap.wrap(str(item),width=max_column_width)
+                text+=&#39;\n&#39;
+            text=text[0:len(text)-1]
         return text
+
 
 
     @property
@@ -2828,14 +3077,13 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
 
         #Printing message if specified.
         tqdm_args=dict()
-
         #The message will appear on loading bar if progress is True
         if progress is True :
             tqdm_args=dict(desc=&#39;Loading...&#39;, total=len(elements))
             if message is not None:
                 tqdm_args[&#39;desc&#39;]=message
-        elif message is not None:
-            log.info(message)
+
+        
 
         #Runs the callable on list on executor or by iterating
         if asynch == True :
@@ -2897,6 +3145,7 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
 <ul class="hlist">
 <li><a title="msiempy.FilteredQueryList" href="#msiempy.FilteredQueryList">FilteredQueryList</a></li>
 <li><a title="msiempy.device.DevTree" href="device.html#msiempy.device.DevTree">DevTree</a></li>
+<li><a title="msiempy.query.FilteredQueryList" href="query.html#msiempy.query.FilteredQueryList">FilteredQueryList</a></li>
 <li><a title="msiempy.watchlist.WatchlistManager" href="watchlist.html#msiempy.watchlist.WatchlistManager">WatchlistManager</a></li>
 </ul>
 <h3>Instance variables</h3>
@@ -2948,22 +3197,16 @@ def text(self):
 <h3>Methods</h3>
 <dl>
 <dt id="msiempy.NitroList.get_text"><code class="name flex">
-<span>def <span class="ident">get_text</span></span>(<span>self, format='pprint', fields=None, max_column_width=120, get_text_nest_attr={})</span>
+<span>def <span class="ident">get_text</span></span>(<span>self, compact=False, fields=None, max_column_width=120, get_text_nest_attr={})</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Return a acsii table string representation of the manager list</p>
 <p>Parameters:
 </p>
 <ul>
-<li>
-<p><code>format</code>:
-pprint: Returns a spaced table separated by |
-compact: Returns a non-spaced table separated by |
-csv: Returns data with header and comma separated values. </p>
+<li><code>compact</code>: Returns a nice string table made with prettytable, else an '|' separated list.
 </li>
-<li>
-<p><code>fields</code>: list of fields you want in the table is None : default fields are returned by .keys attribute and sorted.
-</p>
+<li><code>fields</code>: list of fields you want in the table is None : default fields are returned by .keys attribute and sorted.
 </li>
 <li><code>max_column_width</code>: when using prettytable (not compact)
 </li>
@@ -2972,18 +3215,13 @@ csv: Returns data with header and comma separated values. </p>
 <p>It's an expesive thing to do on big ammount of data !</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def get_text(self, format=&#39;pprint&#39;, fields=None, 
-                    max_column_width=120, get_text_nest_attr={}):
+<pre><code class="python">def get_text(self, compact=False, fields=None, max_column_width=120, get_text_nest_attr={}):
     &#34;&#34;&#34;
     Return a acsii table string representation of the manager list
 
     Parameters:  
 
-    - `format`: 
-          pprint: Returns a spaced table separated by |
-          compact: Returns a non-spaced table separated by |
-          csv: Returns data with header and comma separated values. 
-          
+    - `compact`: Returns a nice string table made with prettytable, else an &#39;|&#39; separated list.  
     - `fields`: list of fields you want in the table is None : default fields are returned by .keys attribute and sorted.  
     - `max_column_width`: when using prettytable (not compact)  
     - `get_text_nest_attr`: attributes passed to the nested NitroList elements. Useful to control events appearence.
@@ -2997,35 +3235,7 @@ csv: Returns data with header and comma separated values. </p>
     if len(self) == 0 :
         return(&#39;The list is empty&#39;)
 
-    if format == &#39;csv&#39;:
-        file = StringIO()
-        dw = csv.DictWriter(file, self.data[0].keys())
-        dw.writeheader()
-        dw.writerows(self.data)
-        text = file.getvalue()
-    elif format == &#39;compact&#39;:
-        text=&#39;|_&#39;
-        for field in fields :
-            text+=field
-            text+=&#39;_|_&#39;
-        text=text[0:len(text)-1]
-        text+=&#39;\n&#39;
-        for item in self.data:
-            if isinstance(item, (dict, NitroDict)):
-                text+=&#39;| &#39;
-                for field in fields :
-                    if isinstance(item[field], NitroList):
-                        text+=item[field].get_text(format=&#39;compact&#39;)
-                    else:
-                        text+=(str(item[field]))
-                        text+=&#39; | &#39;
-                text=text[0:len(text)-1]
-            else : log.warning(&#34;Unnapropriate list element type, doesn&#39;t show on the list : {}&#34;.format(str(item)))
-                #text+=textwrap.wrap(str(item),width=max_column_width)
-            text+=&#39;\n&#39;
-        text=text[0:len(text)-1]
-        
-    else:
+    if not compact : #Table
         table = prettytable.PrettyTable()
         table.set_style(MSWORD_FRIENDLY)
         table.field_names=fields
@@ -3045,8 +3255,32 @@ csv: Returns data with header and comma separated values. </p>
                 except Exception as err :
                     if &#34;Row has incorrect number of values&#34; in str(err):
                         log.error(&#34;Inconsistent NitroList state, some fields aren&#39;t present or too many are present : {}&#34;.format(str(err)))
+
             else : log.warning(&#34;Unnapropriate list element type, doesn&#39;t show on the list : {}&#34;.format(str(item)))
+
         text=table.get_string()
+
+    elif compact is True :
+        text=&#39;|_&#39;
+        for field in fields :
+            text+=field
+            text+=&#39;_|_&#39;
+        text=text[0:len(text)-1]
+        text+=&#39;\n&#39;
+        for item in self.data:
+            if isinstance(item, (dict, NitroDict)):
+                text+=&#39;| &#39;
+                for field in fields :
+                    if isinstance(item[field], NitroList):
+                        text+=item[field].get_text(compact=True)
+                    else:
+                        text+=(str(item[field]))
+                        text+=&#39; | &#39;
+                text=text[0:len(text)-1]
+            else : log.warning(&#34;Unnapropriate list element type, doesn&#39;t show on the list : {}&#34;.format(str(item)))
+                #text+=textwrap.wrap(str(item),width=max_column_width)
+            text+=&#39;\n&#39;
+        text=text[0:len(text)-1]
     return text</code></pre>
 </details>
 </dd>
@@ -3120,14 +3354,13 @@ Will execute the callable the list.</p>
 
     #Printing message if specified.
     tqdm_args=dict()
-
     #The message will appear on loading bar if progress is True
     if progress is True :
         tqdm_args=dict(desc=&#39;Loading...&#39;, total=len(elements))
         if message is not None:
             tqdm_args[&#39;desc&#39;]=message
-    elif message is not None:
-        log.info(message)
+
+    
 
     #Runs the callable on list on executor or by iterating
     if asynch == True :
@@ -3328,6 +3561,7 @@ i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
 <li><a title="msiempy.NitroList" href="#msiempy.NitroList">NitroList</a></li>
 <li><a title="msiempy.event.QueryFilter" href="event.html#msiempy.event.QueryFilter">QueryFilter</a></li>
 <li><a title="msiempy.device.Device" href="device.html#msiempy.device.Device">Device</a></li>
+<li><a title="msiempy.query.QueryFilter" href="query.html#msiempy.query.QueryFilter">QueryFilter</a></li>
 </ul>
 <h3>Class variables</h3>
 <dl>
@@ -3461,15 +3695,6 @@ Use logout() to reinstanciate NitroSession.
                     &#34;&#34;&#34;{&#34;FNAME&#34;: &#34;%(ftoken)s&#34;,
                     &#34;SPOS&#34;: &#34;0&#34;,
                     &#34;NBYTES&#34;: &#34;0&#34;}
-                    &#34;&#34;&#34;),
-
-        &#34;del_rfile&#34;: (&#34;ESSMGT_DELETEFILE&#34;,
-                    &#34;&#34;&#34;{&#34;FN&#34;: &#34;%(ftoken)s&#34;}&#34;&#34;&#34;),
-
-        &#34;get_rfile2&#34;: (&#34;MISC_READFILE&#34;,
-                    &#34;&#34;&#34;{&#34;FNAME&#34;: &#34;%(ftoken)s&#34;,
-                    &#34;SPOS&#34;: &#34;%(pos)s&#34;,
-                    &#34;NBYTES&#34;: &#34;%(nbytes)s&#34;}
                     &#34;&#34;&#34;),
 
         &#34;get_wfile&#34;: (&#34;MISC_WRITEFILE&#34;,
@@ -3653,7 +3878,7 @@ Use logout() to reinstanciate NitroSession.
                 &#34;watchlist&#34;: {
                     &#34;name&#34;: &#34;%(name)s&#34;,
                     &#34;type&#34;: {&#34;name&#34;: &#34;%(wl_type)s&#34;,
-                              &#34;id&#34;: 0},
+                              &#34;id&#34;: &#34;%(id)s&#34;},
                     &#34;customType&#34;: {&#34;name&#34;: &#34;&#34;,
                                    &#34;id&#34;: 0},
                     &#34;dynamic&#34;: &#34;False&#34;,
@@ -3689,8 +3914,7 @@ Use logout() to reinstanciate NitroSession.
                 &#34;values&#34;: %(values)s,
                 }&#34;&#34;&#34;),
 
-            &#34;get_watchlist_values&#34;: (&#34;SYS_GETWATCHLISTDETAILS&#34;,
-                                            &#34;&#34;&#34;{&#34;WID&#34;: &#34;%(id)s&#34;, &#34;LIM&#34;: &#34;T&#34;}&#34;&#34;&#34;),
+            &#34;get_watchlist_values&#34;: (&#34;&#34;&#34;sysGetWatchlistValues?pos=%(pos)s&amp;count=%(count)s&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;file&#34;: {&#34;id&#34;: &#34;%(id)s&#34;}}&#34;&#34;&#34;),
 
             &#34;remove_watchlists&#34;: (&#34;&#34;&#34;sysRemoveWatchlist&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;ids&#34;: {&#34;watchlistIdList&#34;: [&#34;%(wl_id_list)s&#34;]}}&#34;&#34;&#34;),
 
@@ -3760,7 +3984,7 @@ Use logout() to reinstanciate NitroSession.
                 quiet=self.config.quiet,
                 logfile=self.config.logfile)
 
-            log.info(&#39;New ESM session instance is created with : &#39;+str(self.config.host))
+            log.info(&#39;New NitroSession instance&#39;)
 
 
     def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False):
@@ -3815,9 +4039,7 @@ Use logout() to reinstanciate NitroSession.
                 data=data, 
                 headers=self._headers,
                 verify=self.config.ssl_verify,
-                timeout=self.config.timeout,
-                # Uncomment for debugging.
-                #proxies={&#34;http&#34;: &#34;http://127.0.0.1:8888&#34;, &#34;https&#34;:&#34;http:127.0.0.1:8888&#34;}
+                timeout=self.config.timeout
             )
 
             if raw :
@@ -3828,10 +4050,7 @@ Use logout() to reinstanciate NitroSession.
                 try:
                     result.raise_for_status()
                 except requests.HTTPError as e :
-                    log.error(&#39;\n&#39; + str(e)+ &#39; &#39; +str(result.text) + &#39;\nSee debug log for more infos.&#39;)
-                    log.debug(str(e)+ &#39; &#39; +str(result.text)+ &#39; &#39; + str(result.__dict__))
-                    exit(423)
-                    
+                    raise(requests.HTTPError(str(e)+ &#39; &#39; +str(result.text)+ &#39; &#39; + str(result.__dict__)))
                     &#34;&#34;&#34;
                     #TODO handle expired session error, result unavailable / other siem errors
                     # _InvalidFilter (228)
@@ -4258,9 +4477,7 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
             data=data, 
             headers=self._headers,
             verify=self.config.ssl_verify,
-            timeout=self.config.timeout,
-            # Uncomment for debugging.
-            #proxies={&#34;http&#34;: &#34;http://127.0.0.1:8888&#34;, &#34;https&#34;:&#34;http:127.0.0.1:8888&#34;}
+            timeout=self.config.timeout
         )
 
         if raw :
@@ -4271,10 +4488,7 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
             try:
                 result.raise_for_status()
             except requests.HTTPError as e :
-                log.error(&#39;\n&#39; + str(e)+ &#39; &#39; +str(result.text) + &#39;\nSee debug log for more infos.&#39;)
-                log.debug(str(e)+ &#39; &#39; +str(result.text)+ &#39; &#39; + str(result.__dict__))
-                exit(423)
-                
+                raise(requests.HTTPError(str(e)+ &#39; &#39; +str(result.text)+ &#39; &#39; + str(result.__dict__)))
                 &#34;&#34;&#34;
                 #TODO handle expired session error, result unavailable / other siem errors
                 # _InvalidFilter (228)
@@ -4455,8 +4669,16 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
 <li><code><a title="msiempy.alarm" href="alarm.html">msiempy.alarm</a></code></li>
+<li><code><a title="msiempy.base" href="base.html">msiempy.base</a></code></li>
+<li><code><a title="msiempy.config" href="config.html">msiempy.config</a></code></li>
+<li><code><a title="msiempy.datasource" href="datasource.html">msiempy.datasource</a></code></li>
 <li><code><a title="msiempy.device" href="device.html">msiempy.device</a></code></li>
+<li><code><a title="msiempy.error" href="error.html">msiempy.error</a></code></li>
 <li><code><a title="msiempy.event" href="event.html">msiempy.event</a></code></li>
+<li><code><a title="msiempy.params" href="params.html">msiempy.params</a></code></li>
+<li><code><a title="msiempy.query" href="query.html">msiempy.query</a></code></li>
+<li><code><a title="msiempy.session" href="session.html">msiempy.session</a></code></li>
+<li><code><a title="msiempy.utils" href="utils.html">msiempy.utils</a></code></li>
 <li><code><a title="msiempy.watchlist" href="watchlist.html">msiempy.watchlist</a></code></li>
 </ul>
 </li>

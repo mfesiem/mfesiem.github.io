@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.6.3" />
+<meta name="generator" content="pdoc 0.7.1" />
 <title>msiempy.event API documentation</title>
 <meta name="description" content="Provide event management." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
@@ -22,7 +22,9 @@
 <section id="section-intro">
 <p>Provide event management.</p>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">&#34;&#34;&#34;Provide event management.
 &#34;&#34;&#34;
 
@@ -938,7 +940,9 @@ and update dict values accordingly.</p>
 <li><code>id</code>: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.</li>
 </ul></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class Event(NitroDict):
 
     &#34;&#34;&#34;        
@@ -1125,7 +1129,9 @@ and update dict values accordingly.</p>
 </dd>
 <dt id="msiempy.event.Event.FIELDS_TABLES"><code class="name">var <span class="ident">FIELDS_TABLES</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -1136,7 +1142,9 @@ and update dict values accordingly.</p>
 <dd>
 <section class="desc"><p>Deprecated, please use set_note() method instead.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def add_note(self, note):
     &#34;&#34;&#34;Deprecated, please use set_note() method instead.&#34;&#34;&#34;
     log.warning(str(DeprecationWarning())+&#34; Please use set_note() method instead.&#34;)
@@ -1149,7 +1157,9 @@ and update dict values accordingly.</p>
 <dd>
 <section class="desc"><p>Replace the notes by an empty string. Desctructive action.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def clear_notes(self):
     &#34;&#34;&#34;
     Replace the notes by an empty string. Desctructive action.
@@ -1168,7 +1178,9 @@ and update dict values accordingly.</p>
 - <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.<br>
 - <code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def data_from_id(self, id, use_query=False, extra_fields=[]):
     &#34;&#34;&#34;
     Load event&#39;s data.  
@@ -1202,7 +1214,9 @@ and update dict values accordingly.</p>
 <dd>
 <section class="desc"><p>Set the event's note. Desctructive action.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def set_note(self, note, no_date=False):
     &#34;&#34;&#34;
     Set the event&#39;s note. Desctructive action.
@@ -1297,7 +1311,9 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
     &gt;&gt;&gt;em.fields.remove('SrcIP')
 </code></pre></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class EventManager(FilteredQueryList):
     &#34;&#34;&#34;Interface to query and manage events.
     Inherits from `msiempy.FilteredQueryList`.
@@ -1730,15 +1746,33 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 <dl>
 <dt id="msiempy.event.EventManager.GROUPTYPE"><code class="name">var <span class="ident">GROUPTYPE</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.</p></section>
 </dd>
 <dt id="msiempy.event.EventManager.POSSBILE_ROW_ORDER"><code class="name">var <span class="ident">POSSBILE_ROW_ORDER</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
 </dd>
 <dt id="msiempy.event.EventManager.TYPE"><code class="name">var <span class="ident">TYPE</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.</p></section>
 </dd>
 </dl>
 <h3>Instance variables</h3>
@@ -1748,7 +1782,9 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 <section class="desc"><p>JSON SIEM formatted filters for the query by calling reccursively : <a title="msiempy.event.QueryFilter.config_dict" href="#msiempy.event.QueryFilter.config_dict"><code>QueryFilter.config_dict</code></a>.
 See <a title="msiempy.FilteredQueryList.filters" href="index.html#msiempy.FilteredQueryList.filters"><code>FilteredQueryList.filters</code></a>.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">@property
 def filters(self):
     &#34;&#34;&#34;
@@ -1765,7 +1801,9 @@ The <code>order</code> must be tuple (direction, field). Only the first order ca
 Use _order to set with SIEM format.
 Note that <code>order</code> property handling is <strong>not implemented yet</strong>.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">@property
 def order(self):
     &#34;&#34;&#34;
@@ -1782,7 +1820,9 @@ def order(self):
 <section class="desc"><p>Re-implemented the <a title="msiempy.FilteredQueryList.time_range" href="index.html#msiempy.FilteredQueryList.time_range"><code>FilteredQueryList.time_range</code></a> to have better control on the property setter.
 If <code>compute_time_range</code> is True (by default it is), try to get a start and a end time with <a title="msiempy.utils.timerange_gettimes" href="utils.html#msiempy.utils.timerange_gettimes"><code>timerange_gettimes()</code></a></p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">@property
 def time_range(self):
     &#34;&#34;&#34;Re-implemented the `msiempy.FilteredQueryList.time_range` to have better control on the property setter.
@@ -1801,7 +1841,9 @@ def time_range(self):
 <section class="desc"><p>Concrete description of the <a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a> method.
 It can take a <code>tuple(fiels, [values])</code> or a <a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter"><code>QueryFilter</code></a> subclass.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def add_filter(self, afilter):
     &#34;&#34;&#34;
     Concrete description of the `msiempy.FilteredQueryList` method.
@@ -1824,7 +1866,9 @@ It can take a <code>tuple(fiels, [values])</code> or a <a title="msiempy.event.Q
 <section class="desc"><p>Replace all filters by a non filtering rule.
 Acts like the is not filters.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
     Replace all filters by a non filtering rule.
@@ -1840,7 +1884,9 @@ Acts like the is not filters.</p></section>
 <section class="desc"><p>Indicate a list of possible fields that you can request in a query.
 The list is loaded from the SIEM.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def get_possible_fields(self):
     &#34;&#34;&#34;
     Indicate a list of possible fields that you can request in a query.
@@ -1876,7 +1922,9 @@ with dateutil.
 </ul>
 <p>Returns : <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a></p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def load_data(self, workers=10, slots=10, delta=None, **kwargs):
     &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
     Split the query in defferents time slots if the query apprears not to be completed. It wraps around `msiempy.FilteredQueryList.qry_load_data`.    
@@ -1967,7 +2015,9 @@ Concrete helper method to execute the query and load the data :
 -&gt; Get and parse the events</p>
 <p>Returns : <code>tuple</code> : ( <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a>, Status of the query : <code>completed</code> )</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def qry_load_data(self):
     &#34;&#34;&#34;&#34;
     Concrete helper method to execute the query and load the data : 
@@ -2023,7 +2073,9 @@ Concrete helper method to execute the query and load the data :
 <ul class="hlist">
 <li><code><b><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></b></code>:
 <ul class="hlist">
+<li><code><a title="msiempy.FilteredQueryList.DEFAULT_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.end_time" href="index.html#msiempy.FilteredQueryList.end_time">end_time</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
@@ -2053,7 +2105,9 @@ Used to dump a filter in the right format.</p>
 <li><code>orperator</code> : operator, see <a title="msiempy.event.FieldFilter.POSSIBLE_OPERATORS" href="#msiempy.event.FieldFilter.POSSIBLE_OPERATORS"><code>FieldFilter.POSSIBLE_OPERATORS</code></a>.</li>
 </ul></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class FieldFilter(QueryFilter):
     &#34;&#34;&#34;
     Based on EsmFieldFilter. See SIEM api doc.
@@ -2291,7 +2345,9 @@ Used to dump a filter in the right format.</p>
 <dd>
 <section class="desc"><p>Dump a filter in the right format.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">@property
 def config_dict(self):
     &#34;&#34;&#34;
@@ -2309,7 +2365,9 @@ def config_dict(self):
 <dd>
 <section class="desc"><p>Field name property. Example : <code>SrcIP</code>. See full list here: <a href="https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json">https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json</a></p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">@property
 def name(self):
     &#34;&#34;&#34;
@@ -2322,7 +2380,9 @@ def name(self):
 <dd>
 <section class="desc"><p>Field operator property. Check the value against the list of possible operators and trow <code>AttributeError</code> if not present.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">@property
 def operator(self):
     &#34;&#34;&#34;
@@ -2348,7 +2408,9 @@ Values will always be added to the filter. To remove values, handle directly the
 {'type': 'EsmBasicValue', 'value': '10.1.14.0/8'},
 {'type': 'EsmWatchlistValue', 'watchlist': 42}]}</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">@property
 def values(self):
     &#34;&#34;&#34;
@@ -2381,7 +2443,9 @@ def values(self):
 <dd>
 <section class="desc"><p>Wrapper arround add_value to add a EsmBasicValue.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def add_basic_value(self, value):
     &#34;&#34;&#34;
     Wrapper arround add_value to add a EsmBasicValue.
@@ -2403,7 +2467,9 @@ def values(self):
 <p>Raises <code>KeyError</code> or <code>AttributeError</code> if you don't respect the correct type/key/value combo.
 Note : Filtering query with other type of filter than 'EsmBasicValue' is not tested.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def add_value(self, type, **args):
     &#34;&#34;&#34;
     Add a new value to the field filter.
@@ -2478,7 +2544,9 @@ Used to dump groups of filters in the right format.</p>
 <li><code>logic</code> : 'AND' or 'OR'</li>
 </ul></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class GroupFilter(QueryFilter):
     &#34;&#34;&#34;
         Based on EsmFilterGroup. See SIEM api doc.
@@ -2522,7 +2590,9 @@ Used to dump groups of filters in the right format.</p>
 <section class="desc"><p>Could call recursively if there is other GroupFilter(s) object nested.
 Dump a filter in the right format.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">@property
 def config_dict(self):
     &#34;&#34;&#34;
@@ -2570,7 +2640,9 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="index.html#ms
 <li><code>load_async</code> : Load asynchonously the sub-queries. Defaulted to True.</li>
 </ul></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class InDepthQueryList(FilteredQueryList):
     pass</code></pre>
 </details>
@@ -2593,7 +2665,9 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="index.html#ms
 <ul class="hlist">
 <li><code><b><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></b></code>:
 <ul class="hlist">
+<li><code><a title="msiempy.FilteredQueryList.DEFAULT_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.add_filter" href="index.html#msiempy.FilteredQueryList.add_filter">add_filter</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.clear_filters" href="index.html#msiempy.FilteredQueryList.clear_filters">clear_filters</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.end_time" href="index.html#msiempy.FilteredQueryList.end_time">end_time</a></code></li>
@@ -2620,7 +2694,9 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="index.html#ms
 <section class="desc"><p>Base class for all SIEM query objects, declares the <code>config_dict</code> abstract property in order to dump the filter as JSON.</p>
 <p>Creates the object session.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class QueryFilter(NitroObject):
     &#34;&#34;&#34;Base class for all SIEM query objects, declares the `config_dict` abstract property in order to dump the filter as JSON.
     &#34;&#34;&#34;
@@ -2683,7 +2759,9 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="index.html#ms
 <dd>
 <section class="desc"><p>Dump a filter in the right JSON format.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">@abc.abstractproperty
 def config_dict(self):
     &#34;&#34;&#34;
@@ -2696,7 +2774,9 @@ def config_dict(self):
 <dd>
 <section class="desc"><p>Dump the filter as a json.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">@property
 def json(self):
     &#34;&#34;&#34;
@@ -2709,7 +2789,9 @@ def json(self):
 <dd>
 <section class="desc"><p>Text representation of <code>config_dict</code> property.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">@property
 def text(self):
     &#34;&#34;&#34;
@@ -2727,7 +2809,9 @@ def text(self):
 <dd>
 <section class="desc"><p>Return all the fields that you can filter on in a query.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def get_possible_filters(self):
     &#34;&#34;&#34;
     Return all the fields that you can filter on in a query.
@@ -2741,7 +2825,9 @@ def text(self):
 <dd>
 <section class="desc"><p>Superclass method.</p></section>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def refresh(self):
     &#34;&#34;&#34;
     Superclass method.
@@ -2840,7 +2926,7 @@ def text(self):
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.1</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

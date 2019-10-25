@@ -1,0 +1,2001 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.1" />
+<title>msiempy.query API documentation</title>
+<meta name="description" content="Provide time ranged filtered query wrapper." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>msiempy.query</code></h1>
+</header>
+<section id="section-intro">
+<p>Provide time ranged filtered query wrapper.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Provide time ranged filtered query wrapper.
+&#34;&#34;&#34;
+
+import datetime
+import abc
+import copy
+import json
+import logging
+log = logging.getLogger(&#39;msiempy&#39;)
+
+from . import NitroList, NitroError, NitroObject
+from .utils import format_esm_time, convert_to_time_obj, timerange_gettimes, parse_timedelta, divide_times
+
+class FilteredQueryList(NitroList):
+    &#34;&#34;&#34;
+    Base class for query based managers : AlarmManager, EventManager
+    FilteredQueryList object can handle time_ranges and time splitting.
+    &#34;&#34;&#34;
+    
+    DEFAULT_TIME_RANGE=&#34;CURRENT_DAY&#34;
+    &#34;&#34;&#34;
+    If you don&#39;t specify any `time_range`, act like if it was &#34;CURRENT_DAY&#34;.
+    &#34;&#34;&#34;
+
+    POSSIBLE_TIME_RANGE=[
+            &#34;CUSTOM&#34;,
+            &#34;LAST_MINUTE&#34;,
+            &#34;LAST_10_MINUTES&#34;,
+            &#34;LAST_30_MINUTES&#34;,
+            &#34;LAST_HOUR&#34;,
+            &#34;CURRENT_DAY&#34;,
+            &#34;PREVIOUS_DAY&#34;,
+            &#34;LAST_24_HOURS&#34;,
+            &#34;LAST_2_DAYS&#34;,
+            &#34;LAST_3_DAYS&#34;,
+            &#34;CURRENT_WEEK&#34;,
+            &#34;PREVIOUS_WEEK&#34;,
+            &#34;CURRENT_MONTH&#34;,
+            &#34;PREVIOUS_MONTH&#34;,
+            &#34;CURRENT_QUARTER&#34;,
+            &#34;PREVIOUS_QUARTER&#34;,
+            &#34;CURRENT_YEAR&#34;,
+            &#34;PREVIOUS_YEAR&#34;
+    ]
+    &#34;&#34;&#34;
+    List of possible time ranges : `&#34;CUSTOM&#34;,
+            &#34;LAST_MINUTE&#34;,
+            &#34;LAST_10_MINUTES&#34;,
+            &#34;LAST_30_MINUTES&#34;,
+            &#34;LAST_HOUR&#34;,
+            &#34;CURRENT_DAY&#34;,
+            &#34;PREVIOUS_DAY&#34;,
+            &#34;LAST_24_HOURS&#34;,
+            &#34;LAST_2_DAYS&#34;,
+            &#34;LAST_3_DAYS&#34;,
+            &#34;CURRENT_WEEK&#34;,
+            &#34;PREVIOUS_WEEK&#34;,
+            &#34;CURRENT_MONTH&#34;,
+            &#34;PREVIOUS_MONTH&#34;,
+            &#34;CURRENT_QUARTER&#34;,
+            &#34;PREVIOUS_QUARTER&#34;,
+            &#34;CURRENT_YEAR&#34;,
+            &#34;PREVIOUS_YEAR&#34;`
+    &#34;&#34;&#34;
+
+    def __init__(self, time_range=None, start_time=None, end_time=None, filters=None, 
+        load_async=True, requests_size=500, max_query_depth=0,
+            __parent__=None, *arg, **kwargs):
+        &#34;&#34;&#34;
+        Abstract base class that handles the time ranges operations, loading data from the SIEM.
+
+        Parameters:  
+    
+        - `time_range` : Query time range. String representation of a time range. 
+            See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`
+        - `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
+        - `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
+        - `filters` : List of filters applied to the query.
+        - `load_async` : Load asynchonously the sub-queries. Defaulted to True.
+        - `requests_size` : number of items per request.
+        - `max_query_depth` : maximum number of supplement reccursions of division of the query times
+            Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
+            the list is (500*5)*(500*5)*(500*5) = 15625000000
+            
+        &#34;&#34;&#34;
+
+        super().__init__(*arg, **kwargs)
+
+        #Store the query parent 
+        self.__parent__=__parent__
+        self.not_completed=False
+
+        #self.nitro.config.default_rows #nb rows per request : eq limit/page_size = requests_size
+        #self.nitro.config.max_rows #max nb rows 
+
+        #Declaring attributes and types
+        self._time_range=str()
+        self._start_time=None
+        self._end_time=None
+
+        #self.filters=filters filter property setter should be called in the concrete class
+        #TODO find a better solution to integrate the filter propertie
+
+        self.load_async=load_async
+
+        if start_time is not None and end_time is not None :
+            self.start_time=start_time
+            self.end_time=end_time
+            self.time_range=&#39;CUSTOM&#39;
+        else :
+            self.time_range=time_range
+
+        self.load_async=load_async
+        self.requests_size=requests_size
+        self.__init_max_query_depth__=max_query_depth
+        self.query_depth_ttl=max_query_depth
+
+
+    @property
+    def __root_parent__(self):
+        &#34;&#34;&#34;
+        Internal method that return the first query of the query tree
+        &#34;&#34;&#34;
+        if self.__parent__==None:
+            return self
+        else :
+            return self.__parent__.__root_parent__
+
+    @property
+    def time_range(self):
+        &#34;&#34;&#34;
+        Query time range. See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+        Default to `msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
+        Note that the time range is upper cased automatically.
+        Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
+        &#34;&#34;&#34;
+        return self._time_range.upper()
+
+    @time_range.setter
+    def time_range(self, time_range):
+        if not time_range :
+            self.time_range=self.DEFAULT_TIME_RANGE
+
+        elif isinstance(time_range, str):
+            time_range=time_range.upper()
+            if time_range in self.POSSIBLE_TIME_RANGE :
+                if time_range != &#39;CUSTOM&#39;:
+                    self.start_time=None
+                    self.end_time=None
+                self._time_range=time_range
+            else:
+                raise ValueError(&#34;The time range must be in &#34;+str(self.POSSIBLE_TIME_RANGE))
+        else:
+            raise AttributeError(&#39;time_range must be a string or None&#39;)
+
+    @property
+    def start_time(self):
+        &#34;&#34;&#34;
+        Start time of the query in the right SIEM format. See `msiempy.utils.format_esm_time()`
+        Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.
+        If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.
+        &#34;&#34;&#34;
+        return format_esm_time(self._start_time)
+
+    @start_time.setter
+    def start_time(self, start_time):
+        if isinstance(start_time, str):
+            self.start_time = convert_to_time_obj(start_time)
+        elif isinstance(start_time, datetime.datetime):
+            self._start_time = start_time
+        elif start_time==None:
+             self._start_time=None#raise ValueError(&#34;Time must be string or datetime object, not None&#34;)#self.start_time = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        else:
+            raise ValueError(&#34;Time must be string or datetime object.&#34;)
+
+    @property
+    def end_time(self):
+        &#34;&#34;&#34;
+        End time of the query in the right SIEM format.  See `msiempy.utils.format_esm_time()`
+        Use _end_time to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.
+        If `None`, equivalent CURRENT_DAY ends now. Raises `ValueError` if not the right type.
+        &#34;&#34;&#34;
+        return format_esm_time(self._end_time)
+
+    @end_time.setter
+    def end_time(self, end_time):       
+        if isinstance(end_time, str):
+            self.end_time = convert_to_time_obj(end_time)
+        elif isinstance(end_time, datetime.datetime):
+            self._end_time = end_time
+        elif end_time==None:
+             self._end_time=None#raise ValueError(&#34;Time must be string or datetime object, not None&#34;)
+        else:
+            raise ValueError(&#34;Time must be string or datetime object.&#34;)
+
+    @abc.abstractproperty
+    def filters(self):
+        &#34;&#34;&#34; 
+        Filter property : Returns a list of filters.
+        Can be set with list of tuple(field, [values]) or `msiempy.query.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
+        None value will call `msiempy.query.FilteredQueryList.clear_filters()`
+        Raises `AttributeError` if type not supported.
+        TODO find a better solution to integrate the filter propertie
+        &#34;&#34;&#34;
+        raise NotImplementedError()
+
+    @filters.setter
+    def filters(self, filters):
+        if isinstance(filters, list):
+            for f in filters :
+                self.add_filter(f)
+
+        elif isinstance(filters, tuple):
+            self.add_filter(filters)
+
+        elif filters == None :
+            self.clear_filters()
+        
+        else :
+            raise AttributeError(&#34;Illegal type for the filter object, it must be a list, a tuple or None.&#34;)
+
+    
+    @abc.abstractmethod
+    def add_filter(self, filter):
+        &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
+        &#34;&#34;&#34;
+        pass
+
+    @abc.abstractmethod
+    def clear_filters(self):
+        &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
+        &#34;&#34;&#34;
+        pass 
+
+    @abc.abstractmethod
+    def _load_data(self, workers):
+        &#34;&#34;&#34;
+        Rturn a tuple (items, completed).
+        completed = True if all the data that should be load is loaded.
+        &#34;&#34;&#34;
+        pass
+
+    @abc.abstractmethod
+    def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
+        &#34;&#34;&#34;
+        Method to load the data from the SIEM.
+        Split the query in defferents time slots if the query apprears not to be completed.
+        Splitting is done by duplicating current object, setting different times,
+        and re-loading results. First your query time is split in slots of size `delta` 
+        if the sub queries are not completed, divide them in the number of `slots`, this step is
+        If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the query list.
+
+        Returns a FilteredQueryList.
+        
+        Note :
+            IF you looking for load_async = True/False, you should pass this to the constructor method `msiempy.query.FilteredQueryList`
+                or by setting the attribute manually like `manager.load_asynch=True`
+            Only the first query is loaded asynchronously.
+
+        Parameters:  
+    
+        - `workers` : numbre of parrallels task
+        - `slots` : number of time slots the query can be divided. The loading bar is 
+            divided according to the number of slots
+        - `delta` : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
+            with dateutil.
+        
+        &#34;&#34;&#34;
+
+        items, completed = self._load_data(workers=workers)
+
+        if not completed :
+            #If not completed the query is split and items aren&#39;t actually used
+
+            if self.query_depth_ttl &gt; 0 :
+                #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
+
+                if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
+                    start, end = timerange_gettimes(self.time_range)
+                else :
+                    start, end = self.start_time, self.end_time
+
+                if self.__parent__ == None and isinstance(delta, str) :
+                    #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
+                    times=divide_times(start, end, delta=parse_timedelta(delta))
+                    
+                else :times=divide_times(start, end, slots=slots)
+                        #IGONORING THE CONFIG ### : self.nitro.config.slots)
+                
+                sub_queries=list()
+
+                for time in times :
+                    &#34;&#34;&#34;
+                    &#34;&#34;&#34;
+                    sub_query = copy.copy(self)
+                    sub_query.__parent__=self
+                    sub_query.compute_time_range=False
+                    sub_query.time_range=&#39;CUSTOM&#39;
+                    sub_query.start_time=time[0].isoformat()
+                    sub_query.end_time=time[1].isoformat()
+                    sub_query.load_async=False
+                    sub_query.query_depth_ttl=self.query_depth_ttl-1
+                    #sub_query.requests_size=requests_size
+                    sub_queries.append(sub_query)
+
+            
+                results = self.perform(FilteredQueryList.load_data, sub_queries, 
+                    #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
+                    asynch=False if not self.load_async else (self.__parent__==None),
+                    progress=self.__parent__==None, 
+                    message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
+                    func_args=dict(slots=slots),
+                    workers=workers)
+
+                #Flatten the list of lists in a list
+                items=[item for sublist in results for item in sublist]
+                
+            else :
+                if not self.__root_parent__.not_completed :
+                    log.warning(&#34;The query won&#39;t fully complete. Try to divide in more slots or increase the requests_size&#34;)
+                    self.__root_parent__.not_completed=True
+
+        self.data=items
+        return(NitroList(alist=items)) #return self ?
+
+class QueryFilter(NitroObject):
+    &#34;&#34;&#34;Base class for all SIEM query objects, declares the `config_dict` abstract property in order to dump the filter as JSON.
+    &#34;&#34;&#34;
+    _possible_filters = []
+
+    def __init__(self):
+        super().__init__()
+
+        #Setting up static constant
+        &#34;&#34;&#34;Not checking dynamically the validity of the fields cause makes too much of unecessary requests
+            self._possible_filters = self._get_possible_filters()
+            &#34;&#34;&#34;
+
+    def get_possible_filters(self):
+        &#34;&#34;&#34;
+        Return all the fields that you can filter on in a query.
+        &#34;&#34;&#34;
+        return(self.nitro.request(&#39;get_possible_filters&#39;))
+
+    @abc.abstractproperty
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Dump a filter in the right JSON format.
+        &#34;&#34;&#34;
+        pass
+
+    def refresh(self):
+        &#34;&#34;&#34;
+        Superclass method.
+        &#34;&#34;&#34;
+        log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))
+
+    @property
+    def json(self):
+        &#34;&#34;&#34;
+        Dump the filter as a json.
+        &#34;&#34;&#34;
+        return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))
+    
+    @property
+    def text(self):
+        &#34;&#34;&#34;
+        Text representation of `config_dict` property.
+        &#34;&#34;&#34;
+        return str(self.config_dict)
+
+class GroupFilter(QueryFilter):
+    &#34;&#34;&#34;
+        Based on EsmFilterGroup. See SIEM api doc.
+        Used to dump groups of filters in the right format.
+    &#34;&#34;&#34;
+
+    def __init__(self, filters, logic=&#39;AND&#39;) :
+        &#34;&#34;&#34;Parameters :  
+        - `filters` : a list of filters, it can be `msiempy.query.FieldFilter` or `msiempy.query.GroupFilter`
+        - `logic` : &#39;AND&#39; or &#39;OR&#39;
+        &#34;&#34;&#34;
+        super().__init__()
+        
+        #Declaring attributes
+        self.filters=filters
+        self.logic=logic
+
+    @property
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Could call recursively if there is other GroupFilter(s) object nested.
+        Dump a filter in the right format.
+        &#34;&#34;&#34;
+        return({
+            &#34;type&#34;: &#34;EsmFilterGroup&#34;,
+            &#34;filters&#34;: [f.config_dict for f in self.filters],
+            &#34;logic&#34;:self.logic
+            })
+        
+class FieldFilter(QueryFilter):
+    &#34;&#34;&#34;
+    Based on EsmFieldFilter. See SIEM api doc.
+    Used to dump a filter in the right format.
+    &#34;&#34;&#34;
+
+    &#34;&#34;&#34;List of possibles operators        
+        &#34;&#34;&#34;
+    POSSIBLE_OPERATORS=[&#39;IN&#39;,
+        &#39;NOT_IN&#39;,
+        &#39;GREATER_THAN&#39;,
+        &#39;LESS_THAN&#39;,
+        &#39;GREATER_OR_EQUALS_THAN&#39;,
+        &#39;LESS_OR_EQUALS_THAN&#39;,
+        &#39;NUMERIC_EQUALS&#39;,
+        &#39;NUMERIC_NOT_EQUALS&#39;,
+        &#39;DOES_NOT_EQUAL&#39;,
+        &#39;EQUALS&#39;,
+        &#39;CONTAINS&#39;,
+        &#39;DOES_NOT_CONTAIN&#39;,
+        &#39;REGEX&#39;]
+
+    &#34;&#34;&#34;List of possible operators : `&#39;IN&#39;,
+        &#39;NOT_IN&#39;,
+        &#39;GREATER_THAN&#39;,
+        &#39;LESS_THAN&#39;,
+        &#39;GREATER_OR_EQUALS_THAN&#39;,
+        &#39;LESS_OR_EQUALS_THAN&#39;,
+        &#39;NUMERIC_EQUALS&#39;,
+        &#39;NUMERIC_NOT_EQUALS&#39;,
+        &#39;DOES_NOT_EQUAL&#39;,
+        &#39;EQUALS&#39;,
+        &#39;CONTAINS&#39;,
+        &#39;DOES_NOT_CONTAIN&#39;,
+        &#39;REGEX&#39;`
+        &#34;&#34;&#34;
+
+    POSSIBLE_VALUE_TYPES=[
+            {&#39;type&#39;:&#39;EsmWatchlistValue&#39;,    &#39;key&#39;:&#39;watchlist&#39;},
+            {&#39;type&#39;:&#39;EsmVariableValue&#39;,     &#39;key&#39;:&#39;variable&#39;},
+            {&#39;type&#39;:&#39;EsmBasicValue&#39;,        &#39;key&#39;:&#39;value&#39;},
+            {&#39;type&#39;:&#39;EsmCompoundValue&#39;,     &#39;key&#39;:&#39;values&#39;}]
+    &#34;&#34;&#34;
+    List of possible value type. See `msiempy.query.FieldFilter.add_value`.
+    &#34;&#34;&#34;
+
+
+    def __init__(self, name, values, operator=&#39;IN&#39;) :
+        &#34;&#34;&#34;
+        Parameters:
+
+        - `name` : field name as string.
+        - `values` : list of values the field is going to be tested againts with the specified orperator.
+        - `orperator` : operator, see `msiempy.query.FieldFilter.POSSIBLE_OPERATORS`.
+        &#34;&#34;&#34;
+        super().__init__()
+        #Declaring attributes
+        self._name=str()
+        self._operator=str()
+        self._values=list()
+        self.name = name
+        self.operator = operator
+        self.values = values
+
+    @property
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Dump a filter in the right format.
+        &#34;&#34;&#34;
+        return ({
+            &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+            &#34;field&#34;: {&#34;name&#34;: self.name},
+            &#34;operator&#34;: self.operator,
+            &#34;values&#34;: self.values
+            })
+
+    @property
+    def name(self):
+        &#34;&#34;&#34;
+        Field name property. Example : `SrcIP`. See full list here: https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json
+        &#34;&#34;&#34;
+        return (self._name)
+
+    @name.setter
+    def name(self, name):
+        if True : # Not checking dynamically the validity of the fields cause makes too much of unecessary requests any(f.get(&#39;name&#39;, None) == name for f in self._possible_filters):
+            self._name = name
+        else:
+            raise AttributeError(&#34;Illegal value for the &#34;+name+&#34; field. The filter must be in :&#34;+str([f[&#39;name&#39;] for f in self._possible_filters]))
+    
+    @property
+    def operator(self):
+        &#34;&#34;&#34;
+        Field operator property. Check the value against the list of possible operators and trow `AttributeError` if not present.
+        &#34;&#34;&#34;
+        return (self._operator)
+    
+    @operator.setter
+    def operator(self, operator):
+        try:
+            if operator in self.POSSIBLE_OPERATORS :
+                self._operator = operator
+            else:
+                raise AttributeError(&#34;Illegal value for the filter operator &#34;+operator+&#34;. The operator must be in &#34;+str(self.POSSIBLE_OPERATORS))
+        except:
+            raise
+
+    @property
+    def values(self):
+        &#34;&#34;&#34;
+        Values property.
+        Set a list of values by calling `msiempy.query.FilteredQueryList.add_value()` if value is a 
+        `dict` or calls `msiempy.query.FilteredQueryList.add_basic_value()` if value type is `int`, `float` or `str`.
+        Values will always be added to the filter. To remove values, handle directly the `_values` property.
+
+        Example:  
+        ```
+            &gt;&gt;&gt; filter = FieldFilter(name=&#39;DstIP&#39;,values=[&#39;10.1.13.0/24&#39;],operator=&#39;IN&#39;)
+            &gt;&gt;&gt; filter.values=[&#39;10.1.14.0/8&#39;, {&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}]
+            &gt;&gt;&gt; filter.config_dict
+            {&#39;type&#39;: &#39;EsmFieldFilter&#39;, 
+            &#39;field&#39;: {&#39;name&#39;: &#39;DstIP&#39;}, 
+            &#39;operator&#39;: &#39;IN&#39;, 
+            &#39;values&#39;: [{&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.13.0/24&#39;},
+                {&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.14.0/8&#39;},
+                {&#39;type&#39;: &#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;: 42}]}
+                ```
+            
+        &#34;&#34;&#34;
+        return (self._values)
+
+    @values.setter  
+    def values(self, values):
+        for val in values :
+            if isinstance(val, dict):
+                self.add_value(**val)
+
+            elif isinstance(val, (int, float, str)) :
+                self.add_basic_value(val)
+        
+    def add_value(self, type, **args):
+        &#34;&#34;&#34;
+        Add a new value to the field filter.
+        
+        Parameters (`**args`) could be (depending of the value type):  
+        - `{ type=&#39;EsmBasicValue&#39;, value=&#39;a value&#39;}`  
+        - `{ type=&#39;EsmWatchlistValue&#39;, watchlist=1}`  
+        - `{ type=&#39;EsmVariableValue&#39;, variable=1}`  
+        - `{ type=&#39;EsmCompoundValue&#39;, values=[&#39;.*&#39;]}`  
+
+        Raises `KeyError` or `AttributeError` if you don&#39;t respect the correct type/key/value combo.
+        Note : Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
+        &#34;&#34;&#34;
+        try:
+            type_template=None
+            
+            #Look for the type of the object ex EsmBasicValue
+            # it&#39; used to know the type and name of value parameter we should receive next
+            for possible_value_type in self.POSSIBLE_VALUE_TYPES :
+                if possible_value_type[&#39;type&#39;] == type :
+                    type_template=possible_value_type
+                    if type != &#39;EsmBasicValue&#39; :
+                        log.warning(&#34;Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.&#34;)                            
+                    break
+
+            #Error throwing
+            if type_template is not None :
+                if type_template[&#39;key&#39;] in args :
+                    
+                    # Adds a new value to a fields filter
+                    # Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
+                    value = args[type_template[&#39;key&#39;]]
+                    if type == &#39;EsmBasicValue&#39; :
+                        value=str(value)
+                        #log.debug(&#39;Adding a basic value to filter (&#39;+self.text+&#39;) : &#39;+value)
+                    self._values.append({&#39;type&#39;:type, type_template[&#39;key&#39;]:value})
+                    #log.debug(&#39;The value was appended to the list: &#39;+str(self))
+                    
+                #Error throwing
+                else: raise KeyError (&#39;The valid key value parameter is not present&#39;)
+            else: raise KeyError (&#39;Impossible filter&#39;)
+        except KeyError as err:
+            raise AttributeError(&#34;You must provide a valid named parameters containing the type and values for this filter. The type/keys must be in &#34;+str(self.POSSIBLE_VALUE_TYPES)+&#34;Can&#39;t be type=&#34;+str(type)+&#39; &#39;+str(args)+&#34;. Additionnal indicator :&#34;+str(err) )
+
+    def add_basic_value(self, value):
+        &#34;&#34;&#34;
+        Wrapper arround add_value to add a EsmBasicValue.
+        &#34;&#34;&#34;
+        self.add_value(type=&#39;EsmBasicValue&#39;, value=value)
+
+    </code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="msiempy.query.FieldFilter"><code class="flex name class">
+<span>class <span class="ident">FieldFilter</span></span>
+<span>(</span><span>name, values, operator='IN')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Based on EsmFieldFilter. See SIEM api doc.
+Used to dump a filter in the right format.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>name</code> : field name as string.</li>
+<li><code>values</code> : list of values the field is going to be tested againts with the specified orperator.</li>
+<li><code>orperator</code> : operator, see <a title="msiempy.query.FieldFilter.POSSIBLE_OPERATORS" href="#msiempy.query.FieldFilter.POSSIBLE_OPERATORS"><code>FieldFilter.POSSIBLE_OPERATORS</code></a>.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FieldFilter(QueryFilter):
+    &#34;&#34;&#34;
+    Based on EsmFieldFilter. See SIEM api doc.
+    Used to dump a filter in the right format.
+    &#34;&#34;&#34;
+
+    &#34;&#34;&#34;List of possibles operators        
+        &#34;&#34;&#34;
+    POSSIBLE_OPERATORS=[&#39;IN&#39;,
+        &#39;NOT_IN&#39;,
+        &#39;GREATER_THAN&#39;,
+        &#39;LESS_THAN&#39;,
+        &#39;GREATER_OR_EQUALS_THAN&#39;,
+        &#39;LESS_OR_EQUALS_THAN&#39;,
+        &#39;NUMERIC_EQUALS&#39;,
+        &#39;NUMERIC_NOT_EQUALS&#39;,
+        &#39;DOES_NOT_EQUAL&#39;,
+        &#39;EQUALS&#39;,
+        &#39;CONTAINS&#39;,
+        &#39;DOES_NOT_CONTAIN&#39;,
+        &#39;REGEX&#39;]
+
+    &#34;&#34;&#34;List of possible operators : `&#39;IN&#39;,
+        &#39;NOT_IN&#39;,
+        &#39;GREATER_THAN&#39;,
+        &#39;LESS_THAN&#39;,
+        &#39;GREATER_OR_EQUALS_THAN&#39;,
+        &#39;LESS_OR_EQUALS_THAN&#39;,
+        &#39;NUMERIC_EQUALS&#39;,
+        &#39;NUMERIC_NOT_EQUALS&#39;,
+        &#39;DOES_NOT_EQUAL&#39;,
+        &#39;EQUALS&#39;,
+        &#39;CONTAINS&#39;,
+        &#39;DOES_NOT_CONTAIN&#39;,
+        &#39;REGEX&#39;`
+        &#34;&#34;&#34;
+
+    POSSIBLE_VALUE_TYPES=[
+            {&#39;type&#39;:&#39;EsmWatchlistValue&#39;,    &#39;key&#39;:&#39;watchlist&#39;},
+            {&#39;type&#39;:&#39;EsmVariableValue&#39;,     &#39;key&#39;:&#39;variable&#39;},
+            {&#39;type&#39;:&#39;EsmBasicValue&#39;,        &#39;key&#39;:&#39;value&#39;},
+            {&#39;type&#39;:&#39;EsmCompoundValue&#39;,     &#39;key&#39;:&#39;values&#39;}]
+    &#34;&#34;&#34;
+    List of possible value type. See `msiempy.query.FieldFilter.add_value`.
+    &#34;&#34;&#34;
+
+
+    def __init__(self, name, values, operator=&#39;IN&#39;) :
+        &#34;&#34;&#34;
+        Parameters:
+
+        - `name` : field name as string.
+        - `values` : list of values the field is going to be tested againts with the specified orperator.
+        - `orperator` : operator, see `msiempy.query.FieldFilter.POSSIBLE_OPERATORS`.
+        &#34;&#34;&#34;
+        super().__init__()
+        #Declaring attributes
+        self._name=str()
+        self._operator=str()
+        self._values=list()
+        self.name = name
+        self.operator = operator
+        self.values = values
+
+    @property
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Dump a filter in the right format.
+        &#34;&#34;&#34;
+        return ({
+            &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+            &#34;field&#34;: {&#34;name&#34;: self.name},
+            &#34;operator&#34;: self.operator,
+            &#34;values&#34;: self.values
+            })
+
+    @property
+    def name(self):
+        &#34;&#34;&#34;
+        Field name property. Example : `SrcIP`. See full list here: https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json
+        &#34;&#34;&#34;
+        return (self._name)
+
+    @name.setter
+    def name(self, name):
+        if True : # Not checking dynamically the validity of the fields cause makes too much of unecessary requests any(f.get(&#39;name&#39;, None) == name for f in self._possible_filters):
+            self._name = name
+        else:
+            raise AttributeError(&#34;Illegal value for the &#34;+name+&#34; field. The filter must be in :&#34;+str([f[&#39;name&#39;] for f in self._possible_filters]))
+    
+    @property
+    def operator(self):
+        &#34;&#34;&#34;
+        Field operator property. Check the value against the list of possible operators and trow `AttributeError` if not present.
+        &#34;&#34;&#34;
+        return (self._operator)
+    
+    @operator.setter
+    def operator(self, operator):
+        try:
+            if operator in self.POSSIBLE_OPERATORS :
+                self._operator = operator
+            else:
+                raise AttributeError(&#34;Illegal value for the filter operator &#34;+operator+&#34;. The operator must be in &#34;+str(self.POSSIBLE_OPERATORS))
+        except:
+            raise
+
+    @property
+    def values(self):
+        &#34;&#34;&#34;
+        Values property.
+        Set a list of values by calling `msiempy.query.FilteredQueryList.add_value()` if value is a 
+        `dict` or calls `msiempy.query.FilteredQueryList.add_basic_value()` if value type is `int`, `float` or `str`.
+        Values will always be added to the filter. To remove values, handle directly the `_values` property.
+
+        Example:  
+        ```
+            &gt;&gt;&gt; filter = FieldFilter(name=&#39;DstIP&#39;,values=[&#39;10.1.13.0/24&#39;],operator=&#39;IN&#39;)
+            &gt;&gt;&gt; filter.values=[&#39;10.1.14.0/8&#39;, {&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}]
+            &gt;&gt;&gt; filter.config_dict
+            {&#39;type&#39;: &#39;EsmFieldFilter&#39;, 
+            &#39;field&#39;: {&#39;name&#39;: &#39;DstIP&#39;}, 
+            &#39;operator&#39;: &#39;IN&#39;, 
+            &#39;values&#39;: [{&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.13.0/24&#39;},
+                {&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.14.0/8&#39;},
+                {&#39;type&#39;: &#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;: 42}]}
+                ```
+            
+        &#34;&#34;&#34;
+        return (self._values)
+
+    @values.setter  
+    def values(self, values):
+        for val in values :
+            if isinstance(val, dict):
+                self.add_value(**val)
+
+            elif isinstance(val, (int, float, str)) :
+                self.add_basic_value(val)
+        
+    def add_value(self, type, **args):
+        &#34;&#34;&#34;
+        Add a new value to the field filter.
+        
+        Parameters (`**args`) could be (depending of the value type):  
+        - `{ type=&#39;EsmBasicValue&#39;, value=&#39;a value&#39;}`  
+        - `{ type=&#39;EsmWatchlistValue&#39;, watchlist=1}`  
+        - `{ type=&#39;EsmVariableValue&#39;, variable=1}`  
+        - `{ type=&#39;EsmCompoundValue&#39;, values=[&#39;.*&#39;]}`  
+
+        Raises `KeyError` or `AttributeError` if you don&#39;t respect the correct type/key/value combo.
+        Note : Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
+        &#34;&#34;&#34;
+        try:
+            type_template=None
+            
+            #Look for the type of the object ex EsmBasicValue
+            # it&#39; used to know the type and name of value parameter we should receive next
+            for possible_value_type in self.POSSIBLE_VALUE_TYPES :
+                if possible_value_type[&#39;type&#39;] == type :
+                    type_template=possible_value_type
+                    if type != &#39;EsmBasicValue&#39; :
+                        log.warning(&#34;Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.&#34;)                            
+                    break
+
+            #Error throwing
+            if type_template is not None :
+                if type_template[&#39;key&#39;] in args :
+                    
+                    # Adds a new value to a fields filter
+                    # Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
+                    value = args[type_template[&#39;key&#39;]]
+                    if type == &#39;EsmBasicValue&#39; :
+                        value=str(value)
+                        #log.debug(&#39;Adding a basic value to filter (&#39;+self.text+&#39;) : &#39;+value)
+                    self._values.append({&#39;type&#39;:type, type_template[&#39;key&#39;]:value})
+                    #log.debug(&#39;The value was appended to the list: &#39;+str(self))
+                    
+                #Error throwing
+                else: raise KeyError (&#39;The valid key value parameter is not present&#39;)
+            else: raise KeyError (&#39;Impossible filter&#39;)
+        except KeyError as err:
+            raise AttributeError(&#34;You must provide a valid named parameters containing the type and values for this filter. The type/keys must be in &#34;+str(self.POSSIBLE_VALUE_TYPES)+&#34;Can&#39;t be type=&#34;+str(type)+&#39; &#39;+str(args)+&#34;. Additionnal indicator :&#34;+str(err) )
+
+    def add_basic_value(self, value):
+        &#34;&#34;&#34;
+        Wrapper arround add_value to add a EsmBasicValue.
+        &#34;&#34;&#34;
+        self.add_value(type=&#39;EsmBasicValue&#39;, value=value)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.query.QueryFilter" href="#msiempy.query.QueryFilter">QueryFilter</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.query.FieldFilter.POSSIBLE_OPERATORS"><code class="name">var <span class="ident">POSSIBLE_OPERATORS</span></code></dt>
+<dd>
+<section class="desc"><p>List of possible operators : <code>'IN',
+'NOT_IN',
+'GREATER_THAN',
+'LESS_THAN',
+'GREATER_OR_EQUALS_THAN',
+'LESS_OR_EQUALS_THAN',
+'NUMERIC_EQUALS',
+'NUMERIC_NOT_EQUALS',
+'DOES_NOT_EQUAL',
+'EQUALS',
+'CONTAINS',
+'DOES_NOT_CONTAIN',
+'REGEX'</code></p></section>
+</dd>
+<dt id="msiempy.query.FieldFilter.POSSIBLE_VALUE_TYPES"><code class="name">var <span class="ident">POSSIBLE_VALUE_TYPES</span></code></dt>
+<dd>
+<section class="desc"><p>List of possible value type. See <a title="msiempy.query.FieldFilter.add_value" href="#msiempy.query.FieldFilter.add_value"><code>FieldFilter.add_value()</code></a>.</p></section>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.query.FieldFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
+<dd>
+<section class="desc"><p>Dump a filter in the right format.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def config_dict(self):
+    &#34;&#34;&#34;
+    Dump a filter in the right format.
+    &#34;&#34;&#34;
+    return ({
+        &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+        &#34;field&#34;: {&#34;name&#34;: self.name},
+        &#34;operator&#34;: self.operator,
+        &#34;values&#34;: self.values
+        })</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FieldFilter.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<section class="desc"><p>Field name property. Example : <code>SrcIP</code>. See full list here: <a href="https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json">https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json</a></p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def name(self):
+    &#34;&#34;&#34;
+    Field name property. Example : `SrcIP`. See full list here: https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json
+    &#34;&#34;&#34;
+    return (self._name)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FieldFilter.operator"><code class="name">var <span class="ident">operator</span></code></dt>
+<dd>
+<section class="desc"><p>Field operator property. Check the value against the list of possible operators and trow <code>AttributeError</code> if not present.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def operator(self):
+    &#34;&#34;&#34;
+    Field operator property. Check the value against the list of possible operators and trow `AttributeError` if not present.
+    &#34;&#34;&#34;
+    return (self._operator)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FieldFilter.values"><code class="name">var <span class="ident">values</span></code></dt>
+<dd>
+<section class="desc"><p>Values property.
+Set a list of values by calling <code>msiempy.query.FilteredQueryList.add_value()</code> if value is a
+<code>dict</code> or calls <code>msiempy.query.FilteredQueryList.add_basic_value()</code> if value type is <code>int</code>, <code>float</code> or <code>str</code>.
+Values will always be added to the filter. To remove values, handle directly the <code>_values</code> property.</p>
+<p>Example:<br>
+<code>&gt;&gt;&gt; filter = FieldFilter(name='DstIP',values=['10.1.13.0/24'],operator='IN')
+&gt;&gt;&gt; filter.values=['10.1.14.0/8', {'type':'EsmWatchlistValue', 'watchlist':42}]
+&gt;&gt;&gt; filter.config_dict
+{'type': 'EsmFieldFilter',
+'field': {'name': 'DstIP'},
+'operator': 'IN',
+'values': [{'type': 'EsmBasicValue', 'value': '10.1.13.0/24'},
+{'type': 'EsmBasicValue', 'value': '10.1.14.0/8'},
+{'type': 'EsmWatchlistValue', 'watchlist': 42}]}</code></p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def values(self):
+    &#34;&#34;&#34;
+    Values property.
+    Set a list of values by calling `msiempy.query.FilteredQueryList.add_value()` if value is a 
+    `dict` or calls `msiempy.query.FilteredQueryList.add_basic_value()` if value type is `int`, `float` or `str`.
+    Values will always be added to the filter. To remove values, handle directly the `_values` property.
+
+    Example:  
+    ```
+        &gt;&gt;&gt; filter = FieldFilter(name=&#39;DstIP&#39;,values=[&#39;10.1.13.0/24&#39;],operator=&#39;IN&#39;)
+        &gt;&gt;&gt; filter.values=[&#39;10.1.14.0/8&#39;, {&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}]
+        &gt;&gt;&gt; filter.config_dict
+        {&#39;type&#39;: &#39;EsmFieldFilter&#39;, 
+        &#39;field&#39;: {&#39;name&#39;: &#39;DstIP&#39;}, 
+        &#39;operator&#39;: &#39;IN&#39;, 
+        &#39;values&#39;: [{&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.13.0/24&#39;},
+            {&#39;type&#39;: &#39;EsmBasicValue&#39;, &#39;value&#39;: &#39;10.1.14.0/8&#39;},
+            {&#39;type&#39;: &#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;: 42}]}
+            ```
+        
+    &#34;&#34;&#34;
+    return (self._values)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.query.FieldFilter.add_basic_value"><code class="name flex">
+<span>def <span class="ident">add_basic_value</span></span>(<span>self, value)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Wrapper arround add_value to add a EsmBasicValue.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_basic_value(self, value):
+    &#34;&#34;&#34;
+    Wrapper arround add_value to add a EsmBasicValue.
+    &#34;&#34;&#34;
+    self.add_value(type=&#39;EsmBasicValue&#39;, value=value)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FieldFilter.add_value"><code class="name flex">
+<span>def <span class="ident">add_value</span></span>(<span>self, type, **args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Add a new value to the field filter.</p>
+<p>Parameters (<code>**args</code>) could be (depending of the value type):<br>
+- <code>{ type='EsmBasicValue', value='a value'}</code><br>
+- <code>{ type='EsmWatchlistValue', watchlist=1}</code><br>
+- <code>{ type='EsmVariableValue', variable=1}</code><br>
+- <code>{ type='EsmCompoundValue', values=['.*']}</code>
+</p>
+<p>Raises <code>KeyError</code> or <code>AttributeError</code> if you don't respect the correct type/key/value combo.
+Note : Filtering query with other type of filter than 'EsmBasicValue' is not tested.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_value(self, type, **args):
+    &#34;&#34;&#34;
+    Add a new value to the field filter.
+    
+    Parameters (`**args`) could be (depending of the value type):  
+    - `{ type=&#39;EsmBasicValue&#39;, value=&#39;a value&#39;}`  
+    - `{ type=&#39;EsmWatchlistValue&#39;, watchlist=1}`  
+    - `{ type=&#39;EsmVariableValue&#39;, variable=1}`  
+    - `{ type=&#39;EsmCompoundValue&#39;, values=[&#39;.*&#39;]}`  
+
+    Raises `KeyError` or `AttributeError` if you don&#39;t respect the correct type/key/value combo.
+    Note : Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
+    &#34;&#34;&#34;
+    try:
+        type_template=None
+        
+        #Look for the type of the object ex EsmBasicValue
+        # it&#39; used to know the type and name of value parameter we should receive next
+        for possible_value_type in self.POSSIBLE_VALUE_TYPES :
+            if possible_value_type[&#39;type&#39;] == type :
+                type_template=possible_value_type
+                if type != &#39;EsmBasicValue&#39; :
+                    log.warning(&#34;Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.&#34;)                            
+                break
+
+        #Error throwing
+        if type_template is not None :
+            if type_template[&#39;key&#39;] in args :
+                
+                # Adds a new value to a fields filter
+                # Filtering query with other type of filter than &#39;EsmBasicValue&#39; is not tested.
+                value = args[type_template[&#39;key&#39;]]
+                if type == &#39;EsmBasicValue&#39; :
+                    value=str(value)
+                    #log.debug(&#39;Adding a basic value to filter (&#39;+self.text+&#39;) : &#39;+value)
+                self._values.append({&#39;type&#39;:type, type_template[&#39;key&#39;]:value})
+                #log.debug(&#39;The value was appended to the list: &#39;+str(self))
+                
+            #Error throwing
+            else: raise KeyError (&#39;The valid key value parameter is not present&#39;)
+        else: raise KeyError (&#39;Impossible filter&#39;)
+    except KeyError as err:
+        raise AttributeError(&#34;You must provide a valid named parameters containing the type and values for this filter. The type/keys must be in &#34;+str(self.POSSIBLE_VALUE_TYPES)+&#34;Can&#39;t be type=&#34;+str(type)+&#39; &#39;+str(args)+&#34;. Additionnal indicator :&#34;+str(err) )</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.query.QueryFilter" href="#msiempy.query.QueryFilter">QueryFilter</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.query.QueryFilter.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.get_possible_filters" href="#msiempy.query.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.json" href="#msiempy.query.QueryFilter.json">json</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.refresh" href="#msiempy.query.QueryFilter.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.text" href="#msiempy.query.QueryFilter.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.query.FilteredQueryList"><code class="flex name class">
+<span>class <span class="ident">FilteredQueryList</span></span>
+<span>(</span><span>time_range=None, start_time=None, end_time=None, filters=None, load_async=True, requests_size=500, max_query_depth=0, *arg, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class for query based managers : AlarmManager, EventManager
+FilteredQueryList object can handle time_ranges and time splitting.</p>
+<p>Abstract base class that handles the time ranges operations, loading data from the SIEM.</p>
+<p>Parameters:
+</p>
+<ul>
+<li><code>time_range</code> : Query time range. String representation of a time range.
+See <a title="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE"><code>FilteredQueryList.POSSIBLE_TIME_RANGE</code></a></li>
+<li><code>start_time</code> : Query starting time, can be a string or a datetime object. Parsed with dateutil.</li>
+<li><code>end_time</code> : Query endding time, can be a string or a datetime object. Parsed with dateutil.</li>
+<li><code>filters</code> : List of filters applied to the query.</li>
+<li><code>load_async</code> : Load asynchonously the sub-queries. Defaulted to True.</li>
+<li><code>requests_size</code> : number of items per request.</li>
+<li><code>max_query_depth</code> : maximum number of supplement reccursions of division of the query times
+Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of
+the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FilteredQueryList(NitroList):
+    &#34;&#34;&#34;
+    Base class for query based managers : AlarmManager, EventManager
+    FilteredQueryList object can handle time_ranges and time splitting.
+    &#34;&#34;&#34;
+    
+    DEFAULT_TIME_RANGE=&#34;CURRENT_DAY&#34;
+    &#34;&#34;&#34;
+    If you don&#39;t specify any `time_range`, act like if it was &#34;CURRENT_DAY&#34;.
+    &#34;&#34;&#34;
+
+    POSSIBLE_TIME_RANGE=[
+            &#34;CUSTOM&#34;,
+            &#34;LAST_MINUTE&#34;,
+            &#34;LAST_10_MINUTES&#34;,
+            &#34;LAST_30_MINUTES&#34;,
+            &#34;LAST_HOUR&#34;,
+            &#34;CURRENT_DAY&#34;,
+            &#34;PREVIOUS_DAY&#34;,
+            &#34;LAST_24_HOURS&#34;,
+            &#34;LAST_2_DAYS&#34;,
+            &#34;LAST_3_DAYS&#34;,
+            &#34;CURRENT_WEEK&#34;,
+            &#34;PREVIOUS_WEEK&#34;,
+            &#34;CURRENT_MONTH&#34;,
+            &#34;PREVIOUS_MONTH&#34;,
+            &#34;CURRENT_QUARTER&#34;,
+            &#34;PREVIOUS_QUARTER&#34;,
+            &#34;CURRENT_YEAR&#34;,
+            &#34;PREVIOUS_YEAR&#34;
+    ]
+    &#34;&#34;&#34;
+    List of possible time ranges : `&#34;CUSTOM&#34;,
+            &#34;LAST_MINUTE&#34;,
+            &#34;LAST_10_MINUTES&#34;,
+            &#34;LAST_30_MINUTES&#34;,
+            &#34;LAST_HOUR&#34;,
+            &#34;CURRENT_DAY&#34;,
+            &#34;PREVIOUS_DAY&#34;,
+            &#34;LAST_24_HOURS&#34;,
+            &#34;LAST_2_DAYS&#34;,
+            &#34;LAST_3_DAYS&#34;,
+            &#34;CURRENT_WEEK&#34;,
+            &#34;PREVIOUS_WEEK&#34;,
+            &#34;CURRENT_MONTH&#34;,
+            &#34;PREVIOUS_MONTH&#34;,
+            &#34;CURRENT_QUARTER&#34;,
+            &#34;PREVIOUS_QUARTER&#34;,
+            &#34;CURRENT_YEAR&#34;,
+            &#34;PREVIOUS_YEAR&#34;`
+    &#34;&#34;&#34;
+
+    def __init__(self, time_range=None, start_time=None, end_time=None, filters=None, 
+        load_async=True, requests_size=500, max_query_depth=0,
+            __parent__=None, *arg, **kwargs):
+        &#34;&#34;&#34;
+        Abstract base class that handles the time ranges operations, loading data from the SIEM.
+
+        Parameters:  
+    
+        - `time_range` : Query time range. String representation of a time range. 
+            See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`
+        - `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
+        - `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
+        - `filters` : List of filters applied to the query.
+        - `load_async` : Load asynchonously the sub-queries. Defaulted to True.
+        - `requests_size` : number of items per request.
+        - `max_query_depth` : maximum number of supplement reccursions of division of the query times
+            Meaning, if requests_size=500, slots=5 and max_query_depth=3, then the maximum capacity of 
+            the list is (500*5)*(500*5)*(500*5) = 15625000000
+            
+        &#34;&#34;&#34;
+
+        super().__init__(*arg, **kwargs)
+
+        #Store the query parent 
+        self.__parent__=__parent__
+        self.not_completed=False
+
+        #self.nitro.config.default_rows #nb rows per request : eq limit/page_size = requests_size
+        #self.nitro.config.max_rows #max nb rows 
+
+        #Declaring attributes and types
+        self._time_range=str()
+        self._start_time=None
+        self._end_time=None
+
+        #self.filters=filters filter property setter should be called in the concrete class
+        #TODO find a better solution to integrate the filter propertie
+
+        self.load_async=load_async
+
+        if start_time is not None and end_time is not None :
+            self.start_time=start_time
+            self.end_time=end_time
+            self.time_range=&#39;CUSTOM&#39;
+        else :
+            self.time_range=time_range
+
+        self.load_async=load_async
+        self.requests_size=requests_size
+        self.__init_max_query_depth__=max_query_depth
+        self.query_depth_ttl=max_query_depth
+
+
+    @property
+    def __root_parent__(self):
+        &#34;&#34;&#34;
+        Internal method that return the first query of the query tree
+        &#34;&#34;&#34;
+        if self.__parent__==None:
+            return self
+        else :
+            return self.__parent__.__root_parent__
+
+    @property
+    def time_range(self):
+        &#34;&#34;&#34;
+        Query time range. See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+        Default to `msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
+        Note that the time range is upper cased automatically.
+        Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
+        &#34;&#34;&#34;
+        return self._time_range.upper()
+
+    @time_range.setter
+    def time_range(self, time_range):
+        if not time_range :
+            self.time_range=self.DEFAULT_TIME_RANGE
+
+        elif isinstance(time_range, str):
+            time_range=time_range.upper()
+            if time_range in self.POSSIBLE_TIME_RANGE :
+                if time_range != &#39;CUSTOM&#39;:
+                    self.start_time=None
+                    self.end_time=None
+                self._time_range=time_range
+            else:
+                raise ValueError(&#34;The time range must be in &#34;+str(self.POSSIBLE_TIME_RANGE))
+        else:
+            raise AttributeError(&#39;time_range must be a string or None&#39;)
+
+    @property
+    def start_time(self):
+        &#34;&#34;&#34;
+        Start time of the query in the right SIEM format. See `msiempy.utils.format_esm_time()`
+        Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.
+        If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.
+        &#34;&#34;&#34;
+        return format_esm_time(self._start_time)
+
+    @start_time.setter
+    def start_time(self, start_time):
+        if isinstance(start_time, str):
+            self.start_time = convert_to_time_obj(start_time)
+        elif isinstance(start_time, datetime.datetime):
+            self._start_time = start_time
+        elif start_time==None:
+             self._start_time=None#raise ValueError(&#34;Time must be string or datetime object, not None&#34;)#self.start_time = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        else:
+            raise ValueError(&#34;Time must be string or datetime object.&#34;)
+
+    @property
+    def end_time(self):
+        &#34;&#34;&#34;
+        End time of the query in the right SIEM format.  See `msiempy.utils.format_esm_time()`
+        Use _end_time to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.
+        If `None`, equivalent CURRENT_DAY ends now. Raises `ValueError` if not the right type.
+        &#34;&#34;&#34;
+        return format_esm_time(self._end_time)
+
+    @end_time.setter
+    def end_time(self, end_time):       
+        if isinstance(end_time, str):
+            self.end_time = convert_to_time_obj(end_time)
+        elif isinstance(end_time, datetime.datetime):
+            self._end_time = end_time
+        elif end_time==None:
+             self._end_time=None#raise ValueError(&#34;Time must be string or datetime object, not None&#34;)
+        else:
+            raise ValueError(&#34;Time must be string or datetime object.&#34;)
+
+    @abc.abstractproperty
+    def filters(self):
+        &#34;&#34;&#34; 
+        Filter property : Returns a list of filters.
+        Can be set with list of tuple(field, [values]) or `msiempy.query.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
+        None value will call `msiempy.query.FilteredQueryList.clear_filters()`
+        Raises `AttributeError` if type not supported.
+        TODO find a better solution to integrate the filter propertie
+        &#34;&#34;&#34;
+        raise NotImplementedError()
+
+    @filters.setter
+    def filters(self, filters):
+        if isinstance(filters, list):
+            for f in filters :
+                self.add_filter(f)
+
+        elif isinstance(filters, tuple):
+            self.add_filter(filters)
+
+        elif filters == None :
+            self.clear_filters()
+        
+        else :
+            raise AttributeError(&#34;Illegal type for the filter object, it must be a list, a tuple or None.&#34;)
+
+    
+    @abc.abstractmethod
+    def add_filter(self, filter):
+        &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
+        &#34;&#34;&#34;
+        pass
+
+    @abc.abstractmethod
+    def clear_filters(self):
+        &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
+        &#34;&#34;&#34;
+        pass 
+
+    @abc.abstractmethod
+    def _load_data(self, workers):
+        &#34;&#34;&#34;
+        Rturn a tuple (items, completed).
+        completed = True if all the data that should be load is loaded.
+        &#34;&#34;&#34;
+        pass
+
+    @abc.abstractmethod
+    def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
+        &#34;&#34;&#34;
+        Method to load the data from the SIEM.
+        Split the query in defferents time slots if the query apprears not to be completed.
+        Splitting is done by duplicating current object, setting different times,
+        and re-loading results. First your query time is split in slots of size `delta` 
+        if the sub queries are not completed, divide them in the number of `slots`, this step is
+        If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the query list.
+
+        Returns a FilteredQueryList.
+        
+        Note :
+            IF you looking for load_async = True/False, you should pass this to the constructor method `msiempy.query.FilteredQueryList`
+                or by setting the attribute manually like `manager.load_asynch=True`
+            Only the first query is loaded asynchronously.
+
+        Parameters:  
+    
+        - `workers` : numbre of parrallels task
+        - `slots` : number of time slots the query can be divided. The loading bar is 
+            divided according to the number of slots
+        - `delta` : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
+            with dateutil.
+        
+        &#34;&#34;&#34;
+
+        items, completed = self._load_data(workers=workers)
+
+        if not completed :
+            #If not completed the query is split and items aren&#39;t actually used
+
+            if self.query_depth_ttl &gt; 0 :
+                #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
+
+                if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
+                    start, end = timerange_gettimes(self.time_range)
+                else :
+                    start, end = self.start_time, self.end_time
+
+                if self.__parent__ == None and isinstance(delta, str) :
+                    #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
+                    times=divide_times(start, end, delta=parse_timedelta(delta))
+                    
+                else :times=divide_times(start, end, slots=slots)
+                        #IGONORING THE CONFIG ### : self.nitro.config.slots)
+                
+                sub_queries=list()
+
+                for time in times :
+                    &#34;&#34;&#34;
+                    &#34;&#34;&#34;
+                    sub_query = copy.copy(self)
+                    sub_query.__parent__=self
+                    sub_query.compute_time_range=False
+                    sub_query.time_range=&#39;CUSTOM&#39;
+                    sub_query.start_time=time[0].isoformat()
+                    sub_query.end_time=time[1].isoformat()
+                    sub_query.load_async=False
+                    sub_query.query_depth_ttl=self.query_depth_ttl-1
+                    #sub_query.requests_size=requests_size
+                    sub_queries.append(sub_query)
+
+            
+                results = self.perform(FilteredQueryList.load_data, sub_queries, 
+                    #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
+                    asynch=False if not self.load_async else (self.__parent__==None),
+                    progress=self.__parent__==None, 
+                    message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
+                    func_args=dict(slots=slots),
+                    workers=workers)
+
+                #Flatten the list of lists in a list
+                items=[item for sublist in results for item in sublist]
+                
+            else :
+                if not self.__root_parent__.not_completed :
+                    log.warning(&#34;The query won&#39;t fully complete. Try to divide in more slots or increase the requests_size&#34;)
+                    self.__root_parent__.not_completed=True
+
+        self.data=items
+        return(NitroList(alist=items)) #return self ?</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></li>
+<li>collections.UserList</li>
+<li>collections.abc.MutableSequence</li>
+<li>collections.abc.Sequence</li>
+<li>collections.abc.Reversible</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE"><code class="name">var <span class="ident">DEFAULT_TIME_RANGE</span></code></dt>
+<dd>
+<section class="desc"><p>If you don't specify any <code>time_range</code>, act like if it was "CURRENT_DAY".</p></section>
+</dd>
+<dt id="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE"><code class="name">var <span class="ident">POSSIBLE_TIME_RANGE</span></code></dt>
+<dd>
+<section class="desc"><p>List of possible time ranges : <code>"CUSTOM",
+"LAST_MINUTE",
+"LAST_10_MINUTES",
+"LAST_30_MINUTES",
+"LAST_HOUR",
+"CURRENT_DAY",
+"PREVIOUS_DAY",
+"LAST_24_HOURS",
+"LAST_2_DAYS",
+"LAST_3_DAYS",
+"CURRENT_WEEK",
+"PREVIOUS_WEEK",
+"CURRENT_MONTH",
+"PREVIOUS_MONTH",
+"CURRENT_QUARTER",
+"PREVIOUS_QUARTER",
+"CURRENT_YEAR",
+"PREVIOUS_YEAR"</code></p></section>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.query.FilteredQueryList.end_time"><code class="name">var <span class="ident">end_time</span></code></dt>
+<dd>
+<section class="desc"><p>End time of the query in the right SIEM format.
+See <a title="msiempy.utils.format_esm_time" href="utils.html#msiempy.utils.format_esm_time"><code>format_esm_time()</code></a>
+Use _end_time to get the datetime object. You can set the <code>end_time</code> as a <code>str</code> or a <code>datetime</code>.
+If <code>None</code>, equivalent CURRENT_DAY ends now. Raises <code>ValueError</code> if not the right type.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def end_time(self):
+    &#34;&#34;&#34;
+    End time of the query in the right SIEM format.  See `msiempy.utils.format_esm_time()`
+    Use _end_time to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.
+    If `None`, equivalent CURRENT_DAY ends now. Raises `ValueError` if not the right type.
+    &#34;&#34;&#34;
+    return format_esm_time(self._end_time)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FilteredQueryList.filters"><code class="name">var <span class="ident">filters</span></code></dt>
+<dd>
+<section class="desc"><p>Filter property : Returns a list of filters.
+Can be set with list of tuple(field, [values]) or <a title="msiempy.query.QueryFilter" href="#msiempy.query.QueryFilter"><code>QueryFilter</code></a> in the case of a <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a> query. A single tuple is also accepted.
+None value will call <a title="msiempy.query.FilteredQueryList.clear_filters" href="#msiempy.query.FilteredQueryList.clear_filters"><code>FilteredQueryList.clear_filters()</code></a>
+Raises <code>AttributeError</code> if type not supported.
+TODO find a better solution to integrate the filter propertie</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractproperty
+def filters(self):
+    &#34;&#34;&#34; 
+    Filter property : Returns a list of filters.
+    Can be set with list of tuple(field, [values]) or `msiempy.query.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted. 
+    None value will call `msiempy.query.FilteredQueryList.clear_filters()`
+    Raises `AttributeError` if type not supported.
+    TODO find a better solution to integrate the filter propertie
+    &#34;&#34;&#34;
+    raise NotImplementedError()</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FilteredQueryList.start_time"><code class="name">var <span class="ident">start_time</span></code></dt>
+<dd>
+<section class="desc"><p>Start time of the query in the right SIEM format. See <a title="msiempy.utils.format_esm_time" href="utils.html#msiempy.utils.format_esm_time"><code>format_esm_time()</code></a>
+Use <code>_start_time</code> to get the datetime object. You can set the <code>star_time</code> as a <code>str</code> or a <code>datetime</code>.
+If <code>None</code>, equivalent CURRENT_DAY start 00:00:00. Raises <code>ValueError</code> if not the right type.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def start_time(self):
+    &#34;&#34;&#34;
+    Start time of the query in the right SIEM format. See `msiempy.utils.format_esm_time()`
+    Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.
+    If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.
+    &#34;&#34;&#34;
+    return format_esm_time(self._start_time)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FilteredQueryList.time_range"><code class="name">var <span class="ident">time_range</span></code></dt>
+<dd>
+<section class="desc"><p>Query time range. See <a title="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE"><code>FilteredQueryList.POSSIBLE_TIME_RANGE</code></a>.
+Default to <a title="msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE" href="#msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE"><code>FilteredQueryList.DEFAULT_TIME_RANGE</code></a> (CURRENT_DAY).
+Note that the time range is upper cased automatically.
+Raises <code>VallueError</code> if unrecognized time range is set and <code>AttributeError</code> if not the right type.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def time_range(self):
+    &#34;&#34;&#34;
+    Query time range. See `msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+    Default to `msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
+    Note that the time range is upper cased automatically.
+    Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
+    &#34;&#34;&#34;
+    return self._time_range.upper()</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.query.FilteredQueryList.add_filter"><code class="name flex">
+<span>def <span class="ident">add_filter</span></span>(<span>self, filter)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Method that figures out the way to add a filter to the query.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def add_filter(self, filter):
+    &#34;&#34;&#34;Method that figures out the way to add a filter to the query.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FilteredQueryList.clear_filters"><code class="name flex">
+<span>def <span class="ident">clear_filters</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Method that fiures out the way to remove all filters to the query.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def clear_filters(self):
+    &#34;&#34;&#34;Method that fiures out the way to remove all filters to the query.
+    &#34;&#34;&#34;
+    pass </code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.FilteredQueryList.load_data"><code class="name flex">
+<span>def <span class="ident">load_data</span></span>(<span>self, workers=15, slots=4, delta='24h')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Method to load the data from the SIEM.
+Split the query in defferents time slots if the query apprears not to be completed.
+Splitting is done by duplicating current object, setting different times,
+and re-loading results. First your query time is split in slots of size <code>delta</code>
+if the sub queries are not completed, divide them in the number of <code>slots</code>, this step is
+If you're looking for <code>max_query_depth</code>, it's define at the creation of the query list.</p>
+<p>Returns a FilteredQueryList.</p>
+<p>Note :
+IF you looking for load_async = True/False, you should pass this to the constructor method <a title="msiempy.query.FilteredQueryList" href="#msiempy.query.FilteredQueryList"><code>FilteredQueryList</code></a>
+or by setting the attribute manually like <code>manager.load_asynch=True</code>
+Only the first query is loaded asynchronously.</p>
+<p>Parameters:
+</p>
+<ul>
+<li><code>workers</code> : numbre of parrallels task</li>
+<li><code>slots</code> : number of time slots the query can be divided. The loading bar is
+divided according to the number of slots</li>
+<li><code>delta</code> : exemple : '24h', the query will be firstly divided in chuncks according to the time delta read
+with dateutil.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def load_data(self, workers=15, slots=4, delta=&#39;24h&#39;):
+    &#34;&#34;&#34;
+    Method to load the data from the SIEM.
+    Split the query in defferents time slots if the query apprears not to be completed.
+    Splitting is done by duplicating current object, setting different times,
+    and re-loading results. First your query time is split in slots of size `delta` 
+    if the sub queries are not completed, divide them in the number of `slots`, this step is
+    If you&#39;re looking for `max_query_depth`, it&#39;s define at the creation of the query list.
+
+    Returns a FilteredQueryList.
+    
+    Note :
+        IF you looking for load_async = True/False, you should pass this to the constructor method `msiempy.query.FilteredQueryList`
+            or by setting the attribute manually like `manager.load_asynch=True`
+        Only the first query is loaded asynchronously.
+
+    Parameters:  
+
+    - `workers` : numbre of parrallels task
+    - `slots` : number of time slots the query can be divided. The loading bar is 
+        divided according to the number of slots
+    - `delta` : exemple : &#39;24h&#39;, the query will be firstly divided in chuncks according to the time delta read
+        with dateutil.
+    
+    &#34;&#34;&#34;
+
+    items, completed = self._load_data(workers=workers)
+
+    if not completed :
+        #If not completed the query is split and items aren&#39;t actually used
+
+        if self.query_depth_ttl &gt; 0 :
+            #log.info(&#34;The query data couldn&#39;t be loaded in one request, separating it in sub-queries...&#34;)
+
+            if self.time_range != &#39;CUSTOM&#39;: #can raise a NotImplementedError if unsupported time_range
+                start, end = timerange_gettimes(self.time_range)
+            else :
+                start, end = self.start_time, self.end_time
+
+            if self.__parent__ == None and isinstance(delta, str) :
+                #if it&#39;s the first query and delta is speficied, cut the time_range in slots according to the delta
+                times=divide_times(start, end, delta=parse_timedelta(delta))
+                
+            else :times=divide_times(start, end, slots=slots)
+                    #IGONORING THE CONFIG ### : self.nitro.config.slots)
+            
+            sub_queries=list()
+
+            for time in times :
+                &#34;&#34;&#34;
+                &#34;&#34;&#34;
+                sub_query = copy.copy(self)
+                sub_query.__parent__=self
+                sub_query.compute_time_range=False
+                sub_query.time_range=&#39;CUSTOM&#39;
+                sub_query.start_time=time[0].isoformat()
+                sub_query.end_time=time[1].isoformat()
+                sub_query.load_async=False
+                sub_query.query_depth_ttl=self.query_depth_ttl-1
+                #sub_query.requests_size=requests_size
+                sub_queries.append(sub_query)
+
+        
+            results = self.perform(FilteredQueryList.load_data, sub_queries, 
+                #The sub query is asynch only when it&#39;s set to True and it&#39;s the first query
+                asynch=False if not self.load_async else (self.__parent__==None),
+                progress=self.__parent__==None, 
+                message=&#39;Loading data from &#39;+self.start_time+&#39; to &#39;+self.end_time+&#39;. In {} slots&#39;.format(len(times)),
+                func_args=dict(slots=slots),
+                workers=workers)
+
+            #Flatten the list of lists in a list
+            items=[item for sublist in results for item in sublist]
+            
+        else :
+            if not self.__root_parent__.not_completed :
+                log.warning(&#34;The query won&#39;t fully complete. Try to divide in more slots or increase the requests_size&#34;)
+                self.__root_parent__.not_completed=True
+
+    self.data=items
+    return(NitroList(alist=items)) #return self ?</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.NitroList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
+<li><code><a title="msiempy.NitroList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.NitroList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
+<li><code><a title="msiempy.NitroList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
+<li><code><a title="msiempy.NitroList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.query.GroupFilter"><code class="flex name class">
+<span>class <span class="ident">GroupFilter</span></span>
+<span>(</span><span>filters, logic='AND')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Based on EsmFilterGroup. See SIEM api doc.
+Used to dump groups of filters in the right format.</p>
+<p>Parameters :<br>
+- <code>filters</code> : a list of filters, it can be <a title="msiempy.query.FieldFilter" href="#msiempy.query.FieldFilter"><code>FieldFilter</code></a> or <a title="msiempy.query.GroupFilter" href="#msiempy.query.GroupFilter"><code>GroupFilter</code></a>
+- <code>logic</code> : 'AND' or 'OR'</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GroupFilter(QueryFilter):
+    &#34;&#34;&#34;
+        Based on EsmFilterGroup. See SIEM api doc.
+        Used to dump groups of filters in the right format.
+    &#34;&#34;&#34;
+
+    def __init__(self, filters, logic=&#39;AND&#39;) :
+        &#34;&#34;&#34;Parameters :  
+        - `filters` : a list of filters, it can be `msiempy.query.FieldFilter` or `msiempy.query.GroupFilter`
+        - `logic` : &#39;AND&#39; or &#39;OR&#39;
+        &#34;&#34;&#34;
+        super().__init__()
+        
+        #Declaring attributes
+        self.filters=filters
+        self.logic=logic
+
+    @property
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Could call recursively if there is other GroupFilter(s) object nested.
+        Dump a filter in the right format.
+        &#34;&#34;&#34;
+        return({
+            &#34;type&#34;: &#34;EsmFilterGroup&#34;,
+            &#34;filters&#34;: [f.config_dict for f in self.filters],
+            &#34;logic&#34;:self.logic
+            })</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.query.QueryFilter" href="#msiempy.query.QueryFilter">QueryFilter</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.query.GroupFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
+<dd>
+<section class="desc"><p>Could call recursively if there is other GroupFilter(s) object nested.
+Dump a filter in the right format.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def config_dict(self):
+    &#34;&#34;&#34;
+    Could call recursively if there is other GroupFilter(s) object nested.
+    Dump a filter in the right format.
+    &#34;&#34;&#34;
+    return({
+        &#34;type&#34;: &#34;EsmFilterGroup&#34;,
+        &#34;filters&#34;: [f.config_dict for f in self.filters],
+        &#34;logic&#34;:self.logic
+        })</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.query.QueryFilter" href="#msiempy.query.QueryFilter">QueryFilter</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.query.QueryFilter.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.get_possible_filters" href="#msiempy.query.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.json" href="#msiempy.query.QueryFilter.json">json</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.refresh" href="#msiempy.query.QueryFilter.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.text" href="#msiempy.query.QueryFilter.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.query.QueryFilter"><code class="flex name class">
+<span>class <span class="ident">QueryFilter</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class for all SIEM query objects, declares the <code>config_dict</code> abstract property in order to dump the filter as JSON.</p>
+<p>Creates the object session.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class QueryFilter(NitroObject):
+    &#34;&#34;&#34;Base class for all SIEM query objects, declares the `config_dict` abstract property in order to dump the filter as JSON.
+    &#34;&#34;&#34;
+    _possible_filters = []
+
+    def __init__(self):
+        super().__init__()
+
+        #Setting up static constant
+        &#34;&#34;&#34;Not checking dynamically the validity of the fields cause makes too much of unecessary requests
+            self._possible_filters = self._get_possible_filters()
+            &#34;&#34;&#34;
+
+    def get_possible_filters(self):
+        &#34;&#34;&#34;
+        Return all the fields that you can filter on in a query.
+        &#34;&#34;&#34;
+        return(self.nitro.request(&#39;get_possible_filters&#39;))
+
+    @abc.abstractproperty
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Dump a filter in the right JSON format.
+        &#34;&#34;&#34;
+        pass
+
+    def refresh(self):
+        &#34;&#34;&#34;
+        Superclass method.
+        &#34;&#34;&#34;
+        log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))
+
+    @property
+    def json(self):
+        &#34;&#34;&#34;
+        Dump the filter as a json.
+        &#34;&#34;&#34;
+        return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))
+    
+    @property
+    def text(self):
+        &#34;&#34;&#34;
+        Text representation of `config_dict` property.
+        &#34;&#34;&#34;
+        return str(self.config_dict)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="msiempy.query.GroupFilter" href="#msiempy.query.GroupFilter">GroupFilter</a></li>
+<li><a title="msiempy.query.FieldFilter" href="#msiempy.query.FieldFilter">FieldFilter</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.query.QueryFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
+<dd>
+<section class="desc"><p>Dump a filter in the right JSON format.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractproperty
+def config_dict(self):
+    &#34;&#34;&#34;
+    Dump a filter in the right JSON format.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.QueryFilter.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<section class="desc"><p>Dump the filter as a json.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def json(self):
+    &#34;&#34;&#34;
+    Dump the filter as a json.
+    &#34;&#34;&#34;
+    return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.QueryFilter.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<section class="desc"><p>Text representation of <code>config_dict</code> property.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def text(self):
+    &#34;&#34;&#34;
+    Text representation of `config_dict` property.
+    &#34;&#34;&#34;
+    return str(self.config_dict)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.query.QueryFilter.get_possible_filters"><code class="name flex">
+<span>def <span class="ident">get_possible_filters</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return all the fields that you can filter on in a query.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_possible_filters(self):
+    &#34;&#34;&#34;
+    Return all the fields that you can filter on in a query.
+    &#34;&#34;&#34;
+    return(self.nitro.request(&#39;get_possible_filters&#39;))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.query.QueryFilter.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Superclass method.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def refresh(self):
+    &#34;&#34;&#34;
+    Superclass method.
+    &#34;&#34;&#34;
+    log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="msiempy" href="index.html">msiempy</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="msiempy.query.FieldFilter" href="#msiempy.query.FieldFilter">FieldFilter</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.query.FieldFilter.POSSIBLE_OPERATORS" href="#msiempy.query.FieldFilter.POSSIBLE_OPERATORS">POSSIBLE_OPERATORS</a></code></li>
+<li><code><a title="msiempy.query.FieldFilter.POSSIBLE_VALUE_TYPES" href="#msiempy.query.FieldFilter.POSSIBLE_VALUE_TYPES">POSSIBLE_VALUE_TYPES</a></code></li>
+<li><code><a title="msiempy.query.FieldFilter.add_basic_value" href="#msiempy.query.FieldFilter.add_basic_value">add_basic_value</a></code></li>
+<li><code><a title="msiempy.query.FieldFilter.add_value" href="#msiempy.query.FieldFilter.add_value">add_value</a></code></li>
+<li><code><a title="msiempy.query.FieldFilter.config_dict" href="#msiempy.query.FieldFilter.config_dict">config_dict</a></code></li>
+<li><code><a title="msiempy.query.FieldFilter.name" href="#msiempy.query.FieldFilter.name">name</a></code></li>
+<li><code><a title="msiempy.query.FieldFilter.operator" href="#msiempy.query.FieldFilter.operator">operator</a></code></li>
+<li><code><a title="msiempy.query.FieldFilter.values" href="#msiempy.query.FieldFilter.values">values</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.query.FilteredQueryList" href="#msiempy.query.FilteredQueryList">FilteredQueryList</a></code></h4>
+<ul class="two-column">
+<li><code><a title="msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE" href="#msiempy.query.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.query.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.add_filter" href="#msiempy.query.FilteredQueryList.add_filter">add_filter</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.clear_filters" href="#msiempy.query.FilteredQueryList.clear_filters">clear_filters</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.end_time" href="#msiempy.query.FilteredQueryList.end_time">end_time</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.filters" href="#msiempy.query.FilteredQueryList.filters">filters</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.load_data" href="#msiempy.query.FilteredQueryList.load_data">load_data</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.start_time" href="#msiempy.query.FilteredQueryList.start_time">start_time</a></code></li>
+<li><code><a title="msiempy.query.FilteredQueryList.time_range" href="#msiempy.query.FilteredQueryList.time_range">time_range</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.query.GroupFilter" href="#msiempy.query.GroupFilter">GroupFilter</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.query.GroupFilter.config_dict" href="#msiempy.query.GroupFilter.config_dict">config_dict</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.query.QueryFilter" href="#msiempy.query.QueryFilter">QueryFilter</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.query.QueryFilter.config_dict" href="#msiempy.query.QueryFilter.config_dict">config_dict</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.get_possible_filters" href="#msiempy.query.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.json" href="#msiempy.query.QueryFilter.json">json</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.refresh" href="#msiempy.query.QueryFilter.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.query.QueryFilter.text" href="#msiempy.query.QueryFilter.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

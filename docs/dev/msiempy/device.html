@@ -107,6 +107,7 @@ class ESM(Device):
             obj. ESM object
         &#34;&#34;&#34;
         super().__init__(*args, **kwargs)
+        self.version = self.version()
         
     def refresh(self):
         super().refresh()
@@ -354,7 +355,47 @@ class ESM(Device):
             if vendor == venmod[1]:
                 if model == venmod[2]:
                     return str(venmod[0])
+
+    def rules_history(self):
+        &#34;&#34;&#34;
+        Returns: 
+            Policy Editor rule history.
+        &#34;&#34;&#34;
+        file = self.nitro.request(&#39;get_rule_history&#39;)[&#39;TK&#39;]
+
+        pos = 0
+        nbytes = 0
+        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+
+
+        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
+            data = resp[&#39;DATA&#39;]
+            #data = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
+            self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+            return data
         
+        data = []
+        data.append(resp[&#39;DATA&#39;])
+        file_size = int(resp[&#39;FSIZE&#39;])
+        collected = int(resp[&#39;BREAD&#39;])
+
+        while file_size &gt; collected:
+            pos += int(resp[&#39;BREAD&#39;])
+            nbytes = file_size - collected
+            resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+            collected += int(resp[&#39;BREAD&#39;])
+            data.append(resp[&#39;DATA&#39;])
+
+        resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+        return &#39;&#39;.join(data)
+
+    def _format_rules_history(self, rules_history):
+        &#34;&#34;&#34;[summary]
+        
+        Arguments:
+            rules_history {[type]} -- [description]
+        &#34;&#34;&#34;
+
     @lru_cache(maxsize=None)   
     def _get_ds_types(self):
         &#34;&#34;&#34;
@@ -707,13 +748,13 @@ class DevTree(NitroList):
         Initalize the DevTree object
         &#34;&#34;&#34;
         super().__init__(*args, **kwargs)
-        self.build_devtree()
+        self.devtree = self.build_devtree()
 
     def __len__(self):
         &#34;&#34;&#34;
         Returns the count of devices in the device tree.
         &#34;&#34;&#34;
-        return len(DevTree._DevTree)
+        return len(self.devtree)
         
     def __iter__(self):
         &#34;&#34;&#34;
@@ -853,8 +894,9 @@ class DevTree(NitroList):
         devtree = self._insert_zone_ids(zone_map, devtree)            
         last_times = self._get_last_times()
         last_times = self._format_times(last_times)
-        self.devtree = self._insert_ds_last_times(last_times, devtree)
-        return self.devtree
+        devtree = self._insert_ds_last_times(last_times, devtree)
+        devtree = self._filter_bogus_ds(devtree)
+        return devtree
 
     def _get_devtree(self):
         &#34;&#34;&#34;
@@ -1016,22 +1058,30 @@ class DevTree(NitroList):
             List of strings representing unparsed client datasources
         &#34;&#34;&#34;
 
-        resp = self.nitro.request(&#39;req_client_str&#39;, ds_id=ds_id)
-        return self._get_rfile(resp[&#39;FTOKEN&#39;])
+        file = self.nitro.request(&#39;req_client_str&#39;, ds_id=ds_id)[&#39;FTOKEN&#39;]
+        pos = 0
+        nbytes = 0
+        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
 
-    def _get_rfile(self, ftoken):
-        &#34;&#34;&#34;
-        Exchanges token for file
+        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
+            data = resp[&#39;DATA&#39;]
+            self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+            return dehexify(data)
         
-        Args:
-            ftoken (str): instance name set by 
-        
-        &#34;&#34;&#34;
-        # Need to test ESM with large client list to see if
-        # multiple requests may be necessary here.
+        data = []
+        data.append(resp[&#39;DATA&#39;])
+        file_size = int(resp[&#39;FSIZE&#39;])
+        collected = int(resp[&#39;BREAD&#39;])
 
-        resp = self.nitro.request(&#39;get_rfile&#39;, ftoken=ftoken)
-        return dehexify(resp[&#39;DATA&#39;])
+        while file_size &gt; collected:
+            pos += int(resp[&#39;BREAD&#39;])
+            nbytes = file_size - collected
+            resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+            collected += int(resp[&#39;BREAD&#39;])
+            data.append(resp[&#39;DATA&#39;])
+
+        resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+        return dehexify(&#39;&#39;.join(data))
 
 
     def _format_clients(self, clients):
@@ -1225,7 +1275,16 @@ class DevTree(NitroList):
                 if device[&#39;name&#39;] == d_time[&#39;name&#39;]:
                     device[&#39;model&#39;] = d_time[&#39;model&#39;]
                     device[&#39;last_time&#39;] = d_time[&#39;last_time&#39;]
-        return devtree</code></pre>
+        return devtree
+
+    def _filter_bogus_ds(self, devtree):
+        &#34;&#34;&#34;Filters objects that inaccurately show up as datasources sometimes.
+        
+        Arguments:
+            devtree (list) -- the devtree
+        &#34;&#34;&#34;
+        type_filter = [&#39;1&#39;, &#39;16&#39;, &#39;254&#39;]
+        return [ds for ds in devtree if ds[&#39;desc_id&#39;] not in type_filter]</code></pre>
 </details>
 </section>
 <section>
@@ -1890,13 +1949,13 @@ __contains__    Returns bool as to whether a datasource name, IP,
         Initalize the DevTree object
         &#34;&#34;&#34;
         super().__init__(*args, **kwargs)
-        self.build_devtree()
+        self.devtree = self.build_devtree()
 
     def __len__(self):
         &#34;&#34;&#34;
         Returns the count of devices in the device tree.
         &#34;&#34;&#34;
-        return len(DevTree._DevTree)
+        return len(self.devtree)
         
     def __iter__(self):
         &#34;&#34;&#34;
@@ -2036,8 +2095,9 @@ __contains__    Returns bool as to whether a datasource name, IP,
         devtree = self._insert_zone_ids(zone_map, devtree)            
         last_times = self._get_last_times()
         last_times = self._format_times(last_times)
-        self.devtree = self._insert_ds_last_times(last_times, devtree)
-        return self.devtree
+        devtree = self._insert_ds_last_times(last_times, devtree)
+        devtree = self._filter_bogus_ds(devtree)
+        return devtree
 
     def _get_devtree(self):
         &#34;&#34;&#34;
@@ -2199,22 +2259,30 @@ __contains__    Returns bool as to whether a datasource name, IP,
             List of strings representing unparsed client datasources
         &#34;&#34;&#34;
 
-        resp = self.nitro.request(&#39;req_client_str&#39;, ds_id=ds_id)
-        return self._get_rfile(resp[&#39;FTOKEN&#39;])
+        file = self.nitro.request(&#39;req_client_str&#39;, ds_id=ds_id)[&#39;FTOKEN&#39;]
+        pos = 0
+        nbytes = 0
+        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
 
-    def _get_rfile(self, ftoken):
-        &#34;&#34;&#34;
-        Exchanges token for file
+        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
+            data = resp[&#39;DATA&#39;]
+            self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+            return dehexify(data)
         
-        Args:
-            ftoken (str): instance name set by 
-        
-        &#34;&#34;&#34;
-        # Need to test ESM with large client list to see if
-        # multiple requests may be necessary here.
+        data = []
+        data.append(resp[&#39;DATA&#39;])
+        file_size = int(resp[&#39;FSIZE&#39;])
+        collected = int(resp[&#39;BREAD&#39;])
 
-        resp = self.nitro.request(&#39;get_rfile&#39;, ftoken=ftoken)
-        return dehexify(resp[&#39;DATA&#39;])
+        while file_size &gt; collected:
+            pos += int(resp[&#39;BREAD&#39;])
+            nbytes = file_size - collected
+            resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+            collected += int(resp[&#39;BREAD&#39;])
+            data.append(resp[&#39;DATA&#39;])
+
+        resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+        return dehexify(&#39;&#39;.join(data))
 
 
     def _format_clients(self, clients):
@@ -2408,7 +2476,16 @@ __contains__    Returns bool as to whether a datasource name, IP,
                 if device[&#39;name&#39;] == d_time[&#39;name&#39;]:
                     device[&#39;model&#39;] = d_time[&#39;model&#39;]
                     device[&#39;last_time&#39;] = d_time[&#39;last_time&#39;]
-        return devtree</code></pre>
+        return devtree
+
+    def _filter_bogus_ds(self, devtree):
+        &#34;&#34;&#34;Filters objects that inaccurately show up as datasources sometimes.
+        
+        Arguments:
+            devtree (list) -- the devtree
+        &#34;&#34;&#34;
+        type_filter = [&#39;1&#39;, &#39;16&#39;, &#39;254&#39;]
+        return [ds for ds in devtree if ds[&#39;desc_id&#39;] not in type_filter]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -2450,8 +2527,9 @@ __contains__    Returns bool as to whether a datasource name, IP,
     devtree = self._insert_zone_ids(zone_map, devtree)            
     last_times = self._get_last_times()
     last_times = self._format_times(last_times)
-    self.devtree = self._insert_ds_last_times(last_times, devtree)
-    return self.devtree</code></pre>
+    devtree = self._insert_ds_last_times(last_times, devtree)
+    devtree = self._filter_bogus_ds(devtree)
+    return devtree</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.DevTree.get_ds_times"><code class="name flex">
@@ -2846,6 +2924,7 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
             obj. ESM object
         &#34;&#34;&#34;
         super().__init__(*args, **kwargs)
+        self.version = self.version()
         
     def refresh(self):
         super().refresh()
@@ -3093,7 +3172,47 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
             if vendor == venmod[1]:
                 if model == venmod[2]:
                     return str(venmod[0])
+
+    def rules_history(self):
+        &#34;&#34;&#34;
+        Returns: 
+            Policy Editor rule history.
+        &#34;&#34;&#34;
+        file = self.nitro.request(&#39;get_rule_history&#39;)[&#39;TK&#39;]
+
+        pos = 0
+        nbytes = 0
+        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+
+
+        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
+            data = resp[&#39;DATA&#39;]
+            #data = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
+            self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+            return data
         
+        data = []
+        data.append(resp[&#39;DATA&#39;])
+        file_size = int(resp[&#39;FSIZE&#39;])
+        collected = int(resp[&#39;BREAD&#39;])
+
+        while file_size &gt; collected:
+            pos += int(resp[&#39;BREAD&#39;])
+            nbytes = file_size - collected
+            resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+            collected += int(resp[&#39;BREAD&#39;])
+            data.append(resp[&#39;DATA&#39;])
+
+        resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+        return &#39;&#39;.join(data)
+
+    def _format_rules_history(self, rules_history):
+        &#34;&#34;&#34;[summary]
+        
+        Arguments:
+            rules_history {[type]} -- [description]
+        &#34;&#34;&#34;
+
     @lru_cache(maxsize=None)   
     def _get_ds_types(self):
         &#34;&#34;&#34;
@@ -3320,6 +3439,50 @@ def recs(self):
     &#34;&#34;&#34;
     rec_list = self.nitro.request(&#39;get_recs&#39;)
     return [(rec[&#39;name&#39;], rec[&#39;id&#39;][&#39;id&#39;])for rec in rec_list]</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.ESM.rules_history"><code class="name flex">
+<span>def <span class="ident">rules_history</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns:
+Policy Editor rule history.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rules_history(self):
+    &#34;&#34;&#34;
+    Returns: 
+        Policy Editor rule history.
+    &#34;&#34;&#34;
+    file = self.nitro.request(&#39;get_rule_history&#39;)[&#39;TK&#39;]
+
+    pos = 0
+    nbytes = 0
+    resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+
+
+    if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
+        data = resp[&#39;DATA&#39;]
+        #data = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
+        self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+        return data
+    
+    data = []
+    data.append(resp[&#39;DATA&#39;])
+    file_size = int(resp[&#39;FSIZE&#39;])
+    collected = int(resp[&#39;BREAD&#39;])
+
+    while file_size &gt; collected:
+        pos += int(resp[&#39;BREAD&#39;])
+        nbytes = file_size - collected
+        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
+        collected += int(resp[&#39;BREAD&#39;])
+        data.append(resp[&#39;DATA&#39;])
+
+    resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
+    return &#39;&#39;.join(data)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.ESM.rules_status"><code class="name flex">
@@ -3705,6 +3868,7 @@ def recs(self):
 <li><code><a title="msiempy.device.ESM.map_status_int_fields" href="#msiempy.device.ESM.map_status_int_fields">map_status_int_fields</a></code></li>
 <li><code><a title="msiempy.device.ESM.ram" href="#msiempy.device.ESM.ram">ram</a></code></li>
 <li><code><a title="msiempy.device.ESM.recs" href="#msiempy.device.ESM.recs">recs</a></code></li>
+<li><code><a title="msiempy.device.ESM.rules_history" href="#msiempy.device.ESM.rules_history">rules_history</a></code></li>
 <li><code><a title="msiempy.device.ESM.rules_status" href="#msiempy.device.ESM.rules_status">rules_status</a></code></li>
 <li><code><a title="msiempy.device.ESM.status" href="#msiempy.device.ESM.status">status</a></code></li>
 <li><code><a title="msiempy.device.ESM.time" href="#msiempy.device.ESM.time">time</a></code></li>

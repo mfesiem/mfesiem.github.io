@@ -354,9 +354,10 @@ class NitroSession():
         &#34;get_wfile&#34;: (&#34;MISC_WRITEFILE&#34;,
                     &#34;&#34;&#34;{&#34;DATA1&#34;: &#34;%(_ds_id)s&#34;,
                     &#34;&#34;&#34;),
+        
+        &#34;get_rule_history&#34;: (&#34;PLCY_GETRULECHANGEINFO&#34;, 
+                            &#34;&#34;&#34;{&#34;SHOW&#34;: &#34;F&#34;}&#34;&#34;&#34;),
 
-                    
-                    
         &#34;map_dtree&#34;: (&#34;map_dtree&#34;,
                     &#34;&#34;&#34;{&#34;dev_type&#34;: &#34;%(dev_type)s&#34;,
                     &#34;name&#34;: &#34;%(ds_name)s&#34;,
@@ -1549,47 +1550,13 @@ class FilteredQueryList(NitroList):
 <dd>
 <section class="desc"><p>Provide alarm management.</p></section>
 </dd>
-<dt><code class="name"><a title="msiempy.base" href="base.html">msiempy.base</a></code></dt>
-<dd>
-<section class="desc"></section>
-</dd>
-<dt><code class="name"><a title="msiempy.config" href="config.html">msiempy.config</a></code></dt>
-<dd>
-<section class="desc"></section>
-</dd>
-<dt><code class="name"><a title="msiempy.datasource" href="datasource.html">msiempy.datasource</a></code></dt>
-<dd>
-<section class="desc"></section>
-</dd>
 <dt><code class="name"><a title="msiempy.device" href="device.html">msiempy.device</a></code></dt>
 <dd>
 <section class="desc"><p>Provide ESM, ERC and data source management.</p></section>
 </dd>
-<dt><code class="name"><a title="msiempy.error" href="error.html">msiempy.error</a></code></dt>
-<dd>
-<section class="desc"></section>
-</dd>
 <dt><code class="name"><a title="msiempy.event" href="event.html">msiempy.event</a></code></dt>
 <dd>
 <section class="desc"><p>Provide event management.</p></section>
-</dd>
-<dt><code class="name"><a title="msiempy.params" href="params.html">msiempy.params</a></code></dt>
-<dd>
-<section class="desc"><p>This module imports a dict into the msiem core class to provide
-a central place to aggregate API methods and parameters. The params
-are stored as …</p></section>
-</dd>
-<dt><code class="name"><a title="msiempy.query" href="query.html">msiempy.query</a></code></dt>
-<dd>
-<section class="desc"><p>Provide time ranged filtered query wrapper.</p></section>
-</dd>
-<dt><code class="name"><a title="msiempy.session" href="session.html">msiempy.session</a></code></dt>
-<dd>
-<section class="desc"></section>
-</dd>
-<dt><code class="name"><a title="msiempy.utils" href="utils.html">msiempy.utils</a></code></dt>
-<dd>
-<section class="desc"><p>A few quick static util methods.</p></section>
 </dd>
 <dt><code class="name"><a title="msiempy.watchlist" href="watchlist.html">msiempy.watchlist</a></code></dt>
 <dd>
@@ -2065,7 +2032,7 @@ If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/con
 <ul>
 <li><code>path</code>: Config file special path, if path is left None, will automatically look for it.
 </li>
-<li><a title="msiempy.config" href="config.html"><code>msiempy.config</code></a>: Manual config dict. ex: <code>{'general':{'verbose':True}}</code>.</li>
+<li><code>config</code>: Manual config dict. ex: <code>{'general':{'verbose':True}}</code>.</li>
 <li><code>*args, **kwargs</code> : Passed to <code>configparser.ConfigParser.__init__()</code> method.</li>
 </ul></section>
 <details class="source">
@@ -3003,7 +2970,6 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="msiempy.FilteredQueryList" href="#msiempy.FilteredQueryList">FilteredQueryList</a></li>
-<li><a title="msiempy.query.FilteredQueryList" href="query.html#msiempy.query.FilteredQueryList">FilteredQueryList</a></li>
 <li><a title="msiempy.device.DevTree" href="device.html#msiempy.device.DevTree">DevTree</a></li>
 <li><a title="msiempy.watchlist.WatchlistManager" href="watchlist.html#msiempy.watchlist.WatchlistManager">WatchlistManager</a></li>
 </ul>
@@ -3451,7 +3417,6 @@ i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
 <li><a title="msiempy.NitroDict" href="#msiempy.NitroDict">NitroDict</a></li>
 <li><a title="msiempy.NitroList" href="#msiempy.NitroList">NitroList</a></li>
 <li><a title="msiempy.event.QueryFilter" href="event.html#msiempy.event.QueryFilter">QueryFilter</a></li>
-<li><a title="msiempy.query.QueryFilter" href="query.html#msiempy.query.QueryFilter">QueryFilter</a></li>
 <li><a title="msiempy.device.Device" href="device.html#msiempy.device.Device">Device</a></li>
 </ul>
 <h3>Class variables</h3>
@@ -3626,9 +3591,10 @@ Use logout() to reinstanciate NitroSession.
         &#34;get_wfile&#34;: (&#34;MISC_WRITEFILE&#34;,
                     &#34;&#34;&#34;{&#34;DATA1&#34;: &#34;%(_ds_id)s&#34;,
                     &#34;&#34;&#34;),
+        
+        &#34;get_rule_history&#34;: (&#34;PLCY_GETRULECHANGEINFO&#34;, 
+                            &#34;&#34;&#34;{&#34;SHOW&#34;: &#34;F&#34;}&#34;&#34;&#34;),
 
-                    
-                    
         &#34;map_dtree&#34;: (&#34;map_dtree&#34;,
                     &#34;&#34;&#34;{&#34;dev_type&#34;: &#34;%(dev_type)s&#34;,
                     &#34;name&#34;: &#34;%(ds_name)s&#34;,
@@ -4642,16 +4608,8 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
 <li><code><a title="msiempy.alarm" href="alarm.html">msiempy.alarm</a></code></li>
-<li><code><a title="msiempy.base" href="base.html">msiempy.base</a></code></li>
-<li><code><a title="msiempy.config" href="config.html">msiempy.config</a></code></li>
-<li><code><a title="msiempy.datasource" href="datasource.html">msiempy.datasource</a></code></li>
 <li><code><a title="msiempy.device" href="device.html">msiempy.device</a></code></li>
-<li><code><a title="msiempy.error" href="error.html">msiempy.error</a></code></li>
 <li><code><a title="msiempy.event" href="event.html">msiempy.event</a></code></li>
-<li><code><a title="msiempy.params" href="params.html">msiempy.params</a></code></li>
-<li><code><a title="msiempy.query" href="query.html">msiempy.query</a></code></li>
-<li><code><a title="msiempy.session" href="session.html">msiempy.session</a></code></li>
-<li><code><a title="msiempy.utils" href="utils.html">msiempy.utils</a></code></li>
 <li><code><a title="msiempy.watchlist" href="watchlist.html">msiempy.watchlist</a></code></li>
 </ul>
 </li>

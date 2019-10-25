@@ -195,7 +195,6 @@ class Watchlist(NitroDict):
         resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
 
         if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-            print(&#39;Single file. Size: {}. BREAD: {}&#39;.format(resp[&#39;FSIZE&#39;], resp[&#39;BREAD&#39;]))
             self.data[&#39;values&#39;] = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
             self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
             return
@@ -331,7 +330,6 @@ and update dict values accordingly.</p>
         resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
 
         if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-            print(&#39;Single file. Size: {}. BREAD: {}&#39;.format(resp[&#39;FSIZE&#39;], resp[&#39;BREAD&#39;]))
             self.data[&#39;values&#39;] = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
             self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
             return
@@ -453,7 +451,6 @@ and update dict values accordingly.</p>
     resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
 
     if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-        print(&#39;Single file. Size: {}. BREAD: {}&#39;.format(resp[&#39;FSIZE&#39;], resp[&#39;BREAD&#39;]))
         self.data[&#39;values&#39;] = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
         self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
         return

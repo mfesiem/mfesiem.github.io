@@ -316,7 +316,7 @@ class AlarmManager(FilteredQueryList):
             filtered_alarms = alarm_based_filtered
             log.warning(&#39;Event filters and some Alarm filters are ignored when `alarms_details is False`&#39;)
 
-        return (( filtered_alarms , len(no_filtered_alarms)&lt;self.page_size ))
+        return (( filtered_alarms , len(no_filtered_alarms) &lt; int(self.page_size) ))
 
     def _alarm_match(self, alarm):
         &#34;&#34;&#34;
@@ -1308,7 +1308,7 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
             filtered_alarms = alarm_based_filtered
             log.warning(&#39;Event filters and some Alarm filters are ignored when `alarms_details is False`&#39;)
 
-        return (( filtered_alarms , len(no_filtered_alarms)&lt;self.page_size ))
+        return (( filtered_alarms , len(no_filtered_alarms) &lt; int(self.page_size) ))
 
     def _alarm_match(self, alarm):
         &#34;&#34;&#34;
@@ -1667,7 +1667,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
         filtered_alarms = alarm_based_filtered
         log.warning(&#39;Event filters and some Alarm filters are ignored when `alarms_details is False`&#39;)
 
-    return (( filtered_alarms , len(no_filtered_alarms)&lt;self.page_size ))</code></pre>
+    return (( filtered_alarms , len(no_filtered_alarms) &lt; int(self.page_size) ))</code></pre>
 </details>
 </dd>
 </dl>

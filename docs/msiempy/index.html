@@ -375,23 +375,35 @@ class NitroSession():
                     &#34;client_groups&#34;: &#34;%(client_groups)s&#34;
                     }
                     &#34;&#34;&#34;),
-                    
-        &#34;add_ds&#34;: (&#34;dsAddDataSource&#34;, 
+
+        &#34;add_ds_11_1_3&#34;: (&#34;dsAddDataSource&#34;, 
                     &#34;&#34;&#34;{&#34;datasource&#34;: {
                             &#34;parentId&#34;: {&#34;id&#34;: &#34;%(parent_id)s&#34;},
                             &#34;name&#34;: &#34;%(name)s&#34;,
-                            &#34;id&#34;: {&#34;id&#34;: &#34;%(ds_id)s&#34;},
+                            &#34;ipAddress&#34;: &#34;%(ds_ip)s&#34;,
                             &#34;typeId&#34;: {&#34;id&#34;: &#34;%(type_id)s&#34;},
+                            &#34;zoneId&#34;: &#34;%(zone_id)s&#34;,
+                            &#34;enabled&#34;: &#34;%(enabled)s&#34;,
+                            &#34;url&#34;: &#34;%(url)s&#34;,
+                            &#34;id&#34;: {&#34;id&#34;: &#34;%(ds_id)s&#34;},
                             &#34;childEnabled&#34;: &#34;%(child_enabled)s&#34;,
                             &#34;childCount&#34;: &#34;%(child_count)s&#34;,
                             &#34;childType&#34;: &#34;%(child_type)s&#34;,
-                            &#34;ipAddress&#34;: &#34;%(ds_ip)s&#34;,
-                            &#34;zoneId&#34;: &#34;%(zone_id)s&#34;,
-                            &#34;url&#34;: &#34;%(url)s&#34;,
-                            &#34;enabled&#34;: &#34;%(enabled)s&#34;,
                             &#34;idmId&#34;: &#34;%(idm_id)s&#34;,
                             &#34;parameters&#34;: %(parameters)s
                         }}&#34;&#34;&#34;),
+
+        &#34;add_ds_11_2_1&#34;: (&#34;dsAddDataSources&#34;, 
+                        &#34;&#34;&#34;{&#34;receiverId&#34;: &#34;%(parent_id)s&#34;,
+                            &#34;datasources&#34;: [{
+                                &#34;name&#34;: &#34;%(name)s&#34;,
+                                &#34;ipAddress&#34;: &#34;%(ds_ip)s&#34;,
+                                &#34;typeId&#34;: {&#34;id&#34;: &#34;%(type_id)s&#34;},
+                                &#34;zoneId&#34;: &#34;%(zone_id)s&#34;,
+                                &#34;enabled&#34;: &#34;%(enabled)s&#34;,
+                                &#34;url&#34;: &#34;%(url)s&#34;,
+                                &#34;parameters&#34;: %(parameters)s
+                                }]}&#34;&#34;&#34;),
 
         &#34;add_client&#34;: (&#34;DS_ADDDSCLIENT&#34;, 
                         &#34;&#34;&#34;{&#34;PID&#34;: &#34;%(parent_id)s&#34;,
@@ -778,6 +790,27 @@ class NitroSession():
         else:
             raise NitroError(&#39;ESM Login Error: Response empty&#39;)
 
+    def version(self):
+        &#34;&#34;&#34;
+        Returns:
+            str. ESM short version.
+
+        Example:
+            &#39;10.0.2&#39;
+        &#34;&#34;&#34;
+        return self.buildstamp().split()[0]
+
+    def buildstamp(self):
+        &#34;&#34;&#34;
+        Returns:
+            str. ESM buildstamp.
+
+        Example:
+            &#39;10.0.2 20170516001031&#39;
+        &#34;&#34;&#34;
+        return self.request(&#39;build_stamp&#39;)[&#39;buildStamp&#39;]
+
+
     def request(self, request, **kwargs):
         &#34;&#34;&#34;
             This method is the centralized interface of all requests going to the SIEM.  
@@ -815,7 +848,7 @@ class NitroSession():
 
         if not self._logged and method != &#39;login&#39;:
             self.login()
-
+            self.version = self.version()
         try :
             #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
             esm_request_args = inspect.getargspec(self.esm_request)[0]
@@ -2546,7 +2579,6 @@ and update dict values accordingly.</p>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></li>
-<li><a title="msiempy.device.DataSource" href="device.html#msiempy.device.DataSource">DataSource</a></li>
 <li><a title="msiempy.alarm.Alarm" href="alarm.html#msiempy.alarm.Alarm">Alarm</a></li>
 <li><a title="msiempy.watchlist.Watchlist" href="watchlist.html#msiempy.watchlist.Watchlist">Watchlist</a></li>
 </ul>
@@ -2970,8 +3002,8 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="msiempy.FilteredQueryList" href="#msiempy.FilteredQueryList">FilteredQueryList</a></li>
-<li><a title="msiempy.device.DevTree" href="device.html#msiempy.device.DevTree">DevTree</a></li>
 <li><a title="msiempy.watchlist.WatchlistManager" href="watchlist.html#msiempy.watchlist.WatchlistManager">WatchlistManager</a></li>
+<li><a title="msiempy.device.DevTree" href="device.html#msiempy.device.DevTree">DevTree</a></li>
 </ul>
 <h3>Instance variables</h3>
 <dl>
@@ -3612,23 +3644,35 @@ Use logout() to reinstanciate NitroSession.
                     &#34;client_groups&#34;: &#34;%(client_groups)s&#34;
                     }
                     &#34;&#34;&#34;),
-                    
-        &#34;add_ds&#34;: (&#34;dsAddDataSource&#34;, 
+
+        &#34;add_ds_11_1_3&#34;: (&#34;dsAddDataSource&#34;, 
                     &#34;&#34;&#34;{&#34;datasource&#34;: {
                             &#34;parentId&#34;: {&#34;id&#34;: &#34;%(parent_id)s&#34;},
                             &#34;name&#34;: &#34;%(name)s&#34;,
-                            &#34;id&#34;: {&#34;id&#34;: &#34;%(ds_id)s&#34;},
+                            &#34;ipAddress&#34;: &#34;%(ds_ip)s&#34;,
                             &#34;typeId&#34;: {&#34;id&#34;: &#34;%(type_id)s&#34;},
+                            &#34;zoneId&#34;: &#34;%(zone_id)s&#34;,
+                            &#34;enabled&#34;: &#34;%(enabled)s&#34;,
+                            &#34;url&#34;: &#34;%(url)s&#34;,
+                            &#34;id&#34;: {&#34;id&#34;: &#34;%(ds_id)s&#34;},
                             &#34;childEnabled&#34;: &#34;%(child_enabled)s&#34;,
                             &#34;childCount&#34;: &#34;%(child_count)s&#34;,
                             &#34;childType&#34;: &#34;%(child_type)s&#34;,
-                            &#34;ipAddress&#34;: &#34;%(ds_ip)s&#34;,
-                            &#34;zoneId&#34;: &#34;%(zone_id)s&#34;,
-                            &#34;url&#34;: &#34;%(url)s&#34;,
-                            &#34;enabled&#34;: &#34;%(enabled)s&#34;,
                             &#34;idmId&#34;: &#34;%(idm_id)s&#34;,
                             &#34;parameters&#34;: %(parameters)s
                         }}&#34;&#34;&#34;),
+
+        &#34;add_ds_11_2_1&#34;: (&#34;dsAddDataSources&#34;, 
+                        &#34;&#34;&#34;{&#34;receiverId&#34;: &#34;%(parent_id)s&#34;,
+                            &#34;datasources&#34;: [{
+                                &#34;name&#34;: &#34;%(name)s&#34;,
+                                &#34;ipAddress&#34;: &#34;%(ds_ip)s&#34;,
+                                &#34;typeId&#34;: {&#34;id&#34;: &#34;%(type_id)s&#34;},
+                                &#34;zoneId&#34;: &#34;%(zone_id)s&#34;,
+                                &#34;enabled&#34;: &#34;%(enabled)s&#34;,
+                                &#34;url&#34;: &#34;%(url)s&#34;,
+                                &#34;parameters&#34;: %(parameters)s
+                                }]}&#34;&#34;&#34;),
 
         &#34;add_client&#34;: (&#34;DS_ADDDSCLIENT&#34;, 
                         &#34;&#34;&#34;{&#34;PID&#34;: &#34;%(parent_id)s&#34;,
@@ -4015,6 +4059,27 @@ Use logout() to reinstanciate NitroSession.
         else:
             raise NitroError(&#39;ESM Login Error: Response empty&#39;)
 
+    def version(self):
+        &#34;&#34;&#34;
+        Returns:
+            str. ESM short version.
+
+        Example:
+            &#39;10.0.2&#39;
+        &#34;&#34;&#34;
+        return self.buildstamp().split()[0]
+
+    def buildstamp(self):
+        &#34;&#34;&#34;
+        Returns:
+            str. ESM buildstamp.
+
+        Example:
+            &#39;10.0.2 20170516001031&#39;
+        &#34;&#34;&#34;
+        return self.request(&#39;build_stamp&#39;)[&#39;buildStamp&#39;]
+
+
     def request(self, request, **kwargs):
         &#34;&#34;&#34;
             This method is the centralized interface of all requests going to the SIEM.  
@@ -4052,7 +4117,7 @@ Use logout() to reinstanciate NitroSession.
 
         if not self._logged and method != &#39;login&#39;:
             self.login()
-
+            self.version = self.version()
         try :
             #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
             esm_request_args = inspect.getargspec(self.esm_request)[0]
@@ -4315,6 +4380,29 @@ def unpack_resp(response) :
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="msiempy.NitroSession.buildstamp"><code class="name flex">
+<span>def <span class="ident">buildstamp</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="returns">Returns</h2>
+<p>str. ESM buildstamp.</p>
+<h2 id="example">Example</h2>
+<p>'10.0.2 20170516001031'</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def buildstamp(self):
+    &#34;&#34;&#34;
+    Returns:
+        str. ESM buildstamp.
+
+    Example:
+        &#39;10.0.2 20170516001031&#39;
+    &#34;&#34;&#34;
+    return self.request(&#39;build_stamp&#39;)[&#39;buildStamp&#39;]</code></pre>
+</details>
+</dd>
 <dt id="msiempy.NitroSession.esm_request"><code class="name flex">
 <span>def <span class="ident">esm_request</span></span>(<span>self, method, data, http='post', callback=None, raw=False, secure=False, retry=True)</span>
 </code></dt>
@@ -4574,7 +4662,7 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
 
     if not self._logged and method != &#39;login&#39;:
         self.login()
-
+        self.version = self.version()
     try :
         #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
         esm_request_args = inspect.getargspec(self.esm_request)[0]
@@ -4590,6 +4678,29 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
     except Exception as e:
         log.error(e)
         raise </code></pre>
+</details>
+</dd>
+<dt id="msiempy.NitroSession.version"><code class="name flex">
+<span>def <span class="ident">version</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="returns">Returns</h2>
+<p>str. ESM short version.</p>
+<h2 id="example">Example</h2>
+<p>'10.0.2'</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def version(self):
+    &#34;&#34;&#34;
+    Returns:
+        str. ESM short version.
+
+    Example:
+        &#39;10.0.2&#39;
+    &#34;&#34;&#34;
+    return self.buildstamp().split()[0]</code></pre>
 </details>
 </dd>
 </dl>
@@ -4689,6 +4800,7 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
 <li><code><a title="msiempy.NitroSession.BASE_URL" href="#msiempy.NitroSession.BASE_URL">BASE_URL</a></code></li>
 <li><code><a title="msiempy.NitroSession.BASE_URL_PRIV" href="#msiempy.NitroSession.BASE_URL_PRIV">BASE_URL_PRIV</a></code></li>
 <li><code><a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS">PARAMS</a></code></li>
+<li><code><a title="msiempy.NitroSession.buildstamp" href="#msiempy.NitroSession.buildstamp">buildstamp</a></code></li>
 <li><code><a title="msiempy.NitroSession.config" href="#msiempy.NitroSession.config">config</a></code></li>
 <li><code><a title="msiempy.NitroSession.esm_request" href="#msiempy.NitroSession.esm_request">esm_request</a></code></li>
 <li><code><a title="msiempy.NitroSession.format_params" href="#msiempy.NitroSession.format_params">format_params</a></code></li>
@@ -4697,6 +4809,7 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
 <li><code><a title="msiempy.NitroSession.logout" href="#msiempy.NitroSession.logout">logout</a></code></li>
 <li><code><a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request">request</a></code></li>
 <li><code><a title="msiempy.NitroSession.unpack_resp" href="#msiempy.NitroSession.unpack_resp">unpack_resp</a></code></li>
+<li><code><a title="msiempy.NitroSession.version" href="#msiempy.NitroSession.version">version</a></code></li>
 </ul>
 </li>
 </ul>

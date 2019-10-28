@@ -107,7 +107,6 @@ class ESM(Device):
             obj. ESM object
         &#34;&#34;&#34;
         super().__init__(*args, **kwargs)
-        self.version = self.version()
         
     def refresh(self):
         super().refresh()
@@ -120,26 +119,6 @@ class ESM(Device):
     def json(self):
         return (dict(self))
 
-    def version(self):
-        &#34;&#34;&#34;
-        Returns:
-            str. ESM short version.
-
-        Example:
-            &#39;10.0.2&#39;
-        &#34;&#34;&#34;
-        return self.buildstamp().split()[0]
-
-    def buildstamp(self):
-        &#34;&#34;&#34;
-        Returns:
-            str. ESM buildstamp.
-
-        Example:
-            &#39;10.0.2 20170516001031&#39;
-        &#34;&#34;&#34;
-        return self.nitro.request(&#39;build_stamp&#39;)[&#39;buildStamp&#39;]
-
     def time(self):
         &#34;&#34;&#34;
         Returns:
@@ -149,6 +128,12 @@ class ESM(Device):
             &#39;2017-07-06T12:21:59.0+0000&#39;
         &#34;&#34;&#34;
         return self.nitro.request(&#34;get_esm_time&#34;)[&#39;value&#39;]
+
+    def buildstamp(self):
+        return self.nitro.buildstamp
+    
+    def version(self):
+        return self.nitro.version
 
     def status(self):
         &#34;&#34;&#34;
@@ -433,255 +418,6 @@ class ESM(Device):
         return [(mod[&#39;id&#39;][&#39;id&#39;], ven[&#39;name&#39;], mod[&#39;name&#39;],)
                     for ven in venmods[&#39;vendors&#39;]
                     for mod in ven[&#39;models&#39;]]
-
-class DataSource(NitroDict):
-    &#34;&#34;&#34;
-    A DataSource object represents a validated datasource configuration.
-    
-    This object represents current datasources as well and acts as a 
-    validation template for new datasources 
-    
-    Public Methods:
-        add()       Adds the datasource object to the ESM.
-        
-        edit()      Edits a datasource parameter - Not yet implemented.
-        
-        delete()    Deletes the datasource and ALL associated data.
-        
-        props()     Returns a JSON string of datasource properties.
-        
-        __len__     Returns the number of properties set.
-        
-        __repr__    Print the datasource, returns props()
-        
-    &#34;&#34;&#34;
-
-    def __len__(self):
-        &#34;&#34;&#34;
-        Count up the datasource attributes
-        
-        Returns:
-            int: Number of DataSource attributes set
-        &#34;&#34;&#34;
-        return len(self.props())
-            
-    def __repr__(self):
-        &#34;&#34;&#34;
-        Dumps the datasource settings in json
-        
-        Returns:
-            str: Datasource attributes as JSON
-        &#34;&#34;&#34;        
-        return json.dumps(self.props())
-    
-    def __init__(self, *args, **kwargs):
-        &#34;&#34;&#34;
-        Inits the datasource
-        
-        Args: 
-            kwargs:
-            
-                Can represent any valid datasource attribute, but at 
-                a mininum, the following arguments are required to 
-                init the object:
-            
-                name (str): datasource name
-                type_id (str): datasource type_id
-                parent_id (str): datasource parent_id
-                ds_ip (str): unique IP address of datasource*
-                hostname (str): unique hostname*
-                
-                + Any additional valid params...
-                            
-            Note:
-            * Both hostname and ip can be set, but at least one of them
-              MUST be set.
-            
-        &#34;&#34;&#34;
-        
-        super().__init__(*args)
-                
-        #self._devtree = DevTree()
-
-        self.name=&#39;&#39;
-        self.parent_id=None
-
-        self.ds_ip = &#39;&#39;
-        self.child_enabled = &#34;false&#34;
-        self.child_count = &#34;0&#34;
-        self.child_type = &#34;0&#34;
-        self.zone_id = &#34;0&#34;
-        self.url = None
-        self.enabled = &#39;true&#39;
-        self.idm_id = &#34;0&#34;
-        self.hostname = None
-        self.tz_id = None
-        self.dorder = None
-        self.maskflag = None
-        self.port = None
-        self.syslog_tls = None
-        self.vendor = None
-        self.model = None
-        self.client_groups = None
-        self._prop = None
-        self._pval = None
-        self.__dict__.update(kwargs)
-        
-        ds_fields = [&#39;parent_id&#39;, &#39;name&#39;,&#39;ds_id&#39;, &#39;type_id&#39;, &#39;rec_ip&#39;,
-                           &#39;child_enabled&#39;, &#39;child_count&#39;, &#39;child_type&#39;,
-                           &#39;ds_ip&#39;, &#39;zone_id&#39;, &#39;url&#39;, &#39;enabled&#39;, &#39;idm_id&#39;]
-
-        self.parameters = [{key: val 
-                            for key, val in kwargs.items()
-                            if key not in ds_fields}]
-
-    def _validate_name(self, name):
-        &#34;&#34;&#34;
-        Returns:
-            None
-        
-        Raises:
-            KeyError: if name is missing or invalid
-        &#34;&#34;&#34;
-        try:
-            if re.search(&#39;^[a-zA-Z0-9_-]{1,100}$&#39;, name):
-                pass
-            else:
-                raise KeyError(&#39;Valid name required for DataSource&#39;)
-        except KeyError:
-            raise KeyError(&#39;Valid name required for DataSource&#39;)
-    
-    def props(self):
-        &#34;&#34;&#34;
-        Dumps the datasource settings
-        
-        Returns:
-            str: Datasource attributes as JSON
-        &#34;&#34;&#34;        
-        return {prop: pval
-            for prop, pval in self.__dict__.items()
-            if not prop.startswith(&#39;_&#39;)}
-                    
-    def add(self, client=False):
-        &#34;&#34;&#34;
-        Adds a datasource
-        
-        Returns:
-            None 
-        
-        Raises:
-            ESMException: Will be raised if trying to add a duplicate
-            datasource or if something else goes wrong.
-        &#34;&#34;&#34;
-        #self._search_dups = partial(self._devtree.search, rec_id=self.parent_id)
-        #if self._search_dups(self.name, zone_id=self.zone_id):
-        #    raise NitroError(&#39;Datasource name already exists.&#39;
-        #                        &#39;Cannot add datasource: {}&#39;.format(self.name))
-        #if self._search_dups(self.ds_ip, zone_id=self.zone_id):
-        #    raise NitroError(&#39;Datasource IP already exists.&#39; 
-        #                        &#39;Cannot add datasource: {}&#39;.format(self.ds_ip))
-        if client:
-            resp=self.nitro.request(&#39;add_client&#39;,
-                                    parent_id=self.parent_id,
-                                    name=self.name, 
-                                    enabled=self.enabled, 
-                                    ds_ip=self.ds_ip,
-                                    hostname=self.hostname, 
-                                    type_id=self.data[&#39;type_id&#39;], 
-                                    tz_id=self.tz_id, 
-                                    dorder=self.dorder, 
-                                    maskflag=self.maskflag, 
-                                    port=self.port, 
-                                    syslog_tls=self.syslog_tls)
-        else:
-            resp=self.nitro.request(&#39;add_ds&#39;, 
-                                    parent_id=self.parent_id,
-                                    name=self.name, 
-                                    #ds_id=self.data[&#39;ds_id&#39;], 
-                                    type_id=self.data[&#39;type_id&#39;], 
-                                    child_enabled=self.child_enabled, 
-                                    child_count=self.child_count, 
-                                    child_type=self.child_type, 
-                                    ds_ip=self.ds_ip, 
-                                    zone_id=self.zone_id, 
-                                    url=self.url, 
-                                    enabled=self.enabled, 
-                                    idm_id=self.idm_id, 
-                                    parameters=self.parameters)
-
-        if client:
-            try:
-                err_code = resp[&#39;EC&#39;]
-                if err_code == &#39;0&#39;:
-                    return None
-            except KeyError:
-                raise NitroError(&#39;Unexpected error occured. &#39; 
-                                    &#39;DS may not have been added.&#39;)
-        try:
-            ds_id = resp.get(&#39;id&#39;)
-            return None
-        except (KeyError, AttributeError):
-            pass
-        
-    def delete(self):
-        &#34;&#34;&#34;
-        Deletes a datasource
-        
-        Args:
-            ds_id (str). DataSource ID
-            rec_id (str). Receiver ID / DataSource parent_id
-            
-        Warning:
-            This really does delete the datasource and ALL data
-            ever collected for that datasource.
-        
-        Returns:
-            None
-        
-        Raises:
-            ESMException: If the datasource to be deleted is 
-                still in the tree after being deleted an Exception 
-                will be raised.
-        &#34;&#34;&#34;
-        self.nitro.request(&#39;del_ds&#39;, 
-                                parent_id = self.parent_id, ds_id=self._ds_id)
-        
-    def _ds_details(self):
-        &#34;&#34;&#34;
-        Queries the ESM for datasource details
-        
-        Returns:
-            dict (str, str) with some subdicts 
-        
-        Warning:
-            Don&#39;t create a situation where this gets called for every
-            datasource as it will not scale.
-        &#34;&#34;&#34;
-        return self.data_from_id(id=self._ds_id)
-
-    def data_from_id(self, id):
-        return self.nitro.request(&#39;ds_details&#39;, ds_id=id)
-
-    @staticmethod
-    def valid_ip(ipaddr):
-        &#34;&#34;&#34;
-        Validates IPv4/v6 address or raises ValueError.
-
-        Args:
-            ipaddr (str): IP address
-
-        Returns:
-            True if valid, False if not.
-            
-        Raises:
-            ValueError: It&#39;s the wrong value if it&#39;s not valid.
-        &#34;&#34;&#34;
-        try:
-            ipaddr = str(ipaddress.ip_address(ipaddr))
-            return True
-        except ValueError:
-            return False
-
 
 class DevTree(NitroList):
     &#34;&#34;&#34;
@@ -1284,7 +1020,153 @@ class DevTree(NitroList):
             devtree (list) -- the devtree
         &#34;&#34;&#34;
         type_filter = [&#39;1&#39;, &#39;16&#39;, &#39;254&#39;]
-        return [ds for ds in devtree if ds[&#39;desc_id&#39;] not in type_filter]</code></pre>
+        return [ds for ds in devtree if ds[&#39;desc_id&#39;] not in type_filter]
+
+    def add(self, kwargs):
+            &#34;&#34;&#34;
+            Adds a datasource. 
+
+            Args:
+                **kwargs: datasource attributes
+            
+            Attributes:
+                client (bool): designate a client datasource (not child)
+                name (str): name of datasource (req)
+                parent_id (str): id of parent device (req)
+                ds_ip (str): ip of datasource (ip or hostname required)
+                hostname (str): hostname of datasource 
+                type_id (str): type of datasource (req)
+                enabled (bool): enabled or not (default: True)
+                tz_id (str): timezone of datasource (default UTC: 8)
+                    Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 
+                syslog_tls (bool): datasource uses syslog tls
+            
+            Returns:
+                datasource id (str)
+                    or None on Error            
+            &#34;&#34;&#34;
+            p = self._validate_ds_params(kwargs)
+
+            if self.nitro.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+                ds_id = self.nitro.request(&#39;add_ds_11_1_3&#39;, 
+                                            parent_id=p[&#39;parent_id&#39;],
+                                            name=p[&#39;name&#39;],
+                                            ds_ip=p[&#39;ds_ip&#39;],
+                                            type_id=p[&#39;type_id&#39;],
+                                            zone_id=p[&#39;zone_id&#39;],
+                                            enabled=p[&#39;enabled&#39;],
+                                            url=p[&#39;url&#39;],
+                                            ds_id=0,
+                                            child_enabled=&#39;false&#39;,
+                                            child_count=0,
+                                            child_type=0,
+                                            idm_id=0,
+                                            parameters=p[&#39;parameters&#39;])
+            else:
+                ds_id = self.nitro.request(&#39;add_ds_11_2_1&#39;, 
+                                            parent_id=p[&#39;parent_id&#39;],
+                                            name=p[&#39;name&#39;],
+                                            ds_ip=p[&#39;ds_ip&#39;],
+                                            type_id=p[&#39;type_id&#39;],
+                                            zone_id=p[&#39;zone_id&#39;],
+                                            enabled=p[&#39;enabled&#39;],
+                                            url=p[&#39;url&#39;],
+                                            parameters=p[&#39;parameters&#39;])
+            return ds_id
+
+    def _validate_ds_params(self, p):
+        &#34;&#34;&#34;Validate parameters for new datasource.
+        
+        Arguments:
+            p (dict) -- datasource parameters
+        
+        Returns:
+            datasource dict with normalized values
+        
+            or False if something is invalid.
+        &#34;&#34;&#34;
+        if not p.get(&#39;name&#39;):
+            logging.error(&#39;Error: New datasource requires &#34;name&#34;.&#39;)
+            return
+
+        if not p.get(&#39;ds_ip&#39;):
+             if p.get(&#39;ip&#39;):
+                 p[&#39;ds_ip&#39;] = p[&#39;ip&#39;]
+             else:
+                if not p.get(&#39;hostname&#39;):
+                    logging.error(&#39;Error: New datasource requires &#34;ip&#34; or &#34;hostname&#34;.&#39;)
+                    return
+        
+        if not p.get(&#39;hostname&#39;):
+            p[&#39;hostname&#39;] = &#39;&#39;
+
+        if not p.get(&#39;parent_id&#39;):
+            p[&#39;parent_id&#39;] = 0
+
+        #p = self._validate_ds_tz_id(p)
+        #if not p:
+        #   return
+
+        if p.get(&#39;enabled&#39;) == False:
+            p[&#39;enabled&#39;] = &#39;false&#39;
+        else:
+            p[&#39;enabled&#39;] = &#39;true&#39;
+
+        if p.get(&#39;client&#39;):
+            if not p.get(&#39;dorder&#39;):
+                p[&#39;dorder&#39;] = 0
+
+            if not p.get(&#39;maskflag&#39;):
+                p[&#39;maskflag&#39;] = &#39;true&#39;
+
+            if not p.get(&#39;port&#39;):
+                p[&#39;port&#39;] = 0
+
+            if not p.get(&#39;syslog_tls&#39;):
+                p[&#39;syslog_tls&#39;] = &#39;F&#39;
+        else:
+            if not p.get(&#39;type_id&#39;):
+                logging.error(&#39;Error: New datasource requires &#34;type_id&#34;.&#39;)
+                return
+
+            if not p.get(&#39;zone_id&#39;):
+                p[&#39;zone_id&#39;] = 0
+
+            if not p.get(&#39;url&#39;):
+                p[&#39;url&#39;] = &#39;&#39;
+
+        _base_vars = [&#39;name&#39;, &#39;ds_ip&#39;, &#39;ip&#39;, &#39;client&#39;, &#39;hostname&#39;, &#39;parent_id&#39;, 
+                            &#39;enabled&#39;, &#39;zone_id&#39;, &#39;type_id&#39;, &#39;childEnabled&#39;, &#39;childCount&#39;,
+                            &#39;idmId&#39;, &#39;url&#39;, &#39;parameters&#39;, &#39;childType&#39;]
+        p[&#39;parameters&#39;] = []
+        for key, val in p.items():
+            if key not in _base_vars:
+                p[&#39;parameters&#39;].append({key: val})
+        p = {k: v for k, v in p.items() if k in _base_vars}
+
+        return p
+
+    def _validate_ds_tz_id(self, p):
+        &#34;&#34;&#34;Validates datasource time zone id.
+        
+        Arguments:
+            p (dict): datasource param
+        
+        Returns:
+            dict of datasource params or None if invalid
+        &#34;&#34;&#34;
+        if p.get(&#39;tz_id&#39;):
+            try:
+                if not 0 &lt;= int(p.get(&#39;tz_id&#39;)) &lt;= 75:
+                    logging.error(&#39;Error: New datasource &#34;tz_id&#34; must be int between 1-74.&#39;)
+                    return
+            except ValueError:
+                logging.error(&#39;Error: New datasource &#34;tz_id&#34; must be int between 1-74.&#39;)
+                return
+        else:
+            p[&#39;tz_id&#39;] = 0
+        
+        return p</code></pre>
 </details>
 </section>
 <section>
@@ -1296,531 +1178,6 @@ class DevTree(NitroList):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="msiempy.device.DataSource"><code class="flex name class">
-<span>class <span class="ident">DataSource</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>A DataSource object represents a validated datasource configuration.</p>
-<p>This object represents current datasources as well and acts as a
-validation template for new datasources </p>
-<p>Public Methods:
-add()
-Adds the datasource object to the ESM.</p>
-<pre><code>edit()      Edits a datasource parameter - Not yet implemented.
-
-delete()    Deletes the datasource and ALL associated data.
-
-props()     Returns a JSON string of datasource properties.
-
-__len__     Returns the number of properties set.
-
-__repr__    Print the datasource, returns props()
-</code></pre>
-<p>Inits the datasource</p>
-<p>Args:
-kwargs:</p>
-<pre><code>    Can represent any valid datasource attribute, but at 
-    a mininum, the following arguments are required to 
-    init the object:
-
-    name (str): datasource name
-    type_id (str): datasource type_id
-    parent_id (str): datasource parent_id
-    ds_ip (str): unique IP address of datasource*
-    hostname (str): unique hostname*
-
-    + Any additional valid params...
-
-Note:
-* Both hostname and ip can be set, but at least one of them
-  MUST be set.
-</code></pre></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DataSource(NitroDict):
-    &#34;&#34;&#34;
-    A DataSource object represents a validated datasource configuration.
-    
-    This object represents current datasources as well and acts as a 
-    validation template for new datasources 
-    
-    Public Methods:
-        add()       Adds the datasource object to the ESM.
-        
-        edit()      Edits a datasource parameter - Not yet implemented.
-        
-        delete()    Deletes the datasource and ALL associated data.
-        
-        props()     Returns a JSON string of datasource properties.
-        
-        __len__     Returns the number of properties set.
-        
-        __repr__    Print the datasource, returns props()
-        
-    &#34;&#34;&#34;
-
-    def __len__(self):
-        &#34;&#34;&#34;
-        Count up the datasource attributes
-        
-        Returns:
-            int: Number of DataSource attributes set
-        &#34;&#34;&#34;
-        return len(self.props())
-            
-    def __repr__(self):
-        &#34;&#34;&#34;
-        Dumps the datasource settings in json
-        
-        Returns:
-            str: Datasource attributes as JSON
-        &#34;&#34;&#34;        
-        return json.dumps(self.props())
-    
-    def __init__(self, *args, **kwargs):
-        &#34;&#34;&#34;
-        Inits the datasource
-        
-        Args: 
-            kwargs:
-            
-                Can represent any valid datasource attribute, but at 
-                a mininum, the following arguments are required to 
-                init the object:
-            
-                name (str): datasource name
-                type_id (str): datasource type_id
-                parent_id (str): datasource parent_id
-                ds_ip (str): unique IP address of datasource*
-                hostname (str): unique hostname*
-                
-                + Any additional valid params...
-                            
-            Note:
-            * Both hostname and ip can be set, but at least one of them
-              MUST be set.
-            
-        &#34;&#34;&#34;
-        
-        super().__init__(*args)
-                
-        #self._devtree = DevTree()
-
-        self.name=&#39;&#39;
-        self.parent_id=None
-
-        self.ds_ip = &#39;&#39;
-        self.child_enabled = &#34;false&#34;
-        self.child_count = &#34;0&#34;
-        self.child_type = &#34;0&#34;
-        self.zone_id = &#34;0&#34;
-        self.url = None
-        self.enabled = &#39;true&#39;
-        self.idm_id = &#34;0&#34;
-        self.hostname = None
-        self.tz_id = None
-        self.dorder = None
-        self.maskflag = None
-        self.port = None
-        self.syslog_tls = None
-        self.vendor = None
-        self.model = None
-        self.client_groups = None
-        self._prop = None
-        self._pval = None
-        self.__dict__.update(kwargs)
-        
-        ds_fields = [&#39;parent_id&#39;, &#39;name&#39;,&#39;ds_id&#39;, &#39;type_id&#39;, &#39;rec_ip&#39;,
-                           &#39;child_enabled&#39;, &#39;child_count&#39;, &#39;child_type&#39;,
-                           &#39;ds_ip&#39;, &#39;zone_id&#39;, &#39;url&#39;, &#39;enabled&#39;, &#39;idm_id&#39;]
-
-        self.parameters = [{key: val 
-                            for key, val in kwargs.items()
-                            if key not in ds_fields}]
-
-    def _validate_name(self, name):
-        &#34;&#34;&#34;
-        Returns:
-            None
-        
-        Raises:
-            KeyError: if name is missing or invalid
-        &#34;&#34;&#34;
-        try:
-            if re.search(&#39;^[a-zA-Z0-9_-]{1,100}$&#39;, name):
-                pass
-            else:
-                raise KeyError(&#39;Valid name required for DataSource&#39;)
-        except KeyError:
-            raise KeyError(&#39;Valid name required for DataSource&#39;)
-    
-    def props(self):
-        &#34;&#34;&#34;
-        Dumps the datasource settings
-        
-        Returns:
-            str: Datasource attributes as JSON
-        &#34;&#34;&#34;        
-        return {prop: pval
-            for prop, pval in self.__dict__.items()
-            if not prop.startswith(&#39;_&#39;)}
-                    
-    def add(self, client=False):
-        &#34;&#34;&#34;
-        Adds a datasource
-        
-        Returns:
-            None 
-        
-        Raises:
-            ESMException: Will be raised if trying to add a duplicate
-            datasource or if something else goes wrong.
-        &#34;&#34;&#34;
-        #self._search_dups = partial(self._devtree.search, rec_id=self.parent_id)
-        #if self._search_dups(self.name, zone_id=self.zone_id):
-        #    raise NitroError(&#39;Datasource name already exists.&#39;
-        #                        &#39;Cannot add datasource: {}&#39;.format(self.name))
-        #if self._search_dups(self.ds_ip, zone_id=self.zone_id):
-        #    raise NitroError(&#39;Datasource IP already exists.&#39; 
-        #                        &#39;Cannot add datasource: {}&#39;.format(self.ds_ip))
-        if client:
-            resp=self.nitro.request(&#39;add_client&#39;,
-                                    parent_id=self.parent_id,
-                                    name=self.name, 
-                                    enabled=self.enabled, 
-                                    ds_ip=self.ds_ip,
-                                    hostname=self.hostname, 
-                                    type_id=self.data[&#39;type_id&#39;], 
-                                    tz_id=self.tz_id, 
-                                    dorder=self.dorder, 
-                                    maskflag=self.maskflag, 
-                                    port=self.port, 
-                                    syslog_tls=self.syslog_tls)
-        else:
-            resp=self.nitro.request(&#39;add_ds&#39;, 
-                                    parent_id=self.parent_id,
-                                    name=self.name, 
-                                    #ds_id=self.data[&#39;ds_id&#39;], 
-                                    type_id=self.data[&#39;type_id&#39;], 
-                                    child_enabled=self.child_enabled, 
-                                    child_count=self.child_count, 
-                                    child_type=self.child_type, 
-                                    ds_ip=self.ds_ip, 
-                                    zone_id=self.zone_id, 
-                                    url=self.url, 
-                                    enabled=self.enabled, 
-                                    idm_id=self.idm_id, 
-                                    parameters=self.parameters)
-
-        if client:
-            try:
-                err_code = resp[&#39;EC&#39;]
-                if err_code == &#39;0&#39;:
-                    return None
-            except KeyError:
-                raise NitroError(&#39;Unexpected error occured. &#39; 
-                                    &#39;DS may not have been added.&#39;)
-        try:
-            ds_id = resp.get(&#39;id&#39;)
-            return None
-        except (KeyError, AttributeError):
-            pass
-        
-    def delete(self):
-        &#34;&#34;&#34;
-        Deletes a datasource
-        
-        Args:
-            ds_id (str). DataSource ID
-            rec_id (str). Receiver ID / DataSource parent_id
-            
-        Warning:
-            This really does delete the datasource and ALL data
-            ever collected for that datasource.
-        
-        Returns:
-            None
-        
-        Raises:
-            ESMException: If the datasource to be deleted is 
-                still in the tree after being deleted an Exception 
-                will be raised.
-        &#34;&#34;&#34;
-        self.nitro.request(&#39;del_ds&#39;, 
-                                parent_id = self.parent_id, ds_id=self._ds_id)
-        
-    def _ds_details(self):
-        &#34;&#34;&#34;
-        Queries the ESM for datasource details
-        
-        Returns:
-            dict (str, str) with some subdicts 
-        
-        Warning:
-            Don&#39;t create a situation where this gets called for every
-            datasource as it will not scale.
-        &#34;&#34;&#34;
-        return self.data_from_id(id=self._ds_id)
-
-    def data_from_id(self, id):
-        return self.nitro.request(&#39;ds_details&#39;, ds_id=id)
-
-    @staticmethod
-    def valid_ip(ipaddr):
-        &#34;&#34;&#34;
-        Validates IPv4/v6 address or raises ValueError.
-
-        Args:
-            ipaddr (str): IP address
-
-        Returns:
-            True if valid, False if not.
-            
-        Raises:
-            ValueError: It&#39;s the wrong value if it&#39;s not valid.
-        &#34;&#34;&#34;
-        try:
-            ipaddr = str(ipaddress.ip_address(ipaddr))
-            return True
-        except ValueError:
-            return False</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
-<li>collections.UserDict</li>
-<li>collections.abc.MutableMapping</li>
-<li>collections.abc.Mapping</li>
-<li>collections.abc.Collection</li>
-<li>collections.abc.Sized</li>
-<li>collections.abc.Iterable</li>
-<li>collections.abc.Container</li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Static methods</h3>
-<dl>
-<dt id="msiempy.device.DataSource.valid_ip"><code class="name flex">
-<span>def <span class="ident">valid_ip</span></span>(<span>ipaddr)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Validates IPv4/v6 address or raises ValueError.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>ipaddr</code></strong> :&ensp;<code>str</code></dt>
-<dd>IP address</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>True if valid, False if not.</p>
-<h2 id="raises">Raises</h2>
-<dl>
-<dt><strong><code>ValueError</code></strong></dt>
-<dd>It's the wrong value if it's not valid.</dd>
-</dl></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def valid_ip(ipaddr):
-    &#34;&#34;&#34;
-    Validates IPv4/v6 address or raises ValueError.
-
-    Args:
-        ipaddr (str): IP address
-
-    Returns:
-        True if valid, False if not.
-        
-    Raises:
-        ValueError: It&#39;s the wrong value if it&#39;s not valid.
-    &#34;&#34;&#34;
-    try:
-        ipaddr = str(ipaddress.ip_address(ipaddr))
-        return True
-    except ValueError:
-        return False</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="msiempy.device.DataSource.add"><code class="name flex">
-<span>def <span class="ident">add</span></span>(<span>self, client=False)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Adds a datasource</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>None</code></dt>
-<dd>&nbsp;</dd>
-</dl>
-<h2 id="raises">Raises</h2>
-<dl>
-<dt><strong><code>ESMException</code></strong></dt>
-<dd>Will be raised if trying to add a duplicate</dd>
-</dl>
-<p>datasource or if something else goes wrong.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def add(self, client=False):
-    &#34;&#34;&#34;
-    Adds a datasource
-    
-    Returns:
-        None 
-    
-    Raises:
-        ESMException: Will be raised if trying to add a duplicate
-        datasource or if something else goes wrong.
-    &#34;&#34;&#34;
-    #self._search_dups = partial(self._devtree.search, rec_id=self.parent_id)
-    #if self._search_dups(self.name, zone_id=self.zone_id):
-    #    raise NitroError(&#39;Datasource name already exists.&#39;
-    #                        &#39;Cannot add datasource: {}&#39;.format(self.name))
-    #if self._search_dups(self.ds_ip, zone_id=self.zone_id):
-    #    raise NitroError(&#39;Datasource IP already exists.&#39; 
-    #                        &#39;Cannot add datasource: {}&#39;.format(self.ds_ip))
-    if client:
-        resp=self.nitro.request(&#39;add_client&#39;,
-                                parent_id=self.parent_id,
-                                name=self.name, 
-                                enabled=self.enabled, 
-                                ds_ip=self.ds_ip,
-                                hostname=self.hostname, 
-                                type_id=self.data[&#39;type_id&#39;], 
-                                tz_id=self.tz_id, 
-                                dorder=self.dorder, 
-                                maskflag=self.maskflag, 
-                                port=self.port, 
-                                syslog_tls=self.syslog_tls)
-    else:
-        resp=self.nitro.request(&#39;add_ds&#39;, 
-                                parent_id=self.parent_id,
-                                name=self.name, 
-                                #ds_id=self.data[&#39;ds_id&#39;], 
-                                type_id=self.data[&#39;type_id&#39;], 
-                                child_enabled=self.child_enabled, 
-                                child_count=self.child_count, 
-                                child_type=self.child_type, 
-                                ds_ip=self.ds_ip, 
-                                zone_id=self.zone_id, 
-                                url=self.url, 
-                                enabled=self.enabled, 
-                                idm_id=self.idm_id, 
-                                parameters=self.parameters)
-
-    if client:
-        try:
-            err_code = resp[&#39;EC&#39;]
-            if err_code == &#39;0&#39;:
-                return None
-        except KeyError:
-            raise NitroError(&#39;Unexpected error occured. &#39; 
-                                &#39;DS may not have been added.&#39;)
-    try:
-        ds_id = resp.get(&#39;id&#39;)
-        return None
-    except (KeyError, AttributeError):
-        pass</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.DataSource.delete"><code class="name flex">
-<span>def <span class="ident">delete</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Deletes a datasource</p>
-<h2 id="args">Args</h2>
-<p>ds_id (str). DataSource ID
-rec_id (str). Receiver ID / DataSource parent_id</p>
-<h2 id="warning">Warning</h2>
-<p>This really does delete the datasource and ALL data
-ever collected for that datasource.</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>None</code></dt>
-<dd>&nbsp;</dd>
-</dl>
-<h2 id="raises">Raises</h2>
-<dl>
-<dt><strong><code>ESMException</code></strong></dt>
-<dd>If the datasource to be deleted is
-still in the tree after being deleted an Exception
-will be raised.</dd>
-</dl></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def delete(self):
-    &#34;&#34;&#34;
-    Deletes a datasource
-    
-    Args:
-        ds_id (str). DataSource ID
-        rec_id (str). Receiver ID / DataSource parent_id
-        
-    Warning:
-        This really does delete the datasource and ALL data
-        ever collected for that datasource.
-    
-    Returns:
-        None
-    
-    Raises:
-        ESMException: If the datasource to be deleted is 
-            still in the tree after being deleted an Exception 
-            will be raised.
-    &#34;&#34;&#34;
-    self.nitro.request(&#39;del_ds&#39;, 
-                            parent_id = self.parent_id, ds_id=self._ds_id)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.DataSource.props"><code class="name flex">
-<span>def <span class="ident">props</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Dumps the datasource settings</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><strong><code>str</code></strong></dt>
-<dd>Datasource attributes as JSON</dd>
-</dl></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def props(self):
-    &#34;&#34;&#34;
-    Dumps the datasource settings
-    
-    Returns:
-        str: Datasource attributes as JSON
-    &#34;&#34;&#34;        
-    return {prop: pval
-        for prop, pval in self.__dict__.items()
-        if not prop.startswith(&#39;_&#39;)}</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroDict.data_from_id" href="index.html#msiempy.NitroDict.data_from_id">data_from_id</a></code></li>
-<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
-<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
 <dt id="msiempy.device.DevTree"><code class="flex name class">
 <span>class <span class="ident">DevTree</span></span>
 <span>(</span><span>*args, **kwargs)</span>
@@ -2485,7 +1842,153 @@ __contains__    Returns bool as to whether a datasource name, IP,
             devtree (list) -- the devtree
         &#34;&#34;&#34;
         type_filter = [&#39;1&#39;, &#39;16&#39;, &#39;254&#39;]
-        return [ds for ds in devtree if ds[&#39;desc_id&#39;] not in type_filter]</code></pre>
+        return [ds for ds in devtree if ds[&#39;desc_id&#39;] not in type_filter]
+
+    def add(self, kwargs):
+            &#34;&#34;&#34;
+            Adds a datasource. 
+
+            Args:
+                **kwargs: datasource attributes
+            
+            Attributes:
+                client (bool): designate a client datasource (not child)
+                name (str): name of datasource (req)
+                parent_id (str): id of parent device (req)
+                ds_ip (str): ip of datasource (ip or hostname required)
+                hostname (str): hostname of datasource 
+                type_id (str): type of datasource (req)
+                enabled (bool): enabled or not (default: True)
+                tz_id (str): timezone of datasource (default UTC: 8)
+                    Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 
+                syslog_tls (bool): datasource uses syslog tls
+            
+            Returns:
+                datasource id (str)
+                    or None on Error            
+            &#34;&#34;&#34;
+            p = self._validate_ds_params(kwargs)
+
+            if self.nitro.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+                ds_id = self.nitro.request(&#39;add_ds_11_1_3&#39;, 
+                                            parent_id=p[&#39;parent_id&#39;],
+                                            name=p[&#39;name&#39;],
+                                            ds_ip=p[&#39;ds_ip&#39;],
+                                            type_id=p[&#39;type_id&#39;],
+                                            zone_id=p[&#39;zone_id&#39;],
+                                            enabled=p[&#39;enabled&#39;],
+                                            url=p[&#39;url&#39;],
+                                            ds_id=0,
+                                            child_enabled=&#39;false&#39;,
+                                            child_count=0,
+                                            child_type=0,
+                                            idm_id=0,
+                                            parameters=p[&#39;parameters&#39;])
+            else:
+                ds_id = self.nitro.request(&#39;add_ds_11_2_1&#39;, 
+                                            parent_id=p[&#39;parent_id&#39;],
+                                            name=p[&#39;name&#39;],
+                                            ds_ip=p[&#39;ds_ip&#39;],
+                                            type_id=p[&#39;type_id&#39;],
+                                            zone_id=p[&#39;zone_id&#39;],
+                                            enabled=p[&#39;enabled&#39;],
+                                            url=p[&#39;url&#39;],
+                                            parameters=p[&#39;parameters&#39;])
+            return ds_id
+
+    def _validate_ds_params(self, p):
+        &#34;&#34;&#34;Validate parameters for new datasource.
+        
+        Arguments:
+            p (dict) -- datasource parameters
+        
+        Returns:
+            datasource dict with normalized values
+        
+            or False if something is invalid.
+        &#34;&#34;&#34;
+        if not p.get(&#39;name&#39;):
+            logging.error(&#39;Error: New datasource requires &#34;name&#34;.&#39;)
+            return
+
+        if not p.get(&#39;ds_ip&#39;):
+             if p.get(&#39;ip&#39;):
+                 p[&#39;ds_ip&#39;] = p[&#39;ip&#39;]
+             else:
+                if not p.get(&#39;hostname&#39;):
+                    logging.error(&#39;Error: New datasource requires &#34;ip&#34; or &#34;hostname&#34;.&#39;)
+                    return
+        
+        if not p.get(&#39;hostname&#39;):
+            p[&#39;hostname&#39;] = &#39;&#39;
+
+        if not p.get(&#39;parent_id&#39;):
+            p[&#39;parent_id&#39;] = 0
+
+        #p = self._validate_ds_tz_id(p)
+        #if not p:
+        #   return
+
+        if p.get(&#39;enabled&#39;) == False:
+            p[&#39;enabled&#39;] = &#39;false&#39;
+        else:
+            p[&#39;enabled&#39;] = &#39;true&#39;
+
+        if p.get(&#39;client&#39;):
+            if not p.get(&#39;dorder&#39;):
+                p[&#39;dorder&#39;] = 0
+
+            if not p.get(&#39;maskflag&#39;):
+                p[&#39;maskflag&#39;] = &#39;true&#39;
+
+            if not p.get(&#39;port&#39;):
+                p[&#39;port&#39;] = 0
+
+            if not p.get(&#39;syslog_tls&#39;):
+                p[&#39;syslog_tls&#39;] = &#39;F&#39;
+        else:
+            if not p.get(&#39;type_id&#39;):
+                logging.error(&#39;Error: New datasource requires &#34;type_id&#34;.&#39;)
+                return
+
+            if not p.get(&#39;zone_id&#39;):
+                p[&#39;zone_id&#39;] = 0
+
+            if not p.get(&#39;url&#39;):
+                p[&#39;url&#39;] = &#39;&#39;
+
+        _base_vars = [&#39;name&#39;, &#39;ds_ip&#39;, &#39;ip&#39;, &#39;client&#39;, &#39;hostname&#39;, &#39;parent_id&#39;, 
+                            &#39;enabled&#39;, &#39;zone_id&#39;, &#39;type_id&#39;, &#39;childEnabled&#39;, &#39;childCount&#39;,
+                            &#39;idmId&#39;, &#39;url&#39;, &#39;parameters&#39;, &#39;childType&#39;]
+        p[&#39;parameters&#39;] = []
+        for key, val in p.items():
+            if key not in _base_vars:
+                p[&#39;parameters&#39;].append({key: val})
+        p = {k: v for k, v in p.items() if k in _base_vars}
+
+        return p
+
+    def _validate_ds_tz_id(self, p):
+        &#34;&#34;&#34;Validates datasource time zone id.
+        
+        Arguments:
+            p (dict): datasource param
+        
+        Returns:
+            dict of datasource params or None if invalid
+        &#34;&#34;&#34;
+        if p.get(&#39;tz_id&#39;):
+            try:
+                if not 0 &lt;= int(p.get(&#39;tz_id&#39;)) &lt;= 75:
+                    logging.error(&#39;Error: New datasource &#34;tz_id&#34; must be int between 1-74.&#39;)
+                    return
+            except ValueError:
+                logging.error(&#39;Error: New datasource &#34;tz_id&#34; must be int between 1-74.&#39;)
+                return
+        else:
+            p[&#39;tz_id&#39;] = 0
+        
+        return p</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -2503,6 +2006,100 @@ __contains__    Returns bool as to whether a datasource name, IP,
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="msiempy.device.DevTree.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>self, kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Adds a datasource. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>datasource attributes</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>client</code></strong> :&ensp;<code>bool</code></dt>
+<dd>designate a client datasource (not child)</dd>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>name of datasource (req)</dd>
+<dt><strong><code>parent_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>id of parent device (req)</dd>
+<dt><strong><code>ds_ip</code></strong> :&ensp;<code>str</code></dt>
+<dd>ip of datasource (ip or hostname required)</dd>
+<dt><strong><code>hostname</code></strong> :&ensp;<code>str</code></dt>
+<dd>hostname of datasource </dd>
+<dt><strong><code>type_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>type of datasource (req)</dd>
+<dt><strong><code>enabled</code></strong> :&ensp;<code>bool</code></dt>
+<dd>enabled or not (default: True)</dd>
+<dt><strong><code>tz_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>timezone of datasource (default UTC: 8)
+Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 </dd>
+<dt><strong><code>syslog_tls</code></strong> :&ensp;<code>bool</code></dt>
+<dd>datasource uses syslog tls</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>datasource</code> <code>id</code> (<code>str</code>)</dt>
+<dd>or None on Error</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(self, kwargs):
+        &#34;&#34;&#34;
+        Adds a datasource. 
+
+        Args:
+            **kwargs: datasource attributes
+        
+        Attributes:
+            client (bool): designate a client datasource (not child)
+            name (str): name of datasource (req)
+            parent_id (str): id of parent device (req)
+            ds_ip (str): ip of datasource (ip or hostname required)
+            hostname (str): hostname of datasource 
+            type_id (str): type of datasource (req)
+            enabled (bool): enabled or not (default: True)
+            tz_id (str): timezone of datasource (default UTC: 8)
+                Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 
+            syslog_tls (bool): datasource uses syslog tls
+        
+        Returns:
+            datasource id (str)
+                or None on Error            
+        &#34;&#34;&#34;
+        p = self._validate_ds_params(kwargs)
+
+        if self.nitro.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+            ds_id = self.nitro.request(&#39;add_ds_11_1_3&#39;, 
+                                        parent_id=p[&#39;parent_id&#39;],
+                                        name=p[&#39;name&#39;],
+                                        ds_ip=p[&#39;ds_ip&#39;],
+                                        type_id=p[&#39;type_id&#39;],
+                                        zone_id=p[&#39;zone_id&#39;],
+                                        enabled=p[&#39;enabled&#39;],
+                                        url=p[&#39;url&#39;],
+                                        ds_id=0,
+                                        child_enabled=&#39;false&#39;,
+                                        child_count=0,
+                                        child_type=0,
+                                        idm_id=0,
+                                        parameters=p[&#39;parameters&#39;])
+        else:
+            ds_id = self.nitro.request(&#39;add_ds_11_2_1&#39;, 
+                                        parent_id=p[&#39;parent_id&#39;],
+                                        name=p[&#39;name&#39;],
+                                        ds_ip=p[&#39;ds_ip&#39;],
+                                        type_id=p[&#39;type_id&#39;],
+                                        zone_id=p[&#39;zone_id&#39;],
+                                        enabled=p[&#39;enabled&#39;],
+                                        url=p[&#39;url&#39;],
+                                        parameters=p[&#39;parameters&#39;])
+        return ds_id</code></pre>
+</details>
+</dd>
 <dt id="msiempy.device.DevTree.build_devtree"><code class="name flex">
 <span>def <span class="ident">build_devtree</span></span>(<span>self)</span>
 </code></dt>
@@ -2645,7 +2242,7 @@ __contains__    Returns bool as to whether a datasource name, IP,
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
-<dt><code>Generator</code> <code>containing</code> <code>any</code> <code>matching</code> <a title="msiempy.device.DataSource" href="#msiempy.device.DataSource"><code>DataSource</code></a> <code>objects</code> or <code>None</code></dt>
+<dt><code>Generator</code> <code>containing</code> <code>any</code> <code>matching</code> <code>DataSource</code> <code>objects</code> or <code>None</code></dt>
 <dd>&nbsp;</dd>
 </dl>
 <p>Result must be iterated through.</p>
@@ -2924,7 +2521,6 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
             obj. ESM object
         &#34;&#34;&#34;
         super().__init__(*args, **kwargs)
-        self.version = self.version()
         
     def refresh(self):
         super().refresh()
@@ -2937,26 +2533,6 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
     def json(self):
         return (dict(self))
 
-    def version(self):
-        &#34;&#34;&#34;
-        Returns:
-            str. ESM short version.
-
-        Example:
-            &#39;10.0.2&#39;
-        &#34;&#34;&#34;
-        return self.buildstamp().split()[0]
-
-    def buildstamp(self):
-        &#34;&#34;&#34;
-        Returns:
-            str. ESM buildstamp.
-
-        Example:
-            &#39;10.0.2 20170516001031&#39;
-        &#34;&#34;&#34;
-        return self.nitro.request(&#39;build_stamp&#39;)[&#39;buildStamp&#39;]
-
     def time(self):
         &#34;&#34;&#34;
         Returns:
@@ -2966,6 +2542,12 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
             &#39;2017-07-06T12:21:59.0+0000&#39;
         &#34;&#34;&#34;
         return self.nitro.request(&#34;get_esm_time&#34;)[&#39;value&#39;]
+
+    def buildstamp(self):
+        return self.nitro.buildstamp
+    
+    def version(self):
+        return self.nitro.version
 
     def status(self):
         &#34;&#34;&#34;
@@ -3299,23 +2881,13 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
 <span>def <span class="ident">buildstamp</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<p>str. ESM buildstamp.</p>
-<h2 id="example">Example</h2>
-<p>'10.0.2 20170516001031'</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def buildstamp(self):
-    &#34;&#34;&#34;
-    Returns:
-        str. ESM buildstamp.
-
-    Example:
-        &#39;10.0.2 20170516001031&#39;
-    &#34;&#34;&#34;
-    return self.nitro.request(&#39;build_stamp&#39;)[&#39;buildStamp&#39;]</code></pre>
+    return self.nitro.buildstamp</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.ESM.callhome"><code class="name flex">
@@ -3783,23 +3355,13 @@ Policy Editor rule history.</p></section>
 <span>def <span class="ident">version</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<p>str. ESM short version.</p>
-<h2 id="example">Example</h2>
-<p>'10.0.2'</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def version(self):
-    &#34;&#34;&#34;
-    Returns:
-        str. ESM short version.
-
-    Example:
-        &#39;10.0.2&#39;
-    &#34;&#34;&#34;
-    return self.buildstamp().split()[0]</code></pre>
+    return self.nitro.version</code></pre>
 </details>
 </dd>
 </dl>
@@ -3832,17 +3394,9 @@ Policy Editor rule history.</p></section>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="msiempy.device.DataSource" href="#msiempy.device.DataSource">DataSource</a></code></h4>
-<ul class="">
-<li><code><a title="msiempy.device.DataSource.add" href="#msiempy.device.DataSource.add">add</a></code></li>
-<li><code><a title="msiempy.device.DataSource.delete" href="#msiempy.device.DataSource.delete">delete</a></code></li>
-<li><code><a title="msiempy.device.DataSource.props" href="#msiempy.device.DataSource.props">props</a></code></li>
-<li><code><a title="msiempy.device.DataSource.valid_ip" href="#msiempy.device.DataSource.valid_ip">valid_ip</a></code></li>
-</ul>
-</li>
-<li>
 <h4><code><a title="msiempy.device.DevTree" href="#msiempy.device.DevTree">DevTree</a></code></h4>
 <ul class="two-column">
+<li><code><a title="msiempy.device.DevTree.add" href="#msiempy.device.DevTree.add">add</a></code></li>
 <li><code><a title="msiempy.device.DevTree.build_devtree" href="#msiempy.device.DevTree.build_devtree">build_devtree</a></code></li>
 <li><code><a title="msiempy.device.DevTree.get_ds_times" href="#msiempy.device.DevTree.get_ds_times">get_ds_times</a></code></li>
 <li><code><a title="msiempy.device.DevTree.recs" href="#msiempy.device.DevTree.recs">recs</a></code></li>

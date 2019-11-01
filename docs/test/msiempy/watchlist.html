@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.1" />
+<title>msiempy.watchlist API documentation</title>
+<meta name="description" content="Provide watchlist management." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>msiempy.watchlist</code></h1>
+</header>
+<section id="section-intro">
+<p>Provide watchlist management.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python"># -*- coding: utf-8 -*-
+&#34;&#34;&#34;Provide watchlist management.&#34;&#34;&#34;
+
+import logging
+import collections
+log = logging.getLogger(&#39;msiempy&#39;)
+
+from . import NitroDict, NitroList
+
+class WatchlistManager(NitroList):
+    &#34;&#34;&#34;
+    Summary of ESM watchlists.
+
+    Example:
+        wlman = WatchlistManager()
+        for wl in wlman:
+            if wl[&#39;name&#39;] == &#39;IPs-To-Block-On-IPS-24hrs&#39;: break
+        wl.add_values([&#39;1.1.1.2&#39;, &#39;2.2.2.1&#39;, &#39;3.3.3.1&#39;])
+
+    &#34;&#34;&#34;
+
+    def __init__(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        Initialize the watchlist manager.
+        &#34;&#34;&#34;
+        super().__init__(*args, **kwargs)
+        self.get_watchlist_summary()
+
+    def get_watchlist_summary(self):
+        self.data = self.nitro.request(&#39;get_watchlists_no_filters&#39;,
+            hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
+
+        #Casting all data to Watchlist objects, better way to do it ?
+        collections.UserList.__init__(self,
+            [Watchlist(adict=item) for item in self.data
+                if isinstance(item, (dict, NitroDict))])
+
+    def load_details(self):
+        &#34;&#34;&#34;
+        Load a summary of existing watchlists.
+        &#34;&#34;&#34;
+        self.perform(Watchlist.load_details, asynch=False, progress=True)
+
+    def refresh(self):
+        &#34;&#34;&#34;
+        Reloads the watchlist summary.
+        &#34;&#34;&#34;
+        self.get_watchlist_summary()
+
+    def add(self, name, wl_type):
+        &#34;&#34;&#34;
+        Create a static watchlist.
+        Args:
+            name (str): Name of the watchlist.
+            wl_type (str): Watchlist data type.
+                Get the list of types with: &#39;get_wl_types&#39;
+                Most common types are: IPAddress,
+                                       Hash,
+                                       SHA1,
+                                       DSIDSigID,
+                                       Port,
+                                       MacAddress,
+                                       NormID,
+                                       AppID,
+                                       CommandID,
+                                       DomainID,
+                                       HostID,
+                                       ObjectID,
+                                       Filename,
+                                       File_Hash
+        &#34;&#34;&#34;
+        for wl in self.data:
+            if wl.get(&#39;name&#39;) == name:
+                logging.error(&#39;Cannot add: {} watchlist already exists.&#39;.format(name))
+                return
+        self.nitro.request(&#39;add_watchlist&#39;, name=name, wl_type=wl_type)
+        self.refresh()
+
+    def remove(self, wl_id_list):
+        &#34;&#34;&#34;
+        Remove watchlist(s).
+
+        Args:
+            wl_ids (list): list of watchlist IDs
+
+        Example:
+            1, 2, 3
+        &#34;&#34;&#34;
+        self.nitro.request(&#39;remove_watchlists&#39;, wl_id_list=wl_id_list)
+
+    def get_wl_types(self):
+        &#34;&#34;&#34;
+        Get a list of watchlist types.
+
+        Returns:
+            list of watchlist types.
+        &#34;&#34;&#34;
+        return self.nitro.request(&#39;get_wl_types&#39;)
+
+class Watchlist(NitroDict):
+    &#34;&#34;&#34;
+
+    Complete list of watchlist fields (not values) once load with load_details()
+
+    Dictionary keys:
+
+    - `name`: The name of the watchlist
+    - `type`: The watchlist type
+    - `customType`: The watchlist custom type (custom field)
+    - `dynamic`: Whether this watchlist is dynamic
+    - `hidden`:  Whether this watchlist is hidden
+    - `scored`: Whether this watchlist has a scoring component (GTI for example)
+    - `valueCount`: The number of values in this watchlist
+    - `active`: Whether this watchlist is a active
+    - `errorMsg`: The error message, if there is one associated with this watchlist
+    - `source`: source
+    - `id`: The id of the watchlist
+    - `values`: values
+    - And others...
+
+    &#34;&#34;&#34;
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __repr__(self):
+        return self.data.__repr__()
+    
+    def __iter__(self):
+        for data in self.data:
+            yield data
+
+    def add_values(self, values):
+        &#34;&#34;&#34;
+        Add values to static watchlist.
+        Args:
+            values (list): list of values
+        &#34;&#34;&#34;
+        self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)
+
+    def data_from_id(self, id):
+        &#34;&#34;&#34;
+        Retrieve watchlist details for ID.
+        Args:
+            id (str): watchlist ID
+        &#34;&#34;&#34;
+        info=self.nitro.request(&#39;get_watchlist_details&#39;, id=id)
+        return info
+
+    def load_details(self):
+        &#34;&#34;&#34;
+        Load Watchlist details.
+        &#34;&#34;&#34;
+        self.data.update(self.data_from_id(self.data[&#39;id&#39;]))
+
+    def load_values(self):
+        &#34;&#34;&#34;
+        Load Watchlist values.
+        &#34;&#34;&#34;
+        wl_details = self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;])
+
+        try:
+            file = wl_details[&#39;WLVFILE&#39;]
+        except KeyError:
+            print(&#39;ESM Error: Is watchlist valid?&#39;)
+        data = self.nitro.get_internal_file(file)
+        self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="msiempy.watchlist.Watchlist"><code class="flex name class">
+<span>class <span class="ident">Watchlist</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Complete list of watchlist fields (not values) once load with load_details()</p>
+<p>Dictionary keys:</p>
+<ul>
+<li><code>name</code>: The name of the watchlist</li>
+<li><code>type</code>: The watchlist type</li>
+<li><code>customType</code>: The watchlist custom type (custom field)</li>
+<li><code>dynamic</code>: Whether this watchlist is dynamic</li>
+<li><code>hidden</code>:
+Whether this watchlist is hidden</li>
+<li><code>scored</code>: Whether this watchlist has a scoring component (GTI for example)</li>
+<li><code>valueCount</code>: The number of values in this watchlist</li>
+<li><code>active</code>: Whether this watchlist is a active</li>
+<li><code>errorMsg</code>: The error message, if there is one associated with this watchlist</li>
+<li><code>source</code>: source</li>
+<li><code>id</code>: The id of the watchlist</li>
+<li><code>values</code>: values</li>
+<li>And others&hellip;</li>
+</ul>
+<p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
+and update dict values accordingly.</p>
+<p>Parameters:
+</p>
+<ul>
+<li><code>adict</code>: dict object to wrap.
+</li>
+<li><code>id</code>: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Watchlist(NitroDict):
+    &#34;&#34;&#34;
+
+    Complete list of watchlist fields (not values) once load with load_details()
+
+    Dictionary keys:
+
+    - `name`: The name of the watchlist
+    - `type`: The watchlist type
+    - `customType`: The watchlist custom type (custom field)
+    - `dynamic`: Whether this watchlist is dynamic
+    - `hidden`:  Whether this watchlist is hidden
+    - `scored`: Whether this watchlist has a scoring component (GTI for example)
+    - `valueCount`: The number of values in this watchlist
+    - `active`: Whether this watchlist is a active
+    - `errorMsg`: The error message, if there is one associated with this watchlist
+    - `source`: source
+    - `id`: The id of the watchlist
+    - `values`: values
+    - And others...
+
+    &#34;&#34;&#34;
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __repr__(self):
+        return self.data.__repr__()
+    
+    def __iter__(self):
+        for data in self.data:
+            yield data
+
+    def add_values(self, values):
+        &#34;&#34;&#34;
+        Add values to static watchlist.
+        Args:
+            values (list): list of values
+        &#34;&#34;&#34;
+        self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)
+
+    def data_from_id(self, id):
+        &#34;&#34;&#34;
+        Retrieve watchlist details for ID.
+        Args:
+            id (str): watchlist ID
+        &#34;&#34;&#34;
+        info=self.nitro.request(&#39;get_watchlist_details&#39;, id=id)
+        return info
+
+    def load_details(self):
+        &#34;&#34;&#34;
+        Load Watchlist details.
+        &#34;&#34;&#34;
+        self.data.update(self.data_from_id(self.data[&#39;id&#39;]))
+
+    def load_values(self):
+        &#34;&#34;&#34;
+        Load Watchlist values.
+        &#34;&#34;&#34;
+        wl_details = self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;])
+
+        try:
+            file = wl_details[&#39;WLVFILE&#39;]
+        except KeyError:
+            print(&#39;ESM Error: Is watchlist valid?&#39;)
+        data = self.nitro.get_internal_file(file)
+        self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
+<li>collections.UserDict</li>
+<li>collections.abc.MutableMapping</li>
+<li>collections.abc.Mapping</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.watchlist.Watchlist.add_values"><code class="name flex">
+<span>def <span class="ident">add_values</span></span>(<span>self, values)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Add values to static watchlist.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>values</code></strong> :&ensp;<code>list</code></dt>
+<dd>list of values</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_values(self, values):
+    &#34;&#34;&#34;
+    Add values to static watchlist.
+    Args:
+        values (list): list of values
+    &#34;&#34;&#34;
+    self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.watchlist.Watchlist.data_from_id"><code class="name flex">
+<span>def <span class="ident">data_from_id</span></span>(<span>self, id)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Retrieve watchlist details for ID.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>id</code></strong> :&ensp;<code>str</code></dt>
+<dd>watchlist ID</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def data_from_id(self, id):
+    &#34;&#34;&#34;
+    Retrieve watchlist details for ID.
+    Args:
+        id (str): watchlist ID
+    &#34;&#34;&#34;
+    info=self.nitro.request(&#39;get_watchlist_details&#39;, id=id)
+    return info</code></pre>
+</details>
+</dd>
+<dt id="msiempy.watchlist.Watchlist.load_details"><code class="name flex">
+<span>def <span class="ident">load_details</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Load Watchlist details.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_details(self):
+    &#34;&#34;&#34;
+    Load Watchlist details.
+    &#34;&#34;&#34;
+    self.data.update(self.data_from_id(self.data[&#39;id&#39;]))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.watchlist.Watchlist.load_values"><code class="name flex">
+<span>def <span class="ident">load_values</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Load Watchlist values.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_values(self):
+    &#34;&#34;&#34;
+    Load Watchlist values.
+    &#34;&#34;&#34;
+    wl_details = self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;])
+
+    try:
+        file = wl_details[&#39;WLVFILE&#39;]
+    except KeyError:
+        print(&#39;ESM Error: Is watchlist valid?&#39;)
+    data = self.nitro.get_internal_file(file)
+    self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
+<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.watchlist.WatchlistManager"><code class="flex name class">
+<span>class <span class="ident">WatchlistManager</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Summary of ESM watchlists.</p>
+<h2 id="example">Example</h2>
+<p>wlman = WatchlistManager()
+for wl in wlman:
+if wl['name'] == 'IPs-To-Block-On-IPS-24hrs': break
+wl.add_values(['1.1.1.2', '2.2.2.1', '3.3.3.1'])
+Initialize the watchlist manager.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class WatchlistManager(NitroList):
+    &#34;&#34;&#34;
+    Summary of ESM watchlists.
+
+    Example:
+        wlman = WatchlistManager()
+        for wl in wlman:
+            if wl[&#39;name&#39;] == &#39;IPs-To-Block-On-IPS-24hrs&#39;: break
+        wl.add_values([&#39;1.1.1.2&#39;, &#39;2.2.2.1&#39;, &#39;3.3.3.1&#39;])
+
+    &#34;&#34;&#34;
+
+    def __init__(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        Initialize the watchlist manager.
+        &#34;&#34;&#34;
+        super().__init__(*args, **kwargs)
+        self.get_watchlist_summary()
+
+    def get_watchlist_summary(self):
+        self.data = self.nitro.request(&#39;get_watchlists_no_filters&#39;,
+            hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
+
+        #Casting all data to Watchlist objects, better way to do it ?
+        collections.UserList.__init__(self,
+            [Watchlist(adict=item) for item in self.data
+                if isinstance(item, (dict, NitroDict))])
+
+    def load_details(self):
+        &#34;&#34;&#34;
+        Load a summary of existing watchlists.
+        &#34;&#34;&#34;
+        self.perform(Watchlist.load_details, asynch=False, progress=True)
+
+    def refresh(self):
+        &#34;&#34;&#34;
+        Reloads the watchlist summary.
+        &#34;&#34;&#34;
+        self.get_watchlist_summary()
+
+    def add(self, name, wl_type):
+        &#34;&#34;&#34;
+        Create a static watchlist.
+        Args:
+            name (str): Name of the watchlist.
+            wl_type (str): Watchlist data type.
+                Get the list of types with: &#39;get_wl_types&#39;
+                Most common types are: IPAddress,
+                                       Hash,
+                                       SHA1,
+                                       DSIDSigID,
+                                       Port,
+                                       MacAddress,
+                                       NormID,
+                                       AppID,
+                                       CommandID,
+                                       DomainID,
+                                       HostID,
+                                       ObjectID,
+                                       Filename,
+                                       File_Hash
+        &#34;&#34;&#34;
+        for wl in self.data:
+            if wl.get(&#39;name&#39;) == name:
+                logging.error(&#39;Cannot add: {} watchlist already exists.&#39;.format(name))
+                return
+        self.nitro.request(&#39;add_watchlist&#39;, name=name, wl_type=wl_type)
+        self.refresh()
+
+    def remove(self, wl_id_list):
+        &#34;&#34;&#34;
+        Remove watchlist(s).
+
+        Args:
+            wl_ids (list): list of watchlist IDs
+
+        Example:
+            1, 2, 3
+        &#34;&#34;&#34;
+        self.nitro.request(&#39;remove_watchlists&#39;, wl_id_list=wl_id_list)
+
+    def get_wl_types(self):
+        &#34;&#34;&#34;
+        Get a list of watchlist types.
+
+        Returns:
+            list of watchlist types.
+        &#34;&#34;&#34;
+        return self.nitro.request(&#39;get_wl_types&#39;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></li>
+<li>collections.UserList</li>
+<li>collections.abc.MutableSequence</li>
+<li>collections.abc.Sequence</li>
+<li>collections.abc.Reversible</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.watchlist.WatchlistManager.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>self, name, wl_type)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Create a static watchlist.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the watchlist.</dd>
+<dt><strong><code>wl_type</code></strong> :&ensp;<code>str</code></dt>
+<dd>Watchlist data type.
+Get the list of types with: 'get_wl_types'
+Most common types are: IPAddress,
+Hash,
+SHA1,
+DSIDSigID,
+Port,
+MacAddress,
+NormID,
+AppID,
+CommandID,
+DomainID,
+HostID,
+ObjectID,
+Filename,
+File_Hash</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(self, name, wl_type):
+    &#34;&#34;&#34;
+    Create a static watchlist.
+    Args:
+        name (str): Name of the watchlist.
+        wl_type (str): Watchlist data type.
+            Get the list of types with: &#39;get_wl_types&#39;
+            Most common types are: IPAddress,
+                                   Hash,
+                                   SHA1,
+                                   DSIDSigID,
+                                   Port,
+                                   MacAddress,
+                                   NormID,
+                                   AppID,
+                                   CommandID,
+                                   DomainID,
+                                   HostID,
+                                   ObjectID,
+                                   Filename,
+                                   File_Hash
+    &#34;&#34;&#34;
+    for wl in self.data:
+        if wl.get(&#39;name&#39;) == name:
+            logging.error(&#39;Cannot add: {} watchlist already exists.&#39;.format(name))
+            return
+    self.nitro.request(&#39;add_watchlist&#39;, name=name, wl_type=wl_type)
+    self.refresh()</code></pre>
+</details>
+</dd>
+<dt id="msiempy.watchlist.WatchlistManager.get_watchlist_summary"><code class="name flex">
+<span>def <span class="ident">get_watchlist_summary</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_watchlist_summary(self):
+    self.data = self.nitro.request(&#39;get_watchlists_no_filters&#39;,
+        hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
+
+    #Casting all data to Watchlist objects, better way to do it ?
+    collections.UserList.__init__(self,
+        [Watchlist(adict=item) for item in self.data
+            if isinstance(item, (dict, NitroDict))])</code></pre>
+</details>
+</dd>
+<dt id="msiempy.watchlist.WatchlistManager.get_wl_types"><code class="name flex">
+<span>def <span class="ident">get_wl_types</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Get a list of watchlist types.</p>
+<h2 id="returns">Returns</h2>
+<p>list of watchlist types.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_wl_types(self):
+    &#34;&#34;&#34;
+    Get a list of watchlist types.
+
+    Returns:
+        list of watchlist types.
+    &#34;&#34;&#34;
+    return self.nitro.request(&#39;get_wl_types&#39;)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.watchlist.WatchlistManager.load_details"><code class="name flex">
+<span>def <span class="ident">load_details</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Load a summary of existing watchlists.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_details(self):
+    &#34;&#34;&#34;
+    Load a summary of existing watchlists.
+    &#34;&#34;&#34;
+    self.perform(Watchlist.load_details, asynch=False, progress=True)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.watchlist.WatchlistManager.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Reloads the watchlist summary.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def refresh(self):
+    &#34;&#34;&#34;
+    Reloads the watchlist summary.
+    &#34;&#34;&#34;
+    self.get_watchlist_summary()</code></pre>
+</details>
+</dd>
+<dt id="msiempy.watchlist.WatchlistManager.remove"><code class="name flex">
+<span>def <span class="ident">remove</span></span>(<span>self, wl_id_list)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Remove watchlist(s).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>wl_ids</code></strong> :&ensp;<code>list</code></dt>
+<dd>list of watchlist IDs</dd>
+</dl>
+<h2 id="example">Example</h2>
+<dl>
+<dt><strong><code>1</code></strong>, <strong><code>2</code></strong>, <strong><code>3</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove(self, wl_id_list):
+    &#34;&#34;&#34;
+    Remove watchlist(s).
+
+    Args:
+        wl_ids (list): list of watchlist IDs
+
+    Example:
+        1, 2, 3
+    &#34;&#34;&#34;
+    self.nitro.request(&#39;remove_watchlists&#39;, wl_id_list=wl_id_list)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.NitroList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
+<li><code><a title="msiempy.NitroList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.NitroList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
+<li><code><a title="msiempy.NitroList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
+<li><code><a title="msiempy.NitroList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="msiempy" href="index.html">msiempy</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="msiempy.watchlist.Watchlist" href="#msiempy.watchlist.Watchlist">Watchlist</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.watchlist.Watchlist.add_values" href="#msiempy.watchlist.Watchlist.add_values">add_values</a></code></li>
+<li><code><a title="msiempy.watchlist.Watchlist.data_from_id" href="#msiempy.watchlist.Watchlist.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.watchlist.Watchlist.load_details" href="#msiempy.watchlist.Watchlist.load_details">load_details</a></code></li>
+<li><code><a title="msiempy.watchlist.Watchlist.load_values" href="#msiempy.watchlist.Watchlist.load_values">load_values</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.watchlist.WatchlistManager" href="#msiempy.watchlist.WatchlistManager">WatchlistManager</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.watchlist.WatchlistManager.add" href="#msiempy.watchlist.WatchlistManager.add">add</a></code></li>
+<li><code><a title="msiempy.watchlist.WatchlistManager.get_watchlist_summary" href="#msiempy.watchlist.WatchlistManager.get_watchlist_summary">get_watchlist_summary</a></code></li>
+<li><code><a title="msiempy.watchlist.WatchlistManager.get_wl_types" href="#msiempy.watchlist.WatchlistManager.get_wl_types">get_wl_types</a></code></li>
+<li><code><a title="msiempy.watchlist.WatchlistManager.load_details" href="#msiempy.watchlist.WatchlistManager.load_details">load_details</a></code></li>
+<li><code><a title="msiempy.watchlist.WatchlistManager.refresh" href="#msiempy.watchlist.WatchlistManager.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.watchlist.WatchlistManager.remove" href="#msiempy.watchlist.WatchlistManager.remove">remove</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

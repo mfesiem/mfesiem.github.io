@@ -189,29 +189,8 @@ class Watchlist(NitroDict):
             file = wl_details[&#39;WLVFILE&#39;]
         except KeyError:
             print(&#39;ESM Error: Is watchlist valid?&#39;)
-
-        pos = 0
-        nbytes = 0
-        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-
-        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-            self.data[&#39;values&#39;] = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
-            self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-            return
-
-        data = []
-        data.append(resp[&#39;DATA&#39;])
-        file_size = int(resp[&#39;FSIZE&#39;])
-        collected = int(resp[&#39;BREAD&#39;])
-
-        while file_size &gt; collected:
-            pos += int(resp[&#39;BREAD&#39;])
-            nbytes = file_size - collected
-            resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-            collected += int(resp[&#39;BREAD&#39;])
-            data.append(resp[&#39;DATA&#39;])
-        self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)
-        resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)</code></pre>
+        data = self.nitro.get_internal_file(file)
+        self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -324,29 +303,8 @@ and update dict values accordingly.</p>
             file = wl_details[&#39;WLVFILE&#39;]
         except KeyError:
             print(&#39;ESM Error: Is watchlist valid?&#39;)
-
-        pos = 0
-        nbytes = 0
-        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-
-        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-            self.data[&#39;values&#39;] = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
-            self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-            return
-
-        data = []
-        data.append(resp[&#39;DATA&#39;])
-        file_size = int(resp[&#39;FSIZE&#39;])
-        collected = int(resp[&#39;BREAD&#39;])
-
-        while file_size &gt; collected:
-            pos += int(resp[&#39;BREAD&#39;])
-            nbytes = file_size - collected
-            resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-            collected += int(resp[&#39;BREAD&#39;])
-            data.append(resp[&#39;DATA&#39;])
-        self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)
-        resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)</code></pre>
+        data = self.nitro.get_internal_file(file)
+        self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -445,29 +403,8 @@ and update dict values accordingly.</p>
         file = wl_details[&#39;WLVFILE&#39;]
     except KeyError:
         print(&#39;ESM Error: Is watchlist valid?&#39;)
-
-    pos = 0
-    nbytes = 0
-    resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-
-    if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-        self.data[&#39;values&#39;] = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
-        self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-        return
-
-    data = []
-    data.append(resp[&#39;DATA&#39;])
-    file_size = int(resp[&#39;FSIZE&#39;])
-    collected = int(resp[&#39;BREAD&#39;])
-
-    while file_size &gt; collected:
-        pos += int(resp[&#39;BREAD&#39;])
-        nbytes = file_size - collected
-        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-        collected += int(resp[&#39;BREAD&#39;])
-        data.append(resp[&#39;DATA&#39;])
-    self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)
-    resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)</code></pre>
+    data = self.nitro.get_internal_file(file)
+    self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)</code></pre>
 </details>
 </dd>
 </dl>

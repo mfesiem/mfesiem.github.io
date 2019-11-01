@@ -239,6 +239,20 @@ class ESM(Device):
         return {self.key: self.val for self.key, self.val in self.status().items()
                 if self.key in self._fields}
 
+    def get_alerts(self, ds_id, flows=False):
+        &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.
+        
+        Arguments:
+            ds_id (str): IPSID for the device, e.g. 144116287587483648
+            flows (bool): Also get flows from the device (default: False)
+        
+        Returns:
+            None
+        &#34;&#34;&#34;
+        self.nitro.request(&#39;get_alerts_now&#39;, ds_id=ds_id)
+        if flows:
+            self.nitro.request(&#39;get_flows_now&#39;, ds_id=ds_id)
+
     @lru_cache(maxsize=None)    
     def recs(self):
         &#34;&#34;&#34;
@@ -347,39 +361,7 @@ class ESM(Device):
             Policy Editor rule history.
         &#34;&#34;&#34;
         file = self.nitro.request(&#39;get_rule_history&#39;)[&#39;TK&#39;]
-
-        pos = 0
-        nbytes = 0
-        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-
-
-        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-            data = resp[&#39;DATA&#39;]
-            #data = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
-            self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-            return data
-        
-        data = []
-        data.append(resp[&#39;DATA&#39;])
-        file_size = int(resp[&#39;FSIZE&#39;])
-        collected = int(resp[&#39;BREAD&#39;])
-
-        while file_size &gt; collected:
-            pos += int(resp[&#39;BREAD&#39;])
-            nbytes = file_size - collected
-            resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-            collected += int(resp[&#39;BREAD&#39;])
-            data.append(resp[&#39;DATA&#39;])
-
-        resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-        return &#39;&#39;.join(data)
-
-    def _format_rules_history(self, rules_history):
-        &#34;&#34;&#34;[summary]
-        
-        Arguments:
-            rules_history {[type]} -- [description]
-        &#34;&#34;&#34;
+        return self.nitro.get_internal_file(file)
 
     @lru_cache(maxsize=None)   
     def _get_ds_types(self):
@@ -540,7 +522,9 @@ class DevTree(NitroList):
                         if ds[&#39;parent_id&#39;] == rec_id]
         
         if found:
-            return DataSource(**found[0])
+            # Temporary until DataSource() class is rebuilt.
+            #return DataSource(**found[0])
+            return found
         else:
             return None
 
@@ -795,30 +779,7 @@ class DevTree(NitroList):
         &#34;&#34;&#34;
 
         file = self.nitro.request(&#39;req_client_str&#39;, ds_id=ds_id)[&#39;FTOKEN&#39;]
-        pos = 0
-        nbytes = 0
-        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-
-        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-            data = resp[&#39;DATA&#39;]
-            self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-            return dehexify(data)
-        
-        data = []
-        data.append(resp[&#39;DATA&#39;])
-        file_size = int(resp[&#39;FSIZE&#39;])
-        collected = int(resp[&#39;BREAD&#39;])
-
-        while file_size &gt; collected:
-            pos += int(resp[&#39;BREAD&#39;])
-            nbytes = file_size - collected
-            resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-            collected += int(resp[&#39;BREAD&#39;])
-            data.append(resp[&#39;DATA&#39;])
-
-        resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-        return dehexify(&#39;&#39;.join(data))
-
+        return dehexify(self.nitro.get_internal_file(file))
 
     def _format_clients(self, clients):
         &#34;&#34;&#34;
@@ -1166,7 +1127,12 @@ class DevTree(NitroList):
         else:
             p[&#39;tz_id&#39;] = 0
         
-        return p</code></pre>
+        return p
+
+class DataSource(NitroDict):
+    def __init__(self, *arg, **kwargs):
+        super().__init__(*arg, **kwargs)
+        </code></pre>
 </details>
 </section>
 <section>
@@ -1178,6 +1144,57 @@ class DevTree(NitroList):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="msiempy.device.DataSource"><code class="flex name class">
+<span>class <span class="ident">DataSource</span></span>
+<span>(</span><span>*arg, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class that represent any SIEM data that can be represented as a item of a list.
+Exemple : Event, Alarm, etc&hellip;
+Inherits from dict.</p>
+<p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
+and update dict values accordingly.</p>
+<p>Parameters:
+</p>
+<ul>
+<li><code>adict</code>: dict object to wrap.
+</li>
+<li><code>id</code>: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DataSource(NitroDict):
+    def __init__(self, *arg, **kwargs):
+        super().__init__(*arg, **kwargs)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
+<li>collections.UserDict</li>
+<li>collections.abc.MutableMapping</li>
+<li>collections.abc.Mapping</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroDict.data_from_id" href="index.html#msiempy.NitroDict.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
+<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="msiempy.device.DevTree"><code class="flex name class">
 <span>class <span class="ident">DevTree</span></span>
 <span>(</span><span>*args, **kwargs)</span>
@@ -1362,7 +1379,9 @@ __contains__    Returns bool as to whether a datasource name, IP,
                         if ds[&#39;parent_id&#39;] == rec_id]
         
         if found:
-            return DataSource(**found[0])
+            # Temporary until DataSource() class is rebuilt.
+            #return DataSource(**found[0])
+            return found
         else:
             return None
 
@@ -1617,30 +1636,7 @@ __contains__    Returns bool as to whether a datasource name, IP,
         &#34;&#34;&#34;
 
         file = self.nitro.request(&#39;req_client_str&#39;, ds_id=ds_id)[&#39;FTOKEN&#39;]
-        pos = 0
-        nbytes = 0
-        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-
-        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-            data = resp[&#39;DATA&#39;]
-            self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-            return dehexify(data)
-        
-        data = []
-        data.append(resp[&#39;DATA&#39;])
-        file_size = int(resp[&#39;FSIZE&#39;])
-        collected = int(resp[&#39;BREAD&#39;])
-
-        while file_size &gt; collected:
-            pos += int(resp[&#39;BREAD&#39;])
-            nbytes = file_size - collected
-            resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-            collected += int(resp[&#39;BREAD&#39;])
-            data.append(resp[&#39;DATA&#39;])
-
-        resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-        return dehexify(&#39;&#39;.join(data))
-
+        return dehexify(self.nitro.get_internal_file(file))
 
     def _format_clients(self, clients):
         &#34;&#34;&#34;
@@ -2224,7 +2220,9 @@ Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 </dd>
                     if ds[&#39;parent_id&#39;] == rec_id]
     
     if found:
-        return DataSource(**found[0])
+        # Temporary until DataSource() class is rebuilt.
+        #return DataSource(**found[0])
+        return found
     else:
         return None</code></pre>
 </details>
@@ -2242,7 +2240,7 @@ Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 </dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
-<dt><code>Generator</code> <code>containing</code> <code>any</code> <code>matching</code> <code>DataSource</code> <code>objects</code> or <code>None</code></dt>
+<dt><code>Generator</code> <code>containing</code> <code>any</code> <code>matching</code> <a title="msiempy.device.DataSource" href="#msiempy.device.DataSource"><code>DataSource</code></a> <code>objects</code> or <code>None</code></dt>
 <dd>&nbsp;</dd>
 </dl>
 <p>Result must be iterated through.</p>
@@ -2653,6 +2651,20 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
         return {self.key: self.val for self.key, self.val in self.status().items()
                 if self.key in self._fields}
 
+    def get_alerts(self, ds_id, flows=False):
+        &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.
+        
+        Arguments:
+            ds_id (str): IPSID for the device, e.g. 144116287587483648
+            flows (bool): Also get flows from the device (default: False)
+        
+        Returns:
+            None
+        &#34;&#34;&#34;
+        self.nitro.request(&#39;get_alerts_now&#39;, ds_id=ds_id)
+        if flows:
+            self.nitro.request(&#39;get_flows_now&#39;, ds_id=ds_id)
+
     @lru_cache(maxsize=None)    
     def recs(self):
         &#34;&#34;&#34;
@@ -2761,39 +2773,7 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
             Policy Editor rule history.
         &#34;&#34;&#34;
         file = self.nitro.request(&#39;get_rule_history&#39;)[&#39;TK&#39;]
-
-        pos = 0
-        nbytes = 0
-        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-
-
-        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-            data = resp[&#39;DATA&#39;]
-            #data = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
-            self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-            return data
-        
-        data = []
-        data.append(resp[&#39;DATA&#39;])
-        file_size = int(resp[&#39;FSIZE&#39;])
-        collected = int(resp[&#39;BREAD&#39;])
-
-        while file_size &gt; collected:
-            pos += int(resp[&#39;BREAD&#39;])
-            nbytes = file_size - collected
-            resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-            collected += int(resp[&#39;BREAD&#39;])
-            data.append(resp[&#39;DATA&#39;])
-
-        resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-        return &#39;&#39;.join(data)
-
-    def _format_rules_history(self, rules_history):
-        &#34;&#34;&#34;[summary]
-        
-        Arguments:
-            rules_history {[type]} -- [description]
-        &#34;&#34;&#34;
+        return self.nitro.get_internal_file(file)
 
     @lru_cache(maxsize=None)   
     def _get_ds_types(self):
@@ -2939,6 +2919,42 @@ Size:
     return self.status()[&#39;hdd&#39;]</code></pre>
 </details>
 </dd>
+<dt id="msiempy.device.ESM.get_alerts"><code class="name flex">
+<span>def <span class="ident">get_alerts</span></span>(<span>self, ds_id, flows=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Tells the ESM to retrieve alerts from the provided device ID.</p>
+<h2 id="arguments">Arguments</h2>
+<dl>
+<dt><strong><code>ds_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>IPSID for the device, e.g. 144116287587483648</dd>
+<dt><strong><code>flows</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Also get flows from the device (default: False)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_alerts(self, ds_id, flows=False):
+    &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.
+    
+    Arguments:
+        ds_id (str): IPSID for the device, e.g. 144116287587483648
+        flows (bool): Also get flows from the device (default: False)
+    
+    Returns:
+        None
+    &#34;&#34;&#34;
+    self.nitro.request(&#39;get_alerts_now&#39;, ds_id=ds_id)
+    if flows:
+        self.nitro.request(&#39;get_flows_now&#39;, ds_id=ds_id)</code></pre>
+</details>
+</dd>
 <dt id="msiempy.device.ESM.map_status_int_fields"><code class="name flex">
 <span>def <span class="ident">map_status_int_fields</span></span>(<span>self, status)</span>
 </code></dt>
@@ -3029,32 +3045,7 @@ Policy Editor rule history.</p></section>
         Policy Editor rule history.
     &#34;&#34;&#34;
     file = self.nitro.request(&#39;get_rule_history&#39;)[&#39;TK&#39;]
-
-    pos = 0
-    nbytes = 0
-    resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-
-
-    if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-        data = resp[&#39;DATA&#39;]
-        #data = resp[&#39;DATA&#39;].split(&#39;\n&#39;)
-        self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-        return data
-    
-    data = []
-    data.append(resp[&#39;DATA&#39;])
-    file_size = int(resp[&#39;FSIZE&#39;])
-    collected = int(resp[&#39;BREAD&#39;])
-
-    while file_size &gt; collected:
-        pos += int(resp[&#39;BREAD&#39;])
-        nbytes = file_size - collected
-        resp = self.nitro.request(&#39;get_rfile2&#39;, ftoken=file, pos=pos, nbytes=nbytes)
-        collected += int(resp[&#39;BREAD&#39;])
-        data.append(resp[&#39;DATA&#39;])
-
-    resp = self.nitro.request(&#39;del_rfile&#39;, ftoken=file)
-    return &#39;&#39;.join(data)</code></pre>
+    return self.nitro.get_internal_file(file)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.ESM.rules_status"><code class="name flex">
@@ -3394,6 +3385,9 @@ Policy Editor rule history.</p></section>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="msiempy.device.DataSource" href="#msiempy.device.DataSource">DataSource</a></code></h4>
+</li>
+<li>
 <h4><code><a title="msiempy.device.DevTree" href="#msiempy.device.DevTree">DevTree</a></code></h4>
 <ul class="two-column">
 <li><code><a title="msiempy.device.DevTree.add" href="#msiempy.device.DevTree.add">add</a></code></li>
@@ -3419,6 +3413,7 @@ Policy Editor rule history.</p></section>
 <li><code><a title="msiempy.device.ESM.buildstamp" href="#msiempy.device.ESM.buildstamp">buildstamp</a></code></li>
 <li><code><a title="msiempy.device.ESM.callhome" href="#msiempy.device.ESM.callhome">callhome</a></code></li>
 <li><code><a title="msiempy.device.ESM.disks" href="#msiempy.device.ESM.disks">disks</a></code></li>
+<li><code><a title="msiempy.device.ESM.get_alerts" href="#msiempy.device.ESM.get_alerts">get_alerts</a></code></li>
 <li><code><a title="msiempy.device.ESM.map_status_int_fields" href="#msiempy.device.ESM.map_status_int_fields">map_status_int_fields</a></code></li>
 <li><code><a title="msiempy.device.ESM.ram" href="#msiempy.device.ESM.ram">ram</a></code></li>
 <li><code><a title="msiempy.device.ESM.recs" href="#msiempy.device.ESM.recs">recs</a></code></li>

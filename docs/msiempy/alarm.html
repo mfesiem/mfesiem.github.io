@@ -46,7 +46,7 @@ class AlarmManager(FilteredQueryList):
     Interface to query and manage Alarms.
     Inherits from FilteredQueryList.
     &#34;&#34;&#34;
-    def __init__(self, status_filter=&#39;all&#39;, page_size=500, filters=None, event_filters=None,
+    def __init__(self, status_filter=&#39;all&#39;, page_size=20, filters=None, event_filters=None,
          *args, **kwargs):
 
         &#34;&#34;&#34;
@@ -240,8 +240,7 @@ class AlarmManager(FilteredQueryList):
 
         return(self)
 
-    def qry_load_data(self, workers=10, 
-        #no_detailed_filter=False, 
+    def qry_load_data(self, workers=10,
         alarms_details=True, events_details=True,
         use_query=False, extra_fields=[], page_number=1):
         &#34;&#34;&#34;
@@ -435,18 +434,29 @@ class Alarm(NitroDict):
     def acknowledge(self):
         &#34;&#34;&#34;Mark the alarm as acknowledged.
         &#34;&#34;&#34;
-        self.nitro.request(&#39;ack_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])
+        print(self.nitro.version)
+        if self.nitro.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+            self.nitro.request(&#39;ack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+        else:
+            self.nitro.request(&#39;ack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
 
     def unacknowledge(self):
-        &#34;&#34;&#34;Mark the alarm as unacknowledge.    
+        &#34;&#34;&#34;Mark the alarm as unacknowledge.
         &#34;&#34;&#34;
-        self.nitro.request(&#39;unack_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])
+        if self.nitro.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+            self.nitro.request(&#39;unack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+        else:
+            self.nitro.request(&#39;unack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+
 
     def delete(self):
         &#34;&#34;&#34;Destructive action!
         Delete the alarm.
         &#34;&#34;&#34;
-        self.nitro.request(&#39;delete_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])
+        if self.nitro.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+            self.nitro.request(&#39;delete_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+        else:
+            self.nitro.request(&#39;delete_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
 
     def ceate_case(self):
         &#34;&#34;&#34;Not implemented : TODO
@@ -663,18 +673,29 @@ class Alarm(NitroDict):
     def acknowledge(self):
         &#34;&#34;&#34;Mark the alarm as acknowledged.
         &#34;&#34;&#34;
-        self.nitro.request(&#39;ack_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])
+        print(self.nitro.version)
+        if self.nitro.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+            self.nitro.request(&#39;ack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+        else:
+            self.nitro.request(&#39;ack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
 
     def unacknowledge(self):
-        &#34;&#34;&#34;Mark the alarm as unacknowledge.    
+        &#34;&#34;&#34;Mark the alarm as unacknowledge.
         &#34;&#34;&#34;
-        self.nitro.request(&#39;unack_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])
+        if self.nitro.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+            self.nitro.request(&#39;unack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+        else:
+            self.nitro.request(&#39;unack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+
 
     def delete(self):
         &#34;&#34;&#34;Destructive action!
         Delete the alarm.
         &#34;&#34;&#34;
-        self.nitro.request(&#39;delete_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])
+        if self.nitro.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+            self.nitro.request(&#39;delete_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+        else:
+            self.nitro.request(&#39;delete_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
 
     def ceate_case(self):
         &#34;&#34;&#34;Not implemented : TODO
@@ -824,7 +845,11 @@ class Alarm(NitroDict):
 <pre><code class="python">def acknowledge(self):
     &#34;&#34;&#34;Mark the alarm as acknowledged.
     &#34;&#34;&#34;
-    self.nitro.request(&#39;ack_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])</code></pre>
+    print(self.nitro.version)
+    if self.nitro.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+        self.nitro.request(&#39;ack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+    else:
+        self.nitro.request(&#39;ack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.Alarm.ceate_case"><code class="name flex">
@@ -856,7 +881,10 @@ Delete the alarm.</p></section>
     &#34;&#34;&#34;Destructive action!
     Delete the alarm.
     &#34;&#34;&#34;
-    self.nitro.request(&#39;delete_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])</code></pre>
+    if self.nitro.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+        self.nitro.request(&#39;delete_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+    else:
+        self.nitro.request(&#39;delete_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.Alarm.load_details"><code class="name flex">
@@ -989,9 +1017,12 @@ Parameters:<br>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def unacknowledge(self):
-    &#34;&#34;&#34;Mark the alarm as unacknowledge.    
+    &#34;&#34;&#34;Mark the alarm as unacknowledge.
     &#34;&#34;&#34;
-    self.nitro.request(&#39;unack_alarms&#39;, ids=[self.data[&#39;id&#39;][&#39;value&#39;]])</code></pre>
+    if self.nitro.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+        self.nitro.request(&#39;unack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+    else:
+        self.nitro.request(&#39;unack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
 </details>
 </dd>
 </dl>
@@ -1009,7 +1040,7 @@ Parameters:<br>
 </dd>
 <dt id="msiempy.alarm.AlarmManager"><code class="flex name class">
 <span>class <span class="ident">AlarmManager</span></span>
-<span>(</span><span>status_filter='all', page_size=500, filters=None, event_filters=None, *args, **kwargs)</span>
+<span>(</span><span>status_filter='all', page_size=20, filters=None, event_filters=None, *args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>AlarmManager class.
@@ -1038,7 +1069,7 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
     Interface to query and manage Alarms.
     Inherits from FilteredQueryList.
     &#34;&#34;&#34;
-    def __init__(self, status_filter=&#39;all&#39;, page_size=500, filters=None, event_filters=None,
+    def __init__(self, status_filter=&#39;all&#39;, page_size=20, filters=None, event_filters=None,
          *args, **kwargs):
 
         &#34;&#34;&#34;
@@ -1232,8 +1263,7 @@ filters=[('sourceIp','^10.*'), ('ruleMessage','Wordpress')]).load_data()</code><
 
         return(self)
 
-    def qry_load_data(self, workers=10, 
-        #no_detailed_filter=False, 
+    def qry_load_data(self, workers=10,
         alarms_details=True, events_details=True,
         use_query=False, extra_fields=[], page_number=1):
         &#34;&#34;&#34;
@@ -1591,8 +1621,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def qry_load_data(self, workers=10, 
-    #no_detailed_filter=False, 
+<pre><code class="python">def qry_load_data(self, workers=10,
     alarms_details=True, events_details=True,
     use_query=False, extra_fields=[], page_number=1):
     &#34;&#34;&#34;

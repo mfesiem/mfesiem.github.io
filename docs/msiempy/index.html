@@ -481,17 +481,27 @@ class NitroSession():
             &#34;get_alarm_details_int&#34;: (&#34;NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL&#34;, 
                                         &#34;&#34;&#34;{&#34;TID&#34;: &#34;%(id)s&#34;}&#34;&#34;&#34;),
 
-            &#34;ack_alarms&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:%(ids)s}}&#34;&#34;&#34;),
+            &#34;ack_alarms&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:[{&#34;value&#34;:%(ids)s}]}&#34;&#34;&#34;),
 
-            &#34;unack_alarms&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:%(ids)s}}&#34;&#34;&#34;),
+            &#34;ack_alarms_11_2_1&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[%(ids)s]}}&#34;&#34;&#34;),
 
-            &#34;delete_alarms&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:%(ids)s}}&#34;&#34;&#34;),
+            &#34;unack_alarms&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:[{&#34;value&#34;:%(ids)s}]}&#34;&#34;&#34;),
+
+            &#34;unack_alarms_11_2_1&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[%(ids)s]}}&#34;&#34;&#34;),
+
+            &#34;delete_alarms&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:[{&#34;value&#34;:%(ids)s}]}&#34;&#34;&#34;),
             
+            &#34;delete_alarms_11_2_1&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[%(ids)s]}}&#34;&#34;&#34;),
+
             &#34;get_possible_filters&#34; : ( &#34;&#34;&#34;qryGetFilterFields&#34;&#34;&#34;, None ),
 
             &#34;get_possible_fields&#34; : ( &#34;&#34;&#34;qryGetSelectFields?type=%(type)s&amp;groupType=%(groupType)s&#34;&#34;&#34;, None ),
 
             &#34;get_esm_time&#34; : ( &#34;&#34;&#34;essmgtGetESSTime&#34;&#34;&#34;,None),
+
+            &#34;get_alerts_now&#34; : (&#34;&#34;&#34;IPS_GETALERTSNOW&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;IPSID&#34;: &#34;%(ds_id)s&#34;}&#34;&#34;&#34;),
+
+            &#34;get_flows_now&#34; : (&#34;&#34;&#34;IPS_GETALERTSNOW&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;IPSID&#34;: &#34;%(ds_id)s&#34;}&#34;&#34;&#34;),
 
             &#34;logout&#34; : ( &#34;&#34;&#34;userLogout&#34;&#34;&#34;, None ),
 
@@ -502,10 +512,12 @@ class NitroSession():
                         &#34;timeRange&#34;: &#34;%(time_range)s&#34;,
                         &#34;customStart&#34;: &#34;%(start_time)s&#34;,
                         &#34;customEnd&#34;: &#34;%(end_time)s&#34;,
-                        &#34;fields&#34;:%(fields)s,
-                        &#34;filters&#34;:%(filters)s,
-                        &#34;limit&#34;:%(limit)s,
-                        &#34;offset&#34;:%(offset)s
+                        &#34;fields&#34;: %(fields)s,
+                        &#34;filters&#34;: %(filters)s,
+                        &#34;limit&#34;: %(limit)s,
+                        &#34;offset&#34;: %(offset)s,
+                        &#34;order&#34;: [{&#34;field&#34;: {&#34;name&#34;: &#34;%(order_field)s&#34;},
+                                             &#34;direction&#34;: &#34;%(order_direction)s&#34;}]
                         }
                         }&#34;&#34;&#34;),
 
@@ -784,9 +796,10 @@ class NitroSession():
        
             self._headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
             self._headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
-    
-            self._logged=True
-            return True
+            
+            self.user_tz_id = dict(resp.json())[&#39;tzId&#39;]
+            self._logged = True
+            return
         else:
             raise NitroError(&#39;ESM Login Error: Response empty&#39;)
 
@@ -809,6 +822,36 @@ class NitroSession():
             &#39;10.0.2 20170516001031&#39;
         &#34;&#34;&#34;
         return self.request(&#39;build_stamp&#39;)[&#39;buildStamp&#39;]
+
+    def get_internal_file(self, file_token):
+        &#34;&#34;&#34;Uses the private API to retrieve, assemble and delete a temp file from the ESM.
+        
+        Arguments:
+            file_token (str): File token ID
+        &#34;&#34;&#34;
+        pos = 0
+        nbytes = 0
+        resp = self.request(&#39;get_rfile2&#39;, ftoken=file_token, pos=pos, nbytes=nbytes)
+
+        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
+            data = resp[&#39;DATA&#39;]
+            self.request(&#39;del_rfile&#39;, ftoken=file_token)
+            return data
+        
+        data = []
+        data.append(resp[&#39;DATA&#39;])
+        file_size = int(resp[&#39;FSIZE&#39;])
+        collected = int(resp[&#39;BREAD&#39;])
+
+        while file_size &gt; collected:
+            pos += int(resp[&#39;BREAD&#39;])
+            nbytes = file_size - collected
+            resp = self.request(&#39;get_rfile2&#39;, ftoken=file_token, pos=pos, nbytes=nbytes)
+            collected += int(resp[&#39;BREAD&#39;])
+            data.append(resp[&#39;DATA&#39;])
+
+        resp = self.request(&#39;del_rfile&#39;, ftoken=file_token)
+        return &#39;&#39;.join(data)
 
 
     def request(self, request, **kwargs):
@@ -2579,6 +2622,7 @@ and update dict values accordingly.</p>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></li>
+<li><a title="msiempy.device.DataSource" href="device.html#msiempy.device.DataSource">DataSource</a></li>
 <li><a title="msiempy.alarm.Alarm" href="alarm.html#msiempy.alarm.Alarm">Alarm</a></li>
 <li><a title="msiempy.watchlist.Watchlist" href="watchlist.html#msiempy.watchlist.Watchlist">Watchlist</a></li>
 </ul>
@@ -3002,8 +3046,8 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="msiempy.FilteredQueryList" href="#msiempy.FilteredQueryList">FilteredQueryList</a></li>
-<li><a title="msiempy.watchlist.WatchlistManager" href="watchlist.html#msiempy.watchlist.WatchlistManager">WatchlistManager</a></li>
 <li><a title="msiempy.device.DevTree" href="device.html#msiempy.device.DevTree">DevTree</a></li>
+<li><a title="msiempy.watchlist.WatchlistManager" href="watchlist.html#msiempy.watchlist.WatchlistManager">WatchlistManager</a></li>
 </ul>
 <h3>Instance variables</h3>
 <dl>
@@ -3750,17 +3794,27 @@ Use logout() to reinstanciate NitroSession.
             &#34;get_alarm_details_int&#34;: (&#34;NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL&#34;, 
                                         &#34;&#34;&#34;{&#34;TID&#34;: &#34;%(id)s&#34;}&#34;&#34;&#34;),
 
-            &#34;ack_alarms&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:%(ids)s}}&#34;&#34;&#34;),
+            &#34;ack_alarms&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:[{&#34;value&#34;:%(ids)s}]}&#34;&#34;&#34;),
 
-            &#34;unack_alarms&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:%(ids)s}}&#34;&#34;&#34;),
+            &#34;ack_alarms_11_2_1&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[%(ids)s]}}&#34;&#34;&#34;),
 
-            &#34;delete_alarms&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:%(ids)s}}&#34;&#34;&#34;),
+            &#34;unack_alarms&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:[{&#34;value&#34;:%(ids)s}]}&#34;&#34;&#34;),
+
+            &#34;unack_alarms_11_2_1&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[%(ids)s]}}&#34;&#34;&#34;),
+
+            &#34;delete_alarms&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:[{&#34;value&#34;:%(ids)s}]}&#34;&#34;&#34;),
             
+            &#34;delete_alarms_11_2_1&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[%(ids)s]}}&#34;&#34;&#34;),
+
             &#34;get_possible_filters&#34; : ( &#34;&#34;&#34;qryGetFilterFields&#34;&#34;&#34;, None ),
 
             &#34;get_possible_fields&#34; : ( &#34;&#34;&#34;qryGetSelectFields?type=%(type)s&amp;groupType=%(groupType)s&#34;&#34;&#34;, None ),
 
             &#34;get_esm_time&#34; : ( &#34;&#34;&#34;essmgtGetESSTime&#34;&#34;&#34;,None),
+
+            &#34;get_alerts_now&#34; : (&#34;&#34;&#34;IPS_GETALERTSNOW&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;IPSID&#34;: &#34;%(ds_id)s&#34;}&#34;&#34;&#34;),
+
+            &#34;get_flows_now&#34; : (&#34;&#34;&#34;IPS_GETALERTSNOW&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;IPSID&#34;: &#34;%(ds_id)s&#34;}&#34;&#34;&#34;),
 
             &#34;logout&#34; : ( &#34;&#34;&#34;userLogout&#34;&#34;&#34;, None ),
 
@@ -3771,10 +3825,12 @@ Use logout() to reinstanciate NitroSession.
                         &#34;timeRange&#34;: &#34;%(time_range)s&#34;,
                         &#34;customStart&#34;: &#34;%(start_time)s&#34;,
                         &#34;customEnd&#34;: &#34;%(end_time)s&#34;,
-                        &#34;fields&#34;:%(fields)s,
-                        &#34;filters&#34;:%(filters)s,
-                        &#34;limit&#34;:%(limit)s,
-                        &#34;offset&#34;:%(offset)s
+                        &#34;fields&#34;: %(fields)s,
+                        &#34;filters&#34;: %(filters)s,
+                        &#34;limit&#34;: %(limit)s,
+                        &#34;offset&#34;: %(offset)s,
+                        &#34;order&#34;: [{&#34;field&#34;: {&#34;name&#34;: &#34;%(order_field)s&#34;},
+                                             &#34;direction&#34;: &#34;%(order_direction)s&#34;}]
                         }
                         }&#34;&#34;&#34;),
 
@@ -4053,9 +4109,10 @@ Use logout() to reinstanciate NitroSession.
        
             self._headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
             self._headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
-    
-            self._logged=True
-            return True
+            
+            self.user_tz_id = dict(resp.json())[&#39;tzId&#39;]
+            self._logged = True
+            return
         else:
             raise NitroError(&#39;ESM Login Error: Response empty&#39;)
 
@@ -4078,6 +4135,36 @@ Use logout() to reinstanciate NitroSession.
             &#39;10.0.2 20170516001031&#39;
         &#34;&#34;&#34;
         return self.request(&#39;build_stamp&#39;)[&#39;buildStamp&#39;]
+
+    def get_internal_file(self, file_token):
+        &#34;&#34;&#34;Uses the private API to retrieve, assemble and delete a temp file from the ESM.
+        
+        Arguments:
+            file_token (str): File token ID
+        &#34;&#34;&#34;
+        pos = 0
+        nbytes = 0
+        resp = self.request(&#39;get_rfile2&#39;, ftoken=file_token, pos=pos, nbytes=nbytes)
+
+        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
+            data = resp[&#39;DATA&#39;]
+            self.request(&#39;del_rfile&#39;, ftoken=file_token)
+            return data
+        
+        data = []
+        data.append(resp[&#39;DATA&#39;])
+        file_size = int(resp[&#39;FSIZE&#39;])
+        collected = int(resp[&#39;BREAD&#39;])
+
+        while file_size &gt; collected:
+            pos += int(resp[&#39;BREAD&#39;])
+            nbytes = file_size - collected
+            resp = self.request(&#39;get_rfile2&#39;, ftoken=file_token, pos=pos, nbytes=nbytes)
+            collected += int(resp[&#39;BREAD&#39;])
+            data.append(resp[&#39;DATA&#39;])
+
+        resp = self.request(&#39;del_rfile&#39;, ftoken=file_token)
+        return &#39;&#39;.join(data)
 
 
     def request(self, request, **kwargs):
@@ -4543,6 +4630,51 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
         return None</code></pre>
 </details>
 </dd>
+<dt id="msiempy.NitroSession.get_internal_file"><code class="name flex">
+<span>def <span class="ident">get_internal_file</span></span>(<span>self, file_token)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Uses the private API to retrieve, assemble and delete a temp file from the ESM.</p>
+<h2 id="arguments">Arguments</h2>
+<dl>
+<dt><strong><code>file_token</code></strong> :&ensp;<code>str</code></dt>
+<dd>File token ID</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_internal_file(self, file_token):
+    &#34;&#34;&#34;Uses the private API to retrieve, assemble and delete a temp file from the ESM.
+    
+    Arguments:
+        file_token (str): File token ID
+    &#34;&#34;&#34;
+    pos = 0
+    nbytes = 0
+    resp = self.request(&#39;get_rfile2&#39;, ftoken=file_token, pos=pos, nbytes=nbytes)
+
+    if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
+        data = resp[&#39;DATA&#39;]
+        self.request(&#39;del_rfile&#39;, ftoken=file_token)
+        return data
+    
+    data = []
+    data.append(resp[&#39;DATA&#39;])
+    file_size = int(resp[&#39;FSIZE&#39;])
+    collected = int(resp[&#39;BREAD&#39;])
+
+    while file_size &gt; collected:
+        pos += int(resp[&#39;BREAD&#39;])
+        nbytes = file_size - collected
+        resp = self.request(&#39;get_rfile2&#39;, ftoken=file_token, pos=pos, nbytes=nbytes)
+        collected += int(resp[&#39;BREAD&#39;])
+        data.append(resp[&#39;DATA&#39;])
+
+    resp = self.request(&#39;del_rfile&#39;, ftoken=file_token)
+    return &#39;&#39;.join(data)</code></pre>
+</details>
+</dd>
 <dt id="msiempy.NitroSession.login"><code class="name flex">
 <span>def <span class="ident">login</span></span>(<span>self)</span>
 </code></dt>
@@ -4570,9 +4702,10 @@ Throws <a title="msiempy.NitroError" href="#msiempy.NitroError"><code>NitroError
    
         self._headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
         self._headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
-
-        self._logged=True
-        return True
+        
+        self.user_tz_id = dict(resp.json())[&#39;tzId&#39;]
+        self._logged = True
+        return
     else:
         raise NitroError(&#39;ESM Login Error: Response empty&#39;)</code></pre>
 </details>
@@ -4805,6 +4938,7 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
 <li><code><a title="msiempy.NitroSession.esm_request" href="#msiempy.NitroSession.esm_request">esm_request</a></code></li>
 <li><code><a title="msiempy.NitroSession.format_params" href="#msiempy.NitroSession.format_params">format_params</a></code></li>
 <li><code><a title="msiempy.NitroSession.format_priv_resp" href="#msiempy.NitroSession.format_priv_resp">format_priv_resp</a></code></li>
+<li><code><a title="msiempy.NitroSession.get_internal_file" href="#msiempy.NitroSession.get_internal_file">get_internal_file</a></code></li>
 <li><code><a title="msiempy.NitroSession.login" href="#msiempy.NitroSession.login">login</a></code></li>
 <li><code><a title="msiempy.NitroSession.logout" href="#msiempy.NitroSession.logout">logout</a></code></li>
 <li><code><a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request">request</a></code></li>

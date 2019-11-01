@@ -152,16 +152,15 @@ class EventManager(FilteredQueryList):
 
         self.requests_size=self.limit
 
-        if isinstance(order, list): #if a list is passed for the prder, will replace the whole param supposed in correct SIEM format
-            self._order=order
+        if order:
+            try:
+                self.order_direction = order[0]
+                self.order_field = order[1]
+            except IndexError:
+                raise ValueError(&#39;Order must be tuple (direction, field).&#39;)
         else:
-            self._order=[{
-                &#34;direction&#34;: &#39;DESCENDING&#39;,
-                &#34;field&#34;: {
-                    &#34;name&#34;: &#39;LastTime&#39;
-                    }
-                }]
-            self.order=order #if a tuple is passed , will set the first order according to (direction, fields)
+            self.order_direction = &#39;DESCENDING&#39;
+            self.order_field = &#39;LastTime&#39;
 
         #TODO : find a solution not to use this
         #callign super().filters=filters #https://bugs.python.org/issue14965
@@ -283,11 +282,12 @@ class EventManager(FilteredQueryList):
                 time_range=self.time_range,
                 start_time=self.start_time,
                 end_time=self.end_time,
-                #order=self.order, TODO support order
+                order_direction=self.order_direction,
+                order_field=self.order_field,
                 fields=format_fields_for_query(self.fields),
                 filters=self.filters,
                 limit=self.limit,
-                offset=0, #TODO remove old ref that is useless
+                offset=0,
                 includeTotal=False
                 )
 
@@ -1129,8 +1129,9 @@ and update dict values accordingly.</p>
 </dd>
 <dt id="msiempy.event.Event.FIELDS_TABLES"><code class="name">var <span class="ident">FIELDS_TABLES</span></code></dt>
 <dd>
-<section class="desc"><p>list() -&gt; new empty list
-list(iterable) -&gt; new list initialized from iterable's items</p></section>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -1422,16 +1423,15 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 
         self.requests_size=self.limit
 
-        if isinstance(order, list): #if a list is passed for the prder, will replace the whole param supposed in correct SIEM format
-            self._order=order
+        if order:
+            try:
+                self.order_direction = order[0]
+                self.order_field = order[1]
+            except IndexError:
+                raise ValueError(&#39;Order must be tuple (direction, field).&#39;)
         else:
-            self._order=[{
-                &#34;direction&#34;: &#39;DESCENDING&#39;,
-                &#34;field&#34;: {
-                    &#34;name&#34;: &#39;LastTime&#39;
-                    }
-                }]
-            self.order=order #if a tuple is passed , will set the first order according to (direction, fields)
+            self.order_direction = &#39;DESCENDING&#39;
+            self.order_field = &#39;LastTime&#39;
 
         #TODO : find a solution not to use this
         #callign super().filters=filters #https://bugs.python.org/issue14965
@@ -1553,11 +1553,12 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
                 time_range=self.time_range,
                 start_time=self.start_time,
                 end_time=self.end_time,
-                #order=self.order, TODO support order
+                order_direction=self.order_direction,
+                order_field=self.order_field,
                 fields=format_fields_for_query(self.fields),
                 filters=self.filters,
                 limit=self.limit,
-                offset=0, #TODO remove old ref that is useless
+                offset=0,
                 includeTotal=False
                 )
 
@@ -1757,8 +1758,9 @@ errors defaults to 'strict'.</p></section>
 </dd>
 <dt id="msiempy.event.EventManager.POSSBILE_ROW_ORDER"><code class="name">var <span class="ident">POSSBILE_ROW_ORDER</span></code></dt>
 <dd>
-<section class="desc"><p>list() -&gt; new empty list
-list(iterable) -&gt; new list initialized from iterable's items</p></section>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
 </dd>
 <dt id="msiempy.event.EventManager.TYPE"><code class="name">var <span class="ident">TYPE</span></code></dt>
 <dd>
@@ -2035,11 +2037,12 @@ Concrete helper method to execute the query and load the data :
             time_range=self.time_range,
             start_time=self.start_time,
             end_time=self.end_time,
-            #order=self.order, TODO support order
+            order_direction=self.order_direction,
+            order_field=self.order_field,
             fields=format_fields_for_query(self.fields),
             filters=self.filters,
             limit=self.limit,
-            offset=0, #TODO remove old ref that is useless
+            offset=0,
             includeTotal=False
             )
 

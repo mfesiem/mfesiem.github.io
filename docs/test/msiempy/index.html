@@ -620,10 +620,10 @@ Example:
 Important note : 
     Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
-Content :
-    %(content)s
-    &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=4).replace(&#39;\n&#39;,&#34;&#34;&#34;  
-&#34;&#34;&#34;)[:500]+&#34;&#34;&#34; [...] and more...
+    Content :
+        %(content)s
+        &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=4).replace(&#39;\n&#39;,&#34;&#34;&#34;  
+    &#34;&#34;&#34;)[:500]+&#34;&#34;&#34; [...] and more...
 
     See : https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266
     &#34;&#34;&#34;)
@@ -3944,10 +3944,10 @@ Example:
 Important note : 
     Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
-Content :
-    %(content)s
-    &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=4).replace(&#39;\n&#39;,&#34;&#34;&#34;  
-&#34;&#34;&#34;)[:500]+&#34;&#34;&#34; [...] and more...
+    Content :
+        %(content)s
+        &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=4).replace(&#39;\n&#39;,&#34;&#34;&#34;  
+    &#34;&#34;&#34;)[:500]+&#34;&#34;&#34; [...] and more...
 
     See : https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266
     &#34;&#34;&#34;)
@@ -4360,24 +4360,17 @@ interpolated as documented in the Attributes.</p>
 <p><code>method, params = PARAMS.get("login").format(username, password)</code>. See : <a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"><code>NitroSession.request()</code></a><br>
 Important note :
 Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
-<p>Content :
-{<br>
-"login": [<br>
-"login",<br>
-"{"username": "%(username)s",\n
-"password" : "%(password)s",\n
-"locale": "en_US",\n
-"os": "Win32"}\n
-"<br>
-],<br>
-"get_devtree": [<br>
-"GRP_GETVIRTUALGROUPIPSLISTDATA",<br>
-"{"ITEMS": "#{DC1 + DC2}",\n
-"DID": "1",\n
-"HD": "F",\n
-"NS": "0"}\n
-[&hellip;] and more&hellip;</p>
-<pre><code>See : &lt;https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266&gt;
+<pre><code>Content :
+    {  
+    "login": [  
+        "login",  
+        "{\"username\": \"%(username)s\",\n                    \"password\" : \"%(password)s\",\n                    \"locale\": \"en_US\",\n                    \"os\": \"Win32\"}\n                    "  
+    ],  
+    "get_devtree": [  
+        "GRP_GETVIRTUALGROUPIPSLISTDATA",  
+        "{\"ITEMS\": \"#{DC1 + DC2}\",\n                            \"DID\": \"1\",\n                            \"HD\": \"F\",\n                       [...] and more...
+
+See : &lt;https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266&gt;
 </code></pre></section>
 </dd>
 <dt id="msiempy.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>

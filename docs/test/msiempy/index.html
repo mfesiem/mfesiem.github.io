@@ -20,35 +20,34 @@
 <h1 class="title">Module <code>msiempy</code></h1>
 </header>
 <section id="section-intro">
-<h1 id="welcome-to-the-msiempy-module-documentation-the-pythonic-way-to-deal-with-mcafee-siem-api">Welcome to the <strong>msiempy</strong> module documentation. The pythonic way to deal with McAfee SIEM API.</h1>
+<p>Welcome to the <strong>msiempy</strong> module documentation. The pythonic way to deal with McAfee SIEM API.
+</p>
 <p>GitHub : <a href="https://github.com/mfesiem/msiempy">https://github.com/mfesiem/msiempy</a>
 </p>
 <p>Classes listed in this module are base to other classes in sub-modules that offers specialized objects and functions.
 </p>
 <p>This API offers two main types of objects to interact with the SIEM : <a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a>, <a title="msiempy.NitroDict" href="#msiempy.NitroDict"><code>NitroDict</code></a>.
-<a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a>s have default behaviours related to parallel execution, string representation generation and search feature.
+<a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a> have default behaviours related to parallel execution, string representation generation and search feature.
 Whereas <a title="msiempy.NitroDict" href="#msiempy.NitroDict"><code>NitroDict</code></a> that doesn't have any specific behaviours. Both inheriths from <a title="msiempy.NitroObject" href="#msiempy.NitroObject"><code>NitroObject</code></a> that handle a reference to a single <a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> object.
 </p>
 <p><a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> is the point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
 It uses <a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroConfig</code></a> to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
 </p>
 <p>Class diagram : <a href="https://mfesiem.github.io/docs/msiempy/classes.png">https://mfesiem.github.io/docs/msiempy/classes.png</a><br>
-Packages : <a href="https://mfesiem.github.io/docs/msiempy/packages.png">https://mfesiem.github.io/docs/msiempy/packages.png</a>
-</p>
-<p>Only working with SIEM version &gt;=11.2.1 (and maybe &gt;=10.4.1)</p>
+Packages : <a href="https://mfesiem.github.io/docs/msiempy/packages.png">https://mfesiem.github.io/docs/msiempy/packages.png</a></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
-&#34;&#34;&#34;# Welcome to the **msiempy** module documentation. The pythonic way to deal with McAfee SIEM API.  
+&#34;&#34;&#34;Welcome to the **msiempy** module documentation. The pythonic way to deal with McAfee SIEM API.  
 
 GitHub : https://github.com/mfesiem/msiempy  
 
 Classes listed in this module are base to other classes in sub-modules that offers specialized objects and functions.  
 
 This API offers two main types of objects to interact with the SIEM : `msiempy.NitroList`, `msiempy.NitroDict`. 
-`msiempy.NitroList`s have default behaviours related to parallel execution, string representation generation and search feature.
+`msiempy.NitroList` have default behaviours related to parallel execution, string representation generation and search feature.
 Whereas `msiempy.NitroDict` that doesn&#39;t have any specific behaviours. Both inheriths from `msiempy.NitroObject` that handle a reference to a single `msiempy.NitroSession` object.  
 
 `msiempy.NitroSession` is the point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
@@ -56,8 +55,6 @@ It uses `msiempy.NitroConfig` to setup authentication, other configuration like 
 
 Class diagram : https://mfesiem.github.io/docs/msiempy/classes.png  
 Packages : https://mfesiem.github.io/docs/msiempy/packages.png  
-
-Only working with SIEM version &gt;=11.2.1 (and maybe &gt;=10.4.1)
 &#34;&#34;&#34;
 
 import logging
@@ -618,7 +615,7 @@ class NitroSession():
         interpolated as documented in the Attributes.
 
     Example:
-        `method, params = PARAMS.get(&#34;login&#34;).format(username, password)`. See : `msiempy.NitroSession.request`
+        `method, params = PARAMS.get(&#34;login&#34;).format(username, password)`. See : `msiempy.NitroSession.request`  
 
     Important note : 
         Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
@@ -626,7 +623,8 @@ class NitroSession():
     Content :
         %(content)s
         &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=4).replace(&#39;\n&#39;,&#34;&#34;&#34;  
-    &#34;&#34;&#34;)[:130]+&#34;&#34;&#34; [...] and more..  
+    &#34;&#34;&#34;)[:130]+&#34;&#34;&#34; [...] and more...
+
     See : https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266
     &#34;&#34;&#34;)
         
@@ -1322,9 +1320,12 @@ class NitroList(collections.UserList, NitroObject):
         - `asynch`: execute the task asynchronously with `msiempy.NitroSession` executor.
         - `workers`: mandatory if asynch is true.
         - `progress`: to show progress bar with ETA (tqdm).
-        - `message` : To show to the user.
+        - `message` : To show to the user.  
 
-        Returns a list of returned results
+
+
+
+        Returns a list of returned results.
         &#34;&#34;&#34;
 
         log.debug(&#39;Calling perform func=&#39;+str(func)+
@@ -2943,9 +2944,12 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
         - `asynch`: execute the task asynchronously with `msiempy.NitroSession` executor.
         - `workers`: mandatory if asynch is true.
         - `progress`: to show progress bar with ETA (tqdm).
-        - `message` : To show to the user.
+        - `message` : To show to the user.  
 
-        Returns a list of returned results
+
+
+
+        Returns a list of returned results.
         &#34;&#34;&#34;
 
         log.debug(&#39;Calling perform func=&#39;+str(func)+
@@ -3224,9 +3228,10 @@ Will execute the callable the list.</p>
 <li><code>asynch</code>: execute the task asynchronously with <a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> executor.</li>
 <li><code>workers</code>: mandatory if asynch is true.</li>
 <li><code>progress</code>: to show progress bar with ETA (tqdm).</li>
-<li><code>message</code> : To show to the user.</li>
+<li><code>message</code> : To show to the user.
+</li>
 </ul>
-<p>Returns a list of returned results</p></section>
+<p>Returns a list of returned results.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3245,9 +3250,12 @@ Will execute the callable the list.</p>
     - `asynch`: execute the task asynchronously with `msiempy.NitroSession` executor.
     - `workers`: mandatory if asynch is true.
     - `progress`: to show progress bar with ETA (tqdm).
-    - `message` : To show to the user.
+    - `message` : To show to the user.  
 
-    Returns a list of returned results
+
+
+
+    Returns a list of returned results.
     &#34;&#34;&#34;
 
     log.debug(&#39;Calling perform func=&#39;+str(func)+
@@ -3931,7 +3939,7 @@ Use logout() to reinstanciate NitroSession.
         interpolated as documented in the Attributes.
 
     Example:
-        `method, params = PARAMS.get(&#34;login&#34;).format(username, password)`. See : `msiempy.NitroSession.request`
+        `method, params = PARAMS.get(&#34;login&#34;).format(username, password)`. See : `msiempy.NitroSession.request`  
 
     Important note : 
         Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
@@ -3939,7 +3947,8 @@ Use logout() to reinstanciate NitroSession.
     Content :
         %(content)s
         &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=4).replace(&#39;\n&#39;,&#34;&#34;&#34;  
-    &#34;&#34;&#34;)[:130]+&#34;&#34;&#34; [...] and more..  
+    &#34;&#34;&#34;)[:130]+&#34;&#34;&#34; [...] and more...
+
     See : https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266
     &#34;&#34;&#34;)
         
@@ -4348,17 +4357,17 @@ the URI or passed to the ESM. The second string is the params
 required for that method. Some params require variables be
 interpolated as documented in the Attributes.</p>
 <h2 id="example">Example</h2>
-<p><code>method, params = PARAMS.get("login").format(username, password)</code>. See : <a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"><code>NitroSession.request()</code></a>
+<p><code>method, params = PARAMS.get("login").format(username, password)</code>. See : <a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"><code>NitroSession.request()</code></a><br>
 Important note :
 Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
-<dl>
-<dt>Content :</dt>
-<dt>{</dt>
-<dt>"login": [</dt>
-<dt>"login",</dt>
-<dt>"{"username": "%(username)s",\n
+<p>Content :
+{<br>
+"login": [<br>
+"login",<br>
+"{"username": "%(username)s",\n
 "password" :
-[&hellip;] and more..</dt>
+[&hellip;] and more&hellip;</p>
+<dl>
 <dt><strong><code>See</code></strong> :&ensp;&lt;<code>https</code>://<code>github.com</code>/<code>mfesiem</code>/<a title="msiempy" href="#msiempy"><code>msiempy</code></a>/<code>blob</code>/<code>master</code>/<a title="msiempy" href="#msiempy"><code>msiempy</code></a>/<code>__init__.py</code>#<code>L266</code>&gt;</dt>
 <dd>&nbsp;</dd>
 </dl></section>
@@ -4844,9 +4853,7 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
 <nav id="sidebar">
 <h1>Index</h1>
 <div class="toc">
-<ul>
-<li><a href="#welcome-to-the-msiempy-module-documentation-the-pythonic-way-to-deal-with-mcafee-siem-api">Welcome to the msiempy module documentation. The pythonic way to deal with McAfee SIEM API.</a></li>
-</ul>
+<ul></ul>
 </div>
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>

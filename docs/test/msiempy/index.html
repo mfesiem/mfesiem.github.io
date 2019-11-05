@@ -602,23 +602,23 @@ class NitroSession():
             &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
     }
     __pdoc__[&#39;NitroSession.PARAMS&#39;] = &#34;&#34;&#34;This structure provide a central place to aggregate API methods and parameters.  
-The parameters are stored as docstrings to support string replacement.  
+    The parameters are stored as docstrings to support string replacement.  
 
-Args:  
-    method (str): Dict key associated with desired function
-    Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
+    Args:  
+        - `method` (str): Dict key associated with desired function
+        Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
 
-Returns:  
-    - `tuple `: (string, string) : The first string is the method name that is actually used as
-    the URI or passed to the ESM. The second string is the params
-    required for that method. Some params require variables be
-    interpolated as documented in the Attributes.
+    Returns:  
+        - `tuple `: (string, string) : The first string is the method name that is actually used as
+        the URI or passed to the ESM. The second string is the params
+        required for that method. Some params require variables be
+        interpolated as documented in the Attributes.
 
-Example:
-    `method, params = PARAMS.get(&#34;login&#34;).format(username, password)`. See : `msiempy.NitroSession.request`  
+    Example:
+        `method, params = PARAMS.get(&#34;login&#34;).format(username, password)`. See : `msiempy.NitroSession.request`  
 
-Important note : 
-    Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
+    Important note : 
+        Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
     Content :
         %(content)s
@@ -1308,22 +1308,34 @@ class NitroList(collections.UserList, NitroObject):
 
     def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
         &#34;&#34;&#34;
-        Wrapper arround executable and the data list of `msiempy.NitroList` object.
-        Will execute the callable the list.
+        Wrapper arround executable and the a list of elements, typically `msiempy.NitroList` object.  
 
         Parameters:  
         
-        - `func`: callable stateless function. func is going to be called like `func(item, **func_args)` on all items in data.
-        - `data`: if stays None, will perform the action on all rows, else it will perfom the action on the data list.
-        - `func_args`: dict that will be passed by default to func in all calls.
+        - `func`: callable function. `func` is going to be called like `func(item, **func_args)` on all items in data.  This function can be stateless (static) or statefull (first argument is `self`),
+        it doesn&#39;t really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
+        set/delete/change any global variable, as a result, you&#39;ll see your varible beeing potentially corrupted or chalenged with conccurent accesses.
+        - `data`: if stays `None`, will perform the action on all list&#39;s rows (aka `self.data`), else it will perfom the action on the `data` list.
+        - `func_args`: arguments that will be passed by default to `func` in all calls.
         - `confirm`: will ask interactively confirmation.
-        - `asynch`: execute the task asynchronously with `msiempy.NitroSession` executor.
-        - `workers`: mandatory if asynch is true.
+        - `asynch`: execute the task asynchronously with `concurrent.futures.ThreadPoolExecutor`. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
+        it will be a mess.
+        - `workers`: number of parrallel tasks, mandatory if asynch is true.
         - `progress`: to show progress bar with ETA (tqdm).
         - `message` : To show to the user.  
 
-
-
+        This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.  
+        Basically, if `asynch=True`, will return :  
+            ```
+            returned=list(concurrent.futures.ThreadPoolExecutor(
+                        max_workers=workers ).map(
+                            func, data))
+            ```  
+        if `asynch=False`, will iterate and return :
+            ```
+            for index_or_item in data:
+                returned.append(func(index_or_item))
+            ```  
 
         Returns a list of returned results.
         &#34;&#34;&#34;
@@ -1896,7 +1908,6 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.Filt
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="msiempy.event.InDepthQueryList" href="event.html#msiempy.event.InDepthQueryList">InDepthQueryList</a></li>
 <li><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></li>
 <li><a title="msiempy.alarm.AlarmManager" href="alarm.html#msiempy.alarm.AlarmManager">AlarmManager</a></li>
 </ul>
@@ -2932,22 +2943,34 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
 
     def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
         &#34;&#34;&#34;
-        Wrapper arround executable and the data list of `msiempy.NitroList` object.
-        Will execute the callable the list.
+        Wrapper arround executable and the a list of elements, typically `msiempy.NitroList` object.  
 
         Parameters:  
         
-        - `func`: callable stateless function. func is going to be called like `func(item, **func_args)` on all items in data.
-        - `data`: if stays None, will perform the action on all rows, else it will perfom the action on the data list.
-        - `func_args`: dict that will be passed by default to func in all calls.
+        - `func`: callable function. `func` is going to be called like `func(item, **func_args)` on all items in data.  This function can be stateless (static) or statefull (first argument is `self`),
+        it doesn&#39;t really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
+        set/delete/change any global variable, as a result, you&#39;ll see your varible beeing potentially corrupted or chalenged with conccurent accesses.
+        - `data`: if stays `None`, will perform the action on all list&#39;s rows (aka `self.data`), else it will perfom the action on the `data` list.
+        - `func_args`: arguments that will be passed by default to `func` in all calls.
         - `confirm`: will ask interactively confirmation.
-        - `asynch`: execute the task asynchronously with `msiempy.NitroSession` executor.
-        - `workers`: mandatory if asynch is true.
+        - `asynch`: execute the task asynchronously with `concurrent.futures.ThreadPoolExecutor`. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
+        it will be a mess.
+        - `workers`: number of parrallel tasks, mandatory if asynch is true.
         - `progress`: to show progress bar with ETA (tqdm).
         - `message` : To show to the user.  
 
-
-
+        This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.  
+        Basically, if `asynch=True`, will return :  
+            ```
+            returned=list(concurrent.futures.ThreadPoolExecutor(
+                        max_workers=workers ).map(
+                            func, data))
+            ```  
+        if `asynch=False`, will iterate and return :
+            ```
+            for index_or_item in data:
+                returned.append(func(index_or_item))
+            ```  
 
         Returns a list of returned results.
         &#34;&#34;&#34;
@@ -3216,21 +3239,34 @@ csv: Returns data with header and comma separated values. </p>
 <span>def <span class="ident">perform</span></span>(<span>self, func, data=None, func_args=None, confirm=False, asynch=False, workers=None, progress=False, message=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Wrapper arround executable and the data list of <a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a> object.
-Will execute the callable the list.</p>
+<section class="desc"><p>Wrapper arround executable and the a list of elements, typically <a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a> object.
+</p>
 <p>Parameters:
 </p>
 <ul>
-<li><code>func</code>: callable stateless function. func is going to be called like <code>func(item, **func_args)</code> on all items in data.</li>
-<li><code>data</code>: if stays None, will perform the action on all rows, else it will perfom the action on the data list.</li>
-<li><code>func_args</code>: dict that will be passed by default to func in all calls.</li>
+<li><code>func</code>: callable function. <code>func</code> is going to be called like <code>func(item, **func_args)</code> on all items in data.
+This function can be stateless (static) or statefull (first argument is <code>self</code>),
+it doesn't really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
+set/delete/change any global variable, as a result, you'll see your varible beeing potentially corrupted or chalenged with conccurent accesses.</li>
+<li><code>data</code>: if stays <code>None</code>, will perform the action on all list's rows (aka <code>self.data</code>), else it will perfom the action on the <code>data</code> list.</li>
+<li><code>func_args</code>: arguments that will be passed by default to <code>func</code> in all calls.</li>
 <li><code>confirm</code>: will ask interactively confirmation.</li>
-<li><code>asynch</code>: execute the task asynchronously with <a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> executor.</li>
-<li><code>workers</code>: mandatory if asynch is true.</li>
+<li><code>asynch</code>: execute the task asynchronously with <code>concurrent.futures.ThreadPoolExecutor</code>. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
+it will be a mess.</li>
+<li><code>workers</code>: number of parrallel tasks, mandatory if asynch is true.</li>
 <li><code>progress</code>: to show progress bar with ETA (tqdm).</li>
 <li><code>message</code> : To show to the user.
 </li>
 </ul>
+<p>This method is where the core of asynchronous tasks resides. <code>func</code> will be executed on all <code>data</code> elements.<br>
+Basically, if <code>asynch=True</code>, will return :<br>
+<code>returned=list(concurrent.futures.ThreadPoolExecutor(
+max_workers=workers ).map(
+func, data))</code><br>
+if <code>asynch=False</code>, will iterate and return :
+<code>for index_or_item in data:
+returned.append(func(index_or_item))</code>
+</p>
 <p>Returns a list of returned results.</p></section>
 <details class="source">
 <summary>
@@ -3238,22 +3274,34 @@ Will execute the callable the list.</p>
 </summary>
 <pre><code class="python">def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
     &#34;&#34;&#34;
-    Wrapper arround executable and the data list of `msiempy.NitroList` object.
-    Will execute the callable the list.
+    Wrapper arround executable and the a list of elements, typically `msiempy.NitroList` object.  
 
     Parameters:  
     
-    - `func`: callable stateless function. func is going to be called like `func(item, **func_args)` on all items in data.
-    - `data`: if stays None, will perform the action on all rows, else it will perfom the action on the data list.
-    - `func_args`: dict that will be passed by default to func in all calls.
+    - `func`: callable function. `func` is going to be called like `func(item, **func_args)` on all items in data.  This function can be stateless (static) or statefull (first argument is `self`),
+    it doesn&#39;t really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
+    set/delete/change any global variable, as a result, you&#39;ll see your varible beeing potentially corrupted or chalenged with conccurent accesses.
+    - `data`: if stays `None`, will perform the action on all list&#39;s rows (aka `self.data`), else it will perfom the action on the `data` list.
+    - `func_args`: arguments that will be passed by default to `func` in all calls.
     - `confirm`: will ask interactively confirmation.
-    - `asynch`: execute the task asynchronously with `msiempy.NitroSession` executor.
-    - `workers`: mandatory if asynch is true.
+    - `asynch`: execute the task asynchronously with `concurrent.futures.ThreadPoolExecutor`. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
+    it will be a mess.
+    - `workers`: number of parrallel tasks, mandatory if asynch is true.
     - `progress`: to show progress bar with ETA (tqdm).
     - `message` : To show to the user.  
 
-
-
+    This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.  
+    Basically, if `asynch=True`, will return :  
+        ```
+        returned=list(concurrent.futures.ThreadPoolExecutor(
+                    max_workers=workers ).map(
+                        func, data))
+        ```  
+    if `asynch=False`, will iterate and return :
+        ```
+        for index_or_item in data:
+            returned.append(func(index_or_item))
+        ```  
 
     Returns a list of returned results.
     &#34;&#34;&#34;
@@ -3926,23 +3974,23 @@ Use logout() to reinstanciate NitroSession.
             &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
     }
     __pdoc__[&#39;NitroSession.PARAMS&#39;] = &#34;&#34;&#34;This structure provide a central place to aggregate API methods and parameters.  
-The parameters are stored as docstrings to support string replacement.  
+    The parameters are stored as docstrings to support string replacement.  
 
-Args:  
-    method (str): Dict key associated with desired function
-    Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
+    Args:  
+        - `method` (str): Dict key associated with desired function
+        Use normal dict access, PARAMS[&#34;method&#34;], or PARAMS.get(&#34;method&#34;)
 
-Returns:  
-    - `tuple `: (string, string) : The first string is the method name that is actually used as
-    the URI or passed to the ESM. The second string is the params
-    required for that method. Some params require variables be
-    interpolated as documented in the Attributes.
+    Returns:  
+        - `tuple `: (string, string) : The first string is the method name that is actually used as
+        the URI or passed to the ESM. The second string is the params
+        required for that method. Some params require variables be
+        interpolated as documented in the Attributes.
 
-Example:
-    `method, params = PARAMS.get(&#34;login&#34;).format(username, password)`. See : `msiempy.NitroSession.request`  
+    Example:
+        `method, params = PARAMS.get(&#34;login&#34;).format(username, password)`. See : `msiempy.NitroSession.request`  
 
-Important note : 
-    Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
+    Important note : 
+        Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
     Content :
         %(content)s
@@ -4349,7 +4397,7 @@ Important note :
 The parameters are stored as docstrings to support string replacement.
 </p>
 <p>Args:<br>
-method (str): Dict key associated with desired function
+- <code>method</code> (str): Dict key associated with desired function
 Use normal dict access, PARAMS["method"], or PARAMS.get("method")</p>
 <p>Returns:<br>
 - <code>tuple</code>: (string, string) : The first string is the method name that is actually used as
@@ -4360,18 +4408,26 @@ interpolated as documented in the Attributes.</p>
 <p><code>method, params = PARAMS.get("login").format(username, password)</code>. See : <a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"><code>NitroSession.request()</code></a><br>
 Important note :
 Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
-<pre><code>Content :
-    {  
-    "login": [  
-        "login",  
-        "{\"username\": \"%(username)s\",\n                    \"password\" : \"%(password)s\",\n                    \"locale\": \"en_US\",\n                    \"os\": \"Win32\"}\n                    "  
-    ],  
-    "get_devtree": [  
-        "GRP_GETVIRTUALGROUPIPSLISTDATA",  
-        "{\"ITEMS\": \"#{DC1 + DC2}\",\n                            \"DID\": \"1\",\n                            \"HD\": \"F\",\n                       [...] and more...
-
-See : &lt;https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266&gt;
-</code></pre></section>
+<p>Content :
+{<br>
+"login": [<br>
+"login",<br>
+"{"username": "%(username)s",\n
+"password" : "%(password)s",\n
+"locale": "en_US",\n
+"os": "Win32"}\n
+"<br>
+],<br>
+"get_devtree": [<br>
+"GRP_GETVIRTUALGROUPIPSLISTDATA",<br>
+"{"ITEMS": "#{DC1 + DC2}",\n
+"DID": "1",\n
+"HD": "F",\n
+[&hellip;] and more&hellip;</p>
+<dl>
+<dt><strong><code>See</code></strong> :&ensp;&lt;<code>https</code>://<code>github.com</code>/<code>mfesiem</code>/<a title="msiempy" href="#msiempy"><code>msiempy</code></a>/<code>blob</code>/<code>master</code>/<a title="msiempy" href="#msiempy"><code>msiempy</code></a>/<code>__init__.py</code>#<code>L266</code>&gt;</dt>
+<dd>&nbsp;</dd>
+</dl></section>
 </dd>
 <dt id="msiempy.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>

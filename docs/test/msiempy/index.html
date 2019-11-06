@@ -24,17 +24,10 @@
 </p>
 <p>GitHub : <a href="https://github.com/mfesiem/msiempy">https://github.com/mfesiem/msiempy</a>
 </p>
-<p>Classes listed in this module are base to other classes in sub-modules that offers specialized objects and functions.
-</p>
-<p>This API offers two main types of objects to interact with the SIEM : <a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a>, <a title="msiempy.NitroDict" href="#msiempy.NitroDict"><code>NitroDict</code></a>.
-<a title="msiempy.NitroList" href="#msiempy.NitroList"><code>NitroList</code></a> have default behaviours related to parallel execution, string representation generation and search feature.
-Whereas <a title="msiempy.NitroDict" href="#msiempy.NitroDict"><code>NitroDict</code></a> that doesn't have any specific behaviours. Both inheriths from <a title="msiempy.NitroObject" href="#msiempy.NitroObject"><code>NitroObject</code></a> that handle a reference to a single <a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> object.
-</p>
-<p><a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> is the point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
-It uses <a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroConfig</code></a> to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
+<p>Classes listed in this module are base to other classes in sub-modules that offers concrete objects and functions.
 </p>
 <p>Class diagram : <a href="https://mfesiem.github.io/docs/msiempy/classes.png">https://mfesiem.github.io/docs/msiempy/classes.png</a><br>
-Packages : <a href="https://mfesiem.github.io/docs/msiempy/packages.png">https://mfesiem.github.io/docs/msiempy/packages.png</a></p>
+Packages diagram : <a href="https://mfesiem.github.io/docs/msiempy/packages.png">https://mfesiem.github.io/docs/msiempy/packages.png</a></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -44,17 +37,10 @@ Packages : <a href="https://mfesiem.github.io/docs/msiempy/packages.png">https:/
 
 GitHub : https://github.com/mfesiem/msiempy  
 
-Classes listed in this module are base to other classes in sub-modules that offers specialized objects and functions.  
-
-This API offers two main types of objects to interact with the SIEM : `msiempy.NitroList`, `msiempy.NitroDict`. 
-`msiempy.NitroList` have default behaviours related to parallel execution, string representation generation and search feature.
-Whereas `msiempy.NitroDict` that doesn&#39;t have any specific behaviours. Both inheriths from `msiempy.NitroObject` that handle a reference to a single `msiempy.NitroSession` object.  
-
-`msiempy.NitroSession` is the point of convergence of every request to the McFee ESM It provides standard dialogue with the esm.
-It uses `msiempy.NitroConfig` to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.  
+Classes listed in this module are base to other classes in sub-modules that offers concrete objects and functions.  
 
 Class diagram : https://mfesiem.github.io/docs/msiempy/classes.png  
-Packages : https://mfesiem.github.io/docs/msiempy/packages.png  
+Packages diagram : https://mfesiem.github.io/docs/msiempy/packages.png  
 &#34;&#34;&#34;
 
 import logging
@@ -281,10 +267,12 @@ class NitroConfig(configparser.ConfigParser):
         return(conf_path)
 
 class NitroSession():
-    &#39;&#39;&#39;NitroSession object represent the point of convergence of every request to the McFee ESM
-    It provides standard dialogue with the esm with agument interpolation with `msiempy.NitroSession.PARAMS`.
-    Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once. 
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
+    `msiempy.NitroSession` is the point of convergence of every request to the McAfee ESM.  
+    It provides standard dialogue with the ESM by doing agument interpolation with `msiempy.NitroSession.PARAMS`.  
+    Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once.  
+    It uses `msiempy.NitroConfig` to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
+    &#34;&#34;&#34;
 
     BASE_URL = &#39;https://{}/rs/esm/&#39;
     __pdoc__[&#39;NitroSession.BASE_URL&#39;]=&#34;&#34;&#34;API v2 base url: `%(url)s`&#34;&#34;&#34; % dict(url=BASE_URL)
@@ -3675,9 +3663,10 @@ def refresh(self):
 <span>(</span><span>conf_path=None, conf_dict=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>NitroSession object represent the point of convergence of every request to the McFee ESM
-It provides standard dialogue with the esm with agument interpolation with <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a>.
-Internal <code>__dict__</code> refers to a unique instance of dict and thus, properties can be instanciated only once. </p>
+<section class="desc"><p><a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> is the point of convergence of every request to the McAfee ESM.<br>
+It provides standard dialogue with the ESM by doing agument interpolation with <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a>.<br>
+Internal <code>__dict__</code> refers to a unique instance of dict and thus, properties can be instanciated only once.<br>
+It uses <a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroConfig</code></a> to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.</p>
 <p>The init method is called every time you call NitroSession() constructor.
 But the properties are actually initiated only once.
 Use logout() to reinstanciate NitroSession.
@@ -3694,10 +3683,12 @@ Use logout() to reinstanciate NitroSession.
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class NitroSession():
-    &#39;&#39;&#39;NitroSession object represent the point of convergence of every request to the McFee ESM
-    It provides standard dialogue with the esm with agument interpolation with `msiempy.NitroSession.PARAMS`.
-    Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once. 
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
+    `msiempy.NitroSession` is the point of convergence of every request to the McAfee ESM.  
+    It provides standard dialogue with the ESM by doing agument interpolation with `msiempy.NitroSession.PARAMS`.  
+    Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once.  
+    It uses `msiempy.NitroConfig` to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
+    &#34;&#34;&#34;
 
     BASE_URL = &#39;https://{}/rs/esm/&#39;
     __pdoc__[&#39;NitroSession.BASE_URL&#39;]=&#34;&#34;&#34;API v2 base url: `%(url)s`&#34;&#34;&#34; % dict(url=BASE_URL)

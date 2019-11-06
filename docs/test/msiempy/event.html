@@ -806,352 +806,6 @@ class FieldFilter(QueryFilter):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="msiempy.event.Event"><code class="flex name class">
-<span>class <span class="ident">Event</span></span>
-<span>(</span><span>adict=None, id=None)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Default event field keys :<br>
-- <code>Rule.msg</code><br>
-- <code>Alert.LastTime</code><br>
-- <code>Alert.IPSIDAlertID</code>
-</p>
-<p>You can request more fields by passing a list of fields to the <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a> object.
-<a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS"><code>Event.REGULAR_EVENT_FIELDS</code></a> offer a base list of regular fields that may be useful.
-See msiempy/static JSON files to browse complete list : <a href="https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json">https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json</a><br>
-Prefixes 'Alert.', 'Rule.', etc are optionnal, prefix autocompletion is computed in any case ;)</p>
-<p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
-and update dict values accordingly.</p>
-<p>Parameters:
-</p>
-<ul>
-<li><code>adict</code>: dict object to wrap.
-</li>
-<li><code>id</code>: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.</li>
-</ul></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Event(NitroDict):
-
-    &#34;&#34;&#34;        
-    Default event field keys :  
-    - `Rule.msg`  
-    - `Alert.LastTime`  
-    - `Alert.IPSIDAlertID`  
-    
-    You can request more fields by passing a list of fields to the `msiempy.event.EventManager` object. 
-    `msiempy.event.Event.REGULAR_EVENT_FIELDS` offer a base list of regular fields that may be useful.
-    See msiempy/static JSON files to browse complete list : https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json  
-    Prefixes &#39;Alert.&#39;, &#39;Rule.&#39;, etc are optionnal, prefix autocompletion is computed in any case ;)
-
-    &#34;&#34;&#34;
-   
-    FIELDS_TABLES=[&#34;ADGroup&#34;,
-        &#34;Action&#34;,
-        &#34;Alert&#34;,
-        &#34;Asset&#34;,
-        &#34;AssetGroup&#34;,
-        &#34;AssetThreat&#34;,
-        &#34;CaseMgt&#34;,
-        &#34;CaseOrg&#34;,
-        &#34;CaseStatus&#34;,
-        &#34;Class&#34;,
-        &#34;Connection&#34;,
-        &#34;DataEnrichment&#34;,
-        &#34;GeoLoc_ASNGeoDst&#34;,
-        &#34;GeoLoc_ASNGeoSrc&#34;,
-        &#34;IOC&#34;,
-        &#34;IPS&#34;,
-        &#34;IPSCheck&#34;,
-        &#34;NDDeviceInterface_NDDevIFDst&#34;,
-        &#34;NDDeviceInterface_NDDevIFSrc&#34;,
-        &#34;NDDevice_NDDevIDDst&#34;,
-        &#34;NDDevice_NDDevIDSrc&#34;,
-        &#34;OS&#34;,
-        &#34;Rule&#34;,
-        &#34;Rule_NDSNormSigID&#34;,
-        &#34;Tag&#34;,
-        &#34;TagAsset&#34;,
-        &#34;ThirdPartyType&#34;,
-        &#34;Threat&#34;,
-        &#34;ThreatVendor&#34;,
-        &#34;TriggeredAlarm&#34;,
-        &#34;Users&#34;,
-        &#34;Vulnerability&#34;,
-        &#34;Zone_ZoneDst&#34;,
-        &#34;Zone_ZoneSrc&#34;,
-        ]
-
-    # Minimal default query fields
-    DEFAULTS_EVENT_FIELDS=[
-        &#34;Rule.msg&#34;,
-        &#34;Alert.LastTime&#34;,
-        &#34;Alert.IPSIDAlertID&#34;]
-
-    # Regular query fields
-    REGULAR_EVENT_FIELDS=[
-        &#34;Rule.msg&#34;,
-        &#34;Alert.SrcIP&#34;,
-        &#34;Alert.DstIP&#34;, 
-        &#34;Alert.SrcMac&#34;,
-        &#34;Alert.DstMac&#34;,
-        &#34;Rule.NormID&#34;,
-        &#34;HostID&#34;,
-        &#34;UserIDSrc&#34;,
-        &#34;ObjectID&#34;,
-        &#34;Alert.Severity&#34;,
-        &#34;Alert.LastTime&#34;,
-        &#34;Alert.DSIDSigID&#34;,
-        &#34;Alert.IPSIDAlertID&#34;]
-
-    def __getitem__(self, key):
-        &#34;&#34;&#34;
-        Automatically adding the table name of the field by iterating trought FIELDS_TABLES
-        if no &#39;.&#39; is present in the key
-        &#34;&#34;&#34;
-        try :
-            return collections.UserDict.__getitem__(self, key)
-        except (AttributeError, KeyError) : pass
-
-        if &#39;.&#39; not in key :
-            for table in self.FIELDS_TABLES :
-                try :
-                    return collections.UserDict.__getitem__(self, table+&#39;.&#39;+key)
-                except (AttributeError, KeyError) : pass
-        try :
-            return collections.UserDict.__getitem__(self, key)
-        except (AttributeError, KeyError) : 
-            if key in self.DEFAULTS_EVENT_FIELDS :
-                log.error(&#39;Some default event fields are missing from SIEM reponse.&#39;)
-                return &#39;missing&#39;
-            else:
-                log.error(&#39;The SIEM dict keys are not always the same are the requested fields. check .keys()&#39;)
-                #Todo : table of corespondance UserIDSrc = BIN(7) etc...
-                #Map the table to getitem
-                raise
-
-    def clear_notes(self):
-        &#34;&#34;&#34;
-        Replace the notes by an empty string. Desctructive action.
-        &#34;&#34;&#34;
-        self.set_note(&#39;&#39;, no_date=True)
-
-    def set_note(self, note, no_date=False):
-        &#34;&#34;&#34;
-        Set the event&#39;s note. Desctructive action.
-        &#34;&#34;&#34;
-        the_id = self.data[&#34;Alert.IPSIDAlertID&#34;] if &#34;Alert.IPSIDAlertID&#34; in self.data else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if &#34;alertId&#34; in self.data else None
-
-        if isinstance(the_id, str):
-
-            if len(note) &gt;= 4000:
-                log.warning(&#34;The note is longer than 4000 characters, only the&#34; 
-                            &#34;first 4000 characters will be kept. The maximum&#34; 
-                            &#34;accepted by the SIEM is 4096 characters.&#34;)
-                note=note[:4000]+&#39;\n\n--NOTE HAS BEEN TRUNCATED--&#39;
-            
-            if no_date==False:
-                timestamp = datetime.now().strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)
-                note = note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)
-                note = timestamp + &#39; - &#39; + note
-            
-            self.nitro.request(&#34;add_note_to_event_int&#34;, 
-                id=the_id,
-                note=note)
-        else :
-            log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found.&#34;)
-
-    def add_note(self, note):
-        &#34;&#34;&#34;Deprecated, please use set_note() method instead.&#34;&#34;&#34;
-        log.warning(str(DeprecationWarning())+&#34; Please use set_note() method instead.&#34;)
-        self.set_note(note)
-        
-    def data_from_id(self, id, use_query=False, extra_fields=[]):
-        &#34;&#34;&#34;
-        Load event&#39;s data.  
-
-        Parameters :   
-        - `id` : The event ID. (i.e. : `144128388087414784|747122896`)  
-        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
-        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.  
-        &#34;&#34;&#34;
-        
-        if use_query == True :
-
-            e = EventManager(time_range=&#39;CUSTOM&#39;,
-                start_time=datetime.now()-timedelta(days=365),
-                end_time=datetime.now()+timedelta(days=1),
-                filters=[(&#39;IPSIDAlertID&#39;,id)],
-                fields=extra_fields,
-                limit=2).load_data()
-
-            if len(e) == 1 :
-                return e[0]
-            else :
-                raise NitroError(&#39;Could not load event : &#39;+str(id)+&#39; from query :&#39;+str(e.__dict__)+&#39;. Try with use_query=False.&#39;)
-
-        elif use_query == False :
-            return self.nitro.request(&#39;get_alert_data&#39;, id=id)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
-<li>collections.UserDict</li>
-<li>collections.abc.MutableMapping</li>
-<li>collections.abc.Mapping</li>
-<li>collections.abc.Collection</li>
-<li>collections.abc.Sized</li>
-<li>collections.abc.Iterable</li>
-<li>collections.abc.Container</li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="msiempy.event.Event.DEFAULTS_EVENT_FIELDS"><code class="name">var <span class="ident">DEFAULTS_EVENT_FIELDS</span></code></dt>
-<dd>
-<section class="desc"><p>Built-in mutable sequence.</p>
-<p>If no argument is given, the constructor creates a new empty list.
-The argument must be an iterable if specified.</p></section>
-</dd>
-<dt id="msiempy.event.Event.FIELDS_TABLES"><code class="name">var <span class="ident">FIELDS_TABLES</span></code></dt>
-<dd>
-<section class="desc"><p>Built-in mutable sequence.</p>
-<p>If no argument is given, the constructor creates a new empty list.
-The argument must be an iterable if specified.</p></section>
-</dd>
-<dt id="msiempy.event.Event.REGULAR_EVENT_FIELDS"><code class="name">var <span class="ident">REGULAR_EVENT_FIELDS</span></code></dt>
-<dd>
-<section class="desc"><p>Built-in mutable sequence.</p>
-<p>If no argument is given, the constructor creates a new empty list.
-The argument must be an iterable if specified.</p></section>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="msiempy.event.Event.add_note"><code class="name flex">
-<span>def <span class="ident">add_note</span></span>(<span>self, note)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Deprecated, please use set_note() method instead.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def add_note(self, note):
-    &#34;&#34;&#34;Deprecated, please use set_note() method instead.&#34;&#34;&#34;
-    log.warning(str(DeprecationWarning())+&#34; Please use set_note() method instead.&#34;)
-    self.set_note(note)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.Event.clear_notes"><code class="name flex">
-<span>def <span class="ident">clear_notes</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Replace the notes by an empty string. Desctructive action.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def clear_notes(self):
-    &#34;&#34;&#34;
-    Replace the notes by an empty string. Desctructive action.
-    &#34;&#34;&#34;
-    self.set_note(&#39;&#39;, no_date=True)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.Event.data_from_id"><code class="name flex">
-<span>def <span class="ident">data_from_id</span></span>(<span>self, id, use_query=False, extra_fields=[])</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Load event's data.
-</p>
-<p>Parameters : <br>
-- <code>id</code> : The event ID. (i.e. : <code>144128388087414784|747122896</code>)<br>
-- <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.<br>
-- <code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def data_from_id(self, id, use_query=False, extra_fields=[]):
-    &#34;&#34;&#34;
-    Load event&#39;s data.  
-
-    Parameters :   
-    - `id` : The event ID. (i.e. : `144128388087414784|747122896`)  
-    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
-    - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.  
-    &#34;&#34;&#34;
-    
-    if use_query == True :
-
-        e = EventManager(time_range=&#39;CUSTOM&#39;,
-            start_time=datetime.now()-timedelta(days=365),
-            end_time=datetime.now()+timedelta(days=1),
-            filters=[(&#39;IPSIDAlertID&#39;,id)],
-            fields=extra_fields,
-            limit=2).load_data()
-
-        if len(e) == 1 :
-            return e[0]
-        else :
-            raise NitroError(&#39;Could not load event : &#39;+str(id)+&#39; from query :&#39;+str(e.__dict__)+&#39;. Try with use_query=False.&#39;)
-
-    elif use_query == False :
-        return self.nitro.request(&#39;get_alert_data&#39;, id=id)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.Event.set_note"><code class="name flex">
-<span>def <span class="ident">set_note</span></span>(<span>self, note, no_date=False)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Set the event's note. Desctructive action.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_note(self, note, no_date=False):
-    &#34;&#34;&#34;
-    Set the event&#39;s note. Desctructive action.
-    &#34;&#34;&#34;
-    the_id = self.data[&#34;Alert.IPSIDAlertID&#34;] if &#34;Alert.IPSIDAlertID&#34; in self.data else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if &#34;alertId&#34; in self.data else None
-
-    if isinstance(the_id, str):
-
-        if len(note) &gt;= 4000:
-            log.warning(&#34;The note is longer than 4000 characters, only the&#34; 
-                        &#34;first 4000 characters will be kept. The maximum&#34; 
-                        &#34;accepted by the SIEM is 4096 characters.&#34;)
-            note=note[:4000]+&#39;\n\n--NOTE HAS BEEN TRUNCATED--&#39;
-        
-        if no_date==False:
-            timestamp = datetime.now().strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)
-            note = note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)
-            note = timestamp + &#39; - &#39; + note
-        
-        self.nitro.request(&#34;add_note_to_event_int&#34;, 
-            id=the_id,
-            note=note)
-    else :
-        log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found.&#34;)</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
-<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
 <dt id="msiempy.event.EventManager"><code class="flex name class">
 <span>class <span class="ident">EventManager</span></span>
 <span>(</span><span>fields=None, order=None, limit=500, filters=None, max_query_depth=0, *args, **kwargs)</span>
@@ -1514,6 +1168,18 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="msiempy.event.EventManager.TYPE"><code class="name">var <span class="ident">TYPE</span></code></dt>
+<dd>
+<section class="desc"><p>str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.</p></section>
+</dd>
 <dt id="msiempy.event.EventManager.GROUPTYPE"><code class="name">var <span class="ident">GROUPTYPE</span></code></dt>
 <dd>
 <section class="desc"><p>str(object='') -&gt; str
@@ -1532,38 +1198,9 @@ errors defaults to 'strict'.</p></section>
 <p>If no argument is given, the constructor creates a new empty list.
 The argument must be an iterable if specified.</p></section>
 </dd>
-<dt id="msiempy.event.EventManager.TYPE"><code class="name">var <span class="ident">TYPE</span></code></dt>
-<dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
-</dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="msiempy.event.EventManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
-<dd>
-<section class="desc"><p>JSON SIEM formatted filters for the query by calling reccursively : <a title="msiempy.event.QueryFilter.config_dict" href="#msiempy.event.QueryFilter.config_dict"><code>QueryFilter.config_dict</code></a>.
-See <a title="msiempy.FilteredQueryList.filters" href="index.html#msiempy.FilteredQueryList.filters"><code>FilteredQueryList.filters</code></a>.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def filters(self):
-    &#34;&#34;&#34;
-    JSON SIEM formatted filters for the query by calling reccursively : `msiempy.event.QueryFilter.config_dict`.
-    See `msiempy.FilteredQueryList.filters`.
-    &#34;&#34;&#34;
-    return([f.config_dict for f in self._filters])</code></pre>
-</details>
-</dd>
 <dt id="msiempy.event.EventManager.order"><code class="name">var <span class="ident">order</span></code></dt>
 <dd>
 <section class="desc"><p>Orders representing the what the SIEM is expecting as the 'order'.
@@ -1579,6 +1216,23 @@ def order(self):
     The `order` must be tuple (direction, field).
     &#34;&#34;&#34;
     return((self._order_direction, self._order_field))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.EventManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
+<dd>
+<section class="desc"><p>JSON SIEM formatted filters for the query by calling reccursively : <a title="msiempy.event.QueryFilter.config_dict" href="#msiempy.event.QueryFilter.config_dict"><code>QueryFilter.config_dict</code></a>.
+See <a title="msiempy.FilteredQueryList.filters" href="index.html#msiempy.FilteredQueryList.filters"><code>FilteredQueryList.filters</code></a>.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def filters(self):
+    &#34;&#34;&#34;
+    JSON SIEM formatted filters for the query by calling reccursively : `msiempy.event.QueryFilter.config_dict`.
+    See `msiempy.FilteredQueryList.filters`.
+    &#34;&#34;&#34;
+    return([f.config_dict for f in self._filters])</code></pre>
 </details>
 </dd>
 </dl>
@@ -1643,6 +1297,71 @@ The list is loaded from the SIEM.</p></section>
     The list is loaded from the SIEM.
     &#34;&#34;&#34;
     return self.nitro.request(&#39;get_possible_fields&#39;, type=self.TYPE, groupType=self.GROUPTYPE)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.EventManager.qry_load_data"><code class="name flex">
+<span>def <span class="ident">qry_load_data</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>"
+Concrete helper method to execute the query and load the data :
+-&gt; Submit the query
+-&gt; Wait the query to be executed
+-&gt; Get and parse the events</p>
+<p>Returns : <code>tuple</code> : ( <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a>, Status of the query (completed?) <code>True/False</code> )</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def qry_load_data(self):
+    &#34;&#34;&#34;&#34;
+    Concrete helper method to execute the query and load the data : 
+        -&gt; Submit the query 
+        -&gt; Wait the query to be executed
+        -&gt; Get and parse the events
+
+    Returns : `tuple` : ( `msiempy.event.EventManager`, Status of the query (completed?) `True/False` )
+
+    &#34;&#34;&#34;
+    query_infos=dict()
+
+    #Queries api calls are very different if the time range is custom.
+    if self.time_range == &#39;CUSTOM&#39; :
+        query_infos=self.nitro.request(
+            &#39;event_query_custom_time&#39;,
+            time_range=self.time_range,
+            start_time=self.start_time,
+            end_time=self.end_time,
+            order_direction=self._order_direction,
+            order_field=self._order_field,
+            fields=format_fields_for_query(self.fields),
+            filters=self.filters,
+            limit=self.limit,
+            offset=0,
+            includeTotal=False
+            )
+
+    else :
+        query_infos=self.nitro.request(
+            &#39;event_query&#39;,
+            time_range=self.time_range,
+            order_direction=self._order_direction,
+            order_field=self._order_field,
+            fields=format_fields_for_query(self.fields),
+            filters=self.filters,
+            limit=self.limit,
+            offset=0,
+            includeTotal=False
+            )
+    
+    log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
+    self._wait_for(query_infos[&#39;resultID&#39;])
+    events_raw=self._get_events(query_infos[&#39;resultID&#39;])
+
+    events=EventManager(alist=events_raw)
+    
+    self.data=events
+    return((events,len(events)&lt;self.limit))</code></pre>
 </details>
 </dd>
 <dt id="msiempy.event.EventManager.load_data"><code class="name flex">
@@ -1757,71 +1476,6 @@ with dateutil.
     return(self)</code></pre>
 </details>
 </dd>
-<dt id="msiempy.event.EventManager.qry_load_data"><code class="name flex">
-<span>def <span class="ident">qry_load_data</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>"
-Concrete helper method to execute the query and load the data :
--&gt; Submit the query
--&gt; Wait the query to be executed
--&gt; Get and parse the events</p>
-<p>Returns : <code>tuple</code> : ( <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a>, Status of the query (completed?) <code>True/False</code> )</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def qry_load_data(self):
-    &#34;&#34;&#34;&#34;
-    Concrete helper method to execute the query and load the data : 
-        -&gt; Submit the query 
-        -&gt; Wait the query to be executed
-        -&gt; Get and parse the events
-
-    Returns : `tuple` : ( `msiempy.event.EventManager`, Status of the query (completed?) `True/False` )
-
-    &#34;&#34;&#34;
-    query_infos=dict()
-
-    #Queries api calls are very different if the time range is custom.
-    if self.time_range == &#39;CUSTOM&#39; :
-        query_infos=self.nitro.request(
-            &#39;event_query_custom_time&#39;,
-            time_range=self.time_range,
-            start_time=self.start_time,
-            end_time=self.end_time,
-            order_direction=self._order_direction,
-            order_field=self._order_field,
-            fields=format_fields_for_query(self.fields),
-            filters=self.filters,
-            limit=self.limit,
-            offset=0,
-            includeTotal=False
-            )
-
-    else :
-        query_infos=self.nitro.request(
-            &#39;event_query&#39;,
-            time_range=self.time_range,
-            order_direction=self._order_direction,
-            order_field=self._order_field,
-            fields=format_fields_for_query(self.fields),
-            filters=self.filters,
-            limit=self.limit,
-            offset=0,
-            includeTotal=False
-            )
-    
-    log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
-    self._wait_for(query_infos[&#39;resultID&#39;])
-    events_raw=self._get_events(query_infos[&#39;resultID&#39;])
-
-    events=EventManager(alist=events_raw)
-    
-    self.data=events
-    return((events,len(events)&lt;self.limit))</code></pre>
-</details>
-</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -1840,6 +1494,601 @@ Concrete helper method to execute the query and load the data :
 <li><code><a title="msiempy.FilteredQueryList.start_time" href="index.html#msiempy.FilteredQueryList.start_time">start_time</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.time_range" href="index.html#msiempy.FilteredQueryList.time_range">time_range</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.event.Event"><code class="flex name class">
+<span>class <span class="ident">Event</span></span>
+<span>(</span><span>adict=None, id=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Default event field keys :<br>
+- <code>Rule.msg</code><br>
+- <code>Alert.LastTime</code><br>
+- <code>Alert.IPSIDAlertID</code>
+</p>
+<p>You can request more fields by passing a list of fields to the <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a> object.
+<a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS"><code>Event.REGULAR_EVENT_FIELDS</code></a> offer a base list of regular fields that may be useful.
+See msiempy/static JSON files to browse complete list : <a href="https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json">https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json</a><br>
+Prefixes 'Alert.', 'Rule.', etc are optionnal, prefix autocompletion is computed in any case ;)</p>
+<p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
+and update dict values accordingly.</p>
+<p>Parameters:
+</p>
+<ul>
+<li><code>adict</code>: dict object to wrap.
+</li>
+<li><code>id</code>: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Event(NitroDict):
+
+    &#34;&#34;&#34;        
+    Default event field keys :  
+    - `Rule.msg`  
+    - `Alert.LastTime`  
+    - `Alert.IPSIDAlertID`  
+    
+    You can request more fields by passing a list of fields to the `msiempy.event.EventManager` object. 
+    `msiempy.event.Event.REGULAR_EVENT_FIELDS` offer a base list of regular fields that may be useful.
+    See msiempy/static JSON files to browse complete list : https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json  
+    Prefixes &#39;Alert.&#39;, &#39;Rule.&#39;, etc are optionnal, prefix autocompletion is computed in any case ;)
+
+    &#34;&#34;&#34;
+   
+    FIELDS_TABLES=[&#34;ADGroup&#34;,
+        &#34;Action&#34;,
+        &#34;Alert&#34;,
+        &#34;Asset&#34;,
+        &#34;AssetGroup&#34;,
+        &#34;AssetThreat&#34;,
+        &#34;CaseMgt&#34;,
+        &#34;CaseOrg&#34;,
+        &#34;CaseStatus&#34;,
+        &#34;Class&#34;,
+        &#34;Connection&#34;,
+        &#34;DataEnrichment&#34;,
+        &#34;GeoLoc_ASNGeoDst&#34;,
+        &#34;GeoLoc_ASNGeoSrc&#34;,
+        &#34;IOC&#34;,
+        &#34;IPS&#34;,
+        &#34;IPSCheck&#34;,
+        &#34;NDDeviceInterface_NDDevIFDst&#34;,
+        &#34;NDDeviceInterface_NDDevIFSrc&#34;,
+        &#34;NDDevice_NDDevIDDst&#34;,
+        &#34;NDDevice_NDDevIDSrc&#34;,
+        &#34;OS&#34;,
+        &#34;Rule&#34;,
+        &#34;Rule_NDSNormSigID&#34;,
+        &#34;Tag&#34;,
+        &#34;TagAsset&#34;,
+        &#34;ThirdPartyType&#34;,
+        &#34;Threat&#34;,
+        &#34;ThreatVendor&#34;,
+        &#34;TriggeredAlarm&#34;,
+        &#34;Users&#34;,
+        &#34;Vulnerability&#34;,
+        &#34;Zone_ZoneDst&#34;,
+        &#34;Zone_ZoneSrc&#34;,
+        ]
+
+    # Minimal default query fields
+    DEFAULTS_EVENT_FIELDS=[
+        &#34;Rule.msg&#34;,
+        &#34;Alert.LastTime&#34;,
+        &#34;Alert.IPSIDAlertID&#34;]
+
+    # Regular query fields
+    REGULAR_EVENT_FIELDS=[
+        &#34;Rule.msg&#34;,
+        &#34;Alert.SrcIP&#34;,
+        &#34;Alert.DstIP&#34;, 
+        &#34;Alert.SrcMac&#34;,
+        &#34;Alert.DstMac&#34;,
+        &#34;Rule.NormID&#34;,
+        &#34;HostID&#34;,
+        &#34;UserIDSrc&#34;,
+        &#34;ObjectID&#34;,
+        &#34;Alert.Severity&#34;,
+        &#34;Alert.LastTime&#34;,
+        &#34;Alert.DSIDSigID&#34;,
+        &#34;Alert.IPSIDAlertID&#34;]
+
+    def __getitem__(self, key):
+        &#34;&#34;&#34;
+        Automatically adding the table name of the field by iterating trought FIELDS_TABLES
+        if no &#39;.&#39; is present in the key
+        &#34;&#34;&#34;
+        try :
+            return collections.UserDict.__getitem__(self, key)
+        except (AttributeError, KeyError) : pass
+
+        if &#39;.&#39; not in key :
+            for table in self.FIELDS_TABLES :
+                try :
+                    return collections.UserDict.__getitem__(self, table+&#39;.&#39;+key)
+                except (AttributeError, KeyError) : pass
+        try :
+            return collections.UserDict.__getitem__(self, key)
+        except (AttributeError, KeyError) : 
+            if key in self.DEFAULTS_EVENT_FIELDS :
+                log.error(&#39;Some default event fields are missing from SIEM reponse.&#39;)
+                return &#39;missing&#39;
+            else:
+                log.error(&#39;The SIEM dict keys are not always the same are the requested fields. check .keys()&#39;)
+                #Todo : table of corespondance UserIDSrc = BIN(7) etc...
+                #Map the table to getitem
+                raise
+
+    def clear_notes(self):
+        &#34;&#34;&#34;
+        Replace the notes by an empty string. Desctructive action.
+        &#34;&#34;&#34;
+        self.set_note(&#39;&#39;, no_date=True)
+
+    def set_note(self, note, no_date=False):
+        &#34;&#34;&#34;
+        Set the event&#39;s note. Desctructive action.
+        &#34;&#34;&#34;
+        the_id = self.data[&#34;Alert.IPSIDAlertID&#34;] if &#34;Alert.IPSIDAlertID&#34; in self.data else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if &#34;alertId&#34; in self.data else None
+
+        if isinstance(the_id, str):
+
+            if len(note) &gt;= 4000:
+                log.warning(&#34;The note is longer than 4000 characters, only the&#34; 
+                            &#34;first 4000 characters will be kept. The maximum&#34; 
+                            &#34;accepted by the SIEM is 4096 characters.&#34;)
+                note=note[:4000]+&#39;\n\n--NOTE HAS BEEN TRUNCATED--&#39;
+            
+            if no_date==False:
+                timestamp = datetime.now().strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)
+                note = note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)
+                note = timestamp + &#39; - &#39; + note
+            
+            self.nitro.request(&#34;add_note_to_event_int&#34;, 
+                id=the_id,
+                note=note)
+        else :
+            log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found.&#34;)
+
+    def add_note(self, note):
+        &#34;&#34;&#34;Deprecated, please use set_note() method instead.&#34;&#34;&#34;
+        log.warning(str(DeprecationWarning())+&#34; Please use set_note() method instead.&#34;)
+        self.set_note(note)
+        
+    def data_from_id(self, id, use_query=False, extra_fields=[]):
+        &#34;&#34;&#34;
+        Load event&#39;s data.  
+
+        Parameters :   
+        - `id` : The event ID. (i.e. : `144128388087414784|747122896`)  
+        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.  
+        &#34;&#34;&#34;
+        
+        if use_query == True :
+
+            e = EventManager(time_range=&#39;CUSTOM&#39;,
+                start_time=datetime.now()-timedelta(days=365),
+                end_time=datetime.now()+timedelta(days=1),
+                filters=[(&#39;IPSIDAlertID&#39;,id)],
+                fields=extra_fields,
+                limit=2).load_data()
+
+            if len(e) == 1 :
+                return e[0]
+            else :
+                raise NitroError(&#39;Could not load event : &#39;+str(id)+&#39; from query :&#39;+str(e.__dict__)+&#39;. Try with use_query=False.&#39;)
+
+        elif use_query == False :
+            return self.nitro.request(&#39;get_alert_data&#39;, id=id)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
+<li>collections.UserDict</li>
+<li>collections.abc.MutableMapping</li>
+<li>collections.abc.Mapping</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.event.Event.FIELDS_TABLES"><code class="name">var <span class="ident">FIELDS_TABLES</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+<dt id="msiempy.event.Event.DEFAULTS_EVENT_FIELDS"><code class="name">var <span class="ident">DEFAULTS_EVENT_FIELDS</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+<dt id="msiempy.event.Event.REGULAR_EVENT_FIELDS"><code class="name">var <span class="ident">REGULAR_EVENT_FIELDS</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.event.Event.clear_notes"><code class="name flex">
+<span>def <span class="ident">clear_notes</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Replace the notes by an empty string. Desctructive action.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clear_notes(self):
+    &#34;&#34;&#34;
+    Replace the notes by an empty string. Desctructive action.
+    &#34;&#34;&#34;
+    self.set_note(&#39;&#39;, no_date=True)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.Event.set_note"><code class="name flex">
+<span>def <span class="ident">set_note</span></span>(<span>self, note, no_date=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Set the event's note. Desctructive action.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_note(self, note, no_date=False):
+    &#34;&#34;&#34;
+    Set the event&#39;s note. Desctructive action.
+    &#34;&#34;&#34;
+    the_id = self.data[&#34;Alert.IPSIDAlertID&#34;] if &#34;Alert.IPSIDAlertID&#34; in self.data else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if &#34;alertId&#34; in self.data else None
+
+    if isinstance(the_id, str):
+
+        if len(note) &gt;= 4000:
+            log.warning(&#34;The note is longer than 4000 characters, only the&#34; 
+                        &#34;first 4000 characters will be kept. The maximum&#34; 
+                        &#34;accepted by the SIEM is 4096 characters.&#34;)
+            note=note[:4000]+&#39;\n\n--NOTE HAS BEEN TRUNCATED--&#39;
+        
+        if no_date==False:
+            timestamp = datetime.now().strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)
+            note = note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)
+            note = timestamp + &#39; - &#39; + note
+        
+        self.nitro.request(&#34;add_note_to_event_int&#34;, 
+            id=the_id,
+            note=note)
+    else :
+        log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found.&#34;)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.Event.add_note"><code class="name flex">
+<span>def <span class="ident">add_note</span></span>(<span>self, note)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Deprecated, please use set_note() method instead.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_note(self, note):
+    &#34;&#34;&#34;Deprecated, please use set_note() method instead.&#34;&#34;&#34;
+    log.warning(str(DeprecationWarning())+&#34; Please use set_note() method instead.&#34;)
+    self.set_note(note)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.Event.data_from_id"><code class="name flex">
+<span>def <span class="ident">data_from_id</span></span>(<span>self, id, use_query=False, extra_fields=[])</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Load event's data.
+</p>
+<p>Parameters : <br>
+- <code>id</code> : The event ID. (i.e. : <code>144128388087414784|747122896</code>)<br>
+- <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.<br>
+- <code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def data_from_id(self, id, use_query=False, extra_fields=[]):
+    &#34;&#34;&#34;
+    Load event&#39;s data.  
+
+    Parameters :   
+    - `id` : The event ID. (i.e. : `144128388087414784|747122896`)  
+    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+    - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.  
+    &#34;&#34;&#34;
+    
+    if use_query == True :
+
+        e = EventManager(time_range=&#39;CUSTOM&#39;,
+            start_time=datetime.now()-timedelta(days=365),
+            end_time=datetime.now()+timedelta(days=1),
+            filters=[(&#39;IPSIDAlertID&#39;,id)],
+            fields=extra_fields,
+            limit=2).load_data()
+
+        if len(e) == 1 :
+            return e[0]
+        else :
+            raise NitroError(&#39;Could not load event : &#39;+str(id)+&#39; from query :&#39;+str(e.__dict__)+&#39;. Try with use_query=False.&#39;)
+
+    elif use_query == False :
+        return self.nitro.request(&#39;get_alert_data&#39;, id=id)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
+<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.event.QueryFilter"><code class="flex name class">
+<span>class <span class="ident">QueryFilter</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class for all SIEM query objects, declares the <code>config_dict</code> abstract property in order to dump the filter as JSON.</p>
+<p>Creates the object session.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class QueryFilter(NitroObject):
+    &#34;&#34;&#34;Base class for all SIEM query objects, declares the `config_dict` abstract property in order to dump the filter as JSON.
+    &#34;&#34;&#34;
+    _possible_filters = []
+
+    def __init__(self):
+        super().__init__()
+
+        #Setting up static constant
+        &#34;&#34;&#34;Not checking dynamically the validity of the fields cause makes too much of unecessary requests
+            self._possible_filters = self._get_possible_filters()
+            &#34;&#34;&#34;
+
+    def get_possible_filters(self):
+        &#34;&#34;&#34;
+        Return all the fields that you can filter on in a query.
+        &#34;&#34;&#34;
+        return(self.nitro.request(&#39;get_possible_filters&#39;))
+
+    @abc.abstractproperty
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Dump a filter in the right JSON format.
+        &#34;&#34;&#34;
+        pass
+
+    def refresh(self):
+        &#34;&#34;&#34;
+        Superclass method.
+        &#34;&#34;&#34;
+        log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))
+
+    @property
+    def json(self):
+        &#34;&#34;&#34;
+        Dump the filter as a json.
+        &#34;&#34;&#34;
+        return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))
+    
+    @property
+    def text(self):
+        &#34;&#34;&#34;
+        Text representation of `config_dict` property.
+        &#34;&#34;&#34;
+        return str(self.config_dict)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></li>
+<li><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.event.QueryFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
+<dd>
+<section class="desc"><p>Dump a filter in the right JSON format.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractproperty
+def config_dict(self):
+    &#34;&#34;&#34;
+    Dump a filter in the right JSON format.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.QueryFilter.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<section class="desc"><p>Dump the filter as a json.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def json(self):
+    &#34;&#34;&#34;
+    Dump the filter as a json.
+    &#34;&#34;&#34;
+    return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.QueryFilter.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<section class="desc"><p>Text representation of <code>config_dict</code> property.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def text(self):
+    &#34;&#34;&#34;
+    Text representation of `config_dict` property.
+    &#34;&#34;&#34;
+    return str(self.config_dict)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.event.QueryFilter.get_possible_filters"><code class="name flex">
+<span>def <span class="ident">get_possible_filters</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return all the fields that you can filter on in a query.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_possible_filters(self):
+    &#34;&#34;&#34;
+    Return all the fields that you can filter on in a query.
+    &#34;&#34;&#34;
+    return(self.nitro.request(&#39;get_possible_filters&#39;))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.QueryFilter.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Superclass method.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def refresh(self):
+    &#34;&#34;&#34;
+    Superclass method.
+    &#34;&#34;&#34;
+    log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.event.GroupFilter"><code class="flex name class">
+<span>class <span class="ident">GroupFilter</span></span>
+<span>(</span><span>filters, logic='AND')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Based on EsmFilterGroup. See SIEM api doc.
+Used to dump groups of filters in the right format.</p>
+<p>Parameters :
+</p>
+<ul>
+<li><code>filters</code> : a list of filters, it can be <a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter"><code>FieldFilter</code></a> or <a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter"><code>GroupFilter</code></a>
+</li>
+<li><code>logic</code> : 'AND' or 'OR'</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GroupFilter(QueryFilter):
+    &#34;&#34;&#34;
+        Based on EsmFilterGroup. See SIEM api doc.
+        Used to dump groups of filters in the right format.
+    &#34;&#34;&#34;
+
+    def __init__(self, filters, logic=&#39;AND&#39;) :
+        &#34;&#34;&#34;Parameters :  
+
+        - `filters` : a list of filters, it can be `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter`  
+        - `logic` : &#39;AND&#39; or &#39;OR&#39;  
+        &#34;&#34;&#34;
+        super().__init__()
+        
+        #Declaring attributes
+        self.filters=filters
+        self.logic=logic
+
+    @property
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Could call recursively if there is other GroupFilter(s) object nested.
+        Dump a filter in the right format.
+        &#34;&#34;&#34;
+        return({
+            &#34;type&#34;: &#34;EsmFilterGroup&#34;,
+            &#34;filters&#34;: [f.config_dict for f in self.filters],
+            &#34;logic&#34;:self.logic
+            })</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.event.GroupFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
+<dd>
+<section class="desc"><p>Could call recursively if there is other GroupFilter(s) object nested.
+Dump a filter in the right format.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def config_dict(self):
+    &#34;&#34;&#34;
+    Could call recursively if there is other GroupFilter(s) object nested.
+    Dump a filter in the right format.
+    &#34;&#34;&#34;
+    return({
+        &#34;type&#34;: &#34;EsmFilterGroup&#34;,
+        &#34;filters&#34;: [f.config_dict for f in self.filters],
+        &#34;logic&#34;:self.logic
+        })</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.event.QueryFilter.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.get_possible_filters" href="#msiempy.event.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2192,22 +2441,6 @@ def values(self):
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="msiempy.event.FieldFilter.add_basic_value"><code class="name flex">
-<span>def <span class="ident">add_basic_value</span></span>(<span>self, value)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Wrapper arround add_value to add a EsmBasicValue.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def add_basic_value(self, value):
-    &#34;&#34;&#34;
-    Wrapper arround add_value to add a EsmBasicValue.
-    &#34;&#34;&#34;
-    self.add_value(type=&#39;EsmBasicValue&#39;, value=value)</code></pre>
-</details>
-</dd>
 <dt id="msiempy.event.FieldFilter.add_value"><code class="name flex">
 <span>def <span class="ident">add_value</span></span>(<span>self, type, **args)</span>
 </code></dt>
@@ -2270,95 +2503,20 @@ Note : Filtering query with other type of filter than 'EsmBasicValue' is not tes
         raise AttributeError(&#34;You must provide a valid named parameters containing the type and values for this filter. The type/keys must be in &#34;+str(self.POSSIBLE_VALUE_TYPES)+&#34;Can&#39;t be type=&#34;+str(type)+&#39; &#39;+str(args)+&#34;. Additionnal indicator :&#34;+str(err) )</code></pre>
 </details>
 </dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.event.QueryFilter.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.get_possible_filters" href="#msiempy.event.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="msiempy.event.GroupFilter"><code class="flex name class">
-<span>class <span class="ident">GroupFilter</span></span>
-<span>(</span><span>filters, logic='AND')</span>
+<dt id="msiempy.event.FieldFilter.add_basic_value"><code class="name flex">
+<span>def <span class="ident">add_basic_value</span></span>(<span>self, value)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Based on EsmFilterGroup. See SIEM api doc.
-Used to dump groups of filters in the right format.</p>
-<p>Parameters :
-</p>
-<ul>
-<li><code>filters</code> : a list of filters, it can be <a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter"><code>FieldFilter</code></a> or <a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter"><code>GroupFilter</code></a>
-</li>
-<li><code>logic</code> : 'AND' or 'OR'</li>
-</ul></section>
+<section class="desc"><p>Wrapper arround add_value to add a EsmBasicValue.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class GroupFilter(QueryFilter):
+<pre><code class="python">def add_basic_value(self, value):
     &#34;&#34;&#34;
-        Based on EsmFilterGroup. See SIEM api doc.
-        Used to dump groups of filters in the right format.
+    Wrapper arround add_value to add a EsmBasicValue.
     &#34;&#34;&#34;
-
-    def __init__(self, filters, logic=&#39;AND&#39;) :
-        &#34;&#34;&#34;Parameters :  
-
-        - `filters` : a list of filters, it can be `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter`  
-        - `logic` : &#39;AND&#39; or &#39;OR&#39;  
-        &#34;&#34;&#34;
-        super().__init__()
-        
-        #Declaring attributes
-        self.filters=filters
-        self.logic=logic
-
-    @property
-    def config_dict(self):
-        &#34;&#34;&#34;
-        Could call recursively if there is other GroupFilter(s) object nested.
-        Dump a filter in the right format.
-        &#34;&#34;&#34;
-        return({
-            &#34;type&#34;: &#34;EsmFilterGroup&#34;,
-            &#34;filters&#34;: [f.config_dict for f in self.filters],
-            &#34;logic&#34;:self.logic
-            })</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Instance variables</h3>
-<dl>
-<dt id="msiempy.event.GroupFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
-<dd>
-<section class="desc"><p>Could call recursively if there is other GroupFilter(s) object nested.
-Dump a filter in the right format.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def config_dict(self):
-    &#34;&#34;&#34;
-    Could call recursively if there is other GroupFilter(s) object nested.
-    Dump a filter in the right format.
-    &#34;&#34;&#34;
-    return({
-        &#34;type&#34;: &#34;EsmFilterGroup&#34;,
-        &#34;filters&#34;: [f.config_dict for f in self.filters],
-        &#34;logic&#34;:self.logic
-        })</code></pre>
+    self.add_value(type=&#39;EsmBasicValue&#39;, value=value)</code></pre>
 </details>
 </dd>
 </dl>
@@ -2371,164 +2529,6 @@ def config_dict(self):
 <li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
 <li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="msiempy.event.QueryFilter"><code class="flex name class">
-<span>class <span class="ident">QueryFilter</span></span>
-</code></dt>
-<dd>
-<section class="desc"><p>Base class for all SIEM query objects, declares the <code>config_dict</code> abstract property in order to dump the filter as JSON.</p>
-<p>Creates the object session.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class QueryFilter(NitroObject):
-    &#34;&#34;&#34;Base class for all SIEM query objects, declares the `config_dict` abstract property in order to dump the filter as JSON.
-    &#34;&#34;&#34;
-    _possible_filters = []
-
-    def __init__(self):
-        super().__init__()
-
-        #Setting up static constant
-        &#34;&#34;&#34;Not checking dynamically the validity of the fields cause makes too much of unecessary requests
-            self._possible_filters = self._get_possible_filters()
-            &#34;&#34;&#34;
-
-    def get_possible_filters(self):
-        &#34;&#34;&#34;
-        Return all the fields that you can filter on in a query.
-        &#34;&#34;&#34;
-        return(self.nitro.request(&#39;get_possible_filters&#39;))
-
-    @abc.abstractproperty
-    def config_dict(self):
-        &#34;&#34;&#34;
-        Dump a filter in the right JSON format.
-        &#34;&#34;&#34;
-        pass
-
-    def refresh(self):
-        &#34;&#34;&#34;
-        Superclass method.
-        &#34;&#34;&#34;
-        log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))
-
-    @property
-    def json(self):
-        &#34;&#34;&#34;
-        Dump the filter as a json.
-        &#34;&#34;&#34;
-        return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))
-    
-    @property
-    def text(self):
-        &#34;&#34;&#34;
-        Text representation of `config_dict` property.
-        &#34;&#34;&#34;
-        return str(self.config_dict)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></li>
-<li><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></li>
-</ul>
-<h3>Instance variables</h3>
-<dl>
-<dt id="msiempy.event.QueryFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
-<dd>
-<section class="desc"><p>Dump a filter in the right JSON format.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abc.abstractproperty
-def config_dict(self):
-    &#34;&#34;&#34;
-    Dump a filter in the right JSON format.
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.QueryFilter.json"><code class="name">var <span class="ident">json</span></code></dt>
-<dd>
-<section class="desc"><p>Dump the filter as a json.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def json(self):
-    &#34;&#34;&#34;
-    Dump the filter as a json.
-    &#34;&#34;&#34;
-    return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.QueryFilter.text"><code class="name">var <span class="ident">text</span></code></dt>
-<dd>
-<section class="desc"><p>Text representation of <code>config_dict</code> property.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def text(self):
-    &#34;&#34;&#34;
-    Text representation of `config_dict` property.
-    &#34;&#34;&#34;
-    return str(self.config_dict)</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="msiempy.event.QueryFilter.get_possible_filters"><code class="name flex">
-<span>def <span class="ident">get_possible_filters</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Return all the fields that you can filter on in a query.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_possible_filters(self):
-    &#34;&#34;&#34;
-    Return all the fields that you can filter on in a query.
-    &#34;&#34;&#34;
-    return(self.nitro.request(&#39;get_possible_filters&#39;))</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.QueryFilter.refresh"><code class="name flex">
-<span>def <span class="ident">refresh</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Superclass method.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def refresh(self):
-    &#34;&#34;&#34;
-    Superclass method.
-    &#34;&#34;&#34;
-    log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2550,43 +2550,40 @@ def text(self):
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code></h4>
-<ul class="">
-<li><code><a title="msiempy.event.Event.DEFAULTS_EVENT_FIELDS" href="#msiempy.event.Event.DEFAULTS_EVENT_FIELDS">DEFAULTS_EVENT_FIELDS</a></code></li>
-<li><code><a title="msiempy.event.Event.FIELDS_TABLES" href="#msiempy.event.Event.FIELDS_TABLES">FIELDS_TABLES</a></code></li>
-<li><code><a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS">REGULAR_EVENT_FIELDS</a></code></li>
-<li><code><a title="msiempy.event.Event.add_note" href="#msiempy.event.Event.add_note">add_note</a></code></li>
-<li><code><a title="msiempy.event.Event.clear_notes" href="#msiempy.event.Event.clear_notes">clear_notes</a></code></li>
-<li><code><a title="msiempy.event.Event.data_from_id" href="#msiempy.event.Event.data_from_id">data_from_id</a></code></li>
-<li><code><a title="msiempy.event.Event.set_note" href="#msiempy.event.Event.set_note">set_note</a></code></li>
-</ul>
-</li>
-<li>
 <h4><code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code></h4>
 <ul class="two-column">
-<li><code><a title="msiempy.event.EventManager.GROUPTYPE" href="#msiempy.event.EventManager.GROUPTYPE">GROUPTYPE</a></code></li>
-<li><code><a title="msiempy.event.EventManager.POSSBILE_ROW_ORDER" href="#msiempy.event.EventManager.POSSBILE_ROW_ORDER">POSSBILE_ROW_ORDER</a></code></li>
-<li><code><a title="msiempy.event.EventManager.TYPE" href="#msiempy.event.EventManager.TYPE">TYPE</a></code></li>
 <li><code><a title="msiempy.event.EventManager.add_filter" href="#msiempy.event.EventManager.add_filter">add_filter</a></code></li>
 <li><code><a title="msiempy.event.EventManager.clear_filters" href="#msiempy.event.EventManager.clear_filters">clear_filters</a></code></li>
-<li><code><a title="msiempy.event.EventManager.filters" href="#msiempy.event.EventManager.filters">filters</a></code></li>
 <li><code><a title="msiempy.event.EventManager.get_possible_fields" href="#msiempy.event.EventManager.get_possible_fields">get_possible_fields</a></code></li>
+<li><code><a title="msiempy.event.EventManager.qry_load_data" href="#msiempy.event.EventManager.qry_load_data">qry_load_data</a></code></li>
 <li><code><a title="msiempy.event.EventManager.load_data" href="#msiempy.event.EventManager.load_data">load_data</a></code></li>
 <li><code><a title="msiempy.event.EventManager.order" href="#msiempy.event.EventManager.order">order</a></code></li>
-<li><code><a title="msiempy.event.EventManager.qry_load_data" href="#msiempy.event.EventManager.qry_load_data">qry_load_data</a></code></li>
+<li><code><a title="msiempy.event.EventManager.filters" href="#msiempy.event.EventManager.filters">filters</a></code></li>
+<li><code><a title="msiempy.event.EventManager.TYPE" href="#msiempy.event.EventManager.TYPE">TYPE</a></code></li>
+<li><code><a title="msiempy.event.EventManager.GROUPTYPE" href="#msiempy.event.EventManager.GROUPTYPE">GROUPTYPE</a></code></li>
+<li><code><a title="msiempy.event.EventManager.POSSBILE_ROW_ORDER" href="#msiempy.event.EventManager.POSSBILE_ROW_ORDER">POSSBILE_ROW_ORDER</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code></h4>
+<h4><code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code></h4>
 <ul class="">
-<li><code><a title="msiempy.event.FieldFilter.POSSIBLE_OPERATORS" href="#msiempy.event.FieldFilter.POSSIBLE_OPERATORS">POSSIBLE_OPERATORS</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES" href="#msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES">POSSIBLE_VALUE_TYPES</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.add_basic_value" href="#msiempy.event.FieldFilter.add_basic_value">add_basic_value</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.add_value" href="#msiempy.event.FieldFilter.add_value">add_value</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.config_dict" href="#msiempy.event.FieldFilter.config_dict">config_dict</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.name" href="#msiempy.event.FieldFilter.name">name</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.operator" href="#msiempy.event.FieldFilter.operator">operator</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.values" href="#msiempy.event.FieldFilter.values">values</a></code></li>
+<li><code><a title="msiempy.event.Event.clear_notes" href="#msiempy.event.Event.clear_notes">clear_notes</a></code></li>
+<li><code><a title="msiempy.event.Event.set_note" href="#msiempy.event.Event.set_note">set_note</a></code></li>
+<li><code><a title="msiempy.event.Event.add_note" href="#msiempy.event.Event.add_note">add_note</a></code></li>
+<li><code><a title="msiempy.event.Event.data_from_id" href="#msiempy.event.Event.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.event.Event.FIELDS_TABLES" href="#msiempy.event.Event.FIELDS_TABLES">FIELDS_TABLES</a></code></li>
+<li><code><a title="msiempy.event.Event.DEFAULTS_EVENT_FIELDS" href="#msiempy.event.Event.DEFAULTS_EVENT_FIELDS">DEFAULTS_EVENT_FIELDS</a></code></li>
+<li><code><a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS">REGULAR_EVENT_FIELDS</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.event.QueryFilter.get_possible_filters" href="#msiempy.event.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.config_dict" href="#msiempy.event.QueryFilter.config_dict">config_dict</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
 </ul>
 </li>
 <li>
@@ -2596,13 +2593,16 @@ def text(self):
 </ul>
 </li>
 <li>
-<h4><code><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></code></h4>
+<h4><code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code></h4>
 <ul class="">
-<li><code><a title="msiempy.event.QueryFilter.config_dict" href="#msiempy.event.QueryFilter.config_dict">config_dict</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.get_possible_filters" href="#msiempy.event.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.add_value" href="#msiempy.event.FieldFilter.add_value">add_value</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.add_basic_value" href="#msiempy.event.FieldFilter.add_basic_value">add_basic_value</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.config_dict" href="#msiempy.event.FieldFilter.config_dict">config_dict</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.name" href="#msiempy.event.FieldFilter.name">name</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.operator" href="#msiempy.event.FieldFilter.operator">operator</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.values" href="#msiempy.event.FieldFilter.values">values</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.POSSIBLE_OPERATORS" href="#msiempy.event.FieldFilter.POSSIBLE_OPERATORS">POSSIBLE_OPERATORS</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES" href="#msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES">POSSIBLE_VALUE_TYPES</a></code></li>
 </ul>
 </li>
 </ul>

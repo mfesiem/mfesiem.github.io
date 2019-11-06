@@ -566,477 +566,6 @@ class Alarm(NitroDict):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="msiempy.alarm.Alarm"><code class="flex name class">
-<span>class <span class="ident">Alarm</span></span>
-<span>(</span><span>*arg, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Dict keys :<br>
-- <code>id</code> : The ID of the triggered alarm<br>
-- <code>summary</code>
-: The summary of the triggered alarm<br>
-- <code>assignee</code> : The assignee for this triggered alarm<br>
-- <code>severity</code> : The severity for this triggered alarm<br>
-- <code>triggeredDate</code> : The date this alarm was triggered<br>
-- <code>acknowledgedDate</code> : The date this triggered alarm was acknowledged<br>
-- <code>acknowledgedUsername</code> : The user that acknowledged this triggered alarm<br>
-- <code>alarmName</code> : The name of the alarm that was triggered<br>
-- <code>events</code> : The events for this user<br>
-- And others&hellip;
-</p>
-<p>Creates a empty Alarm.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Alarm(NitroDict):
-    &#34;&#34;&#34;
-    Dict keys :  
-        - `id` : The ID of the triggered alarm  
-        - `summary`  : The summary of the triggered alarm  
-        - `assignee` : The assignee for this triggered alarm  
-        - `severity` : The severity for this triggered alarm  
-        - `triggeredDate` : The date this alarm was triggered  
-        - `acknowledgedDate` : The date this triggered alarm was acknowledged  
-        - `acknowledgedUsername` : The user that acknowledged this triggered alarm  
-        - `alarmName` : The name of the alarm that was triggered  
-        - `events` : The events for this user  
-        - And others...  
-    
-    &#34;&#34;&#34;
-
-    &#34;&#34;&#34;@property
-    def status(self):
-        return(&#39;acknowledged&#39; 
-            if ( (len(self.data[&#39;acknowledgedDate&#39;])&gt;0) 
-                and (len(self.data[&#39;acknowledgedUsername&#39;])&gt;0))
-            else &#39;unacknowledged&#39;)&#34;&#34;&#34;
-
-    POSSIBLE_ALARM_STATUS=[
-        [&#39;acknowledged&#39;, &#39;ack&#39;,],
-        [&#39;unacknowledged&#39;, &#39;unack&#39;,],
-        [&#39;&#39;, &#39;all&#39;, &#39;both&#39;]
-    ]
-    __pdoc__[&#39;Alarm.POSSIBLE_ALARM_STATUS&#39;]=&#34;&#34;&#34;Possible alarm statuses : ```%(statuses)s```&#34;&#34;&#34; % dict(statuses=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in POSSIBLE_ALARM_STATUS]))
-
-    ALARM_FILTER_FIELDS = [(&#39;id&#39;,),
-    (&#39;summary&#39;,&#39;sum&#39;),
-    (&#39;assignee&#39;,&#39;user&#39;),
-    (&#39;severity&#39;,&#39;sever&#39;),
-    (&#39;triggeredDate&#39;,&#39;trigdate&#39;),
-    (&#39;acknowledgedDate&#39;,&#39;ackdate&#39;),
-    (&#39;acknowledgedUsername&#39;,&#39;ackuser&#39;),
-    (&#39;alarmName&#39;,&#39;name&#39;),
-    ]
-    __pdoc__[&#39;Alarm.ALARM_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible alarm related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_FILTER_FIELDS]))
-
-    ALARM_EVENT_FILTER_FIELDS=[
-    (&#34;ruleName&#34;,),
-    (&#34;srcIp&#34;,),
-    (&#34;destIp&#34;,),
-    (&#34;protocol&#34;,),
-    (&#34;lastTime&#34;,),
-    (&#34;subtype&#34;,),
-    (&#34;destPort&#34;,),
-    (&#34;destMac&#34;,),
-    (&#34;srcMac&#34;,),
-    (&#34;srcPort&#34;,),
-    (&#34;deviceName&#34;,),
-    (&#34;sigId&#34;,),
-    (&#34;normId&#34;,),
-    (&#34;srcUser&#34;,),
-    (&#34;destUser&#34;,),
-    (&#34;normMessage&#34;,),
-    (&#34;normDesc&#34;,),
-    (&#34;host&#34;,),
-    (&#34;domain&#34;,),
-    (&#34;ipsId&#34;,),
-    ]
-    __pdoc__[&#39;Alarm.ALARM_EVENT_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible event related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_EVENT_FILTER_FIELDS]))
-
-    ALARM_DEFAULT_FIELDS=[&#39;id&#39;,&#39;alarmName&#39;, &#39;summary&#39;,&#39;triggeredDate&#39;, &#39;acknowledgedUsername&#39;]
-    __pdoc__[&#39;Alarm.ALARM_DEFAULT_FIELDS&#39;]=&#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
-    (not used , may be for printing with `msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join(ALARM_DEFAULT_FIELDS))
-
-    def __init__(self, *arg, **kwargs):
-        &#34;&#34;&#34;Creates a empty Alarm.
-        &#34;&#34;&#34;
-        super().__init__(*arg, **kwargs)
-
-        #Keep the id in the dict when instanciating an Alarm directly from its id.
-        if &#39;id&#39; in kwargs :
-            self.data[&#39;id&#39;] = {&#39;value&#39;:str(kwargs[&#39;id&#39;])}
-
-    def acknowledge(self):
-        &#34;&#34;&#34;Mark the alarm as acknowledged.
-        &#34;&#34;&#34;
-        if self.nitro.api_v == 1:
-            self.nitro.request(&#39;ack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-        else:
-            self.nitro.request(&#39;ack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-
-    def unacknowledge(self):
-        &#34;&#34;&#34;Mark the alarm as unacknowledge.
-        &#34;&#34;&#34;
-        if self.nitro.api_v == 1:
-            self.nitro.request(&#39;unack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-        else:
-            self.nitro.request(&#39;unack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-
-
-    def delete(self):
-        &#34;&#34;&#34;Destructive action!
-        Delete the alarm.
-        &#34;&#34;&#34;
-        if self.nitro.api_v == 1:
-            self.nitro.request(&#39;delete_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-        else:
-            self.nitro.request(&#39;delete_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-
-    def ceate_case(self):
-        &#34;&#34;&#34;Not implemented : TODO
-        &#34;&#34;&#34;
-        raise NotImplementedError()
-
-    def load_details(self):
-        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
-        &#34;&#34;&#34;
-        the_id = self.data[&#39;id&#39;][&#39;value&#39;]
-        self.data.update(self.data_from_id(the_id))
-        self.data[&#39;id&#39;][&#39;value&#39;]=the_id
-
-        return self
-
-    def refresh(self):
-        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.
-        &#34;&#34;&#34;        
-        self.load_details()
-
-    def load_events(self, use_query=False, extra_fields=[]):
-        &#34;&#34;&#34;
-        Retreive the genuine Event object from an Alarm.
-        Warning : This method will only load the details of the first triggering event.  
-        Parameters:  
-        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
-        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-        &#34;&#34;&#34;
-        if isinstance(self.data[&#39;events&#39;], str):
-
-            #Retreive the alert id from the event&#39;s string
-            events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
-            the_id = events_data[0]+&#39;|&#39;+events_data[1]
-
-            #instanciate the event
-            the_first_event=Event()
-            the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
-
-            #set it as the only item of the event list
-            self.data[&#39;events&#39;]= [ the_first_event ]
-
-        else:
-            log.info(&#39;The alarm {} ({}) has no events associated&#39;.format(self.data[&#39;alarmName&#39;], self.data[&#39;triggeredDate&#39;]))
-            self.data[&#39;events&#39;]= [ Event() ]
-
-        return self
-
-    def map_alarm_int_fields(self, alarm_details):
-        &#34;&#34;&#34;Map the internal ESM field names to msiempy style&#34;&#34;&#34;
-
-        for key, val in alarm_details.items():
-            if alarm_details[key] == key:
-                alarm_details[key] = None
-            elif alarm_details[key] in [&#39;f&#39;, &#39;F&#39;]:
-                alarm_details[key] = False
-            elif alarm_details[key] in [&#39;t&#39;, &#39;T&#39;]:
-                alarm_details[key] = True
-            else:
-                alarm_details[key] = val
-
-        new_alarm = {}
-        new_alarm[&#39;filters&#39;] = alarm_details.get(&#39;FILTERS&#39;) or None
-        new_alarm[&#39;queryId&#39;] = alarm_details.get(&#39;QID&#39;) or None
-        new_alarm[&#39;alretRateMin&#39;] = alarm_details.get(&#39;ARM&#39;) or None
-        new_alarm[&#39;alertRateCount&#39;] = alarm_details.get(&#39;ARC&#39;) or None
-        new_alarm[&#39;percentAbove&#39;] = alarm_details.get(&#39;PCTA&#39;) or None
-        new_alarm[&#39;percentBelow&#39;] = alarm_details.get(&#39;PCTB&#39;) or None
-        new_alarm[&#39;offsetMinutes&#39;] = alarm_details.get(&#39;OFFSETMIN&#39;) or None
-        new_alarm[&#39;maximumConditionTriggerFrequency&#39;] = alarm_details.get(&#39;TIMEF&#39;) or None
-        new_alarm[&#39;useWatchlist&#39;] = alarm_details.get(&#39;USEW&#39;) or None
-        new_alarm[&#39;matchField&#39;] = alarm_details.get(&#39;MFLD&#39;) or None
-        new_alarm[&#39;matchValue&#39;] = alarm_details.get(&#39;MWAL&#39;) or None
-        #new_alarm[&#39;healthMonalarm_details&#39;] = alarm_details.get(&#39;HMS&#39;) or None
-        new_alarm[&#39;assigneeId&#39;] = alarm_details.get(&#39;ASNID&#39;) or None
-        new_alarm[&#39;escalatedDate&#39;] = alarm_details.get(&#39;ESCDATE&#39;) or None
-        new_alarm[&#39;caseId&#39;] = alarm_details.get(&#39;CASEID&#39;) or None
-        new_alarm[&#39;caseName&#39;] = alarm_details.get(&#39;CASENAME&#39;) or None
-        new_alarm[&#39;iocName&#39;] = alarm_details.get(&#39;IOCNAME&#39;) or None
-        new_alarm[&#39;iocId&#39;] = alarm_details.get(&#39;IOCID&#39;) or None
-        new_alarm[&#39;description&#39;] = alarm_details.get(&#39;DESC&#39;) or None
-        new_alarm[&#39;actions&#39;] = alarm_details.get(&#39;ACTIONS&#39;) or None
-        new_alarm[&#39;events&#39;] = alarm_details.get(&#39;EVENTS&#39;) or None
-        return new_alarm
-                                                                                       
-    def data_from_id(self, id):
-        &#34;&#34;&#34;
-
-        &#34;&#34;&#34;
-        alarms = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
-        alarms = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarms.items()} #this line is skechy
-        alarms = self.map_alarm_int_fields(alarms)        
-        return alarms
-
-    &#34;&#34;&#34;
-    def _hasID(self):
-        try :
-            if self.data[&#39;id&#39;][&#39;value&#39;] == 0 :
-                return False
-            else :
-                return True
-        
-        except KeyError :
-            return False&#34;&#34;&#34;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
-<li>collections.UserDict</li>
-<li>collections.abc.MutableMapping</li>
-<li>collections.abc.Mapping</li>
-<li>collections.abc.Collection</li>
-<li>collections.abc.Sized</li>
-<li>collections.abc.Iterable</li>
-<li>collections.abc.Container</li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS"><code class="name">var <span class="ident">ALARM_DEFAULT_FIELDS</span></code></dt>
-<dd>
-<section class="desc"><p>Defaulfs fields : <code>id, alarmName, summary, triggeredDate, acknowledgedUsername</code>
-(not used , may be for printing with <code>msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)</code>)</p></section>
-</dd>
-<dt id="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_EVENT_FILTER_FIELDS</span></code></dt>
-<dd>
-<section class="desc"><p>Possible event related fields usable in a filter : <code>ruleName, srcIp, destIp, protocol, lastTime, subtype, destPort, destMac, srcMac, srcPort, deviceName, sigId, normId, srcUser, destUser, normMessage, normDesc, host, domain, ipsId</code></p></section>
-</dd>
-<dt id="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_FILTER_FIELDS</span></code></dt>
-<dd>
-<section class="desc"><p>Possible alarm related fields usable in a filter : <code>id, summary/sum, assignee/user, severity/sever, triggeredDate/trigdate, acknowledgedDate/ackdate, acknowledgedUsername/ackuser, alarmName/name</code></p></section>
-</dd>
-<dt id="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS"><code class="name">var <span class="ident">POSSIBLE_ALARM_STATUS</span></code></dt>
-<dd>
-<section class="desc"><p>Possible alarm statuses : <code>acknowledged/ack, unacknowledged/unack, /all/both</code></p></section>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="msiempy.alarm.Alarm.acknowledge"><code class="name flex">
-<span>def <span class="ident">acknowledge</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Mark the alarm as acknowledged.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def acknowledge(self):
-    &#34;&#34;&#34;Mark the alarm as acknowledged.
-    &#34;&#34;&#34;
-    if self.nitro.api_v == 1:
-        self.nitro.request(&#39;ack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-    else:
-        self.nitro.request(&#39;ack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.Alarm.ceate_case"><code class="name flex">
-<span>def <span class="ident">ceate_case</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Not implemented : TODO</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ceate_case(self):
-    &#34;&#34;&#34;Not implemented : TODO
-    &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.Alarm.delete"><code class="name flex">
-<span>def <span class="ident">delete</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Destructive action!
-Delete the alarm.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def delete(self):
-    &#34;&#34;&#34;Destructive action!
-    Delete the alarm.
-    &#34;&#34;&#34;
-    if self.nitro.api_v == 1:
-        self.nitro.request(&#39;delete_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-    else:
-        self.nitro.request(&#39;delete_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.Alarm.load_details"><code class="name flex">
-<span>def <span class="ident">load_details</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Update the alarm with detailled data loaded from the SIEM.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def load_details(self):
-    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
-    &#34;&#34;&#34;
-    the_id = self.data[&#39;id&#39;][&#39;value&#39;]
-    self.data.update(self.data_from_id(the_id))
-    self.data[&#39;id&#39;][&#39;value&#39;]=the_id
-
-    return self</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.Alarm.load_events"><code class="name flex">
-<span>def <span class="ident">load_events</span></span>(<span>self, use_query=False, extra_fields=[])</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Retreive the genuine Event object from an Alarm.
-Warning : This method will only load the details of the first triggering event.<br>
-Parameters:<br>
-- <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.<br>
-- <code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a></p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def load_events(self, use_query=False, extra_fields=[]):
-    &#34;&#34;&#34;
-    Retreive the genuine Event object from an Alarm.
-    Warning : This method will only load the details of the first triggering event.  
-    Parameters:  
-    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
-    - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-    &#34;&#34;&#34;
-    if isinstance(self.data[&#39;events&#39;], str):
-
-        #Retreive the alert id from the event&#39;s string
-        events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
-        the_id = events_data[0]+&#39;|&#39;+events_data[1]
-
-        #instanciate the event
-        the_first_event=Event()
-        the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
-
-        #set it as the only item of the event list
-        self.data[&#39;events&#39;]= [ the_first_event ]
-
-    else:
-        log.info(&#39;The alarm {} ({}) has no events associated&#39;.format(self.data[&#39;alarmName&#39;], self.data[&#39;triggeredDate&#39;]))
-        self.data[&#39;events&#39;]= [ Event() ]
-
-    return self</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.Alarm.map_alarm_int_fields"><code class="name flex">
-<span>def <span class="ident">map_alarm_int_fields</span></span>(<span>self, alarm_details)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Map the internal ESM field names to msiempy style</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def map_alarm_int_fields(self, alarm_details):
-    &#34;&#34;&#34;Map the internal ESM field names to msiempy style&#34;&#34;&#34;
-
-    for key, val in alarm_details.items():
-        if alarm_details[key] == key:
-            alarm_details[key] = None
-        elif alarm_details[key] in [&#39;f&#39;, &#39;F&#39;]:
-            alarm_details[key] = False
-        elif alarm_details[key] in [&#39;t&#39;, &#39;T&#39;]:
-            alarm_details[key] = True
-        else:
-            alarm_details[key] = val
-
-    new_alarm = {}
-    new_alarm[&#39;filters&#39;] = alarm_details.get(&#39;FILTERS&#39;) or None
-    new_alarm[&#39;queryId&#39;] = alarm_details.get(&#39;QID&#39;) or None
-    new_alarm[&#39;alretRateMin&#39;] = alarm_details.get(&#39;ARM&#39;) or None
-    new_alarm[&#39;alertRateCount&#39;] = alarm_details.get(&#39;ARC&#39;) or None
-    new_alarm[&#39;percentAbove&#39;] = alarm_details.get(&#39;PCTA&#39;) or None
-    new_alarm[&#39;percentBelow&#39;] = alarm_details.get(&#39;PCTB&#39;) or None
-    new_alarm[&#39;offsetMinutes&#39;] = alarm_details.get(&#39;OFFSETMIN&#39;) or None
-    new_alarm[&#39;maximumConditionTriggerFrequency&#39;] = alarm_details.get(&#39;TIMEF&#39;) or None
-    new_alarm[&#39;useWatchlist&#39;] = alarm_details.get(&#39;USEW&#39;) or None
-    new_alarm[&#39;matchField&#39;] = alarm_details.get(&#39;MFLD&#39;) or None
-    new_alarm[&#39;matchValue&#39;] = alarm_details.get(&#39;MWAL&#39;) or None
-    #new_alarm[&#39;healthMonalarm_details&#39;] = alarm_details.get(&#39;HMS&#39;) or None
-    new_alarm[&#39;assigneeId&#39;] = alarm_details.get(&#39;ASNID&#39;) or None
-    new_alarm[&#39;escalatedDate&#39;] = alarm_details.get(&#39;ESCDATE&#39;) or None
-    new_alarm[&#39;caseId&#39;] = alarm_details.get(&#39;CASEID&#39;) or None
-    new_alarm[&#39;caseName&#39;] = alarm_details.get(&#39;CASENAME&#39;) or None
-    new_alarm[&#39;iocName&#39;] = alarm_details.get(&#39;IOCNAME&#39;) or None
-    new_alarm[&#39;iocId&#39;] = alarm_details.get(&#39;IOCID&#39;) or None
-    new_alarm[&#39;description&#39;] = alarm_details.get(&#39;DESC&#39;) or None
-    new_alarm[&#39;actions&#39;] = alarm_details.get(&#39;ACTIONS&#39;) or None
-    new_alarm[&#39;events&#39;] = alarm_details.get(&#39;EVENTS&#39;) or None
-    return new_alarm</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.Alarm.refresh"><code class="name flex">
-<span>def <span class="ident">refresh</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def refresh(self):
-    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.
-    &#34;&#34;&#34;        
-    self.load_details()</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.Alarm.unacknowledge"><code class="name flex">
-<span>def <span class="ident">unacknowledge</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Mark the alarm as unacknowledge.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def unacknowledge(self):
-    &#34;&#34;&#34;Mark the alarm as unacknowledge.
-    &#34;&#34;&#34;
-    if self.nitro.api_v == 1:
-        self.nitro.request(&#39;unack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-    else:
-        self.nitro.request(&#39;unack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroDict.data_from_id" href="index.html#msiempy.NitroDict.data_from_id">data_from_id</a></code></li>
-<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
-<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
 <dt id="msiempy.alarm.AlarmManager"><code class="flex name class">
 <span>class <span class="ident">AlarmManager</span></span>
 <span>(</span><span>status_filter='all', page_size=200, filters=None, event_filters=None, *args, **kwargs)</span>
@@ -1385,27 +914,6 @@ Inherits from FilteredQueryList.</p>
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="msiempy.alarm.AlarmManager.event_filters"><code class="name">var <span class="ident">event_filters</span></code></dt>
-<dd>
-<section class="desc"><p>Returns the event related filters.<br>
-Can be set with list of tuple(field, [values]). A single tuple is also accepted.<br>
-None value will reset event_filters property.<br>
-Raises : <code>AttributeError</code> if type not supported.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def event_filters(self):
-    &#34;&#34;&#34; 
-    Returns the event related filters.  
-    Can be set with list of tuple(field, [values]). A single tuple is also accepted.  
-    None value will reset event_filters property.  
-    Raises : `AttributeError` if type not supported.
-    &#34;&#34;&#34;
-    return self._event_filters</code></pre>
-</details>
-</dd>
 <dt id="msiempy.alarm.AlarmManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
 <section class="desc"><p>Returns the alarm related filters</p></section>
@@ -1440,35 +948,30 @@ def status_filter(self):
     return self._status_filter</code></pre>
 </details>
 </dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="msiempy.alarm.AlarmManager.add_event_filter"><code class="name flex">
-<span>def <span class="ident">add_event_filter</span></span>(<span>self, afilter)</span>
-</code></dt>
+<dt id="msiempy.alarm.AlarmManager.event_filters"><code class="name">var <span class="ident">event_filters</span></code></dt>
 <dd>
-<section class="desc"><p>Make sure the filters format is tuple(field, list(values in string)).
-Takes also care of the differents synonims fields can have : Deprecated
-- <code>afilter</code> : Can be a <code>tuple</code> (field,[values]) or <code>str</code> 'field=value'</p></section>
+<section class="desc"><p>Returns the event related filters.<br>
+Can be set with list of tuple(field, [values]). A single tuple is also accepted.<br>
+None value will reset event_filters property.<br>
+Raises : <code>AttributeError</code> if type not supported.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add_event_filter(self, afilter):
+<pre><code class="python">@property
+def event_filters(self):
+    &#34;&#34;&#34; 
+    Returns the event related filters.  
+    Can be set with list of tuple(field, [values]). A single tuple is also accepted.  
+    None value will reset event_filters property.  
+    Raises : `AttributeError` if type not supported.
     &#34;&#34;&#34;
-        Make sure the filters format is tuple(field, list(values in string)).
-        Takes also care of the differents synonims fields can have : Deprecated
-        - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
-    &#34;&#34;&#34;
-
-    if isinstance(afilter,str):
-        afilter = afilter.split(&#39;=&#39;,1)
-   
-    values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
-    values = [str(v) for v in values] 
-    self._event_filters.append((afilter[0], values))</code></pre>
+    return self._event_filters</code></pre>
 </details>
 </dd>
+</dl>
+<h3>Methods</h3>
+<dl>
 <dt id="msiempy.alarm.AlarmManager.add_filter"><code class="name flex">
 <span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
 </code></dt>
@@ -1520,6 +1023,32 @@ Takes also care of the differents synonims fields can have : Deprecated
 
     if not added :
         raise AttributeError(&#34;Illegal filter field value : &#34;+afilter[0]+&#34;. The filter field must be in :&#34;+str(Alarm.ALARM_FILTER_FIELDS + Alarm.ALARM_EVENT_FILTER_FIELDS))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.AlarmManager.add_event_filter"><code class="name flex">
+<span>def <span class="ident">add_event_filter</span></span>(<span>self, afilter)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Make sure the filters format is tuple(field, list(values in string)).
+Takes also care of the differents synonims fields can have : Deprecated
+- <code>afilter</code> : Can be a <code>tuple</code> (field,[values]) or <code>str</code> 'field=value'</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_event_filter(self, afilter):
+    &#34;&#34;&#34;
+        Make sure the filters format is tuple(field, list(values in string)).
+        Takes also care of the differents synonims fields can have : Deprecated
+        - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
+    &#34;&#34;&#34;
+
+    if isinstance(afilter,str):
+        afilter = afilter.split(&#39;=&#39;,1)
+   
+    values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
+    values = [str(v) for v in values] 
+    self._event_filters.append((afilter[0], values))</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.AlarmManager.clear_filters"><code class="name flex">
@@ -1716,6 +1245,477 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 </li>
 </ul>
 </dd>
+<dt id="msiempy.alarm.Alarm"><code class="flex name class">
+<span>class <span class="ident">Alarm</span></span>
+<span>(</span><span>*arg, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Dict keys :<br>
+- <code>id</code> : The ID of the triggered alarm<br>
+- <code>summary</code>
+: The summary of the triggered alarm<br>
+- <code>assignee</code> : The assignee for this triggered alarm<br>
+- <code>severity</code> : The severity for this triggered alarm<br>
+- <code>triggeredDate</code> : The date this alarm was triggered<br>
+- <code>acknowledgedDate</code> : The date this triggered alarm was acknowledged<br>
+- <code>acknowledgedUsername</code> : The user that acknowledged this triggered alarm<br>
+- <code>alarmName</code> : The name of the alarm that was triggered<br>
+- <code>events</code> : The events for this user<br>
+- And others&hellip;
+</p>
+<p>Creates a empty Alarm.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Alarm(NitroDict):
+    &#34;&#34;&#34;
+    Dict keys :  
+        - `id` : The ID of the triggered alarm  
+        - `summary`  : The summary of the triggered alarm  
+        - `assignee` : The assignee for this triggered alarm  
+        - `severity` : The severity for this triggered alarm  
+        - `triggeredDate` : The date this alarm was triggered  
+        - `acknowledgedDate` : The date this triggered alarm was acknowledged  
+        - `acknowledgedUsername` : The user that acknowledged this triggered alarm  
+        - `alarmName` : The name of the alarm that was triggered  
+        - `events` : The events for this user  
+        - And others...  
+    
+    &#34;&#34;&#34;
+
+    &#34;&#34;&#34;@property
+    def status(self):
+        return(&#39;acknowledged&#39; 
+            if ( (len(self.data[&#39;acknowledgedDate&#39;])&gt;0) 
+                and (len(self.data[&#39;acknowledgedUsername&#39;])&gt;0))
+            else &#39;unacknowledged&#39;)&#34;&#34;&#34;
+
+    POSSIBLE_ALARM_STATUS=[
+        [&#39;acknowledged&#39;, &#39;ack&#39;,],
+        [&#39;unacknowledged&#39;, &#39;unack&#39;,],
+        [&#39;&#39;, &#39;all&#39;, &#39;both&#39;]
+    ]
+    __pdoc__[&#39;Alarm.POSSIBLE_ALARM_STATUS&#39;]=&#34;&#34;&#34;Possible alarm statuses : ```%(statuses)s```&#34;&#34;&#34; % dict(statuses=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in POSSIBLE_ALARM_STATUS]))
+
+    ALARM_FILTER_FIELDS = [(&#39;id&#39;,),
+    (&#39;summary&#39;,&#39;sum&#39;),
+    (&#39;assignee&#39;,&#39;user&#39;),
+    (&#39;severity&#39;,&#39;sever&#39;),
+    (&#39;triggeredDate&#39;,&#39;trigdate&#39;),
+    (&#39;acknowledgedDate&#39;,&#39;ackdate&#39;),
+    (&#39;acknowledgedUsername&#39;,&#39;ackuser&#39;),
+    (&#39;alarmName&#39;,&#39;name&#39;),
+    ]
+    __pdoc__[&#39;Alarm.ALARM_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible alarm related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_FILTER_FIELDS]))
+
+    ALARM_EVENT_FILTER_FIELDS=[
+    (&#34;ruleName&#34;,),
+    (&#34;srcIp&#34;,),
+    (&#34;destIp&#34;,),
+    (&#34;protocol&#34;,),
+    (&#34;lastTime&#34;,),
+    (&#34;subtype&#34;,),
+    (&#34;destPort&#34;,),
+    (&#34;destMac&#34;,),
+    (&#34;srcMac&#34;,),
+    (&#34;srcPort&#34;,),
+    (&#34;deviceName&#34;,),
+    (&#34;sigId&#34;,),
+    (&#34;normId&#34;,),
+    (&#34;srcUser&#34;,),
+    (&#34;destUser&#34;,),
+    (&#34;normMessage&#34;,),
+    (&#34;normDesc&#34;,),
+    (&#34;host&#34;,),
+    (&#34;domain&#34;,),
+    (&#34;ipsId&#34;,),
+    ]
+    __pdoc__[&#39;Alarm.ALARM_EVENT_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible event related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_EVENT_FILTER_FIELDS]))
+
+    ALARM_DEFAULT_FIELDS=[&#39;id&#39;,&#39;alarmName&#39;, &#39;summary&#39;,&#39;triggeredDate&#39;, &#39;acknowledgedUsername&#39;]
+    __pdoc__[&#39;Alarm.ALARM_DEFAULT_FIELDS&#39;]=&#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
+    (not used , may be for printing with `msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join(ALARM_DEFAULT_FIELDS))
+
+    def __init__(self, *arg, **kwargs):
+        &#34;&#34;&#34;Creates a empty Alarm.
+        &#34;&#34;&#34;
+        super().__init__(*arg, **kwargs)
+
+        #Keep the id in the dict when instanciating an Alarm directly from its id.
+        if &#39;id&#39; in kwargs :
+            self.data[&#39;id&#39;] = {&#39;value&#39;:str(kwargs[&#39;id&#39;])}
+
+    def acknowledge(self):
+        &#34;&#34;&#34;Mark the alarm as acknowledged.
+        &#34;&#34;&#34;
+        if self.nitro.api_v == 1:
+            self.nitro.request(&#39;ack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+        else:
+            self.nitro.request(&#39;ack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+
+    def unacknowledge(self):
+        &#34;&#34;&#34;Mark the alarm as unacknowledge.
+        &#34;&#34;&#34;
+        if self.nitro.api_v == 1:
+            self.nitro.request(&#39;unack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+        else:
+            self.nitro.request(&#39;unack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+
+
+    def delete(self):
+        &#34;&#34;&#34;Destructive action!
+        Delete the alarm.
+        &#34;&#34;&#34;
+        if self.nitro.api_v == 1:
+            self.nitro.request(&#39;delete_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+        else:
+            self.nitro.request(&#39;delete_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+
+    def ceate_case(self):
+        &#34;&#34;&#34;Not implemented : TODO
+        &#34;&#34;&#34;
+        raise NotImplementedError()
+
+    def load_details(self):
+        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
+        &#34;&#34;&#34;
+        the_id = self.data[&#39;id&#39;][&#39;value&#39;]
+        self.data.update(self.data_from_id(the_id))
+        self.data[&#39;id&#39;][&#39;value&#39;]=the_id
+
+        return self
+
+    def refresh(self):
+        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.
+        &#34;&#34;&#34;        
+        self.load_details()
+
+    def load_events(self, use_query=False, extra_fields=[]):
+        &#34;&#34;&#34;
+        Retreive the genuine Event object from an Alarm.
+        Warning : This method will only load the details of the first triggering event.  
+        Parameters:  
+        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
+        &#34;&#34;&#34;
+        if isinstance(self.data[&#39;events&#39;], str):
+
+            #Retreive the alert id from the event&#39;s string
+            events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
+            the_id = events_data[0]+&#39;|&#39;+events_data[1]
+
+            #instanciate the event
+            the_first_event=Event()
+            the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
+
+            #set it as the only item of the event list
+            self.data[&#39;events&#39;]= [ the_first_event ]
+
+        else:
+            log.info(&#39;The alarm {} ({}) has no events associated&#39;.format(self.data[&#39;alarmName&#39;], self.data[&#39;triggeredDate&#39;]))
+            self.data[&#39;events&#39;]= [ Event() ]
+
+        return self
+
+    def map_alarm_int_fields(self, alarm_details):
+        &#34;&#34;&#34;Map the internal ESM field names to msiempy style&#34;&#34;&#34;
+
+        for key, val in alarm_details.items():
+            if alarm_details[key] == key:
+                alarm_details[key] = None
+            elif alarm_details[key] in [&#39;f&#39;, &#39;F&#39;]:
+                alarm_details[key] = False
+            elif alarm_details[key] in [&#39;t&#39;, &#39;T&#39;]:
+                alarm_details[key] = True
+            else:
+                alarm_details[key] = val
+
+        new_alarm = {}
+        new_alarm[&#39;filters&#39;] = alarm_details.get(&#39;FILTERS&#39;) or None
+        new_alarm[&#39;queryId&#39;] = alarm_details.get(&#39;QID&#39;) or None
+        new_alarm[&#39;alretRateMin&#39;] = alarm_details.get(&#39;ARM&#39;) or None
+        new_alarm[&#39;alertRateCount&#39;] = alarm_details.get(&#39;ARC&#39;) or None
+        new_alarm[&#39;percentAbove&#39;] = alarm_details.get(&#39;PCTA&#39;) or None
+        new_alarm[&#39;percentBelow&#39;] = alarm_details.get(&#39;PCTB&#39;) or None
+        new_alarm[&#39;offsetMinutes&#39;] = alarm_details.get(&#39;OFFSETMIN&#39;) or None
+        new_alarm[&#39;maximumConditionTriggerFrequency&#39;] = alarm_details.get(&#39;TIMEF&#39;) or None
+        new_alarm[&#39;useWatchlist&#39;] = alarm_details.get(&#39;USEW&#39;) or None
+        new_alarm[&#39;matchField&#39;] = alarm_details.get(&#39;MFLD&#39;) or None
+        new_alarm[&#39;matchValue&#39;] = alarm_details.get(&#39;MWAL&#39;) or None
+        #new_alarm[&#39;healthMonalarm_details&#39;] = alarm_details.get(&#39;HMS&#39;) or None
+        new_alarm[&#39;assigneeId&#39;] = alarm_details.get(&#39;ASNID&#39;) or None
+        new_alarm[&#39;escalatedDate&#39;] = alarm_details.get(&#39;ESCDATE&#39;) or None
+        new_alarm[&#39;caseId&#39;] = alarm_details.get(&#39;CASEID&#39;) or None
+        new_alarm[&#39;caseName&#39;] = alarm_details.get(&#39;CASENAME&#39;) or None
+        new_alarm[&#39;iocName&#39;] = alarm_details.get(&#39;IOCNAME&#39;) or None
+        new_alarm[&#39;iocId&#39;] = alarm_details.get(&#39;IOCID&#39;) or None
+        new_alarm[&#39;description&#39;] = alarm_details.get(&#39;DESC&#39;) or None
+        new_alarm[&#39;actions&#39;] = alarm_details.get(&#39;ACTIONS&#39;) or None
+        new_alarm[&#39;events&#39;] = alarm_details.get(&#39;EVENTS&#39;) or None
+        return new_alarm
+                                                                                       
+    def data_from_id(self, id):
+        &#34;&#34;&#34;
+
+        &#34;&#34;&#34;
+        alarms = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
+        alarms = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarms.items()} #this line is skechy
+        alarms = self.map_alarm_int_fields(alarms)        
+        return alarms
+
+    &#34;&#34;&#34;
+    def _hasID(self):
+        try :
+            if self.data[&#39;id&#39;][&#39;value&#39;] == 0 :
+                return False
+            else :
+                return True
+        
+        except KeyError :
+            return False&#34;&#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
+<li>collections.UserDict</li>
+<li>collections.abc.MutableMapping</li>
+<li>collections.abc.Mapping</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS"><code class="name">var <span class="ident">POSSIBLE_ALARM_STATUS</span></code></dt>
+<dd>
+<section class="desc"><p>Possible alarm statuses : <code>acknowledged/ack, unacknowledged/unack, /all/both</code></p></section>
+</dd>
+<dt id="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_FILTER_FIELDS</span></code></dt>
+<dd>
+<section class="desc"><p>Possible alarm related fields usable in a filter : <code>id, summary/sum, assignee/user, severity/sever, triggeredDate/trigdate, acknowledgedDate/ackdate, acknowledgedUsername/ackuser, alarmName/name</code></p></section>
+</dd>
+<dt id="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_EVENT_FILTER_FIELDS</span></code></dt>
+<dd>
+<section class="desc"><p>Possible event related fields usable in a filter : <code>ruleName, srcIp, destIp, protocol, lastTime, subtype, destPort, destMac, srcMac, srcPort, deviceName, sigId, normId, srcUser, destUser, normMessage, normDesc, host, domain, ipsId</code></p></section>
+</dd>
+<dt id="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS"><code class="name">var <span class="ident">ALARM_DEFAULT_FIELDS</span></code></dt>
+<dd>
+<section class="desc"><p>Defaulfs fields : <code>id, alarmName, summary, triggeredDate, acknowledgedUsername</code>
+(not used , may be for printing with <code>msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)</code>)</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.alarm.Alarm.acknowledge"><code class="name flex">
+<span>def <span class="ident">acknowledge</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Mark the alarm as acknowledged.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def acknowledge(self):
+    &#34;&#34;&#34;Mark the alarm as acknowledged.
+    &#34;&#34;&#34;
+    if self.nitro.api_v == 1:
+        self.nitro.request(&#39;ack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+    else:
+        self.nitro.request(&#39;ack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.Alarm.unacknowledge"><code class="name flex">
+<span>def <span class="ident">unacknowledge</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Mark the alarm as unacknowledge.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def unacknowledge(self):
+    &#34;&#34;&#34;Mark the alarm as unacknowledge.
+    &#34;&#34;&#34;
+    if self.nitro.api_v == 1:
+        self.nitro.request(&#39;unack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+    else:
+        self.nitro.request(&#39;unack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.Alarm.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Destructive action!
+Delete the alarm.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete(self):
+    &#34;&#34;&#34;Destructive action!
+    Delete the alarm.
+    &#34;&#34;&#34;
+    if self.nitro.api_v == 1:
+        self.nitro.request(&#39;delete_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+    else:
+        self.nitro.request(&#39;delete_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.Alarm.ceate_case"><code class="name flex">
+<span>def <span class="ident">ceate_case</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Not implemented : TODO</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ceate_case(self):
+    &#34;&#34;&#34;Not implemented : TODO
+    &#34;&#34;&#34;
+    raise NotImplementedError()</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.Alarm.load_details"><code class="name flex">
+<span>def <span class="ident">load_details</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Update the alarm with detailled data loaded from the SIEM.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_details(self):
+    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
+    &#34;&#34;&#34;
+    the_id = self.data[&#39;id&#39;][&#39;value&#39;]
+    self.data.update(self.data_from_id(the_id))
+    self.data[&#39;id&#39;][&#39;value&#39;]=the_id
+
+    return self</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.Alarm.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def refresh(self):
+    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.
+    &#34;&#34;&#34;        
+    self.load_details()</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.Alarm.load_events"><code class="name flex">
+<span>def <span class="ident">load_events</span></span>(<span>self, use_query=False, extra_fields=[])</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Retreive the genuine Event object from an Alarm.
+Warning : This method will only load the details of the first triggering event.<br>
+Parameters:<br>
+- <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.<br>
+- <code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a></p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_events(self, use_query=False, extra_fields=[]):
+    &#34;&#34;&#34;
+    Retreive the genuine Event object from an Alarm.
+    Warning : This method will only load the details of the first triggering event.  
+    Parameters:  
+    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+    - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
+    &#34;&#34;&#34;
+    if isinstance(self.data[&#39;events&#39;], str):
+
+        #Retreive the alert id from the event&#39;s string
+        events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
+        the_id = events_data[0]+&#39;|&#39;+events_data[1]
+
+        #instanciate the event
+        the_first_event=Event()
+        the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
+
+        #set it as the only item of the event list
+        self.data[&#39;events&#39;]= [ the_first_event ]
+
+    else:
+        log.info(&#39;The alarm {} ({}) has no events associated&#39;.format(self.data[&#39;alarmName&#39;], self.data[&#39;triggeredDate&#39;]))
+        self.data[&#39;events&#39;]= [ Event() ]
+
+    return self</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.Alarm.map_alarm_int_fields"><code class="name flex">
+<span>def <span class="ident">map_alarm_int_fields</span></span>(<span>self, alarm_details)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Map the internal ESM field names to msiempy style</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def map_alarm_int_fields(self, alarm_details):
+    &#34;&#34;&#34;Map the internal ESM field names to msiempy style&#34;&#34;&#34;
+
+    for key, val in alarm_details.items():
+        if alarm_details[key] == key:
+            alarm_details[key] = None
+        elif alarm_details[key] in [&#39;f&#39;, &#39;F&#39;]:
+            alarm_details[key] = False
+        elif alarm_details[key] in [&#39;t&#39;, &#39;T&#39;]:
+            alarm_details[key] = True
+        else:
+            alarm_details[key] = val
+
+    new_alarm = {}
+    new_alarm[&#39;filters&#39;] = alarm_details.get(&#39;FILTERS&#39;) or None
+    new_alarm[&#39;queryId&#39;] = alarm_details.get(&#39;QID&#39;) or None
+    new_alarm[&#39;alretRateMin&#39;] = alarm_details.get(&#39;ARM&#39;) or None
+    new_alarm[&#39;alertRateCount&#39;] = alarm_details.get(&#39;ARC&#39;) or None
+    new_alarm[&#39;percentAbove&#39;] = alarm_details.get(&#39;PCTA&#39;) or None
+    new_alarm[&#39;percentBelow&#39;] = alarm_details.get(&#39;PCTB&#39;) or None
+    new_alarm[&#39;offsetMinutes&#39;] = alarm_details.get(&#39;OFFSETMIN&#39;) or None
+    new_alarm[&#39;maximumConditionTriggerFrequency&#39;] = alarm_details.get(&#39;TIMEF&#39;) or None
+    new_alarm[&#39;useWatchlist&#39;] = alarm_details.get(&#39;USEW&#39;) or None
+    new_alarm[&#39;matchField&#39;] = alarm_details.get(&#39;MFLD&#39;) or None
+    new_alarm[&#39;matchValue&#39;] = alarm_details.get(&#39;MWAL&#39;) or None
+    #new_alarm[&#39;healthMonalarm_details&#39;] = alarm_details.get(&#39;HMS&#39;) or None
+    new_alarm[&#39;assigneeId&#39;] = alarm_details.get(&#39;ASNID&#39;) or None
+    new_alarm[&#39;escalatedDate&#39;] = alarm_details.get(&#39;ESCDATE&#39;) or None
+    new_alarm[&#39;caseId&#39;] = alarm_details.get(&#39;CASEID&#39;) or None
+    new_alarm[&#39;caseName&#39;] = alarm_details.get(&#39;CASENAME&#39;) or None
+    new_alarm[&#39;iocName&#39;] = alarm_details.get(&#39;IOCNAME&#39;) or None
+    new_alarm[&#39;iocId&#39;] = alarm_details.get(&#39;IOCID&#39;) or None
+    new_alarm[&#39;description&#39;] = alarm_details.get(&#39;DESC&#39;) or None
+    new_alarm[&#39;actions&#39;] = alarm_details.get(&#39;ACTIONS&#39;) or None
+    new_alarm[&#39;events&#39;] = alarm_details.get(&#39;EVENTS&#39;) or None
+    return new_alarm</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroDict.data_from_id" href="index.html#msiempy.NitroDict.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
+<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 </dl>
 </section>
 </article>
@@ -1733,33 +1733,33 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="msiempy.alarm.Alarm" href="#msiempy.alarm.Alarm">Alarm</a></code></h4>
-<ul class="">
-<li><code><a title="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS" href="#msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS">ALARM_DEFAULT_FIELDS</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS">ALARM_EVENT_FILTER_FIELDS</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_FILTER_FIELDS">ALARM_FILTER_FIELDS</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS" href="#msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS">POSSIBLE_ALARM_STATUS</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.acknowledge" href="#msiempy.alarm.Alarm.acknowledge">acknowledge</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.ceate_case" href="#msiempy.alarm.Alarm.ceate_case">ceate_case</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.delete" href="#msiempy.alarm.Alarm.delete">delete</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.load_details" href="#msiempy.alarm.Alarm.load_details">load_details</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.load_events" href="#msiempy.alarm.Alarm.load_events">load_events</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.map_alarm_int_fields" href="#msiempy.alarm.Alarm.map_alarm_int_fields">map_alarm_int_fields</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.refresh" href="#msiempy.alarm.Alarm.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.unacknowledge" href="#msiempy.alarm.Alarm.unacknowledge">unacknowledge</a></code></li>
+<h4><code><a title="msiempy.alarm.AlarmManager" href="#msiempy.alarm.AlarmManager">AlarmManager</a></code></h4>
+<ul class="two-column">
+<li><code><a title="msiempy.alarm.AlarmManager.add_filter" href="#msiempy.alarm.AlarmManager.add_filter">add_filter</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.add_event_filter" href="#msiempy.alarm.AlarmManager.add_event_filter">add_event_filter</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.clear_filters" href="#msiempy.alarm.AlarmManager.clear_filters">clear_filters</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.load_data" href="#msiempy.alarm.AlarmManager.load_data">load_data</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data">qry_load_data</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.filters" href="#msiempy.alarm.AlarmManager.filters">filters</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.status_filter" href="#msiempy.alarm.AlarmManager.status_filter">status_filter</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.event_filters" href="#msiempy.alarm.AlarmManager.event_filters">event_filters</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="msiempy.alarm.AlarmManager" href="#msiempy.alarm.AlarmManager">AlarmManager</a></code></h4>
-<ul class="two-column">
-<li><code><a title="msiempy.alarm.AlarmManager.add_event_filter" href="#msiempy.alarm.AlarmManager.add_event_filter">add_event_filter</a></code></li>
-<li><code><a title="msiempy.alarm.AlarmManager.add_filter" href="#msiempy.alarm.AlarmManager.add_filter">add_filter</a></code></li>
-<li><code><a title="msiempy.alarm.AlarmManager.clear_filters" href="#msiempy.alarm.AlarmManager.clear_filters">clear_filters</a></code></li>
-<li><code><a title="msiempy.alarm.AlarmManager.event_filters" href="#msiempy.alarm.AlarmManager.event_filters">event_filters</a></code></li>
-<li><code><a title="msiempy.alarm.AlarmManager.filters" href="#msiempy.alarm.AlarmManager.filters">filters</a></code></li>
-<li><code><a title="msiempy.alarm.AlarmManager.load_data" href="#msiempy.alarm.AlarmManager.load_data">load_data</a></code></li>
-<li><code><a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data">qry_load_data</a></code></li>
-<li><code><a title="msiempy.alarm.AlarmManager.status_filter" href="#msiempy.alarm.AlarmManager.status_filter">status_filter</a></code></li>
+<h4><code><a title="msiempy.alarm.Alarm" href="#msiempy.alarm.Alarm">Alarm</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.alarm.Alarm.acknowledge" href="#msiempy.alarm.Alarm.acknowledge">acknowledge</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.unacknowledge" href="#msiempy.alarm.Alarm.unacknowledge">unacknowledge</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.delete" href="#msiempy.alarm.Alarm.delete">delete</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.ceate_case" href="#msiempy.alarm.Alarm.ceate_case">ceate_case</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.load_details" href="#msiempy.alarm.Alarm.load_details">load_details</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.refresh" href="#msiempy.alarm.Alarm.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.load_events" href="#msiempy.alarm.Alarm.load_events">load_events</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.map_alarm_int_fields" href="#msiempy.alarm.Alarm.map_alarm_int_fields">map_alarm_int_fields</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS" href="#msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS">POSSIBLE_ALARM_STATUS</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_FILTER_FIELDS">ALARM_FILTER_FIELDS</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS">ALARM_EVENT_FILTER_FIELDS</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS" href="#msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS">ALARM_DEFAULT_FIELDS</a></code></li>
 </ul>
 </li>
 </ul>

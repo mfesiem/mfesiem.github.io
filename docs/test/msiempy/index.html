@@ -349,8 +349,9 @@ class NitroSession():
                     &#34;&#34;&#34;),
 
         &#34;get_wfile&#34;: (&#34;MISC_WRITEFILE&#34;,
-                    &#34;&#34;&#34;{&#34;DATA1&#34;: &#34;%(_ds_id)s&#34;,
-                    &#34;&#34;&#34;),
+                    &#34;&#34;&#34;{&#34;DATA1&#34;: &#34;%(ds_id)s&#34;,
+                         &#34;PATH&#34;: &#34;21&#34;,
+                         &#34;ND&#34;: &#34;1&#34;} &#34;&#34;&#34;),
         
         &#34;get_rule_history&#34;: (&#34;PLCY_GETRULECHANGEINFO&#34;, 
                             &#34;&#34;&#34;{&#34;SHOW&#34;: &#34;F&#34;}&#34;&#34;&#34;),
@@ -402,7 +403,7 @@ class NitroSession():
                                 &#34;parameters&#34;: %(parameters)s
                                 }]}&#34;&#34;&#34;),
 
-        &#34;add_client&#34;: (&#34;DS_ADDDSCLIENT&#34;, 
+        &#34;add_client1&#34;: (&#34;DS_ADDDSCLIENT&#34;, 
                         &#34;&#34;&#34;{&#34;PID&#34;: &#34;%(parent_id)s&#34;,
                         &#34;NAME&#34;: &#34;%(name)s&#34;,
                         &#34;ENABLED&#34;: &#34;%(enabled)s&#34;,
@@ -413,7 +414,7 @@ class NitroSession():
                         &#34;DORDER&#34;: &#34;%(dorder)s&#34;,
                         &#34;MASKFLAG&#34;: &#34;%(maskflag)s&#34;,
                         &#34;PORT&#34;: &#34;%(port)s&#34;,
-                        &#34;USETLS&#34;: &#34;%(syslog_tls)s&#34;
+                        &#34;USETLS&#34;: &#34;%(require_tls)s&#34;
                         }&#34;&#34;&#34;),
                         
         &#34;get_recs&#34;: (&#34;devGetDeviceList?filterByRights=false&#34;,
@@ -425,14 +426,24 @@ class NitroSession():
                             }
                         &#34;&#34;&#34;),
                         
-        &#34;del_ds&#34;: (&#34;dsDeleteDataSource&#34;,
+        &#34;del_ds1&#34;: (&#34;dsDeleteDataSource&#34;,
                     &#34;&#34;&#34;{&#34;receiverId&#34;: {&#34;id&#34;: &#34;%(parent_id)s&#34;},
                         &#34;datasourceId&#34;: {&#34;id&#34;: &#34;%(ds_id)s&#34;}}
                     &#34;&#34;&#34;),
-                    
-        &#34;del_client&#34;: (&#34;DS_DELETEDSCLIENTS&#34;,None
+
+        &#34;del_ds2&#34;: (&#34;dsDeleteDataSources&#34;,
+                    &#34;&#34;&#34;{&#34;receiverId&#34;: {&#34;value&#34;: &#34;%(parent_id)s&#34;},
+                        &#34;datasourceIds&#34;: [{&#34;value&#34;: &#34;%(ds_id)s&#34;}]}
+                    &#34;&#34;&#34;),
+
+        &#34;del_client&#34;: (&#34;DS_DELETEDSCLIENTS&#34;, 
+                        &#34;&#34;&#34;{&#34;DID&#34;: &#34;%(parent_id)s&#34;,
+                             &#34;FTOKEN&#34;: &#34;%(ftoken)s&#34;}&#34;&#34;&#34;
                         ),
-                        
+
+        &#34;get_job_status&#34;: (&#34;MISC_JOBSTATUS&#34;,
+                            &#34;&#34;&#34;{&#34;JID&#34;: &#34;%(job_id)s&#34;}&#34;&#34;&#34;),
+
         &#34;ds_last_times&#34;: (&#34;QRY%5FGETDEVICELASTALERTTIME&#34;,&#34;&#34;&#34;{}&#34;&#34;&#34;),
                         
         &#34;zonetree&#34;: (&#34;zoneGetZoneTree&#34;,None),
@@ -463,10 +474,14 @@ class NitroSession():
                                 &#34;256&#34;: &#34;client&#34;}
                             &#34;&#34;&#34;),
                             
-            &#34;ds_details&#34;: (&#34;dsGetDataSourceDetail&#34;,
+            &#34;ds_details1&#34;: (&#34;dsGetDataSourceDetail&#34;,
                             &#34;&#34;&#34;{&#34;datasourceId&#34;: 
                                 {&#34;id&#34;: &#34;%(ds_id)s&#34;}}
                             &#34;&#34;&#34;),
+
+            &#34;ds_details2&#34;: (&#34;dsGetDataSourceDetail&#34;,
+                            &#34;&#34;&#34;{&#34;datasourceId&#34;: {&#34;value&#34;: &#34;%(ds_id)s&#34;}}&#34;&#34;&#34;),
+
 
             &#34;get_alarms_custom_time&#34;: (&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;customStart=%(start_time)s&amp;customEnd=%(end_time)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s&#34;&#34;&#34;,
                         None),
@@ -474,7 +489,7 @@ class NitroSession():
             &#34;get_alarms&#34;: (&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s&#34;&#34;&#34;, None),
 
             &#34;get_alarm_details&#34;: (&#34;&#34;&#34;notifyGetTriggeredNotification&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;id&#34;:%(id)s}&#34;&#34;&#34;),
-            
+
             &#34;get_alarm_details_int&#34;: (&#34;NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL&#34;, 
                                         &#34;&#34;&#34;{&#34;TID&#34;: &#34;%(id)s&#34;}&#34;&#34;&#34;),
 
@@ -524,7 +539,9 @@ class NitroSession():
                         &#34;fields&#34;:%(fields)s,
                         &#34;filters&#34;:%(filters)s,
                         &#34;limit&#34;:%(limit)s,
-                        &#34;offset&#34;:%(offset)s
+                        &#34;offset&#34;:%(offset)s,
+                        &#34;order&#34;: [{&#34;field&#34;: {&#34;name&#34;: &#34;%(order_field)s&#34;},
+                                             &#34;direction&#34;: &#34;%(order_direction)s&#34;}]
                         }
                         }&#34;&#34;&#34;),
 
@@ -890,9 +907,17 @@ class NitroSession():
         if not self._logged and method != &#39;login&#39;:
             self.login()
             self.version = self.version()
+            # Shorthanding the version check 
+            # 1 for pre 11.2.1, 2 for 11.2.1 and later
+            # Not be confused with the ESM API v1 and v2 which are different.
+            if self.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+                self.api_v = 1
+            else:
+                self.api_v = 2
+    
         try :
             #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
-            esm_request_args = inspect.getargspec(self.esm_request)[0]
+            esm_request_args = inspect.getfullargspec(self.esm_request)[0]
             params={}
             for arg in kwargs :
                 if arg in esm_request_args:
@@ -1023,8 +1048,6 @@ class NitroObject(abc.ABC):
         def default(self, obj): # pylint: disable=E0202
             if isinstance(obj,(NitroDict, NitroList)):
                 return obj.data
-            #elif isinstance(obj, (QueryFilter)):
-                #return obj.config_dict
             else:
                 return json.JSONEncoder.default(self, obj) 
 
@@ -1033,17 +1056,6 @@ class NitroObject(abc.ABC):
         &#34;&#34;&#34;Creates the object session.
         &#34;&#34;&#34;
         self.nitro=NitroSession()
-
-    def __str__(self):
-        &#34;&#34;&#34;str(obj) -&gt; return text string.
-        Can be a table if the object is a NitroList.
-        &#34;&#34;&#34;
-        return self.text
-
-    def __repr__(self):
-        &#34;&#34;&#34;repr(obj) -&gt; return json string.
-        &#34;&#34;&#34;
-        return self.json
 
     @abc.abstractproperty
     def text(self):
@@ -1092,6 +1104,17 @@ class NitroDict(collections.UserDict, NitroObject):
             if isinstance(self.data[key], list):
                 self.data[key]=NitroList(alist=self.data[key])
 
+    def __str__(self):
+        &#34;&#34;&#34;str(obj) -&gt; return text string.
+        Can be a table if the object is a NitroList.
+        &#34;&#34;&#34;
+        return self.text
+
+    def __repr__(self):
+        &#34;&#34;&#34;repr(obj) -&gt; return json string.
+        &#34;&#34;&#34;
+        return self.json
+
     @property
     def json(self):
         &#34;&#34;&#34;JSON representation of a item. Basic dict.
@@ -1105,7 +1128,7 @@ class NitroDict(collections.UserDict, NitroObject):
         return(&#39;, &#39;.join([str(val) for val in self.values()]))
 
     def refresh(self):
-        &#34;&#34;&#34;Not implemented here
+        &#34;&#34;&#34;Default behaviour
         &#34;&#34;&#34;
         log.debug(&#39;NOT Refreshing item :&#39;+str(self)+&#39; &#39;+str(NotImplementedError()))
 
@@ -1139,6 +1162,17 @@ class NitroList(collections.UserList, NitroObject):
                 )
         else :
             raise ValueError(&#39;NitroList can only be initiated based on a list&#39;)
+
+    def __str__(self):
+        &#34;&#34;&#34;str(obj) -&gt; return text string.
+        Can be a table if the object is a NitroList.
+        &#34;&#34;&#34;
+        return self.text
+
+    def __repr__(self):
+        &#34;&#34;&#34;repr(obj) -&gt; return json string.
+        &#34;&#34;&#34;
+        return self.json
 
     def _norm_dicts(self):
         &#34;&#34;&#34;
@@ -2596,6 +2630,17 @@ and update dict values accordingly.</p>
             if isinstance(self.data[key], list):
                 self.data[key]=NitroList(alist=self.data[key])
 
+    def __str__(self):
+        &#34;&#34;&#34;str(obj) -&gt; return text string.
+        Can be a table if the object is a NitroList.
+        &#34;&#34;&#34;
+        return self.text
+
+    def __repr__(self):
+        &#34;&#34;&#34;repr(obj) -&gt; return json string.
+        &#34;&#34;&#34;
+        return self.json
+
     @property
     def json(self):
         &#34;&#34;&#34;JSON representation of a item. Basic dict.
@@ -2609,7 +2654,7 @@ and update dict values accordingly.</p>
         return(&#39;, &#39;.join([str(val) for val in self.values()]))
 
     def refresh(self):
-        &#34;&#34;&#34;Not implemented here
+        &#34;&#34;&#34;Default behaviour
         &#34;&#34;&#34;
         log.debug(&#39;NOT Refreshing item :&#39;+str(self)+&#39; &#39;+str(NotImplementedError()))
 
@@ -2634,8 +2679,8 @@ and update dict values accordingly.</p>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></li>
-<li><a title="msiempy.alarm.Alarm" href="alarm.html#msiempy.alarm.Alarm">Alarm</a></li>
 <li><a title="msiempy.device.DataSource" href="device.html#msiempy.device.DataSource">DataSource</a></li>
+<li><a title="msiempy.alarm.Alarm" href="alarm.html#msiempy.alarm.Alarm">Alarm</a></li>
 <li><a title="msiempy.watchlist.Watchlist" href="watchlist.html#msiempy.watchlist.Watchlist">Watchlist</a></li>
 </ul>
 <h3>Instance variables</h3>
@@ -2691,13 +2736,13 @@ def data_from_id(self, id):
 <span>def <span class="ident">refresh</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Not implemented here</p></section>
+<section class="desc"><p>Default behaviour</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def refresh(self):
-    &#34;&#34;&#34;Not implemented here
+    &#34;&#34;&#34;Default behaviour
     &#34;&#34;&#34;
     log.debug(&#39;NOT Refreshing item :&#39;+str(self)+&#39; &#39;+str(NotImplementedError()))</code></pre>
 </details>
@@ -2774,6 +2819,17 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
                 )
         else :
             raise ValueError(&#39;NitroList can only be initiated based on a list&#39;)
+
+    def __str__(self):
+        &#34;&#34;&#34;str(obj) -&gt; return text string.
+        Can be a table if the object is a NitroList.
+        &#34;&#34;&#34;
+        return self.text
+
+    def __repr__(self):
+        &#34;&#34;&#34;repr(obj) -&gt; return json string.
+        &#34;&#34;&#34;
+        return self.json
 
     def _norm_dicts(self):
         &#34;&#34;&#34;
@@ -3500,8 +3556,6 @@ i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
         def default(self, obj): # pylint: disable=E0202
             if isinstance(obj,(NitroDict, NitroList)):
                 return obj.data
-            #elif isinstance(obj, (QueryFilter)):
-                #return obj.config_dict
             else:
                 return json.JSONEncoder.default(self, obj) 
 
@@ -3510,17 +3564,6 @@ i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
         &#34;&#34;&#34;Creates the object session.
         &#34;&#34;&#34;
         self.nitro=NitroSession()
-
-    def __str__(self):
-        &#34;&#34;&#34;str(obj) -&gt; return text string.
-        Can be a table if the object is a NitroList.
-        &#34;&#34;&#34;
-        return self.text
-
-    def __repr__(self):
-        &#34;&#34;&#34;repr(obj) -&gt; return json string.
-        &#34;&#34;&#34;
-        return self.json
 
     @abc.abstractproperty
     def text(self):
@@ -3571,8 +3614,6 @@ TODO support json json dumping of QueryFilers, may be by making them inherits fr
     def default(self, obj): # pylint: disable=E0202
         if isinstance(obj,(NitroDict, NitroList)):
             return obj.data
-        #elif isinstance(obj, (QueryFilter)):
-            #return obj.config_dict
         else:
             return json.JSONEncoder.default(self, obj) </code></pre>
 </details>
@@ -3721,8 +3762,9 @@ Use logout() to reinstanciate NitroSession.
                     &#34;&#34;&#34;),
 
         &#34;get_wfile&#34;: (&#34;MISC_WRITEFILE&#34;,
-                    &#34;&#34;&#34;{&#34;DATA1&#34;: &#34;%(_ds_id)s&#34;,
-                    &#34;&#34;&#34;),
+                    &#34;&#34;&#34;{&#34;DATA1&#34;: &#34;%(ds_id)s&#34;,
+                         &#34;PATH&#34;: &#34;21&#34;,
+                         &#34;ND&#34;: &#34;1&#34;} &#34;&#34;&#34;),
         
         &#34;get_rule_history&#34;: (&#34;PLCY_GETRULECHANGEINFO&#34;, 
                             &#34;&#34;&#34;{&#34;SHOW&#34;: &#34;F&#34;}&#34;&#34;&#34;),
@@ -3774,7 +3816,7 @@ Use logout() to reinstanciate NitroSession.
                                 &#34;parameters&#34;: %(parameters)s
                                 }]}&#34;&#34;&#34;),
 
-        &#34;add_client&#34;: (&#34;DS_ADDDSCLIENT&#34;, 
+        &#34;add_client1&#34;: (&#34;DS_ADDDSCLIENT&#34;, 
                         &#34;&#34;&#34;{&#34;PID&#34;: &#34;%(parent_id)s&#34;,
                         &#34;NAME&#34;: &#34;%(name)s&#34;,
                         &#34;ENABLED&#34;: &#34;%(enabled)s&#34;,
@@ -3785,7 +3827,7 @@ Use logout() to reinstanciate NitroSession.
                         &#34;DORDER&#34;: &#34;%(dorder)s&#34;,
                         &#34;MASKFLAG&#34;: &#34;%(maskflag)s&#34;,
                         &#34;PORT&#34;: &#34;%(port)s&#34;,
-                        &#34;USETLS&#34;: &#34;%(syslog_tls)s&#34;
+                        &#34;USETLS&#34;: &#34;%(require_tls)s&#34;
                         }&#34;&#34;&#34;),
                         
         &#34;get_recs&#34;: (&#34;devGetDeviceList?filterByRights=false&#34;,
@@ -3797,14 +3839,24 @@ Use logout() to reinstanciate NitroSession.
                             }
                         &#34;&#34;&#34;),
                         
-        &#34;del_ds&#34;: (&#34;dsDeleteDataSource&#34;,
+        &#34;del_ds1&#34;: (&#34;dsDeleteDataSource&#34;,
                     &#34;&#34;&#34;{&#34;receiverId&#34;: {&#34;id&#34;: &#34;%(parent_id)s&#34;},
                         &#34;datasourceId&#34;: {&#34;id&#34;: &#34;%(ds_id)s&#34;}}
                     &#34;&#34;&#34;),
-                    
-        &#34;del_client&#34;: (&#34;DS_DELETEDSCLIENTS&#34;,None
+
+        &#34;del_ds2&#34;: (&#34;dsDeleteDataSources&#34;,
+                    &#34;&#34;&#34;{&#34;receiverId&#34;: {&#34;value&#34;: &#34;%(parent_id)s&#34;},
+                        &#34;datasourceIds&#34;: [{&#34;value&#34;: &#34;%(ds_id)s&#34;}]}
+                    &#34;&#34;&#34;),
+
+        &#34;del_client&#34;: (&#34;DS_DELETEDSCLIENTS&#34;, 
+                        &#34;&#34;&#34;{&#34;DID&#34;: &#34;%(parent_id)s&#34;,
+                             &#34;FTOKEN&#34;: &#34;%(ftoken)s&#34;}&#34;&#34;&#34;
                         ),
-                        
+
+        &#34;get_job_status&#34;: (&#34;MISC_JOBSTATUS&#34;,
+                            &#34;&#34;&#34;{&#34;JID&#34;: &#34;%(job_id)s&#34;}&#34;&#34;&#34;),
+
         &#34;ds_last_times&#34;: (&#34;QRY%5FGETDEVICELASTALERTTIME&#34;,&#34;&#34;&#34;{}&#34;&#34;&#34;),
                         
         &#34;zonetree&#34;: (&#34;zoneGetZoneTree&#34;,None),
@@ -3835,10 +3887,14 @@ Use logout() to reinstanciate NitroSession.
                                 &#34;256&#34;: &#34;client&#34;}
                             &#34;&#34;&#34;),
                             
-            &#34;ds_details&#34;: (&#34;dsGetDataSourceDetail&#34;,
+            &#34;ds_details1&#34;: (&#34;dsGetDataSourceDetail&#34;,
                             &#34;&#34;&#34;{&#34;datasourceId&#34;: 
                                 {&#34;id&#34;: &#34;%(ds_id)s&#34;}}
                             &#34;&#34;&#34;),
+
+            &#34;ds_details2&#34;: (&#34;dsGetDataSourceDetail&#34;,
+                            &#34;&#34;&#34;{&#34;datasourceId&#34;: {&#34;value&#34;: &#34;%(ds_id)s&#34;}}&#34;&#34;&#34;),
+
 
             &#34;get_alarms_custom_time&#34;: (&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;customStart=%(start_time)s&amp;customEnd=%(end_time)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s&#34;&#34;&#34;,
                         None),
@@ -3846,7 +3902,7 @@ Use logout() to reinstanciate NitroSession.
             &#34;get_alarms&#34;: (&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=%(time_range)s&amp;status=%(status)s&amp;pageSize=%(page_size)s&amp;pageNumber=%(page_number)s&#34;&#34;&#34;, None),
 
             &#34;get_alarm_details&#34;: (&#34;&#34;&#34;notifyGetTriggeredNotification&#34;&#34;&#34;, &#34;&#34;&#34;{&#34;id&#34;:%(id)s}&#34;&#34;&#34;),
-            
+
             &#34;get_alarm_details_int&#34;: (&#34;NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL&#34;, 
                                         &#34;&#34;&#34;{&#34;TID&#34;: &#34;%(id)s&#34;}&#34;&#34;&#34;),
 
@@ -3896,7 +3952,9 @@ Use logout() to reinstanciate NitroSession.
                         &#34;fields&#34;:%(fields)s,
                         &#34;filters&#34;:%(filters)s,
                         &#34;limit&#34;:%(limit)s,
-                        &#34;offset&#34;:%(offset)s
+                        &#34;offset&#34;:%(offset)s,
+                        &#34;order&#34;: [{&#34;field&#34;: {&#34;name&#34;: &#34;%(order_field)s&#34;},
+                                             &#34;direction&#34;: &#34;%(order_direction)s&#34;}]
                         }
                         }&#34;&#34;&#34;),
 
@@ -4262,9 +4320,17 @@ Use logout() to reinstanciate NitroSession.
         if not self._logged and method != &#39;login&#39;:
             self.login()
             self.version = self.version()
+            # Shorthanding the version check 
+            # 1 for pre 11.2.1, 2 for 11.2.1 and later
+            # Not be confused with the ESM API v1 and v2 which are different.
+            if self.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+                self.api_v = 1
+            else:
+                self.api_v = 2
+    
         try :
             #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
-            esm_request_args = inspect.getargspec(self.esm_request)[0]
+            esm_request_args = inspect.getfullargspec(self.esm_request)[0]
             params={}
             for arg in kwargs :
                 if arg in esm_request_args:
@@ -4862,9 +4928,17 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
     if not self._logged and method != &#39;login&#39;:
         self.login()
         self.version = self.version()
+        # Shorthanding the version check 
+        # 1 for pre 11.2.1, 2 for 11.2.1 and later
+        # Not be confused with the ESM API v1 and v2 which are different.
+        if self.version.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+            self.api_v = 1
+        else:
+            self.api_v = 2
+
     try :
         #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
-        esm_request_args = inspect.getargspec(self.esm_request)[0]
+        esm_request_args = inspect.getfullargspec(self.esm_request)[0]
         params={}
         for arg in kwargs :
             if arg in esm_request_args:

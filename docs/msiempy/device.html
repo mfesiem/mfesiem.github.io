@@ -539,7 +539,7 @@ class DevTree(NitroList):
             list of Receiver dicts (str:str)
         &#34;&#34;&#34;
         return [self._rec for self._rec in self.devtree
-                    if self._rec[&#39;desc_id&#39;] == &#39;2&#39;]
+                    if self._rec[&#39;desc_id&#39;] in [&#39;2&#39;,&#39;13&#39;]]
     
     def build_devtree(self):
         &#34;&#34;&#34;
@@ -856,6 +856,7 @@ class DevTree(NitroList):
                         &#39;7&#39;: &#39;Policy Auditor&#39;,
                         &#39;10&#39;: &#39;Application Data Monitor (ADM)&#39;,
                         &#39;12&#39;: &#39;ELM&#39;,
+                        &#39;13&#39;: &#39;McAfee Event Receiver/ELM&#39;,
                         &#39;14&#39;: &#39;Local ESM&#39;,
                         &#39;15&#39;: &#39;Advanced Correlation Engine (ACE)&#39;,
                         &#39;16&#39;: &#39;Asset datasource&#39;,
@@ -1310,72 +1311,6 @@ class DataSource(NitroDict):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="msiempy.device.Device"><code class="flex name class">
-<span>class <span class="ident">Device</span></span>
-</code></dt>
-<dd>
-<section class="desc"><p>Base class for all nitro objects. All objects have a reference to the single <a title="msiempy.NitroSession" href="index.html#msiempy.NitroSession"><code>NitroSession</code></a> object that handle the esm requests.</p>
-<p>Creates the object session.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Device(NitroObject):
-    pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="msiempy.device.ERC" href="#msiempy.device.ERC">ERC</a></li>
-<li><a title="msiempy.device.ESM" href="#msiempy.device.ESM">ESM</a></li>
-</ul>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroObject.json" href="index.html#msiempy.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.NitroObject.refresh" href="index.html#msiempy.NitroObject.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.NitroObject.text" href="index.html#msiempy.NitroObject.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="msiempy.device.ERC"><code class="flex name class">
-<span>class <span class="ident">ERC</span></span>
-</code></dt>
-<dd>
-<section class="desc"><p>Base class for all nitro objects. All objects have a reference to the single <a title="msiempy.NitroSession" href="index.html#msiempy.NitroSession"><code>NitroSession</code></a> object that handle the esm requests.</p>
-<p>Creates the object session.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class ERC(Device):
-    pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.device.Device" href="#msiempy.device.Device">Device</a></li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.device.Device" href="#msiempy.device.Device">Device</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.device.Device.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.device.Device.json" href="index.html#msiempy.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.device.Device.refresh" href="index.html#msiempy.NitroObject.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.device.Device.text" href="index.html#msiempy.NitroObject.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
 <dt id="msiempy.device.ESM"><code class="flex name class">
 <span>class <span class="ident">ESM</span></span>
 <span>(</span><span>*args, **kwargs)</span>
@@ -1793,6 +1728,68 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="msiempy.device.ESM.disks"><code class="name flex">
+<span>def <span class="ident">disks</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="returns">Returns</h2>
+<p>str. ESM disks and utilization.</p>
+<h2 id="example">Example</h2>
+<p>'sda3
+Size:
+491GB, Used:
+55GB(12%), Available:
+413GB, Mount: /'</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def disks(self):
+    &#34;&#34;&#34;
+    Returns:
+        str. ESM disks and utilization.
+
+    Example:
+        &#39;sda3     Size:  491GB, Used:   55GB(12%), Available:  413GB, Mount: /&#39;
+    &#34;&#34;&#34;
+    return self.status()[&#39;hdd&#39;]</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.ESM.venmod_to_type_id"><code class="name flex">
+<span>def <span class="ident">venmod_to_type_id</span></span>(<span>self, vendor, model)</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>vendor</code></strong> :&ensp;<code>str</code></dt>
+<dd>Exact vendor string including puncuation</dd>
+<dt><strong><code>model</code></strong> :&ensp;<code>str</code></dt>
+<dd>Exact vendor string including puncuation</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str.</code> <code>Matching</code> <code>type_id</code> or <code>None</code> <code>if</code> <code>there</code> <code>is</code> <code>no</code> <code>match</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def venmod_to_type_id(self, vendor, model):
+    &#34;&#34;&#34;
+    Args:
+        vendor (str): Exact vendor string including puncuation
+        model (str): Exact vendor string including puncuation
+    
+    Returns:
+        str. Matching type_id or None if there is no match
+    &#34;&#34;&#34;
+    for venmod in self._get_ds_types():
+        if vendor == venmod[1]:
+            if model == venmod[2]:
+                return str(venmod[0])</code></pre>
+</details>
+</dd>
 <dt id="msiempy.device.ESM.time"><code class="name flex">
 <span>def <span class="ident">time</span></span>(<span>self)</span>
 </code></dt>
@@ -1816,6 +1813,244 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
     return self.nitro.request(&#34;get_esm_time&#34;)[&#39;value&#39;]</code></pre>
 </details>
 </dd>
+<dt id="msiempy.device.ESM.get_alerts"><code class="name flex">
+<span>def <span class="ident">get_alerts</span></span>(<span>self, ds_id, flows=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Tells the ESM to retrieve alerts from the provided device ID.</p>
+<h2 id="arguments">Arguments</h2>
+<dl>
+<dt><strong><code>ds_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>IPSID for the device, e.g. 144116287587483648</dd>
+<dt><strong><code>flows</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Also get flows from the device (default: False)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_alerts(self, ds_id, flows=False):
+    &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.
+    
+    Arguments:
+        ds_id (str): IPSID for the device, e.g. 144116287587483648
+        flows (bool): Also get flows from the device (default: False)
+    
+    Returns:
+        None
+    &#34;&#34;&#34;
+    self.nitro.request(&#39;get_alerts_now&#39;, ds_id=ds_id)
+    if flows:
+        self.nitro.request(&#39;get_flows_now&#39;, ds_id=ds_id)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.ESM.map_status_int_fields"><code class="name flex">
+<span>def <span class="ident">map_status_int_fields</span></span>(<span>self, status)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def map_status_int_fields(self, status):
+    new_status = {}
+    new_status[&#39;cpu&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[0][6:]
+    new_status[&#39;hdd&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[1][6:]
+    new_status[&#39;ram&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[2][6:]
+    new_status[&#39;autoBackupEnabled&#39;] = status[&#39;ABENABLED&#39;]
+    new_status[&#39;autoBackupHour&#39;] = status[&#39;ABHOUR&#39;]
+    new_status[&#39;autoBackupDay&#39;] = status[&#39;ABDAY&#39;]
+    new_status[&#39;backupNextTime&#39;] = status[&#39;BUNEXT&#39;]
+    new_status[&#39;backupLastTime&#39;] = status[&#39;BULAST&#39;]
+    new_status[&#39;rulesAndSoftwareCheckEnabled&#39;] = status[&#39;RSCENABLED&#39;]
+    new_status[&#39;rulesAndSoftNextCheck&#39;] = status[&#39;RSNEXT&#39;]
+    if status[&#39;RSLAST&#39;] == &#39;RSLAST&#39;:
+        new_status[&#39;rulesAndSoftLastCheck&#39;] = None
+    else:
+        new_status[&#39;rulesAndSoftLastCheck&#39;] = status[&#39;RSLAST&#39;]
+    if status[&#39;CHIP&#39;] == &#39;CHIP&#39;:
+        new_status[&#39;callHomeIp&#39;] = None
+    else:
+        new_status[&#39;callHomeIp&#39;] = status[&#39;CHIP&#39;]
+    return new_status</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.ESM.callhome"><code class="name flex">
+<span>def <span class="ident">callhome</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool.</code> <code>True</code>/<code>False</code> <code>if</code> <code>there</code> <code>is</code> <code>currently</code> <code>a</code> <code>callhome</code> <code>connection</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def callhome(self):
+    &#34;&#34;&#34;
+    Returns:
+        bool. True/False if there is currently a callhome connection
+    &#34;&#34;&#34;
+    if self.status()[&#39;callHomeIp&#39;]:
+        return True</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.ESM.rules_history"><code class="name flex">
+<span>def <span class="ident">rules_history</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns:
+Policy Editor rule history.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rules_history(self):
+    &#34;&#34;&#34;
+    Returns: 
+        Policy Editor rule history.
+    &#34;&#34;&#34;
+    file = self.nitro.request(&#39;get_rule_history&#39;)[&#39;TK&#39;]
+    return self.nitro.get_internal_file(file)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.ESM.timezones"><code class="name flex">
+<span>def <span class="ident">timezones</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Builds table of ESM timezones and names only. No offsets.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict.</code> {<code>timezone_id</code>, <code>timezone_name</code>}</dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def timezones(self):
+    &#34;&#34;&#34;
+    Builds table of ESM timezones and names only. No offsets.
+    
+    Returns:
+        dict. {timezone_id, timezone_name}
+    &#34;&#34;&#34;
+    return {str(tz[&#39;id&#39;][&#39;value&#39;]): tz[&#39;name&#39;]
+                        for tz in self._get_timezones()}</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.ESM.tz_offsets"><code class="name flex">
+<span>def <span class="ident">tz_offsets</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Builds table of ESM timezones including offsets.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>list.</code> <code>List</code> of <code>timezone</code> <code>tuples</code> (<code>name</code>, <code>id</code>, <code>offset</code>)</dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="example">Example</h2>
+<p>[(1, 'Midway Island, Samoa', '-11:00'),
+(2, 'Hawaii', '-10:00'),
+&hellip;
+]</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tz_offsets(self):
+    &#34;&#34;&#34;
+    Builds table of ESM timezones including offsets.
+    
+    Returns:
+        list. List of timezone tuples (name, id, offset)
+        
+    Example:
+        [(1, &#39;Midway Island, Samoa&#39;, &#39;-11:00&#39;),
+         (2, &#39;Hawaii&#39;, &#39;-10:00&#39;),
+         ...
+        ]
+    &#34;&#34;&#34;
+    return [(tz[&#39;id&#39;][&#39;value&#39;], tz[&#39;name&#39;], tz[&#39;offset&#39;]) 
+              for tz in self._get_timezones()]</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.ESM.backup_status"><code class="name flex">
+<span>def <span class="ident">backup_status</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="returns">Returns</h2>
+<p>dict. Backup status and timestamps.</p>
+<p>{'autoBackupEnabled': True,
+'autoBackupDay': 7,
+'autoBackupHour': 0,
+'backupLastTime': '07/03/2017 08:59:36',
+'backupNextTime': '07/10/2017 08:59'}</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def backup_status(self):
+    &#34;&#34;&#34;
+    Returns:
+        dict. Backup status and timestamps.
+
+        {&#39;autoBackupEnabled&#39;: True,
+            &#39;autoBackupDay&#39;: 7,
+            &#39;autoBackupHour&#39;: 0,
+            &#39;backupLastTime&#39;: &#39;07/03/2017 08:59:36&#39;,
+            &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}
+    &#34;&#34;&#34;
+    fields = [&#39;autoBackupEnabled&#39;,
+               &#39;autoBackupDay&#39;,
+               &#39;autoBackupHour&#39;,
+               &#39;autoBackupHour&#39;,
+               &#39;backupNextTime&#39;]
+
+    return {key: val for key, val in self.status().items()
+            if key in fields}</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.ESM.tz_id_to_name"><code class="name flex">
+<span>def <span class="ident">tz_id_to_name</span></span>(<span>self, tz_id)</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>td_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>Numerical string (Currently 1-74)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str.</code> <code>Timezone</code> <code>name</code> or <code>None</code> <code>if</code> <code>there</code> <code>is</code> <code>no</code> <code>match</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tz_id_to_name(self, tz_id):
+    &#34;&#34;&#34;
+    Args:
+        td_id (str): Numerical string (Currently 1-74)
+    
+    Returns:
+        str. Timezone name or None if there is no match
+    &#34;&#34;&#34;
+    try:
+        return self.timezones()[tz_id]
+    except KeyError:
+        return None</code></pre>
+</details>
+</dd>
 <dt id="msiempy.device.ESM.buildstamp"><code class="name flex">
 <span>def <span class="ident">buildstamp</span></span>(<span>self)</span>
 </code></dt>
@@ -1827,19 +2062,6 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
 </summary>
 <pre><code class="python">def buildstamp(self):
     return self.nitro.buildstamp()</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.ESM.version"><code class="name flex">
-<span>def <span class="ident">version</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def version(self):
-    return self.nitro.version</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.ESM.status"><code class="name flex">
@@ -1883,65 +2105,6 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
     return self.map_status_int_fields(status)</code></pre>
 </details>
 </dd>
-<dt id="msiempy.device.ESM.map_status_int_fields"><code class="name flex">
-<span>def <span class="ident">map_status_int_fields</span></span>(<span>self, status)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def map_status_int_fields(self, status):
-    new_status = {}
-    new_status[&#39;cpu&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[0][6:]
-    new_status[&#39;hdd&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[1][6:]
-    new_status[&#39;ram&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[2][6:]
-    new_status[&#39;autoBackupEnabled&#39;] = status[&#39;ABENABLED&#39;]
-    new_status[&#39;autoBackupHour&#39;] = status[&#39;ABHOUR&#39;]
-    new_status[&#39;autoBackupDay&#39;] = status[&#39;ABDAY&#39;]
-    new_status[&#39;backupNextTime&#39;] = status[&#39;BUNEXT&#39;]
-    new_status[&#39;backupLastTime&#39;] = status[&#39;BULAST&#39;]
-    new_status[&#39;rulesAndSoftwareCheckEnabled&#39;] = status[&#39;RSCENABLED&#39;]
-    new_status[&#39;rulesAndSoftNextCheck&#39;] = status[&#39;RSNEXT&#39;]
-    if status[&#39;RSLAST&#39;] == &#39;RSLAST&#39;:
-        new_status[&#39;rulesAndSoftLastCheck&#39;] = None
-    else:
-        new_status[&#39;rulesAndSoftLastCheck&#39;] = status[&#39;RSLAST&#39;]
-    if status[&#39;CHIP&#39;] == &#39;CHIP&#39;:
-        new_status[&#39;callHomeIp&#39;] = None
-    else:
-        new_status[&#39;callHomeIp&#39;] = status[&#39;CHIP&#39;]
-    return new_status</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.ESM.disks"><code class="name flex">
-<span>def <span class="ident">disks</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<p>str. ESM disks and utilization.</p>
-<h2 id="example">Example</h2>
-<p>'sda3
-Size:
-491GB, Used:
-55GB(12%), Available:
-413GB, Mount: /'</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def disks(self):
-    &#34;&#34;&#34;
-    Returns:
-        str. ESM disks and utilization.
-
-    Example:
-        &#39;sda3     Size:  491GB, Used:   55GB(12%), Available:  413GB, Mount: /&#39;
-    &#34;&#34;&#34;
-    return self.status()[&#39;hdd&#39;]</code></pre>
-</details>
-</dd>
 <dt id="msiempy.device.ESM.ram"><code class="name flex">
 <span>def <span class="ident">ram</span></span>(<span>self)</span>
 </code></dt>
@@ -1965,62 +2128,36 @@ Size:
     return self.status()[&#39;ram&#39;]</code></pre>
 </details>
 </dd>
-<dt id="msiempy.device.ESM.backup_status"><code class="name flex">
-<span>def <span class="ident">backup_status</span></span>(<span>self)</span>
+<dt id="msiempy.device.ESM.version"><code class="name flex">
+<span>def <span class="ident">version</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<p>dict. Backup status and timestamps.</p>
-<p>{'autoBackupEnabled': True,
-'autoBackupDay': 7,
-'autoBackupHour': 0,
-'backupLastTime': '07/03/2017 08:59:36',
-'backupNextTime': '07/10/2017 08:59'}</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def backup_status(self):
-    &#34;&#34;&#34;
-    Returns:
-        dict. Backup status and timestamps.
-
-        {&#39;autoBackupEnabled&#39;: True,
-            &#39;autoBackupDay&#39;: 7,
-            &#39;autoBackupHour&#39;: 0,
-            &#39;backupLastTime&#39;: &#39;07/03/2017 08:59:36&#39;,
-            &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}
-    &#34;&#34;&#34;
-    fields = [&#39;autoBackupEnabled&#39;,
-               &#39;autoBackupDay&#39;,
-               &#39;autoBackupHour&#39;,
-               &#39;autoBackupHour&#39;,
-               &#39;backupNextTime&#39;]
-
-    return {key: val for key, val in self.status().items()
-            if key in fields}</code></pre>
+<pre><code class="python">def version(self):
+    return self.nitro.version</code></pre>
 </details>
 </dd>
-<dt id="msiempy.device.ESM.callhome"><code class="name flex">
-<span>def <span class="ident">callhome</span></span>(<span>self)</span>
+<dt id="msiempy.device.ESM.recs"><code class="name flex">
+<span>def <span class="ident">recs</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<dl>
-<dt><code>bool.</code> <code>True</code>/<code>False</code> <code>if</code> <code>there</code> <code>is</code> <code>currently</code> <code>a</code> <code>callhome</code> <code>connection</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<section class="desc"><p>Returns:</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def callhome(self):
+<pre><code class="python">@lru_cache(maxsize=None)    
+def recs(self):
     &#34;&#34;&#34;
-    Returns:
-        bool. True/False if there is currently a callhome connection
+    Returns: 
+        
     &#34;&#34;&#34;
-    if self.status()[&#39;callHomeIp&#39;]:
-        return True</code></pre>
+    rec_list = self.nitro.request(&#39;get_recs&#39;)
+    return [(rec[&#39;name&#39;], rec[&#39;id&#39;][&#39;id&#39;])for rec in rec_list]</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.ESM.rules_status"><code class="name flex">
@@ -2058,122 +2195,6 @@ Size:
             if self.key in self._fields}</code></pre>
 </details>
 </dd>
-<dt id="msiempy.device.ESM.get_alerts"><code class="name flex">
-<span>def <span class="ident">get_alerts</span></span>(<span>self, ds_id, flows=False)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Tells the ESM to retrieve alerts from the provided device ID.</p>
-<h2 id="arguments">Arguments</h2>
-<dl>
-<dt><strong><code>ds_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>IPSID for the device, e.g. 144116287587483648</dd>
-<dt><strong><code>flows</code></strong> :&ensp;<code>bool</code></dt>
-<dd>Also get flows from the device (default: False)</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>None</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_alerts(self, ds_id, flows=False):
-    &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.
-    
-    Arguments:
-        ds_id (str): IPSID for the device, e.g. 144116287587483648
-        flows (bool): Also get flows from the device (default: False)
-    
-    Returns:
-        None
-    &#34;&#34;&#34;
-    self.nitro.request(&#39;get_alerts_now&#39;, ds_id=ds_id)
-    if flows:
-        self.nitro.request(&#39;get_flows_now&#39;, ds_id=ds_id)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.ESM.recs"><code class="name flex">
-<span>def <span class="ident">recs</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Returns:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@lru_cache(maxsize=None)    
-def recs(self):
-    &#34;&#34;&#34;
-    Returns: 
-        
-    &#34;&#34;&#34;
-    rec_list = self.nitro.request(&#39;get_recs&#39;)
-    return [(rec[&#39;name&#39;], rec[&#39;id&#39;][&#39;id&#39;])for rec in rec_list]</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.ESM.tz_offsets"><code class="name flex">
-<span>def <span class="ident">tz_offsets</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Builds table of ESM timezones including offsets.</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>list.</code> <code>List</code> of <code>timezone</code> <code>tuples</code> (<code>name</code>, <code>id</code>, <code>offset</code>)</dt>
-<dd>&nbsp;</dd>
-</dl>
-<h2 id="example">Example</h2>
-<p>[(1, 'Midway Island, Samoa', '-11:00'),
-(2, 'Hawaii', '-10:00'),
-&hellip;
-]</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def tz_offsets(self):
-    &#34;&#34;&#34;
-    Builds table of ESM timezones including offsets.
-    
-    Returns:
-        list. List of timezone tuples (name, id, offset)
-        
-    Example:
-        [(1, &#39;Midway Island, Samoa&#39;, &#39;-11:00&#39;),
-         (2, &#39;Hawaii&#39;, &#39;-10:00&#39;),
-         ...
-        ]
-    &#34;&#34;&#34;
-    return [(tz[&#39;id&#39;][&#39;value&#39;], tz[&#39;name&#39;], tz[&#39;offset&#39;]) 
-              for tz in self._get_timezones()]</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.ESM.timezones"><code class="name flex">
-<span>def <span class="ident">timezones</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Builds table of ESM timezones and names only. No offsets.</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>dict.</code> {<code>timezone_id</code>, <code>timezone_name</code>}</dt>
-<dd>&nbsp;</dd>
-</dl></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def timezones(self):
-    &#34;&#34;&#34;
-    Builds table of ESM timezones and names only. No offsets.
-    
-    Returns:
-        dict. {timezone_id, timezone_name}
-    &#34;&#34;&#34;
-    return {str(tz[&#39;id&#39;][&#39;value&#39;]): tz[&#39;name&#39;]
-                        for tz in self._get_timezones()}</code></pre>
-</details>
-</dd>
 <dt id="msiempy.device.ESM.tz_name_to_id"><code class="name flex">
 <span>def <span class="ident">tz_name_to_id</span></span>(<span>self, tz_name)</span>
 </code></dt>
@@ -2204,38 +2225,6 @@ def recs(self):
                     for tz_id, tz_name in self.timezones().items()}
     try:
         return tz_reverse[tz_name.lower()]
-    except KeyError:
-        return None</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.ESM.tz_id_to_name"><code class="name flex">
-<span>def <span class="ident">tz_id_to_name</span></span>(<span>self, tz_id)</span>
-</code></dt>
-<dd>
-<section class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>td_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>Numerical string (Currently 1-74)</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>str.</code> <code>Timezone</code> <code>name</code> or <code>None</code> <code>if</code> <code>there</code> <code>is</code> <code>no</code> <code>match</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def tz_id_to_name(self, tz_id):
-    &#34;&#34;&#34;
-    Args:
-        td_id (str): Numerical string (Currently 1-74)
-    
-    Returns:
-        str. Timezone name or None if there is no match
-    &#34;&#34;&#34;
-    try:
-        return self.timezones()[tz_id]
     except KeyError:
         return None</code></pre>
 </details>
@@ -2273,60 +2262,6 @@ def recs(self):
     return((&#39;Unkown vendor for type_id {}&#39;.format(type_id),&#39;Unkown vendor&#39;))</code></pre>
 </details>
 </dd>
-<dt id="msiempy.device.ESM.venmod_to_type_id"><code class="name flex">
-<span>def <span class="ident">venmod_to_type_id</span></span>(<span>self, vendor, model)</span>
-</code></dt>
-<dd>
-<section class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>vendor</code></strong> :&ensp;<code>str</code></dt>
-<dd>Exact vendor string including puncuation</dd>
-<dt><strong><code>model</code></strong> :&ensp;<code>str</code></dt>
-<dd>Exact vendor string including puncuation</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>str.</code> <code>Matching</code> <code>type_id</code> or <code>None</code> <code>if</code> <code>there</code> <code>is</code> <code>no</code> <code>match</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def venmod_to_type_id(self, vendor, model):
-    &#34;&#34;&#34;
-    Args:
-        vendor (str): Exact vendor string including puncuation
-        model (str): Exact vendor string including puncuation
-    
-    Returns:
-        str. Matching type_id or None if there is no match
-    &#34;&#34;&#34;
-    for venmod in self._get_ds_types():
-        if vendor == venmod[1]:
-            if model == venmod[2]:
-                return str(venmod[0])</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.ESM.rules_history"><code class="name flex">
-<span>def <span class="ident">rules_history</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Returns:
-Policy Editor rule history.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def rules_history(self):
-    &#34;&#34;&#34;
-    Returns: 
-        Policy Editor rule history.
-    &#34;&#34;&#34;
-    file = self.nitro.request(&#39;get_rule_history&#39;)[&#39;TK&#39;]
-    return self.nitro.get_internal_file(file)</code></pre>
-</details>
-</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -2336,6 +2271,258 @@ Policy Editor rule history.</p></section>
 <li><code><a title="msiempy.device.Device.json" href="index.html#msiempy.NitroObject.json">json</a></code></li>
 <li><code><a title="msiempy.device.Device.refresh" href="index.html#msiempy.NitroObject.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.device.Device.text" href="index.html#msiempy.NitroObject.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.device.DataSource"><code class="flex name class">
+<span>class <span class="ident">DataSource</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>DataSource class</p>
+<h2 id="arguments">Arguments</h2>
+<dl>
+<dt><strong><code>adict</code></strong> :&ensp;<code>dict</code></dt>
+<dd>datasource parameters</dd>
+</dl>
+<p>Best instantiated from DevTree():
+&gt;&gt;&gt; dt = DevTree()
+&gt;&gt;&gt; ds = dt[25]
+or
+&gt;&gt;&gt; ds = dt.search('10.10.1.1')</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>name of the datasource</dd>
+<dt><strong><code>ds_ip</code></strong> :&ensp;<code>str</code></dt>
+<dd>IP of the datasource</dd>
+<dt><strong><code>hostname</code></strong> :&ensp;<code>str</code></dt>
+<dd>hostname for the datasource</dd>
+<dt><strong><code>ds_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>internal datasource ID (e.g 144234544545444)</dd>
+<dt><strong><code>type_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>numeric internal datasource type id</dd>
+<dt><strong><code>desc_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>always '3' a datasource or '254' for a client</dd>
+<dt><strong><code>parent_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>internal ds_id for the parent device</dd>
+<dt><strong><code>parent_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>name of the parent device</dd>
+<dt><strong><code>enabled</code></strong> :&ensp;<code>str</code></dt>
+<dd>'T' or 'F'</dd>
+<dt><strong><code>client</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Client datasource or not</dd>
+<dt><strong><code>zone_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>numeric zone_id</dd>
+<dt><strong><code>zone_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>name of the zone</dd>
+<dt><strong><code>tz_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>internal numeric timezone ID</dd>
+<dt><strong><code>vendor</code></strong> :&ensp;<code>str</code></dt>
+<dd>vendor of datasource (e.g. Microsoft)</dd>
+<dt><strong><code>model</code></strong> :&ensp;<code>str</code></dt>
+<dd>model of datasource (e.g. Windows)</dd>
+<dt><strong><code>require_tls</code></strong> :&ensp;<code>str</code></dt>
+<dd>Use syslog over TLS</dd>
+<dt><strong><code>url</code></strong> :&ensp;<code>str</code></dt>
+<dd>URL of the datasource</dd>
+</dl>
+<p>Initalize the DataSource object</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DataSource(NitroDict):
+    &#34;&#34;&#34;DataSource class
+    
+    Arguments:
+        adict (dict): datasource parameters
+        
+    Best instantiated from DevTree():
+        &gt;&gt;&gt; dt = DevTree()
+        &gt;&gt;&gt; ds = dt[25]
+        or
+        &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)
+
+    Parameters:
+        name (str): name of the datasource
+        ds_ip (str): IP of the datasource
+        hostname (str): hostname for the datasource
+        ds_id (str): internal datasource ID (e.g 144234544545444)
+        type_id (str): numeric internal datasource type id
+        desc_id (str): always &#39;3&#39; a datasource or &#39;254&#39; for a client
+        parent_id (str): internal ds_id for the parent device
+        parent_name (str): name of the parent device
+        enabled (str): &#39;T&#39; or &#39;F&#39;
+        client (bool): Client datasource or not
+        zone_id (str): numeric zone_id
+        zone_name (str): name of the zone
+        tz_id (str): internal numeric timezone ID
+        vendor (str): vendor of datasource (e.g. Microsoft)
+        model (str): model of datasource (e.g. Windows)
+        require_tls (str): Use syslog over TLS
+        url (str): URL of the datasource
+
+    &#34;&#34;&#34;
+    def __init__(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        Initalize the DataSource object
+        &#34;&#34;&#34;
+        super().__init__(*args, **kwargs)
+
+    def data_from_id(self):
+        pass
+
+    def load_details(self):
+        &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
+        if self.nitro.api_v == 1:
+            details = self.nitro.request(&#39;ds_details1&#39;, ds_id=self.data[&#39;ds_id&#39;])
+        else:
+            details = self.nitro.request(&#39;ds_details2&#39;, ds_id=self.data[&#39;ds_id&#39;])
+        self._map_parameters(details)
+
+    def delete(self):
+        &#34;&#34;&#34;This deletes the datasource and all the data. Be careful.
+        &#34;&#34;&#34;
+        if self.data[&#39;desc_id&#39;] not in [&#39;3&#39;,&#39;256&#39;]:
+            print(&#39;Only a DataSource can be deleted with this method.&#39;)
+            return
+
+        if self.data[&#39;desc_id&#39;] == &#39;256&#39;:
+            self.delete_client()
+        else:
+            if self.nitro.api_v == 1:
+                self.nitro.request(&#39;del_ds1&#39;, parent_id=self.data[&#39;parent_id&#39;], ds_id=self.data[&#39;ds_id&#39;])
+            elif self.nitro.api_v == 2:
+                self.nitro.request(&#39;del_ds2&#39;, parent_id=self.data[&#39;parent_id&#39;], ds_id=self.data[&#39;ds_id&#39;])
+    
+    def delete_client(self):
+        file = self.nitro.request(&#39;get_wfile&#39;, ds_id=self.data[&#39;ds_id&#39;])[&#39;TK&#39;]
+        job_id = self.nitro.request(&#39;del_client&#39;, 
+                                        parent_id=self.data[&#39;parent_id&#39;], ftoken=file)[&#39;JID&#39;]
+        status = self.nitro.request(&#39;get_job_status&#39;, job_id=job_id)[&#39;JS&#39;]
+        while status == 0:
+            status = self.nitro.request(&#39;get_job_status&#39;, job_id=job_id)[&#39;JS&#39;]
+
+    def _map_parameters(self, p):
+        &#34;&#34;&#34;Map the internal ESM field names to msiempy style
+        
+        Arguments:
+            p (dict): datasource parameters
+        &#34;&#34;&#34;
+        p = DevTree._normalize_bool_vals(p)
+        self.data[&#39;name&#39;] = p.get(&#39;name&#39;)
+        self.data[&#39;ds_ip&#39;] = p.get(&#39;ipAddress&#39;)
+        self.data[&#39;zone_id&#39;] = p.get(&#39;zoneId&#39;)
+        self.data[&#39;enabled&#39;] = p.get(&#39;enabled&#39;)
+
+        if self.nitro.api_v == 1:
+            self.data[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;)
+            self.data[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;id&#39;)
+        elif self.nitro.api_v == 2:
+            self.data[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;).get(&#39;value&#39;)
+            self.data[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;value&#39;)
+
+        if self.data[&#39;desc_id&#39;] == &#39;256&#39;:
+           self.data[&#39;tz_id&#39;] = p.get(&#39;tz_id&#39;)
+        else:
+            self.data[&#39;child_enabled&#39;] = p.get(&#39;childEnabled&#39;)
+            self.data[&#39;idm_id&#39;] = p.get(&#39;idmId&#39;)
+            self.data[&#39;child_count&#39;] = p.get(&#39;childCount&#39;)
+            self.data[&#39;child_type&#39;] = p.get(&#39;childType&#39;)
+            self.data[&#39;type_id&#39;] = p.get(&#39;typeId&#39;).get(&#39;id&#39;)
+            if p.get(&#39;parameters&#39;):
+                for d in p[&#39;parameters&#39;]:
+                    # The key is called &#34;key&#34; and the value is the key. 
+                    # The value is called value and the value is the value.
+                    self.data[d.get(&#39;key&#39;)] = d.get(&#39;value&#39;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
+<li>collections.UserDict</li>
+<li>collections.abc.MutableMapping</li>
+<li>collections.abc.Mapping</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.device.DataSource.delete_client"><code class="name flex">
+<span>def <span class="ident">delete_client</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete_client(self):
+    file = self.nitro.request(&#39;get_wfile&#39;, ds_id=self.data[&#39;ds_id&#39;])[&#39;TK&#39;]
+    job_id = self.nitro.request(&#39;del_client&#39;, 
+                                    parent_id=self.data[&#39;parent_id&#39;], ftoken=file)[&#39;JID&#39;]
+    status = self.nitro.request(&#39;get_job_status&#39;, job_id=job_id)[&#39;JS&#39;]
+    while status == 0:
+        status = self.nitro.request(&#39;get_job_status&#39;, job_id=job_id)[&#39;JS&#39;]</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DataSource.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>This deletes the datasource and all the data. Be careful.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete(self):
+    &#34;&#34;&#34;This deletes the datasource and all the data. Be careful.
+    &#34;&#34;&#34;
+    if self.data[&#39;desc_id&#39;] not in [&#39;3&#39;,&#39;256&#39;]:
+        print(&#39;Only a DataSource can be deleted with this method.&#39;)
+        return
+
+    if self.data[&#39;desc_id&#39;] == &#39;256&#39;:
+        self.delete_client()
+    else:
+        if self.nitro.api_v == 1:
+            self.nitro.request(&#39;del_ds1&#39;, parent_id=self.data[&#39;parent_id&#39;], ds_id=self.data[&#39;ds_id&#39;])
+        elif self.nitro.api_v == 2:
+            self.nitro.request(&#39;del_ds2&#39;, parent_id=self.data[&#39;parent_id&#39;], ds_id=self.data[&#39;ds_id&#39;])</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DataSource.load_details"><code class="name flex">
+<span>def <span class="ident">load_details</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>DataSource object is lazy. This gets the rest of the parameters.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_details(self):
+    &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
+    if self.nitro.api_v == 1:
+        details = self.nitro.request(&#39;ds_details1&#39;, ds_id=self.data[&#39;ds_id&#39;])
+    else:
+        details = self.nitro.request(&#39;ds_details2&#39;, ds_id=self.data[&#39;ds_id&#39;])
+    self._map_parameters(details)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroDict.data_from_id" href="index.html#msiempy.NitroDict.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
+<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2522,7 +2709,7 @@ __contains__    Returns bool as to whether a datasource name, IP,
             list of Receiver dicts (str:str)
         &#34;&#34;&#34;
         return [self._rec for self._rec in self.devtree
-                    if self._rec[&#39;desc_id&#39;] == &#39;2&#39;]
+                    if self._rec[&#39;desc_id&#39;] in [&#39;2&#39;,&#39;13&#39;]]
     
     def build_devtree(self):
         &#34;&#34;&#34;
@@ -2839,6 +3026,7 @@ __contains__    Returns bool as to whether a datasource name, IP,
                         &#39;7&#39;: &#39;Policy Auditor&#39;,
                         &#39;10&#39;: &#39;Application Data Monitor (ADM)&#39;,
                         &#39;12&#39;: &#39;ELM&#39;,
+                        &#39;13&#39;: &#39;McAfee Event Receiver/ELM&#39;,
                         &#39;14&#39;: &#39;Local ESM&#39;,
                         &#39;15&#39;: &#39;Advanced Correlation Engine (ACE)&#39;,
                         &#39;16&#39;: &#39;Asset datasource&#39;,
@@ -3184,8 +3372,6 @@ __contains__    Returns bool as to whether a datasource name, IP,
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
 <li>collections.abc.Sequence</li>
-<li>collections.abc.Reversible</li>
-<li>collections.abc.Collection</li>
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
@@ -3194,46 +3380,26 @@ __contains__    Returns bool as to whether a datasource name, IP,
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="msiempy.device.DevTree.search"><code class="name flex">
-<span>def <span class="ident">search</span></span>(<span>self, term, zone_id='0')</span>
+<dt id="msiempy.device.DevTree.recs"><code class="name flex">
+<span>def <span class="ident">recs</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="args">Args</h2>
+<section class="desc"><h2 id="returns">Returns</h2>
 <dl>
-<dt><strong><code>term</code></strong> :&ensp;<code>str</code></dt>
-<dd>Datasource name, IP, hostname or ds_id</dd>
-<dt><strong><code>zone_id</code></strong> :&ensp;<code>int</code></dt>
-<dd>Provide zone_id to limit search to a specific zone</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>Datasource</code> <code>object</code> <code>that</code> <code>matches</code> <code>the</code> <code>provided</code> <code>search</code> <code>term</code> or <code>None</code></dt>
+<dt><code>list</code> of <code>Receiver</code> <code>dicts</code> (<code>str</code>:<code>str</code>)</dt>
 <dd>&nbsp;</dd>
 </dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def search(self, term, zone_id=&#39;0&#39;):
+<pre><code class="python">def recs(self):
     &#34;&#34;&#34;
-    Args:
-        term (str): Datasource name, IP, hostname or ds_id
-        
-        zone_id (int): Provide zone_id to limit search to a specific zone
-
     Returns:
-        Datasource object that matches the provided search term or None
-
+        list of Receiver dicts (str:str)
     &#34;&#34;&#34;
-    search_fields = [&#39;ds_ip&#39;, &#39;name&#39;, &#39;hostname&#39;, &#39;ds_id&#39;]
-
-    found = [ds for ds in self.devtree
-                for field in search_fields 
-                if str(term).lower() == str(ds[field]).lower()
-                if ds[&#39;zone_id&#39;] == zone_id]
-    
-    if found:
-        return found[0]        </code></pre>
+    return [self._rec for self._rec in self.devtree
+                if self._rec[&#39;desc_id&#39;] in [&#39;2&#39;,&#39;13&#39;]]</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.DevTree.search_ds_group"><code class="name flex">
@@ -3279,62 +3445,6 @@ __contains__    Returns bool as to whether a datasource name, IP,
                     if ds.get(field) == term)</code></pre>
 </details>
 </dd>
-<dt id="msiempy.device.DevTree.refresh"><code class="name flex">
-<span>def <span class="ident">refresh</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Rebuilds the devtree</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def refresh(self):
-    &#34;&#34;&#34;
-    Rebuilds the devtree
-    &#34;&#34;&#34;
-    self.devtree = self.build_devtree()
-    self._cast_datasources()</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.DevTree.get_ds_times"><code class="name flex">
-<span>def <span class="ident">get_ds_times</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_ds_times(self):
-    &#34;&#34;&#34;
-    &#34;&#34;&#34;
-    last_times = self._get_last_event_times()
-    self._insert_ds_last_times()
-    return last_times</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.DevTree.recs"><code class="name flex">
-<span>def <span class="ident">recs</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<dl>
-<dt><code>list</code> of <code>Receiver</code> <code>dicts</code> (<code>str</code>:<code>str</code>)</dt>
-<dd>&nbsp;</dd>
-</dl></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def recs(self):
-    &#34;&#34;&#34;
-    Returns:
-        list of Receiver dicts (str:str)
-    &#34;&#34;&#34;
-    return [self._rec for self._rec in self.devtree
-                if self._rec[&#39;desc_id&#39;] == &#39;2&#39;]</code></pre>
-</details>
-</dd>
 <dt id="msiempy.device.DevTree.build_devtree"><code class="name flex">
 <span>def <span class="ident">build_devtree</span></span>(<span>self)</span>
 </code></dt>
@@ -3367,6 +3477,23 @@ __contains__    Returns bool as to whether a datasource name, IP,
     devtree = self._insert_ds_last_times(last_times, devtree)
     devtree = self._filter_bogus_ds(devtree)
     return devtree</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DevTree.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Rebuilds the devtree</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def refresh(self):
+    &#34;&#34;&#34;
+    Rebuilds the devtree
+    &#34;&#34;&#34;
+    self.devtree = self.build_devtree()
+    self._cast_datasources()</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.DevTree.duplicate_datasource"><code class="name flex">
@@ -3519,6 +3646,65 @@ Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 </dd>
         return result_id</code></pre>
 </details>
 </dd>
+<dt id="msiempy.device.DevTree.search"><code class="name flex">
+<span>def <span class="ident">search</span></span>(<span>self, term, zone_id='0')</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>term</code></strong> :&ensp;<code>str</code></dt>
+<dd>Datasource name, IP, hostname or ds_id</dd>
+<dt><strong><code>zone_id</code></strong> :&ensp;<code>int</code></dt>
+<dd>Provide zone_id to limit search to a specific zone</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Datasource</code> <code>object</code> <code>that</code> <code>matches</code> <code>the</code> <code>provided</code> <code>search</code> <code>term</code> or <code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def search(self, term, zone_id=&#39;0&#39;):
+    &#34;&#34;&#34;
+    Args:
+        term (str): Datasource name, IP, hostname or ds_id
+        
+        zone_id (int): Provide zone_id to limit search to a specific zone
+
+    Returns:
+        Datasource object that matches the provided search term or None
+
+    &#34;&#34;&#34;
+    search_fields = [&#39;ds_ip&#39;, &#39;name&#39;, &#39;hostname&#39;, &#39;ds_id&#39;]
+
+    found = [ds for ds in self.devtree
+                for field in search_fields 
+                if str(term).lower() == str(ds[field]).lower()
+                if ds[&#39;zone_id&#39;] == zone_id]
+    
+    if found:
+        return found[0]        </code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DevTree.get_ds_times"><code class="name flex">
+<span>def <span class="ident">get_ds_times</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_ds_times(self):
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    last_times = self._get_last_event_times()
+    self._insert_ds_last_times()
+    return last_times</code></pre>
+</details>
+</dd>
 <dt id="msiempy.device.DevTree.add_client"><code class="name flex">
 <span>def <span class="ident">add_client</span></span>(<span>self, p)</span>
 </code></dt>
@@ -3612,255 +3798,68 @@ Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 </dd>
 </li>
 </ul>
 </dd>
-<dt id="msiempy.device.DataSource"><code class="flex name class">
-<span>class <span class="ident">DataSource</span></span>
-<span>(</span><span>*args, **kwargs)</span>
+<dt id="msiempy.device.Device"><code class="flex name class">
+<span>class <span class="ident">Device</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>DataSource class</p>
-<h2 id="arguments">Arguments</h2>
-<dl>
-<dt><strong><code>adict</code></strong> :&ensp;<code>dict</code></dt>
-<dd>datasource parameters</dd>
-</dl>
-<p>Best instantiated from DevTree():
-&gt;&gt;&gt; dt = DevTree()
-&gt;&gt;&gt; ds = dt[25]
-or
-&gt;&gt;&gt; ds = dt.search('10.10.1.1')</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
-<dd>name of the datasource</dd>
-<dt><strong><code>ds_ip</code></strong> :&ensp;<code>str</code></dt>
-<dd>IP of the datasource</dd>
-<dt><strong><code>hostname</code></strong> :&ensp;<code>str</code></dt>
-<dd>hostname for the datasource</dd>
-<dt><strong><code>ds_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>internal datasource ID (e.g 144234544545444)</dd>
-<dt><strong><code>type_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>numeric internal datasource type id</dd>
-<dt><strong><code>desc_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>always '3' a datasource or '254' for a client</dd>
-<dt><strong><code>parent_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>internal ds_id for the parent device</dd>
-<dt><strong><code>parent_name</code></strong> :&ensp;<code>str</code></dt>
-<dd>name of the parent device</dd>
-<dt><strong><code>enabled</code></strong> :&ensp;<code>str</code></dt>
-<dd>'T' or 'F'</dd>
-<dt><strong><code>client</code></strong> :&ensp;<code>bool</code></dt>
-<dd>Client datasource or not</dd>
-<dt><strong><code>zone_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>numeric zone_id</dd>
-<dt><strong><code>zone_name</code></strong> :&ensp;<code>str</code></dt>
-<dd>name of the zone</dd>
-<dt><strong><code>tz_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>internal numeric timezone ID</dd>
-<dt><strong><code>vendor</code></strong> :&ensp;<code>str</code></dt>
-<dd>vendor of datasource (e.g. Microsoft)</dd>
-<dt><strong><code>model</code></strong> :&ensp;<code>str</code></dt>
-<dd>model of datasource (e.g. Windows)</dd>
-<dt><strong><code>require_tls</code></strong> :&ensp;<code>str</code></dt>
-<dd>Use syslog over TLS</dd>
-<dt><strong><code>url</code></strong> :&ensp;<code>str</code></dt>
-<dd>URL of the datasource</dd>
-</dl>
-<p>Initalize the DataSource object</p></section>
+<section class="desc"><p>Base class for all nitro objects. All objects have a reference to the single <a title="msiempy.NitroSession" href="index.html#msiempy.NitroSession"><code>NitroSession</code></a> object that handle the esm requests.</p>
+<p>Creates the object session.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class DataSource(NitroDict):
-    &#34;&#34;&#34;DataSource class
-    
-    Arguments:
-        adict (dict): datasource parameters
-        
-    Best instantiated from DevTree():
-        &gt;&gt;&gt; dt = DevTree()
-        &gt;&gt;&gt; ds = dt[25]
-        or
-        &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)
-
-    Parameters:
-        name (str): name of the datasource
-        ds_ip (str): IP of the datasource
-        hostname (str): hostname for the datasource
-        ds_id (str): internal datasource ID (e.g 144234544545444)
-        type_id (str): numeric internal datasource type id
-        desc_id (str): always &#39;3&#39; a datasource or &#39;254&#39; for a client
-        parent_id (str): internal ds_id for the parent device
-        parent_name (str): name of the parent device
-        enabled (str): &#39;T&#39; or &#39;F&#39;
-        client (bool): Client datasource or not
-        zone_id (str): numeric zone_id
-        zone_name (str): name of the zone
-        tz_id (str): internal numeric timezone ID
-        vendor (str): vendor of datasource (e.g. Microsoft)
-        model (str): model of datasource (e.g. Windows)
-        require_tls (str): Use syslog over TLS
-        url (str): URL of the datasource
-
-    &#34;&#34;&#34;
-    def __init__(self, *args, **kwargs):
-        &#34;&#34;&#34;
-        Initalize the DataSource object
-        &#34;&#34;&#34;
-        super().__init__(*args, **kwargs)
-
-    def data_from_id(self):
-        pass
-
-    def load_details(self):
-        &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
-        if self.nitro.api_v == 1:
-            details = self.nitro.request(&#39;ds_details1&#39;, ds_id=self.data[&#39;ds_id&#39;])
-        else:
-            details = self.nitro.request(&#39;ds_details2&#39;, ds_id=self.data[&#39;ds_id&#39;])
-        self._map_parameters(details)
-
-    def delete(self):
-        &#34;&#34;&#34;This deletes the datasource and all the data. Be careful.
-        &#34;&#34;&#34;
-        if self.data[&#39;desc_id&#39;] not in [&#39;3&#39;,&#39;256&#39;]:
-            print(&#39;Only a DataSource can be deleted with this method.&#39;)
-            return
-
-        if self.data[&#39;desc_id&#39;] == &#39;256&#39;:
-            self.delete_client()
-        else:
-            if self.nitro.api_v == 1:
-                self.nitro.request(&#39;del_ds1&#39;, parent_id=self.data[&#39;parent_id&#39;], ds_id=self.data[&#39;ds_id&#39;])
-            elif self.nitro.api_v == 2:
-                self.nitro.request(&#39;del_ds2&#39;, parent_id=self.data[&#39;parent_id&#39;], ds_id=self.data[&#39;ds_id&#39;])
-    
-    def delete_client(self):
-        file = self.nitro.request(&#39;get_wfile&#39;, ds_id=self.data[&#39;ds_id&#39;])[&#39;TK&#39;]
-        job_id = self.nitro.request(&#39;del_client&#39;, 
-                                        parent_id=self.data[&#39;parent_id&#39;], ftoken=file)[&#39;JID&#39;]
-        status = self.nitro.request(&#39;get_job_status&#39;, job_id=job_id)[&#39;JS&#39;]
-        while status == 0:
-            status = self.nitro.request(&#39;get_job_status&#39;, job_id=job_id)[&#39;JS&#39;]
-
-    def _map_parameters(self, p):
-        &#34;&#34;&#34;Map the internal ESM field names to msiempy style
-        
-        Arguments:
-            p (dict): datasource parameters
-        &#34;&#34;&#34;
-        p = DevTree._normalize_bool_vals(p)
-        self.data[&#39;name&#39;] = p.get(&#39;name&#39;)
-        self.data[&#39;ds_ip&#39;] = p.get(&#39;ipAddress&#39;)
-        self.data[&#39;zone_id&#39;] = p.get(&#39;zoneId&#39;)
-        self.data[&#39;enabled&#39;] = p.get(&#39;enabled&#39;)
-
-        if self.nitro.api_v == 1:
-            self.data[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;)
-            self.data[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;id&#39;)
-        elif self.nitro.api_v == 2:
-            self.data[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;).get(&#39;value&#39;)
-            self.data[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;value&#39;)
-
-        if self.data[&#39;desc_id&#39;] == &#39;256&#39;:
-           self.data[&#39;tz_id&#39;] = p.get(&#39;tz_id&#39;)
-        else:
-            self.data[&#39;child_enabled&#39;] = p.get(&#39;childEnabled&#39;)
-            self.data[&#39;idm_id&#39;] = p.get(&#39;idmId&#39;)
-            self.data[&#39;child_count&#39;] = p.get(&#39;childCount&#39;)
-            self.data[&#39;child_type&#39;] = p.get(&#39;childType&#39;)
-            self.data[&#39;type_id&#39;] = p.get(&#39;typeId&#39;).get(&#39;id&#39;)
-            if p.get(&#39;parameters&#39;):
-                for d in p[&#39;parameters&#39;]:
-                    # The key is called &#34;key&#34; and the value is the key. 
-                    # The value is called value and the value is the value.
-                    self.data[d.get(&#39;key&#39;)] = d.get(&#39;value&#39;)</code></pre>
+<pre><code class="python">class Device(NitroObject):
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
-<li>collections.UserDict</li>
-<li>collections.abc.MutableMapping</li>
-<li>collections.abc.Mapping</li>
-<li>collections.abc.Collection</li>
-<li>collections.abc.Sized</li>
-<li>collections.abc.Iterable</li>
-<li>collections.abc.Container</li>
 <li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="msiempy.device.DataSource.load_details"><code class="name flex">
-<span>def <span class="ident">load_details</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>DataSource object is lazy. This gets the rest of the parameters.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def load_details(self):
-    &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
-    if self.nitro.api_v == 1:
-        details = self.nitro.request(&#39;ds_details1&#39;, ds_id=self.data[&#39;ds_id&#39;])
-    else:
-        details = self.nitro.request(&#39;ds_details2&#39;, ds_id=self.data[&#39;ds_id&#39;])
-    self._map_parameters(details)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.DataSource.delete"><code class="name flex">
-<span>def <span class="ident">delete</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>This deletes the datasource and all the data. Be careful.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def delete(self):
-    &#34;&#34;&#34;This deletes the datasource and all the data. Be careful.
-    &#34;&#34;&#34;
-    if self.data[&#39;desc_id&#39;] not in [&#39;3&#39;,&#39;256&#39;]:
-        print(&#39;Only a DataSource can be deleted with this method.&#39;)
-        return
-
-    if self.data[&#39;desc_id&#39;] == &#39;256&#39;:
-        self.delete_client()
-    else:
-        if self.nitro.api_v == 1:
-            self.nitro.request(&#39;del_ds1&#39;, parent_id=self.data[&#39;parent_id&#39;], ds_id=self.data[&#39;ds_id&#39;])
-        elif self.nitro.api_v == 2:
-            self.nitro.request(&#39;del_ds2&#39;, parent_id=self.data[&#39;parent_id&#39;], ds_id=self.data[&#39;ds_id&#39;])</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.DataSource.delete_client"><code class="name flex">
-<span>def <span class="ident">delete_client</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def delete_client(self):
-    file = self.nitro.request(&#39;get_wfile&#39;, ds_id=self.data[&#39;ds_id&#39;])[&#39;TK&#39;]
-    job_id = self.nitro.request(&#39;del_client&#39;, 
-                                    parent_id=self.data[&#39;parent_id&#39;], ftoken=file)[&#39;JID&#39;]
-    status = self.nitro.request(&#39;get_job_status&#39;, job_id=job_id)[&#39;JS&#39;]
-    while status == 0:
-        status = self.nitro.request(&#39;get_job_status&#39;, job_id=job_id)[&#39;JS&#39;]</code></pre>
-</details>
-</dd>
-</dl>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="msiempy.device.ERC" href="#msiempy.device.ERC">ERC</a></li>
+<li><a title="msiempy.device.ESM" href="#msiempy.device.ESM">ESM</a></li>
+</ul>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
+<li><code><b><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroDict.data_from_id" href="index.html#msiempy.NitroDict.data_from_id">data_from_id</a></code></li>
-<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
-<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
+<li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroObject.json" href="index.html#msiempy.NitroObject.json">json</a></code></li>
+<li><code><a title="msiempy.NitroObject.refresh" href="index.html#msiempy.NitroObject.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroObject.text" href="index.html#msiempy.NitroObject.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.device.ERC"><code class="flex name class">
+<span>class <span class="ident">ERC</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class for all nitro objects. All objects have a reference to the single <a title="msiempy.NitroSession" href="index.html#msiempy.NitroSession"><code>NitroSession</code></a> object that handle the esm requests.</p>
+<p>Creates the object session.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ERC(Device):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.device.Device" href="#msiempy.device.Device">Device</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.device.Device" href="#msiempy.device.Device">Device</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.device.Device.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.device.Device.json" href="index.html#msiempy.NitroObject.json">json</a></code></li>
+<li><code><a title="msiempy.device.Device.refresh" href="index.html#msiempy.NitroObject.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.device.Device.text" href="index.html#msiempy.NitroObject.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -3882,56 +3881,56 @@ or
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="msiempy.device.Device" href="#msiempy.device.Device">Device</a></code></h4>
-</li>
-<li>
-<h4><code><a title="msiempy.device.ERC" href="#msiempy.device.ERC">ERC</a></code></h4>
-</li>
-<li>
 <h4><code><a title="msiempy.device.ESM" href="#msiempy.device.ESM">ESM</a></code></h4>
 <ul class="">
-<li><code><a title="msiempy.device.ESM.time" href="#msiempy.device.ESM.time">time</a></code></li>
-<li><code><a title="msiempy.device.ESM.buildstamp" href="#msiempy.device.ESM.buildstamp">buildstamp</a></code></li>
-<li><code><a title="msiempy.device.ESM.version" href="#msiempy.device.ESM.version">version</a></code></li>
-<li><code><a title="msiempy.device.ESM.status" href="#msiempy.device.ESM.status">status</a></code></li>
-<li><code><a title="msiempy.device.ESM.map_status_int_fields" href="#msiempy.device.ESM.map_status_int_fields">map_status_int_fields</a></code></li>
 <li><code><a title="msiempy.device.ESM.disks" href="#msiempy.device.ESM.disks">disks</a></code></li>
-<li><code><a title="msiempy.device.ESM.ram" href="#msiempy.device.ESM.ram">ram</a></code></li>
-<li><code><a title="msiempy.device.ESM.backup_status" href="#msiempy.device.ESM.backup_status">backup_status</a></code></li>
-<li><code><a title="msiempy.device.ESM.callhome" href="#msiempy.device.ESM.callhome">callhome</a></code></li>
-<li><code><a title="msiempy.device.ESM.rules_status" href="#msiempy.device.ESM.rules_status">rules_status</a></code></li>
-<li><code><a title="msiempy.device.ESM.get_alerts" href="#msiempy.device.ESM.get_alerts">get_alerts</a></code></li>
-<li><code><a title="msiempy.device.ESM.recs" href="#msiempy.device.ESM.recs">recs</a></code></li>
-<li><code><a title="msiempy.device.ESM.tz_offsets" href="#msiempy.device.ESM.tz_offsets">tz_offsets</a></code></li>
-<li><code><a title="msiempy.device.ESM.timezones" href="#msiempy.device.ESM.timezones">timezones</a></code></li>
-<li><code><a title="msiempy.device.ESM.tz_name_to_id" href="#msiempy.device.ESM.tz_name_to_id">tz_name_to_id</a></code></li>
-<li><code><a title="msiempy.device.ESM.tz_id_to_name" href="#msiempy.device.ESM.tz_id_to_name">tz_id_to_name</a></code></li>
-<li><code><a title="msiempy.device.ESM.type_id_to_venmod" href="#msiempy.device.ESM.type_id_to_venmod">type_id_to_venmod</a></code></li>
 <li><code><a title="msiempy.device.ESM.venmod_to_type_id" href="#msiempy.device.ESM.venmod_to_type_id">venmod_to_type_id</a></code></li>
+<li><code><a title="msiempy.device.ESM.time" href="#msiempy.device.ESM.time">time</a></code></li>
+<li><code><a title="msiempy.device.ESM.get_alerts" href="#msiempy.device.ESM.get_alerts">get_alerts</a></code></li>
+<li><code><a title="msiempy.device.ESM.map_status_int_fields" href="#msiempy.device.ESM.map_status_int_fields">map_status_int_fields</a></code></li>
+<li><code><a title="msiempy.device.ESM.callhome" href="#msiempy.device.ESM.callhome">callhome</a></code></li>
 <li><code><a title="msiempy.device.ESM.rules_history" href="#msiempy.device.ESM.rules_history">rules_history</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="msiempy.device.DevTree" href="#msiempy.device.DevTree">DevTree</a></code></h4>
-<ul class="">
-<li><code><a title="msiempy.device.DevTree.search" href="#msiempy.device.DevTree.search">search</a></code></li>
-<li><code><a title="msiempy.device.DevTree.search_ds_group" href="#msiempy.device.DevTree.search_ds_group">search_ds_group</a></code></li>
-<li><code><a title="msiempy.device.DevTree.refresh" href="#msiempy.device.DevTree.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.device.DevTree.get_ds_times" href="#msiempy.device.DevTree.get_ds_times">get_ds_times</a></code></li>
-<li><code><a title="msiempy.device.DevTree.recs" href="#msiempy.device.DevTree.recs">recs</a></code></li>
-<li><code><a title="msiempy.device.DevTree.build_devtree" href="#msiempy.device.DevTree.build_devtree">build_devtree</a></code></li>
-<li><code><a title="msiempy.device.DevTree.duplicate_datasource" href="#msiempy.device.DevTree.duplicate_datasource">duplicate_datasource</a></code></li>
-<li><code><a title="msiempy.device.DevTree.add" href="#msiempy.device.DevTree.add">add</a></code></li>
-<li><code><a title="msiempy.device.DevTree.add_client" href="#msiempy.device.DevTree.add_client">add_client</a></code></li>
+<li><code><a title="msiempy.device.ESM.timezones" href="#msiempy.device.ESM.timezones">timezones</a></code></li>
+<li><code><a title="msiempy.device.ESM.tz_offsets" href="#msiempy.device.ESM.tz_offsets">tz_offsets</a></code></li>
+<li><code><a title="msiempy.device.ESM.backup_status" href="#msiempy.device.ESM.backup_status">backup_status</a></code></li>
+<li><code><a title="msiempy.device.ESM.tz_id_to_name" href="#msiempy.device.ESM.tz_id_to_name">tz_id_to_name</a></code></li>
+<li><code><a title="msiempy.device.ESM.buildstamp" href="#msiempy.device.ESM.buildstamp">buildstamp</a></code></li>
+<li><code><a title="msiempy.device.ESM.status" href="#msiempy.device.ESM.status">status</a></code></li>
+<li><code><a title="msiempy.device.ESM.ram" href="#msiempy.device.ESM.ram">ram</a></code></li>
+<li><code><a title="msiempy.device.ESM.version" href="#msiempy.device.ESM.version">version</a></code></li>
+<li><code><a title="msiempy.device.ESM.recs" href="#msiempy.device.ESM.recs">recs</a></code></li>
+<li><code><a title="msiempy.device.ESM.rules_status" href="#msiempy.device.ESM.rules_status">rules_status</a></code></li>
+<li><code><a title="msiempy.device.ESM.tz_name_to_id" href="#msiempy.device.ESM.tz_name_to_id">tz_name_to_id</a></code></li>
+<li><code><a title="msiempy.device.ESM.type_id_to_venmod" href="#msiempy.device.ESM.type_id_to_venmod">type_id_to_venmod</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="msiempy.device.DataSource" href="#msiempy.device.DataSource">DataSource</a></code></h4>
 <ul class="">
-<li><code><a title="msiempy.device.DataSource.load_details" href="#msiempy.device.DataSource.load_details">load_details</a></code></li>
-<li><code><a title="msiempy.device.DataSource.delete" href="#msiempy.device.DataSource.delete">delete</a></code></li>
 <li><code><a title="msiempy.device.DataSource.delete_client" href="#msiempy.device.DataSource.delete_client">delete_client</a></code></li>
+<li><code><a title="msiempy.device.DataSource.delete" href="#msiempy.device.DataSource.delete">delete</a></code></li>
+<li><code><a title="msiempy.device.DataSource.load_details" href="#msiempy.device.DataSource.load_details">load_details</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="msiempy.device.DevTree" href="#msiempy.device.DevTree">DevTree</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.device.DevTree.recs" href="#msiempy.device.DevTree.recs">recs</a></code></li>
+<li><code><a title="msiempy.device.DevTree.search_ds_group" href="#msiempy.device.DevTree.search_ds_group">search_ds_group</a></code></li>
+<li><code><a title="msiempy.device.DevTree.build_devtree" href="#msiempy.device.DevTree.build_devtree">build_devtree</a></code></li>
+<li><code><a title="msiempy.device.DevTree.refresh" href="#msiempy.device.DevTree.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.device.DevTree.duplicate_datasource" href="#msiempy.device.DevTree.duplicate_datasource">duplicate_datasource</a></code></li>
+<li><code><a title="msiempy.device.DevTree.add" href="#msiempy.device.DevTree.add">add</a></code></li>
+<li><code><a title="msiempy.device.DevTree.search" href="#msiempy.device.DevTree.search">search</a></code></li>
+<li><code><a title="msiempy.device.DevTree.get_ds_times" href="#msiempy.device.DevTree.get_ds_times">get_ds_times</a></code></li>
+<li><code><a title="msiempy.device.DevTree.add_client" href="#msiempy.device.DevTree.add_client">add_client</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.device.Device" href="#msiempy.device.Device">Device</a></code></h4>
+</li>
+<li>
+<h4><code><a title="msiempy.device.ERC" href="#msiempy.device.ERC">ERC</a></code></h4>
 </li>
 </ul>
 </li>

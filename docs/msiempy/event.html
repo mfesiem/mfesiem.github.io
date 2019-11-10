@@ -371,9 +371,11 @@ class Event(NitroDict):
 
     &#34;&#34;&#34;
    
-    FIELDS_TABLES=[&#34;ADGroup&#34;,
-        &#34;Action&#34;,
+    FIELDS_TABLES=[
         &#34;Alert&#34;,
+        &#34;Rule&#34;,
+        &#34;ADGroup&#34;,
+        &#34;Action&#34;,
         &#34;Asset&#34;,
         &#34;AssetGroup&#34;,
         &#34;AssetThreat&#34;,
@@ -393,7 +395,6 @@ class Event(NitroDict):
         &#34;NDDevice_NDDevIDDst&#34;,
         &#34;NDDevice_NDDevIDSrc&#34;,
         &#34;OS&#34;,
-        &#34;Rule&#34;,
         &#34;Rule_NDSNormSigID&#34;,
         &#34;Tag&#34;,
         &#34;TagAsset&#34;,
@@ -429,31 +430,337 @@ class Event(NitroDict):
         &#34;Alert.DSIDSigID&#34;,
         &#34;Alert.IPSIDAlertID&#34;]
 
+    SIEM_FIELDS_MAP = {
+        &#39;ASNGeoDst&#39;: &#39;Alert.ASNGeoDst&#39;,
+        &#39;ASNGeoSrc&#39;: &#39;Alert.ASNGeoSrc&#39;,
+        &#39;Access_Mask&#39;: &#39;Alert.65622&#39;,
+        &#39;Access_Privileges&#39;: &#39;Alert.4259883&#39;,
+        &#39;Access_Resource&#39;: &#39;Alert.65555&#39;,
+        &#39;Action&#39;: &#39;Alert.Action&#39;,
+        &#39;Action.Name&#39;: &#39;Action.Name&#39;,
+        &#39;Agent_GUID&#39;: &#39;Alert.262162&#39;,
+        &#39;AlertID&#39;: &#39;Alert.AlertID&#39;,
+        &#39;Analyzer_DAT_Version&#39;: &#39;Alert.262170&#39;,
+        &#39;AppID&#39;: &#39;Alert.BIN(1)&#39;,
+        &#39;AppIDCat&#39;: &#39;Alert.AppIDCat&#39;,
+        &#39;App_Layer_Protocol&#39;: &#39;Alert.65615&#39;,
+        &#39;Application_Protocol&#39;: &#39;Alert.BIN(9)&#39;,
+        &#39;Area&#39;: &#39;Alert.65576&#39;,
+        &#39;Attacker_IP&#39;: &#39;Alert.262175&#39;,
+        &#39;Attribute_Type&#39;: &#39;Alert.65621&#39;,
+        &#39;Authentication_Type&#39;: &#39;Alert.65618&#39;,
+        &#39;Authoritative_Answer&#39;: &#39;Alert.BIN(20)&#39;,
+        &#39;AvgSeverity&#39;: &#39;Alert.AvgSeverity&#39;,
+        &#39;Bcc&#39;: &#39;Alert.4259847&#39;,
+        &#39;Caller_Process&#39;: &#39;Alert.65587&#39;,
+        &#39;Catalog_Name&#39;: &#39;Alert.65556&#39;,
+        &#39;Category&#39;: &#39;Alert.65540&#39;,
+        &#39;Cc&#39;: &#39;Alert.4259846&#39;,
+        &#39;Class.Name&#39;: &#39;Class.Name&#39;,
+        &#39;Class.Priority&#39;: &#39;Class.Priority&#39;,
+        &#39;Client_Version&#39;: &#39;Alert.4259853&#39;,
+        &#39;CnC_Host&#39;: &#39;Alert.65628&#39;,
+        &#39;CommandID&#39;: &#39;Alert.BIN(2)&#39;,
+        &#39;CommandIDCat&#39;: &#39;Alert.CommandIDCat&#39;,
+        &#39;Confidence&#39;: &#39;Alert.4456458&#39;,
+        &#39;Contact_Name&#39;: &#39;Alert.BIN(15)&#39;,
+        &#39;Contact_Nickname&#39;: &#39;Alert.BIN(16)&#39;,
+        &#39;Cookie&#39;: &#39;Alert.4259850&#39;,
+        &#39;Creator_Name&#39;: &#39;Alert.65551&#39;,
+        &#39;DAT_Version&#39;: &#39;Alert.262165&#39;,
+        &#39;DB2_Plan_Name&#39;: &#39;Alert.65557&#39;,
+        &#39;DNS - Class&#39;: &#39;Alert.21364737&#39;,
+        &#39;DNS - Class_Name&#39;: &#39;Alert.38141953&#39;,
+        &#39;DNS - Query&#39;: &#39;Alert.122028033&#39;,
+        &#39;DNS - Response_Code&#39;: &#39;Alert.88473601&#39;,
+        &#39;DNS - Response_Code_Name&#39;: &#39;Alert.105250817&#39;,
+        &#39;DNS - Type&#39;: &#39;Alert.54919169&#39;,
+        &#39;DNS - Type_Name&#39;: &#39;Alert.71696385&#39;,
+        &#39;DNS_Class&#39;: &#39;Alert.BIN(18)&#39;,
+        &#39;DNS_Name&#39;: &#39;Alert.4259867&#39;,
+        &#39;DNS_Server_IP&#39;: &#39;Alert.262178&#39;,
+        &#39;DNS_Type&#39;: &#39;Alert.BIN(17)&#39;,
+        &#39;DSID&#39;: &#39;Alert.DSID&#39;,
+        &#39;DSIDSigID&#39;: &#39;Alert.DSIDSigID&#39;,
+        &#39;Database_GUID&#39;: &#39;Alert.262169&#39;,
+        &#39;Database_ID&#39;: &#39;Alert.65569&#39;,
+        &#39;Database_Name&#39;: &#39;Alert.BIN(8)&#39;,
+        &#39;Datacenter_ID&#39;: &#39;Alert.65602&#39;,
+        &#39;Datacenter_Name&#39;: &#39;Alert.65603&#39;,
+        &#39;Delivery_ID&#39;: &#39;Alert.65550&#39;,
+        &#39;Description&#39;: &#39;Alert.4259873&#39;,
+        &#39;Destination_Directory&#39;: &#39;Alert.65592&#39;,
+        &#39;Destination_Filename&#39;: &#39;Alert.4259852&#39;,
+        &#39;Destination_Hostname&#39;: &#39;Alert.65539&#39;,
+        &#39;Destination_Logon_ID&#39;: &#39;Alert.65584&#39;,
+        &#39;Destination_Network&#39;: &#39;Alert.65573&#39;,
+        &#39;Destination_UserID&#39;: &#39;Alert.65567&#39;,
+        &#39;Destination_Zone&#39;: &#39;Alert.65542&#39;,
+        &#39;Detection_Method&#39;: &#39;Alert.65599&#39;,
+        &#39;Device_Action&#39;: &#39;Alert.65594&#39;,
+        &#39;Device_Confidence&#39;: &#39;Alert.262179&#39;,
+        &#39;Device_IP&#39;: &#39;Alert.262154&#39;,
+        &#39;Device_Port&#39;: &#39;Alert.262155&#39;,
+        &#39;Device_URL&#39;: &#39;Alert.4259886&#39;,
+        &#39;Direction&#39;: &#39;Alert.BIN(30)&#39;,
+        &#39;Directory&#39;: &#39;Alert.65591&#39;,
+        &#39;DomainID&#39;: &#39;Alert.BIN(3)&#39;,
+        &#39;DomainIDCat&#39;: &#39;Alert.DomainIDCat&#39;,
+        &#39;DstIP&#39;: &#39;Alert.DstIP&#39;,
+        &#39;DstMac&#39;: &#39;Alert.DstMac&#39;,
+        &#39;DstPort&#39;: &#39;Alert.DstPort&#39;,
+        &#39;End_Page&#39;: &#39;Alert.4456451&#39;,
+        &#39;Engine_List&#39;: &#39;Alert.4259887&#39;,
+        &#39;EventCount&#39;: &#39;Alert.EventCount&#39;,
+        &#39;Event_Class&#39;: &#39;Alert.65545&#39;,
+        &#39;External_Application&#39;: &#39;Alert.65552&#39;,
+        &#39;External_DB2_Server&#39;: &#39;Alert.65553&#39;,
+        &#39;External_Device_ID&#39;: &#39;Alert.65607&#39;,
+        &#39;External_Device_Name&#39;: &#39;Alert.65608&#39;,
+        &#39;External_Device_Type&#39;: &#39;Alert.65606&#39;,
+        &#39;External_EventID&#39;: &#39;Alert.262156&#39;,
+        &#39;External_Hostname&#39;: &#39;Alert.65575&#39;,
+        &#39;External_SessionID&#39;: &#39;Alert.65582&#39;,
+        &#39;External_SubEventID&#39;: &#39;Alert.262158&#39;,
+        &#39;FTP_Command&#39;: &#39;Alert.65559&#39;,
+        &#39;Facility&#39;: &#39;Alert.65577&#39;,
+        &#39;File_Hash&#39;: &#39;Alert.262159&#39;,
+        &#39;File_ID&#39;: &#39;Alert.65620&#39;,
+        &#39;File_Operation&#39;: &#39;Alert.BIN(12)&#39;,
+        &#39;File_Operation_Succeeded&#39;: &#39;Alert.BIN(13)&#39;,
+        &#39;File_Path&#39;: &#39;Alert.4259877&#39;,
+        &#39;File_Type&#39;: &#39;Alert.65558&#39;,
+        &#39;Filename&#39;: &#39;Alert.4259843&#39;,
+        &#39;FirstTime&#39;: &#39;Alert.FirstTime&#39;,
+        &#39;Flow&#39;: &#39;Alert.Flow&#39;,
+        &#39;FlowID&#39;: &#39;Alert.FlowID&#39;,
+        &#39;From&#39;: &#39;Alert.4259844&#39;,
+        &#39;From_Address&#39;: &#39;Alert.4259875&#39;,
+        &#39;GUIDDst&#39;: &#39;Alert.GUIDDst&#39;,
+        &#39;GUIDSrc&#39;: &#39;Alert.GUIDSrc&#39;,
+        &#39;GeoLoc_ASNGeoDst.Latitude&#39;: &#39;GeoLoc_ASNGeoDst.Latitude&#39;,
+        &#39;GeoLoc_ASNGeoDst.Longitude&#39;: &#39;GeoLoc_ASNGeoDst.Longitude&#39;,
+        &#39;GeoLoc_ASNGeoDst.Msg&#39;: &#39;GeoLoc_ASNGeoDst.Msg&#39;,
+        &#39;GeoLoc_ASNGeoDst.XCoord&#39;: &#39;GeoLoc_ASNGeoDst.XCoord&#39;,
+        &#39;GeoLoc_ASNGeoDst.YCoord&#39;: &#39;GeoLoc_ASNGeoDst.YCoord&#39;,
+        &#39;GeoLoc_ASNGeoSrc.Latitude&#39;: &#39;GeoLoc_ASNGeoSrc.Latitude&#39;,
+        &#39;GeoLoc_ASNGeoSrc.Longitude&#39;: &#39;GeoLoc_ASNGeoSrc.Longitude&#39;,
+        &#39;GeoLoc_ASNGeoSrc.Msg&#39;: &#39;GeoLoc_ASNGeoSrc.Msg&#39;,
+        &#39;GeoLoc_ASNGeoSrc.XCoord&#39;: &#39;GeoLoc_ASNGeoSrc.XCoord&#39;,
+        &#39;GeoLoc_ASNGeoSrc.YCoord&#39;: &#39;GeoLoc_ASNGeoSrc.YCoord&#39;,
+        &#39;Grid_Master_IP&#39;: &#39;Alert.262153&#39;,
+        &#39;Group_Name&#39;: &#39;Alert.65614&#39;,
+        &#39;Handheld_ID&#39;: &#39;Alert.262168&#39;,
+        &#39;Handle_ID&#39;: &#39;Alert.262160&#39;,
+        &#39;Hash&#39;: &#39;Alert.65624&#39;,
+        &#39;Hash_Type&#39;: &#39;Alert.65625&#39;,
+        &#39;Hops&#39;: &#39;Alert.4456459&#39;,
+        &#39;HostID&#39;: &#39;Alert.BIN(4)&#39;,
+        &#39;HostIDCat&#39;: &#39;Alert.HostIDCat&#39;,
+        &#39;IPS.Name&#39;: &#39;IPS.Name&#39;,
+        &#39;IPSID&#39;: &#39;Alert.IPSID&#39;,
+        &#39;IPSIDAlertID&#39;: &#39;Alert.IPSIDAlertID&#39;,
+        &#39;Incident_ID&#39;: &#39;Alert.262173&#39;,
+        &#39;Incoming_ID&#39;: &#39;Alert.65574&#39;,
+        &#39;Instance_GUID&#39;: &#39;Alert.262161&#39;,
+        &#39;Interface&#39;: &#39;Alert.BIN(29)&#39;,
+        &#39;Interface_Dest&#39;: &#39;Alert.65604&#39;,
+        &#39;Job_Name&#39;: &#39;Alert.4259854&#39;,
+        &#39;Job_Type&#39;: &#39;Alert.65560&#39;,
+        &#39;LPAR_DB2_Subsystem&#39;: &#39;Alert.65562&#39;,
+        &#39;Language&#39;: &#39;Alert.4259855&#39;,
+        &#39;LastTime&#39;: &#39;Alert.LastTime&#39;,
+        &#39;LastTime_usec&#39;: &#39;Alert.LastTime_usec&#39;,
+        &#39;Local_User_Name&#39;: &#39;Alert.4259860&#39;,
+        &#39;Logical_Unit_Name&#39;: &#39;Alert.65561&#39;,
+        &#39;Logon_Type&#39;: &#39;Alert.65580&#39;,
+        &#39;Mail_ID&#39;: &#39;Alert.65548&#39;,
+        &#39;Mailbox&#39;: &#39;Alert.65590&#39;,
+        &#39;Mainframe_Job_Name&#39;: &#39;Alert.65568&#39;,
+        &#39;Malware_Insp_Action&#39;: &#39;Alert.65570&#39;,
+        &#39;Malware_Insp_Result&#39;: &#39;Alert.65571&#39;,
+        &#39;Management_Server&#39;: &#39;Alert.65581&#39;,
+        &#39;Message_ID&#39;: &#39;Alert.65547&#39;,
+        &#39;Message_Text&#39;: &#39;Alert.4259842&#39;,
+        &#39;Method&#39;: &#39;Alert.BIN(11)&#39;,
+        &#39;NAT_Details&#39;: &#39;Alert.262146&#39;,
+        &#39;NTP_Client_Mode&#39;: &#39;Alert.BIN(25)&#39;,
+        &#39;NTP_Offset_To_Monitor&#39;: &#39;Alert.4456457&#39;,
+        &#39;NTP_Opcode&#39;: &#39;Alert.BIN(28)&#39;,
+        &#39;NTP_Request&#39;: &#39;Alert.BIN(27)&#39;,
+        &#39;NTP_Server_Mode&#39;: &#39;Alert.BIN(26)&#39;,
+        &#39;New_Reputation - ATD_File&#39;: &#39;Alert.54919172&#39;,
+        &#39;New_Reputation - GTI_Cert&#39;: &#39;Alert.71696388&#39;,
+        &#39;New_Reputation - GTI_File&#39;: &#39;Alert.21364740&#39;,
+        &#39;New_Reputation - TIE_Cert&#39;: &#39;Alert.88473604&#39;,
+        &#39;New_Reputation - TIE_File&#39;: &#39;Alert.38141956&#39;,
+        &#39;New_Value&#39;: &#39;Alert.4259885&#39;,
+        &#39;Num_Copies&#39;: &#39;Alert.4456449&#39;,
+        &#39;ObjectID&#39;: &#39;Alert.BIN(5)&#39;,
+        &#39;ObjectIDCat&#39;: &#39;Alert.ObjectIDCat&#39;,
+        &#39;Object_GUID&#39;: &#39;Alert.262176&#39;,
+        &#39;Object_Type&#39;: &#39;Alert.BIN(10)&#39;,
+        &#39;Old_Reputation - ATD_File&#39;: &#39;Alert.54919171&#39;,
+        &#39;Old_Reputation - GTI_Cert&#39;: &#39;Alert.71696387&#39;,
+        &#39;Old_Reputation - GTI_File&#39;: &#39;Alert.21364739&#39;,
+        &#39;Old_Reputation - TIE_Cert&#39;: &#39;Alert.88473603&#39;,
+        &#39;Old_Reputation - TIE_File&#39;: &#39;Alert.38141955&#39;,
+        &#39;Old_Value&#39;: &#39;Alert.4259884&#39;,
+        &#39;Operating_System&#39;: &#39;Alert.65579&#39;,
+        &#39;Organizational_Unit&#39;: &#39;Alert.65605&#39;,
+        &#39;PCAP_Name&#39;: &#39;Alert.4259881&#39;,
+        &#39;PID&#39;: &#39;Alert.262152&#39;,
+        &#39;Parent_File_Hash&#39;: &#39;Alert.262172&#39;,
+        &#39;Policy_ID&#39;: &#39;Alert.262167&#39;,
+        &#39;Policy_Name&#39;: &#39;Alert.65544&#39;,
+        &#39;Priority&#39;: &#39;Alert.4456460&#39;,
+        &#39;Privileged_User&#39;: &#39;Alert.65578&#39;,
+        &#39;Privileges&#39;: &#39;Alert.4259879&#39;,
+        &#39;Process_Name&#39;: &#39;Alert.4259870&#39;,
+        &#39;Protocol&#39;: &#39;Alert.Protocol&#39;,
+        &#39;Query_Response&#39;: &#39;Alert.BIN(19)&#39;,
+        &#39;Queue_ID&#39;: &#39;Alert.196609&#39;,
+        &#39;RTMP_Application&#39;: &#39;Alert.4259858&#39;,
+        &#39;Reason&#39;: &#39;Alert.65597&#39;,
+        &#39;Recipient_ID&#39;: &#39;Alert.65549&#39;,
+        &#39;Referer&#39;: &#39;Alert.4259851&#39;,
+        &#39;Registry - Key&#39;: &#39;Alert.21364738&#39;,
+        &#39;Registry - Value&#39;: &#39;Alert.38141954&#39;,
+        &#39;Registry_Key&#39;: &#39;Alert.65588&#39;,
+        &#39;Registry_Value&#39;: &#39;Alert.65589&#39;,
+        &#39;RemCaseID&#39;: &#39;Alert.RemCaseID&#39;,
+        &#39;RemOpenTicketTime&#39;: &#39;Alert.RemOpenTicketTime&#39;,
+        &#39;Reputation&#39;: &#39;Alert.262164&#39;,
+        &#39;Reputation_Name&#39;: &#39;Alert.65610&#39;,
+        &#39;Reputation_Score&#39;: &#39;Alert.262171&#39;,
+        &#39;Reputation_Server_IP&#39;: &#39;Alert.262177&#39;,
+        &#39;Request_Type&#39;: &#39;Alert.65546&#39;,
+        &#39;Response_Code&#39;: &#39;Alert.BIN(33)&#39;,
+        &#39;Response_Time&#39;: &#39;Alert.262145&#39;,
+        &#39;Return_Code&#39;: &#39;Alert.BIN(34)&#39;,
+        &#39;Reviewed&#39;: &#39;Alert.Reviewed&#39;,
+        &#39;Rule.ID&#39;: &#39;Rule.ID&#39;,
+        &#39;Rule.NormID&#39;: &#39;Rule.NormID&#39;,
+        &#39;Rule.msg&#39;: &#39;Rule.msg&#39;,
+        &#39;Rule_NDSNormSigID.msg&#39;: &#39;Rule_NDSNormSigID.msg&#39;,
+        &#39;Rule_Name&#39;: &#39;Alert.65616&#39;,
+        &#39;SHA1&#39;: &#39;Alert.65619&#39;,
+        &#39;SHA256&#39;: &#39;Alert.65630&#39;,
+        &#39;SNMP_Error_Code&#39;: &#39;Alert.BIN(24)&#39;,
+        &#39;SNMP_Item&#39;: &#39;Alert.4259868&#39;,
+        &#39;SNMP_Item_Type&#39;: &#39;Alert.BIN(22)&#39;,
+        &#39;SNMP_Operation&#39;: &#39;Alert.BIN(21)&#39;,
+        &#39;SNMP_Version&#39;: &#39;Alert.BIN(23)&#39;,
+        &#39;SQL_Command&#39;: &#39;Alert.65593&#39;,
+        &#39;SQL_Statement&#39;: &#39;Alert.4259874&#39;,
+        &#39;SWF_URL&#39;: &#39;Alert.4259856&#39;,
+        &#39;Search_Query&#39;: &#39;Alert.4259880&#39;,
+        &#39;Security_ID&#39;: &#39;Alert.65617&#39;,
+        &#39;Sensor_Name&#39;: &#39;Alert.BIN(31)&#39;,
+        &#39;Sensor_Type&#39;: &#39;Alert.BIN(32)&#39;,
+        &#39;Sensor_UUID&#39;: &#39;Alert.4259869&#39;,
+        &#39;Sequence&#39;: &#39;Alert.Sequence&#39;,
+        &#39;Server_ID&#39;: &#39;Alert.262166&#39;,
+        &#39;Service_Name&#39;: &#39;Alert.65609&#39;,
+        &#39;SessionID&#39;: &#39;Alert.SessionID&#39;,
+        &#39;Session_Status&#39;: &#39;Alert.65585&#39;,
+        &#39;Severity&#39;: &#39;Alert.Severity&#39;,
+        &#39;Share_Name&#39;: &#39;Alert.65629&#39;,
+        &#39;SigID&#39;: &#39;Alert.SigID&#39;,
+        &#39;Signature_Name&#39;: &#39;Alert.65537&#39;,
+        &#39;Source_Context&#39;: &#39;Alert.4259871&#39;,
+        &#39;Source_Logon_ID&#39;: &#39;Alert.65583&#39;,
+        &#39;Source_Network&#39;: &#39;Alert.65572&#39;,
+        &#39;Source_UserID&#39;: &#39;Alert.65566&#39;,
+        &#39;Source_Zone&#39;: &#39;Alert.65541&#39;,
+        &#39;Spam_Score&#39;: &#39;Alert.262157&#39;,
+        &#39;SrcIP&#39;: &#39;Alert.SrcIP&#39;,
+        &#39;SrcMac&#39;: &#39;Alert.SrcMac&#39;,
+        &#39;SrcPort&#39;: &#39;Alert.SrcPort&#39;,
+        &#39;Start_Page&#39;: &#39;Alert.4456450&#39;,
+        &#39;Status&#39;: &#39;Alert.65611&#39;,
+        &#39;Step_Count&#39;: &#39;Alert.65563&#39;,
+        &#39;Step_Name&#39;: &#39;Alert.65564&#39;,
+        &#39;Sub_Status&#39;: &#39;Alert.65612&#39;,
+        &#39;Subcategory&#39;: &#39;Alert.65627&#39;,
+        &#39;Subject&#39;: &#39;Alert.4259848&#39;,
+        &#39;TC_URL&#39;: &#39;Alert.4259857&#39;,
+        &#39;Table_Name&#39;: &#39;Alert.65554&#39;,
+        &#39;Target_Class&#39;: &#39;Alert.65543&#39;,
+        &#39;Target_Context&#39;: &#39;Alert.4259872&#39;,
+        &#39;Target_Process_Name&#39;: &#39;Alert.4259878&#39;,
+        &#39;ThirdPartyType.Name&#39;: &#39;ThirdPartyType.Name&#39;,
+        &#39;Threat_Category&#39;: &#39;Alert.65595&#39;,
+        &#39;Threat_Handled&#39;: &#39;Alert.65596&#39;,
+        &#39;Threat_Name&#39;: &#39;Alert.65538&#39;,
+        &#39;To&#39;: &#39;Alert.4259845&#39;,
+        &#39;To_Address&#39;: &#39;Alert.4259876&#39;,
+        &#39;Trusted&#39;: &#39;Alert.Trusted&#39;,
+        &#39;URL&#39;: &#39;Alert.4259841&#39;,
+        &#39;URL_Category&#39;: &#39;Alert.65586&#39;,
+        &#39;UUID&#39;: &#39;Alert.262163&#39;,
+        &#39;UserFld10Cat&#39;: &#39;Alert.UserFld10Cat&#39;,
+        &#39;UserFld21Cat&#39;: &#39;Alert.UserFld21Cat&#39;,
+        &#39;UserFld22Cat&#39;: &#39;Alert.UserFld22Cat&#39;,
+        &#39;UserFld23Cat&#39;: &#39;Alert.UserFld23Cat&#39;,
+        &#39;UserFld24Cat&#39;: &#39;Alert.UserFld24Cat&#39;,
+        &#39;UserFld25Cat&#39;: &#39;Alert.UserFld25Cat&#39;,
+        &#39;UserFld26Cat&#39;: &#39;Alert.UserFld26Cat&#39;,
+        &#39;UserFld27Cat&#39;: &#39;Alert.UserFld27Cat&#39;,
+        &#39;UserFld8Cat&#39;: &#39;Alert.UserFld8Cat&#39;,
+        &#39;UserFld9Cat&#39;: &#39;Alert.UserFld9Cat&#39;,
+        &#39;UserIDDst&#39;: &#39;Alert.BIN(6)&#39;,
+        &#39;UserIDDstCat&#39;: &#39;Alert.UserIDDstCat&#39;,
+        &#39;UserIDSrc&#39;: &#39;Alert.BIN(7)&#39;,
+        &#39;UserIDSrcCat&#39;: &#39;Alert.UserIDSrcCat&#39;,
+        &#39;User_Agent&#39;: &#39;Alert.4259849&#39;,
+        &#39;User_Nickname&#39;: &#39;Alert.BIN(14)&#39;,
+        &#39;Users.Name&#39;: &#39;Users.Name&#39;,
+        &#39;VLan&#39;: &#39;Alert.VLan&#39;,
+        &#39;VPN_Feature_Name&#39;: &#39;Alert.65623&#39;,
+        &#39;Version&#39;: &#39;Alert.4259859&#39;,
+        &#39;Victim_IP&#39;: &#39;Alert.262174&#39;,
+        &#39;Virtual_Machine_ID&#39;: &#39;Alert.65601&#39;,
+        &#39;Virtual_Machine_Name&#39;: &#39;Alert.65600&#39;,
+        &#39;Volume_ID&#39;: &#39;Alert.65565&#39;,
+        &#39;Vulnerability_References&#39;: &#39;Alert.4259882&#39;,
+        &#39;Web_Domain&#39;: &#39;Alert.65613&#39;,
+        &#39;WriteTime&#39;: &#39;Alert.WriteTime&#39;,
+        &#39;ZoneDst&#39;: &#39;Alert.ZoneDst&#39;,
+        &#39;ZoneSrc&#39;: &#39;Alert.ZoneSrc&#39;,
+        &#39;Zone_ZoneDst.Name&#39;: &#39;Zone_ZoneDst.Name&#39;,
+        &#39;Zone_ZoneSrc.Name&#39;: &#39;Zone_ZoneSrc.Name&#39;}
+
     def __getitem__(self, key):
         &#34;&#34;&#34;
-        Automatically adding the table name of the field by iterating trought FIELDS_TABLES
-        if no &#39;.&#39; is present in the key
+        Best effort to autocomplete the field name.
         &#34;&#34;&#34;
         try :
-            return collections.UserDict.__getitem__(self, key)
-        except (AttributeError, KeyError) : pass
+            val = collections.UserDict.__getitem__(self, key)
+            # log.debug(&#39;Returning __getitem__(self, {}) -&gt; {}&#39;.format(key, val))
+            return val
 
-        if &#39;.&#39; not in key :
+        except (AttributeError, KeyError) : 
+            if key in self.SIEM_FIELDS_MAP :
+                try :
+                    val = collections.UserDict.__getitem__(self, self.SIEM_FIELDS_MAP[key])
+                    # log.debug(&#39;Returning __getitem__(self, SIEM_FIELDS_MAP[{}]) -&gt; {}&#39;.format(key, val))
+                    return val
+                except (AttributeError, KeyError) : 
+                    # log.debug(&#39;Errored __getitem__(self, SIEM_FIELDS_MAP[{}])&#39;.format(key))
+                    pass
+
             for table in self.FIELDS_TABLES :
                 try :
-                    return collections.UserDict.__getitem__(self, table+&#39;.&#39;+key)
-                except (AttributeError, KeyError) : pass
-        try :
-            return collections.UserDict.__getitem__(self, key)
-        except (AttributeError, KeyError) : 
-            if key in self.DEFAULTS_EVENT_FIELDS :
-                log.error(&#39;Some default event fields are missing from SIEM reponse.&#39;)
-                return &#39;missing&#39;
-            else:
-                log.error(&#39;The SIEM dict keys are not always the same are the requested fields. check .keys()&#39;)
-                #Todo : table of corespondance UserIDSrc = BIN(7) etc...
-                #Map the table to getitem
-                raise
+                    val = collections.UserDict.__getitem__(self, table+&#39;.&#39;+key)
+                    # log.debug(&#39;Returning __getitem__(self, {}.{}) -&gt; {}&#39;.format(table, key, val))
+                    return val
+                except (AttributeError, KeyError) : 
+                    # log.debug(&#39;Errored __getitem__(self, {}.{})&#39;.format(table, key))
+                    pass
+
+            log.error(&#39;The SIEM dict keys are not always the same are the requested fields. Check `.keys()`.&#39;)
+            raise
 
     def clear_notes(self):
         &#34;&#34;&#34;
@@ -1158,8 +1465,6 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
 <li>collections.abc.Sequence</li>
-<li>collections.abc.Reversible</li>
-<li>collections.abc.Collection</li>
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
@@ -1194,9 +1499,8 @@ errors defaults to 'strict'.</p></section>
 </dd>
 <dt id="msiempy.event.EventManager.POSSBILE_ROW_ORDER"><code class="name">var <span class="ident">POSSBILE_ROW_ORDER</span></code></dt>
 <dd>
-<section class="desc"><p>Built-in mutable sequence.</p>
-<p>If no argument is given, the constructor creates a new empty list.
-The argument must be an iterable if specified.</p></section>
+<section class="desc"><p>list() -&gt; new empty list
+list(iterable) -&gt; new list initialized from iterable's items</p></section>
 </dd>
 </dl>
 <h3>Instance variables</h3>
@@ -1238,31 +1542,6 @@ def filters(self):
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="msiempy.event.EventManager.add_filter"><code class="name flex">
-<span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Concrete description of the <a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a> method.
-It can take a <code>tuple(fiels, [values])</code> or a <a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter"><code>QueryFilter</code></a> subclass.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def add_filter(self, afilter):
-    &#34;&#34;&#34;
-    Concrete description of the `msiempy.FilteredQueryList` method.
-    It can take a `tuple(fiels, [values])` or a `msiempy.event.QueryFilter` subclass.
-    &#34;&#34;&#34;
-    if isinstance(afilter, tuple) :
-        self._filters.append(FieldFilter(afilter[0], afilter[1]))
-
-    elif isinstance(afilter, QueryFilter) :
-        self._filters.append(afilter)
-    
-    else :
-        raise NitroError(&#34;Sorry the filters must be either a tuple(fiels, [values]) or a QueryFilter sub class.&#34;)</code></pre>
-</details>
-</dd>
 <dt id="msiempy.event.EventManager.clear_filters"><code class="name flex">
 <span>def <span class="ident">clear_filters</span></span>(<span>self)</span>
 </code></dt>
@@ -1279,24 +1558,6 @@ Acts like the is not filters.</p></section>
     Acts like the is not filters.
     &#34;&#34;&#34; 
     self._filters=[FieldFilter(&#39;SrcIP&#39;, [&#39;0.0.0.0/0&#39;,])]</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.EventManager.get_possible_fields"><code class="name flex">
-<span>def <span class="ident">get_possible_fields</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Indicate a list of possible fields that you can request in a query.
-The list is loaded from the SIEM.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_possible_fields(self):
-    &#34;&#34;&#34;
-    Indicate a list of possible fields that you can request in a query.
-    The list is loaded from the SIEM.
-    &#34;&#34;&#34;
-    return self.nitro.request(&#39;get_possible_fields&#39;, type=self.TYPE, groupType=self.GROUPTYPE)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.event.EventManager.qry_load_data"><code class="name flex">
@@ -1362,6 +1623,31 @@ Concrete helper method to execute the query and load the data :
     
     self.data=events
     return((events,len(events)&lt;self.limit))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.EventManager.add_filter"><code class="name flex">
+<span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Concrete description of the <a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a> method.
+It can take a <code>tuple(fiels, [values])</code> or a <a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter"><code>QueryFilter</code></a> subclass.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_filter(self, afilter):
+    &#34;&#34;&#34;
+    Concrete description of the `msiempy.FilteredQueryList` method.
+    It can take a `tuple(fiels, [values])` or a `msiempy.event.QueryFilter` subclass.
+    &#34;&#34;&#34;
+    if isinstance(afilter, tuple) :
+        self._filters.append(FieldFilter(afilter[0], afilter[1]))
+
+    elif isinstance(afilter, QueryFilter) :
+        self._filters.append(afilter)
+    
+    else :
+        raise NitroError(&#34;Sorry the filters must be either a tuple(fiels, [values]) or a QueryFilter sub class.&#34;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.event.EventManager.load_data"><code class="name flex">
@@ -1476,6 +1762,24 @@ with dateutil.
     return(self)</code></pre>
 </details>
 </dd>
+<dt id="msiempy.event.EventManager.get_possible_fields"><code class="name flex">
+<span>def <span class="ident">get_possible_fields</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Indicate a list of possible fields that you can request in a query.
+The list is loaded from the SIEM.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_possible_fields(self):
+    &#34;&#34;&#34;
+    Indicate a list of possible fields that you can request in a query.
+    The list is loaded from the SIEM.
+    &#34;&#34;&#34;
+    return self.nitro.request(&#39;get_possible_fields&#39;, type=self.TYPE, groupType=self.GROUPTYPE)</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -1494,601 +1798,6 @@ with dateutil.
 <li><code><a title="msiempy.FilteredQueryList.start_time" href="index.html#msiempy.FilteredQueryList.start_time">start_time</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.time_range" href="index.html#msiempy.FilteredQueryList.time_range">time_range</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="msiempy.event.Event"><code class="flex name class">
-<span>class <span class="ident">Event</span></span>
-<span>(</span><span>adict=None, id=None)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Default event field keys :<br>
-- <code>Rule.msg</code><br>
-- <code>Alert.LastTime</code><br>
-- <code>Alert.IPSIDAlertID</code>
-</p>
-<p>You can request more fields by passing a list of fields to the <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a> object.
-<a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS"><code>Event.REGULAR_EVENT_FIELDS</code></a> offer a base list of regular fields that may be useful.
-See msiempy/static JSON files to browse complete list : <a href="https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json">https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json</a><br>
-Prefixes 'Alert.', 'Rule.', etc are optionnal, prefix autocompletion is computed in any case ;)</p>
-<p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
-and update dict values accordingly.</p>
-<p>Parameters:
-</p>
-<ul>
-<li><code>adict</code>: dict object to wrap.
-</li>
-<li><code>id</code>: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.</li>
-</ul></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Event(NitroDict):
-
-    &#34;&#34;&#34;        
-    Default event field keys :  
-    - `Rule.msg`  
-    - `Alert.LastTime`  
-    - `Alert.IPSIDAlertID`  
-    
-    You can request more fields by passing a list of fields to the `msiempy.event.EventManager` object. 
-    `msiempy.event.Event.REGULAR_EVENT_FIELDS` offer a base list of regular fields that may be useful.
-    See msiempy/static JSON files to browse complete list : https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json  
-    Prefixes &#39;Alert.&#39;, &#39;Rule.&#39;, etc are optionnal, prefix autocompletion is computed in any case ;)
-
-    &#34;&#34;&#34;
-   
-    FIELDS_TABLES=[&#34;ADGroup&#34;,
-        &#34;Action&#34;,
-        &#34;Alert&#34;,
-        &#34;Asset&#34;,
-        &#34;AssetGroup&#34;,
-        &#34;AssetThreat&#34;,
-        &#34;CaseMgt&#34;,
-        &#34;CaseOrg&#34;,
-        &#34;CaseStatus&#34;,
-        &#34;Class&#34;,
-        &#34;Connection&#34;,
-        &#34;DataEnrichment&#34;,
-        &#34;GeoLoc_ASNGeoDst&#34;,
-        &#34;GeoLoc_ASNGeoSrc&#34;,
-        &#34;IOC&#34;,
-        &#34;IPS&#34;,
-        &#34;IPSCheck&#34;,
-        &#34;NDDeviceInterface_NDDevIFDst&#34;,
-        &#34;NDDeviceInterface_NDDevIFSrc&#34;,
-        &#34;NDDevice_NDDevIDDst&#34;,
-        &#34;NDDevice_NDDevIDSrc&#34;,
-        &#34;OS&#34;,
-        &#34;Rule&#34;,
-        &#34;Rule_NDSNormSigID&#34;,
-        &#34;Tag&#34;,
-        &#34;TagAsset&#34;,
-        &#34;ThirdPartyType&#34;,
-        &#34;Threat&#34;,
-        &#34;ThreatVendor&#34;,
-        &#34;TriggeredAlarm&#34;,
-        &#34;Users&#34;,
-        &#34;Vulnerability&#34;,
-        &#34;Zone_ZoneDst&#34;,
-        &#34;Zone_ZoneSrc&#34;,
-        ]
-
-    # Minimal default query fields
-    DEFAULTS_EVENT_FIELDS=[
-        &#34;Rule.msg&#34;,
-        &#34;Alert.LastTime&#34;,
-        &#34;Alert.IPSIDAlertID&#34;]
-
-    # Regular query fields
-    REGULAR_EVENT_FIELDS=[
-        &#34;Rule.msg&#34;,
-        &#34;Alert.SrcIP&#34;,
-        &#34;Alert.DstIP&#34;, 
-        &#34;Alert.SrcMac&#34;,
-        &#34;Alert.DstMac&#34;,
-        &#34;Rule.NormID&#34;,
-        &#34;HostID&#34;,
-        &#34;UserIDSrc&#34;,
-        &#34;ObjectID&#34;,
-        &#34;Alert.Severity&#34;,
-        &#34;Alert.LastTime&#34;,
-        &#34;Alert.DSIDSigID&#34;,
-        &#34;Alert.IPSIDAlertID&#34;]
-
-    def __getitem__(self, key):
-        &#34;&#34;&#34;
-        Automatically adding the table name of the field by iterating trought FIELDS_TABLES
-        if no &#39;.&#39; is present in the key
-        &#34;&#34;&#34;
-        try :
-            return collections.UserDict.__getitem__(self, key)
-        except (AttributeError, KeyError) : pass
-
-        if &#39;.&#39; not in key :
-            for table in self.FIELDS_TABLES :
-                try :
-                    return collections.UserDict.__getitem__(self, table+&#39;.&#39;+key)
-                except (AttributeError, KeyError) : pass
-        try :
-            return collections.UserDict.__getitem__(self, key)
-        except (AttributeError, KeyError) : 
-            if key in self.DEFAULTS_EVENT_FIELDS :
-                log.error(&#39;Some default event fields are missing from SIEM reponse.&#39;)
-                return &#39;missing&#39;
-            else:
-                log.error(&#39;The SIEM dict keys are not always the same are the requested fields. check .keys()&#39;)
-                #Todo : table of corespondance UserIDSrc = BIN(7) etc...
-                #Map the table to getitem
-                raise
-
-    def clear_notes(self):
-        &#34;&#34;&#34;
-        Replace the notes by an empty string. Desctructive action.
-        &#34;&#34;&#34;
-        self.set_note(&#39;&#39;, no_date=True)
-
-    def set_note(self, note, no_date=False):
-        &#34;&#34;&#34;
-        Set the event&#39;s note. Desctructive action.
-        &#34;&#34;&#34;
-        the_id = self.data[&#34;Alert.IPSIDAlertID&#34;] if &#34;Alert.IPSIDAlertID&#34; in self.data else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if &#34;alertId&#34; in self.data else None
-
-        if isinstance(the_id, str):
-
-            if len(note) &gt;= 4000:
-                log.warning(&#34;The note is longer than 4000 characters, only the&#34; 
-                            &#34;first 4000 characters will be kept. The maximum&#34; 
-                            &#34;accepted by the SIEM is 4096 characters.&#34;)
-                note=note[:4000]+&#39;\n\n--NOTE HAS BEEN TRUNCATED--&#39;
-            
-            if no_date==False:
-                timestamp = datetime.now().strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)
-                note = note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)
-                note = timestamp + &#39; - &#39; + note
-            
-            self.nitro.request(&#34;add_note_to_event_int&#34;, 
-                id=the_id,
-                note=note)
-        else :
-            log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found.&#34;)
-
-    def add_note(self, note):
-        &#34;&#34;&#34;Deprecated, please use set_note() method instead.&#34;&#34;&#34;
-        log.warning(str(DeprecationWarning())+&#34; Please use set_note() method instead.&#34;)
-        self.set_note(note)
-        
-    def data_from_id(self, id, use_query=False, extra_fields=[]):
-        &#34;&#34;&#34;
-        Load event&#39;s data.  
-
-        Parameters :   
-        - `id` : The event ID. (i.e. : `144128388087414784|747122896`)  
-        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
-        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.  
-        &#34;&#34;&#34;
-        
-        if use_query == True :
-
-            e = EventManager(time_range=&#39;CUSTOM&#39;,
-                start_time=datetime.now()-timedelta(days=365),
-                end_time=datetime.now()+timedelta(days=1),
-                filters=[(&#39;IPSIDAlertID&#39;,id)],
-                fields=extra_fields,
-                limit=2).load_data()
-
-            if len(e) == 1 :
-                return e[0]
-            else :
-                raise NitroError(&#39;Could not load event : &#39;+str(id)+&#39; from query :&#39;+str(e.__dict__)+&#39;. Try with use_query=False.&#39;)
-
-        elif use_query == False :
-            return self.nitro.request(&#39;get_alert_data&#39;, id=id)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
-<li>collections.UserDict</li>
-<li>collections.abc.MutableMapping</li>
-<li>collections.abc.Mapping</li>
-<li>collections.abc.Collection</li>
-<li>collections.abc.Sized</li>
-<li>collections.abc.Iterable</li>
-<li>collections.abc.Container</li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="msiempy.event.Event.FIELDS_TABLES"><code class="name">var <span class="ident">FIELDS_TABLES</span></code></dt>
-<dd>
-<section class="desc"><p>Built-in mutable sequence.</p>
-<p>If no argument is given, the constructor creates a new empty list.
-The argument must be an iterable if specified.</p></section>
-</dd>
-<dt id="msiempy.event.Event.DEFAULTS_EVENT_FIELDS"><code class="name">var <span class="ident">DEFAULTS_EVENT_FIELDS</span></code></dt>
-<dd>
-<section class="desc"><p>Built-in mutable sequence.</p>
-<p>If no argument is given, the constructor creates a new empty list.
-The argument must be an iterable if specified.</p></section>
-</dd>
-<dt id="msiempy.event.Event.REGULAR_EVENT_FIELDS"><code class="name">var <span class="ident">REGULAR_EVENT_FIELDS</span></code></dt>
-<dd>
-<section class="desc"><p>Built-in mutable sequence.</p>
-<p>If no argument is given, the constructor creates a new empty list.
-The argument must be an iterable if specified.</p></section>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="msiempy.event.Event.clear_notes"><code class="name flex">
-<span>def <span class="ident">clear_notes</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Replace the notes by an empty string. Desctructive action.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def clear_notes(self):
-    &#34;&#34;&#34;
-    Replace the notes by an empty string. Desctructive action.
-    &#34;&#34;&#34;
-    self.set_note(&#39;&#39;, no_date=True)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.Event.set_note"><code class="name flex">
-<span>def <span class="ident">set_note</span></span>(<span>self, note, no_date=False)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Set the event's note. Desctructive action.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_note(self, note, no_date=False):
-    &#34;&#34;&#34;
-    Set the event&#39;s note. Desctructive action.
-    &#34;&#34;&#34;
-    the_id = self.data[&#34;Alert.IPSIDAlertID&#34;] if &#34;Alert.IPSIDAlertID&#34; in self.data else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if &#34;alertId&#34; in self.data else None
-
-    if isinstance(the_id, str):
-
-        if len(note) &gt;= 4000:
-            log.warning(&#34;The note is longer than 4000 characters, only the&#34; 
-                        &#34;first 4000 characters will be kept. The maximum&#34; 
-                        &#34;accepted by the SIEM is 4096 characters.&#34;)
-            note=note[:4000]+&#39;\n\n--NOTE HAS BEEN TRUNCATED--&#39;
-        
-        if no_date==False:
-            timestamp = datetime.now().strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)
-            note = note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)
-            note = timestamp + &#39; - &#39; + note
-        
-        self.nitro.request(&#34;add_note_to_event_int&#34;, 
-            id=the_id,
-            note=note)
-    else :
-        log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found.&#34;)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.Event.add_note"><code class="name flex">
-<span>def <span class="ident">add_note</span></span>(<span>self, note)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Deprecated, please use set_note() method instead.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def add_note(self, note):
-    &#34;&#34;&#34;Deprecated, please use set_note() method instead.&#34;&#34;&#34;
-    log.warning(str(DeprecationWarning())+&#34; Please use set_note() method instead.&#34;)
-    self.set_note(note)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.Event.data_from_id"><code class="name flex">
-<span>def <span class="ident">data_from_id</span></span>(<span>self, id, use_query=False, extra_fields=[])</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Load event's data.
-</p>
-<p>Parameters : <br>
-- <code>id</code> : The event ID. (i.e. : <code>144128388087414784|747122896</code>)<br>
-- <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.<br>
-- <code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def data_from_id(self, id, use_query=False, extra_fields=[]):
-    &#34;&#34;&#34;
-    Load event&#39;s data.  
-
-    Parameters :   
-    - `id` : The event ID. (i.e. : `144128388087414784|747122896`)  
-    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
-    - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.  
-    &#34;&#34;&#34;
-    
-    if use_query == True :
-
-        e = EventManager(time_range=&#39;CUSTOM&#39;,
-            start_time=datetime.now()-timedelta(days=365),
-            end_time=datetime.now()+timedelta(days=1),
-            filters=[(&#39;IPSIDAlertID&#39;,id)],
-            fields=extra_fields,
-            limit=2).load_data()
-
-        if len(e) == 1 :
-            return e[0]
-        else :
-            raise NitroError(&#39;Could not load event : &#39;+str(id)+&#39; from query :&#39;+str(e.__dict__)+&#39;. Try with use_query=False.&#39;)
-
-    elif use_query == False :
-        return self.nitro.request(&#39;get_alert_data&#39;, id=id)</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
-<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="msiempy.event.QueryFilter"><code class="flex name class">
-<span>class <span class="ident">QueryFilter</span></span>
-</code></dt>
-<dd>
-<section class="desc"><p>Base class for all SIEM query objects, declares the <code>config_dict</code> abstract property in order to dump the filter as JSON.</p>
-<p>Creates the object session.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class QueryFilter(NitroObject):
-    &#34;&#34;&#34;Base class for all SIEM query objects, declares the `config_dict` abstract property in order to dump the filter as JSON.
-    &#34;&#34;&#34;
-    _possible_filters = []
-
-    def __init__(self):
-        super().__init__()
-
-        #Setting up static constant
-        &#34;&#34;&#34;Not checking dynamically the validity of the fields cause makes too much of unecessary requests
-            self._possible_filters = self._get_possible_filters()
-            &#34;&#34;&#34;
-
-    def get_possible_filters(self):
-        &#34;&#34;&#34;
-        Return all the fields that you can filter on in a query.
-        &#34;&#34;&#34;
-        return(self.nitro.request(&#39;get_possible_filters&#39;))
-
-    @abc.abstractproperty
-    def config_dict(self):
-        &#34;&#34;&#34;
-        Dump a filter in the right JSON format.
-        &#34;&#34;&#34;
-        pass
-
-    def refresh(self):
-        &#34;&#34;&#34;
-        Superclass method.
-        &#34;&#34;&#34;
-        log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))
-
-    @property
-    def json(self):
-        &#34;&#34;&#34;
-        Dump the filter as a json.
-        &#34;&#34;&#34;
-        return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))
-    
-    @property
-    def text(self):
-        &#34;&#34;&#34;
-        Text representation of `config_dict` property.
-        &#34;&#34;&#34;
-        return str(self.config_dict)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></li>
-<li><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></li>
-</ul>
-<h3>Instance variables</h3>
-<dl>
-<dt id="msiempy.event.QueryFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
-<dd>
-<section class="desc"><p>Dump a filter in the right JSON format.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abc.abstractproperty
-def config_dict(self):
-    &#34;&#34;&#34;
-    Dump a filter in the right JSON format.
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.QueryFilter.json"><code class="name">var <span class="ident">json</span></code></dt>
-<dd>
-<section class="desc"><p>Dump the filter as a json.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def json(self):
-    &#34;&#34;&#34;
-    Dump the filter as a json.
-    &#34;&#34;&#34;
-    return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.QueryFilter.text"><code class="name">var <span class="ident">text</span></code></dt>
-<dd>
-<section class="desc"><p>Text representation of <code>config_dict</code> property.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def text(self):
-    &#34;&#34;&#34;
-    Text representation of `config_dict` property.
-    &#34;&#34;&#34;
-    return str(self.config_dict)</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="msiempy.event.QueryFilter.get_possible_filters"><code class="name flex">
-<span>def <span class="ident">get_possible_filters</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Return all the fields that you can filter on in a query.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_possible_filters(self):
-    &#34;&#34;&#34;
-    Return all the fields that you can filter on in a query.
-    &#34;&#34;&#34;
-    return(self.nitro.request(&#39;get_possible_filters&#39;))</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.QueryFilter.refresh"><code class="name flex">
-<span>def <span class="ident">refresh</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Superclass method.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def refresh(self):
-    &#34;&#34;&#34;
-    Superclass method.
-    &#34;&#34;&#34;
-    log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="msiempy.event.GroupFilter"><code class="flex name class">
-<span>class <span class="ident">GroupFilter</span></span>
-<span>(</span><span>filters, logic='AND')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Based on EsmFilterGroup. See SIEM api doc.
-Used to dump groups of filters in the right format.</p>
-<p>Parameters :
-</p>
-<ul>
-<li><code>filters</code> : a list of filters, it can be <a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter"><code>FieldFilter</code></a> or <a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter"><code>GroupFilter</code></a>
-</li>
-<li><code>logic</code> : 'AND' or 'OR'</li>
-</ul></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class GroupFilter(QueryFilter):
-    &#34;&#34;&#34;
-        Based on EsmFilterGroup. See SIEM api doc.
-        Used to dump groups of filters in the right format.
-    &#34;&#34;&#34;
-
-    def __init__(self, filters, logic=&#39;AND&#39;) :
-        &#34;&#34;&#34;Parameters :  
-
-        - `filters` : a list of filters, it can be `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter`  
-        - `logic` : &#39;AND&#39; or &#39;OR&#39;  
-        &#34;&#34;&#34;
-        super().__init__()
-        
-        #Declaring attributes
-        self.filters=filters
-        self.logic=logic
-
-    @property
-    def config_dict(self):
-        &#34;&#34;&#34;
-        Could call recursively if there is other GroupFilter(s) object nested.
-        Dump a filter in the right format.
-        &#34;&#34;&#34;
-        return({
-            &#34;type&#34;: &#34;EsmFilterGroup&#34;,
-            &#34;filters&#34;: [f.config_dict for f in self.filters],
-            &#34;logic&#34;:self.logic
-            })</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Instance variables</h3>
-<dl>
-<dt id="msiempy.event.GroupFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
-<dd>
-<section class="desc"><p>Could call recursively if there is other GroupFilter(s) object nested.
-Dump a filter in the right format.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def config_dict(self):
-    &#34;&#34;&#34;
-    Could call recursively if there is other GroupFilter(s) object nested.
-    Dump a filter in the right format.
-    &#34;&#34;&#34;
-    return({
-        &#34;type&#34;: &#34;EsmFilterGroup&#34;,
-        &#34;filters&#34;: [f.config_dict for f in self.filters],
-        &#34;logic&#34;:self.logic
-        })</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.event.QueryFilter.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.get_possible_filters" href="#msiempy.event.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2322,6 +2031,10 @@ Used to dump a filter in the right format.</p>
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES"><code class="name">var <span class="ident">POSSIBLE_VALUE_TYPES</span></code></dt>
+<dd>
+<section class="desc"><p>List of possible value type. See <a title="msiempy.event.FieldFilter.add_value" href="#msiempy.event.FieldFilter.add_value"><code>FieldFilter.add_value()</code></a>.</p></section>
+</dd>
 <dt id="msiempy.event.FieldFilter.POSSIBLE_OPERATORS"><code class="name">var <span class="ident">POSSIBLE_OPERATORS</span></code></dt>
 <dd>
 <section class="desc"><p>List of possible operators : <code>'IN',
@@ -2338,48 +2051,9 @@ Used to dump a filter in the right format.</p>
 'DOES_NOT_CONTAIN',
 'REGEX'</code></p></section>
 </dd>
-<dt id="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES"><code class="name">var <span class="ident">POSSIBLE_VALUE_TYPES</span></code></dt>
-<dd>
-<section class="desc"><p>List of possible value type. See <a title="msiempy.event.FieldFilter.add_value" href="#msiempy.event.FieldFilter.add_value"><code>FieldFilter.add_value()</code></a>.</p></section>
-</dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="msiempy.event.FieldFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
-<dd>
-<section class="desc"><p>Dump a filter in the right format.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def config_dict(self):
-    &#34;&#34;&#34;
-    Dump a filter in the right format.
-    &#34;&#34;&#34;
-    return ({
-        &#34;type&#34;: &#34;EsmFieldFilter&#34;,
-        &#34;field&#34;: {&#34;name&#34;: self.name},
-        &#34;operator&#34;: self.operator,
-        &#34;values&#34;: self.values
-        })</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.FieldFilter.name"><code class="name">var <span class="ident">name</span></code></dt>
-<dd>
-<section class="desc"><p>Field name property. Example : <code>SrcIP</code>. See full list here: <a href="https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json">https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json</a></p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def name(self):
-    &#34;&#34;&#34;
-    Field name property. Example : `SrcIP`. See full list here: https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json
-    &#34;&#34;&#34;
-    return (self._name)</code></pre>
-</details>
-</dd>
 <dt id="msiempy.event.FieldFilter.operator"><code class="name">var <span class="ident">operator</span></code></dt>
 <dd>
 <section class="desc"><p>Field operator property. Check the value against the list of possible operators and trow <code>AttributeError</code> if not present.</p></section>
@@ -2438,9 +2112,60 @@ def values(self):
     return (self._values)</code></pre>
 </details>
 </dd>
+<dt id="msiempy.event.FieldFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
+<dd>
+<section class="desc"><p>Dump a filter in the right format.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def config_dict(self):
+    &#34;&#34;&#34;
+    Dump a filter in the right format.
+    &#34;&#34;&#34;
+    return ({
+        &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+        &#34;field&#34;: {&#34;name&#34;: self.name},
+        &#34;operator&#34;: self.operator,
+        &#34;values&#34;: self.values
+        })</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.FieldFilter.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<section class="desc"><p>Field name property. Example : <code>SrcIP</code>. See full list here: <a href="https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json">https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json</a></p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def name(self):
+    &#34;&#34;&#34;
+    Field name property. Example : `SrcIP`. See full list here: https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json
+    &#34;&#34;&#34;
+    return (self._name)</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="msiempy.event.FieldFilter.add_basic_value"><code class="name flex">
+<span>def <span class="ident">add_basic_value</span></span>(<span>self, value)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Wrapper arround add_value to add a EsmBasicValue.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_basic_value(self, value):
+    &#34;&#34;&#34;
+    Wrapper arround add_value to add a EsmBasicValue.
+    &#34;&#34;&#34;
+    self.add_value(type=&#39;EsmBasicValue&#39;, value=value)</code></pre>
+</details>
+</dd>
 <dt id="msiempy.event.FieldFilter.add_value"><code class="name flex">
 <span>def <span class="ident">add_value</span></span>(<span>self, type, **args)</span>
 </code></dt>
@@ -2503,20 +2228,95 @@ Note : Filtering query with other type of filter than 'EsmBasicValue' is not tes
         raise AttributeError(&#34;You must provide a valid named parameters containing the type and values for this filter. The type/keys must be in &#34;+str(self.POSSIBLE_VALUE_TYPES)+&#34;Can&#39;t be type=&#34;+str(type)+&#39; &#39;+str(args)+&#34;. Additionnal indicator :&#34;+str(err) )</code></pre>
 </details>
 </dd>
-<dt id="msiempy.event.FieldFilter.add_basic_value"><code class="name flex">
-<span>def <span class="ident">add_basic_value</span></span>(<span>self, value)</span>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.event.QueryFilter.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.get_possible_filters" href="#msiempy.event.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.event.GroupFilter"><code class="flex name class">
+<span>class <span class="ident">GroupFilter</span></span>
+<span>(</span><span>filters, logic='AND')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Wrapper arround add_value to add a EsmBasicValue.</p></section>
+<section class="desc"><p>Based on EsmFilterGroup. See SIEM api doc.
+Used to dump groups of filters in the right format.</p>
+<p>Parameters :
+</p>
+<ul>
+<li><code>filters</code> : a list of filters, it can be <a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter"><code>FieldFilter</code></a> or <a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter"><code>GroupFilter</code></a>
+</li>
+<li><code>logic</code> : 'AND' or 'OR'</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add_basic_value(self, value):
+<pre><code class="python">class GroupFilter(QueryFilter):
     &#34;&#34;&#34;
-    Wrapper arround add_value to add a EsmBasicValue.
+        Based on EsmFilterGroup. See SIEM api doc.
+        Used to dump groups of filters in the right format.
     &#34;&#34;&#34;
-    self.add_value(type=&#39;EsmBasicValue&#39;, value=value)</code></pre>
+
+    def __init__(self, filters, logic=&#39;AND&#39;) :
+        &#34;&#34;&#34;Parameters :  
+
+        - `filters` : a list of filters, it can be `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter`  
+        - `logic` : &#39;AND&#39; or &#39;OR&#39;  
+        &#34;&#34;&#34;
+        super().__init__()
+        
+        #Declaring attributes
+        self.filters=filters
+        self.logic=logic
+
+    @property
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Could call recursively if there is other GroupFilter(s) object nested.
+        Dump a filter in the right format.
+        &#34;&#34;&#34;
+        return({
+            &#34;type&#34;: &#34;EsmFilterGroup&#34;,
+            &#34;filters&#34;: [f.config_dict for f in self.filters],
+            &#34;logic&#34;:self.logic
+            })</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.event.GroupFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
+<dd>
+<section class="desc"><p>Could call recursively if there is other GroupFilter(s) object nested.
+Dump a filter in the right format.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def config_dict(self):
+    &#34;&#34;&#34;
+    Could call recursively if there is other GroupFilter(s) object nested.
+    Dump a filter in the right format.
+    &#34;&#34;&#34;
+    return({
+        &#34;type&#34;: &#34;EsmFilterGroup&#34;,
+        &#34;filters&#34;: [f.config_dict for f in self.filters],
+        &#34;logic&#34;:self.logic
+        })</code></pre>
 </details>
 </dd>
 </dl>
@@ -2529,6 +2329,827 @@ Note : Filtering query with other type of filter than 'EsmBasicValue' is not tes
 <li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
 <li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.event.Event"><code class="flex name class">
+<span>class <span class="ident">Event</span></span>
+<span>(</span><span>adict=None, id=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Default event field keys :<br>
+- <code>Rule.msg</code><br>
+- <code>Alert.LastTime</code><br>
+- <code>Alert.IPSIDAlertID</code>
+</p>
+<p>You can request more fields by passing a list of fields to the <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a> object.
+<a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS"><code>Event.REGULAR_EVENT_FIELDS</code></a> offer a base list of regular fields that may be useful.
+See msiempy/static JSON files to browse complete list : <a href="https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json">https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json</a><br>
+Prefixes 'Alert.', 'Rule.', etc are optionnal, prefix autocompletion is computed in any case ;)</p>
+<p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
+and update dict values accordingly.</p>
+<p>Parameters:
+</p>
+<ul>
+<li><code>adict</code>: dict object to wrap.
+</li>
+<li><code>id</code>: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.</li>
+</ul></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Event(NitroDict):
+
+    &#34;&#34;&#34;        
+    Default event field keys :  
+    - `Rule.msg`  
+    - `Alert.LastTime`  
+    - `Alert.IPSIDAlertID`  
+    
+    You can request more fields by passing a list of fields to the `msiempy.event.EventManager` object. 
+    `msiempy.event.Event.REGULAR_EVENT_FIELDS` offer a base list of regular fields that may be useful.
+    See msiempy/static JSON files to browse complete list : https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json  
+    Prefixes &#39;Alert.&#39;, &#39;Rule.&#39;, etc are optionnal, prefix autocompletion is computed in any case ;)
+
+    &#34;&#34;&#34;
+   
+    FIELDS_TABLES=[
+        &#34;Alert&#34;,
+        &#34;Rule&#34;,
+        &#34;ADGroup&#34;,
+        &#34;Action&#34;,
+        &#34;Asset&#34;,
+        &#34;AssetGroup&#34;,
+        &#34;AssetThreat&#34;,
+        &#34;CaseMgt&#34;,
+        &#34;CaseOrg&#34;,
+        &#34;CaseStatus&#34;,
+        &#34;Class&#34;,
+        &#34;Connection&#34;,
+        &#34;DataEnrichment&#34;,
+        &#34;GeoLoc_ASNGeoDst&#34;,
+        &#34;GeoLoc_ASNGeoSrc&#34;,
+        &#34;IOC&#34;,
+        &#34;IPS&#34;,
+        &#34;IPSCheck&#34;,
+        &#34;NDDeviceInterface_NDDevIFDst&#34;,
+        &#34;NDDeviceInterface_NDDevIFSrc&#34;,
+        &#34;NDDevice_NDDevIDDst&#34;,
+        &#34;NDDevice_NDDevIDSrc&#34;,
+        &#34;OS&#34;,
+        &#34;Rule_NDSNormSigID&#34;,
+        &#34;Tag&#34;,
+        &#34;TagAsset&#34;,
+        &#34;ThirdPartyType&#34;,
+        &#34;Threat&#34;,
+        &#34;ThreatVendor&#34;,
+        &#34;TriggeredAlarm&#34;,
+        &#34;Users&#34;,
+        &#34;Vulnerability&#34;,
+        &#34;Zone_ZoneDst&#34;,
+        &#34;Zone_ZoneSrc&#34;,
+        ]
+
+    # Minimal default query fields
+    DEFAULTS_EVENT_FIELDS=[
+        &#34;Rule.msg&#34;,
+        &#34;Alert.LastTime&#34;,
+        &#34;Alert.IPSIDAlertID&#34;]
+
+    # Regular query fields
+    REGULAR_EVENT_FIELDS=[
+        &#34;Rule.msg&#34;,
+        &#34;Alert.SrcIP&#34;,
+        &#34;Alert.DstIP&#34;, 
+        &#34;Alert.SrcMac&#34;,
+        &#34;Alert.DstMac&#34;,
+        &#34;Rule.NormID&#34;,
+        &#34;HostID&#34;,
+        &#34;UserIDSrc&#34;,
+        &#34;ObjectID&#34;,
+        &#34;Alert.Severity&#34;,
+        &#34;Alert.LastTime&#34;,
+        &#34;Alert.DSIDSigID&#34;,
+        &#34;Alert.IPSIDAlertID&#34;]
+
+    SIEM_FIELDS_MAP = {
+        &#39;ASNGeoDst&#39;: &#39;Alert.ASNGeoDst&#39;,
+        &#39;ASNGeoSrc&#39;: &#39;Alert.ASNGeoSrc&#39;,
+        &#39;Access_Mask&#39;: &#39;Alert.65622&#39;,
+        &#39;Access_Privileges&#39;: &#39;Alert.4259883&#39;,
+        &#39;Access_Resource&#39;: &#39;Alert.65555&#39;,
+        &#39;Action&#39;: &#39;Alert.Action&#39;,
+        &#39;Action.Name&#39;: &#39;Action.Name&#39;,
+        &#39;Agent_GUID&#39;: &#39;Alert.262162&#39;,
+        &#39;AlertID&#39;: &#39;Alert.AlertID&#39;,
+        &#39;Analyzer_DAT_Version&#39;: &#39;Alert.262170&#39;,
+        &#39;AppID&#39;: &#39;Alert.BIN(1)&#39;,
+        &#39;AppIDCat&#39;: &#39;Alert.AppIDCat&#39;,
+        &#39;App_Layer_Protocol&#39;: &#39;Alert.65615&#39;,
+        &#39;Application_Protocol&#39;: &#39;Alert.BIN(9)&#39;,
+        &#39;Area&#39;: &#39;Alert.65576&#39;,
+        &#39;Attacker_IP&#39;: &#39;Alert.262175&#39;,
+        &#39;Attribute_Type&#39;: &#39;Alert.65621&#39;,
+        &#39;Authentication_Type&#39;: &#39;Alert.65618&#39;,
+        &#39;Authoritative_Answer&#39;: &#39;Alert.BIN(20)&#39;,
+        &#39;AvgSeverity&#39;: &#39;Alert.AvgSeverity&#39;,
+        &#39;Bcc&#39;: &#39;Alert.4259847&#39;,
+        &#39;Caller_Process&#39;: &#39;Alert.65587&#39;,
+        &#39;Catalog_Name&#39;: &#39;Alert.65556&#39;,
+        &#39;Category&#39;: &#39;Alert.65540&#39;,
+        &#39;Cc&#39;: &#39;Alert.4259846&#39;,
+        &#39;Class.Name&#39;: &#39;Class.Name&#39;,
+        &#39;Class.Priority&#39;: &#39;Class.Priority&#39;,
+        &#39;Client_Version&#39;: &#39;Alert.4259853&#39;,
+        &#39;CnC_Host&#39;: &#39;Alert.65628&#39;,
+        &#39;CommandID&#39;: &#39;Alert.BIN(2)&#39;,
+        &#39;CommandIDCat&#39;: &#39;Alert.CommandIDCat&#39;,
+        &#39;Confidence&#39;: &#39;Alert.4456458&#39;,
+        &#39;Contact_Name&#39;: &#39;Alert.BIN(15)&#39;,
+        &#39;Contact_Nickname&#39;: &#39;Alert.BIN(16)&#39;,
+        &#39;Cookie&#39;: &#39;Alert.4259850&#39;,
+        &#39;Creator_Name&#39;: &#39;Alert.65551&#39;,
+        &#39;DAT_Version&#39;: &#39;Alert.262165&#39;,
+        &#39;DB2_Plan_Name&#39;: &#39;Alert.65557&#39;,
+        &#39;DNS - Class&#39;: &#39;Alert.21364737&#39;,
+        &#39;DNS - Class_Name&#39;: &#39;Alert.38141953&#39;,
+        &#39;DNS - Query&#39;: &#39;Alert.122028033&#39;,
+        &#39;DNS - Response_Code&#39;: &#39;Alert.88473601&#39;,
+        &#39;DNS - Response_Code_Name&#39;: &#39;Alert.105250817&#39;,
+        &#39;DNS - Type&#39;: &#39;Alert.54919169&#39;,
+        &#39;DNS - Type_Name&#39;: &#39;Alert.71696385&#39;,
+        &#39;DNS_Class&#39;: &#39;Alert.BIN(18)&#39;,
+        &#39;DNS_Name&#39;: &#39;Alert.4259867&#39;,
+        &#39;DNS_Server_IP&#39;: &#39;Alert.262178&#39;,
+        &#39;DNS_Type&#39;: &#39;Alert.BIN(17)&#39;,
+        &#39;DSID&#39;: &#39;Alert.DSID&#39;,
+        &#39;DSIDSigID&#39;: &#39;Alert.DSIDSigID&#39;,
+        &#39;Database_GUID&#39;: &#39;Alert.262169&#39;,
+        &#39;Database_ID&#39;: &#39;Alert.65569&#39;,
+        &#39;Database_Name&#39;: &#39;Alert.BIN(8)&#39;,
+        &#39;Datacenter_ID&#39;: &#39;Alert.65602&#39;,
+        &#39;Datacenter_Name&#39;: &#39;Alert.65603&#39;,
+        &#39;Delivery_ID&#39;: &#39;Alert.65550&#39;,
+        &#39;Description&#39;: &#39;Alert.4259873&#39;,
+        &#39;Destination_Directory&#39;: &#39;Alert.65592&#39;,
+        &#39;Destination_Filename&#39;: &#39;Alert.4259852&#39;,
+        &#39;Destination_Hostname&#39;: &#39;Alert.65539&#39;,
+        &#39;Destination_Logon_ID&#39;: &#39;Alert.65584&#39;,
+        &#39;Destination_Network&#39;: &#39;Alert.65573&#39;,
+        &#39;Destination_UserID&#39;: &#39;Alert.65567&#39;,
+        &#39;Destination_Zone&#39;: &#39;Alert.65542&#39;,
+        &#39;Detection_Method&#39;: &#39;Alert.65599&#39;,
+        &#39;Device_Action&#39;: &#39;Alert.65594&#39;,
+        &#39;Device_Confidence&#39;: &#39;Alert.262179&#39;,
+        &#39;Device_IP&#39;: &#39;Alert.262154&#39;,
+        &#39;Device_Port&#39;: &#39;Alert.262155&#39;,
+        &#39;Device_URL&#39;: &#39;Alert.4259886&#39;,
+        &#39;Direction&#39;: &#39;Alert.BIN(30)&#39;,
+        &#39;Directory&#39;: &#39;Alert.65591&#39;,
+        &#39;DomainID&#39;: &#39;Alert.BIN(3)&#39;,
+        &#39;DomainIDCat&#39;: &#39;Alert.DomainIDCat&#39;,
+        &#39;DstIP&#39;: &#39;Alert.DstIP&#39;,
+        &#39;DstMac&#39;: &#39;Alert.DstMac&#39;,
+        &#39;DstPort&#39;: &#39;Alert.DstPort&#39;,
+        &#39;End_Page&#39;: &#39;Alert.4456451&#39;,
+        &#39;Engine_List&#39;: &#39;Alert.4259887&#39;,
+        &#39;EventCount&#39;: &#39;Alert.EventCount&#39;,
+        &#39;Event_Class&#39;: &#39;Alert.65545&#39;,
+        &#39;External_Application&#39;: &#39;Alert.65552&#39;,
+        &#39;External_DB2_Server&#39;: &#39;Alert.65553&#39;,
+        &#39;External_Device_ID&#39;: &#39;Alert.65607&#39;,
+        &#39;External_Device_Name&#39;: &#39;Alert.65608&#39;,
+        &#39;External_Device_Type&#39;: &#39;Alert.65606&#39;,
+        &#39;External_EventID&#39;: &#39;Alert.262156&#39;,
+        &#39;External_Hostname&#39;: &#39;Alert.65575&#39;,
+        &#39;External_SessionID&#39;: &#39;Alert.65582&#39;,
+        &#39;External_SubEventID&#39;: &#39;Alert.262158&#39;,
+        &#39;FTP_Command&#39;: &#39;Alert.65559&#39;,
+        &#39;Facility&#39;: &#39;Alert.65577&#39;,
+        &#39;File_Hash&#39;: &#39;Alert.262159&#39;,
+        &#39;File_ID&#39;: &#39;Alert.65620&#39;,
+        &#39;File_Operation&#39;: &#39;Alert.BIN(12)&#39;,
+        &#39;File_Operation_Succeeded&#39;: &#39;Alert.BIN(13)&#39;,
+        &#39;File_Path&#39;: &#39;Alert.4259877&#39;,
+        &#39;File_Type&#39;: &#39;Alert.65558&#39;,
+        &#39;Filename&#39;: &#39;Alert.4259843&#39;,
+        &#39;FirstTime&#39;: &#39;Alert.FirstTime&#39;,
+        &#39;Flow&#39;: &#39;Alert.Flow&#39;,
+        &#39;FlowID&#39;: &#39;Alert.FlowID&#39;,
+        &#39;From&#39;: &#39;Alert.4259844&#39;,
+        &#39;From_Address&#39;: &#39;Alert.4259875&#39;,
+        &#39;GUIDDst&#39;: &#39;Alert.GUIDDst&#39;,
+        &#39;GUIDSrc&#39;: &#39;Alert.GUIDSrc&#39;,
+        &#39;GeoLoc_ASNGeoDst.Latitude&#39;: &#39;GeoLoc_ASNGeoDst.Latitude&#39;,
+        &#39;GeoLoc_ASNGeoDst.Longitude&#39;: &#39;GeoLoc_ASNGeoDst.Longitude&#39;,
+        &#39;GeoLoc_ASNGeoDst.Msg&#39;: &#39;GeoLoc_ASNGeoDst.Msg&#39;,
+        &#39;GeoLoc_ASNGeoDst.XCoord&#39;: &#39;GeoLoc_ASNGeoDst.XCoord&#39;,
+        &#39;GeoLoc_ASNGeoDst.YCoord&#39;: &#39;GeoLoc_ASNGeoDst.YCoord&#39;,
+        &#39;GeoLoc_ASNGeoSrc.Latitude&#39;: &#39;GeoLoc_ASNGeoSrc.Latitude&#39;,
+        &#39;GeoLoc_ASNGeoSrc.Longitude&#39;: &#39;GeoLoc_ASNGeoSrc.Longitude&#39;,
+        &#39;GeoLoc_ASNGeoSrc.Msg&#39;: &#39;GeoLoc_ASNGeoSrc.Msg&#39;,
+        &#39;GeoLoc_ASNGeoSrc.XCoord&#39;: &#39;GeoLoc_ASNGeoSrc.XCoord&#39;,
+        &#39;GeoLoc_ASNGeoSrc.YCoord&#39;: &#39;GeoLoc_ASNGeoSrc.YCoord&#39;,
+        &#39;Grid_Master_IP&#39;: &#39;Alert.262153&#39;,
+        &#39;Group_Name&#39;: &#39;Alert.65614&#39;,
+        &#39;Handheld_ID&#39;: &#39;Alert.262168&#39;,
+        &#39;Handle_ID&#39;: &#39;Alert.262160&#39;,
+        &#39;Hash&#39;: &#39;Alert.65624&#39;,
+        &#39;Hash_Type&#39;: &#39;Alert.65625&#39;,
+        &#39;Hops&#39;: &#39;Alert.4456459&#39;,
+        &#39;HostID&#39;: &#39;Alert.BIN(4)&#39;,
+        &#39;HostIDCat&#39;: &#39;Alert.HostIDCat&#39;,
+        &#39;IPS.Name&#39;: &#39;IPS.Name&#39;,
+        &#39;IPSID&#39;: &#39;Alert.IPSID&#39;,
+        &#39;IPSIDAlertID&#39;: &#39;Alert.IPSIDAlertID&#39;,
+        &#39;Incident_ID&#39;: &#39;Alert.262173&#39;,
+        &#39;Incoming_ID&#39;: &#39;Alert.65574&#39;,
+        &#39;Instance_GUID&#39;: &#39;Alert.262161&#39;,
+        &#39;Interface&#39;: &#39;Alert.BIN(29)&#39;,
+        &#39;Interface_Dest&#39;: &#39;Alert.65604&#39;,
+        &#39;Job_Name&#39;: &#39;Alert.4259854&#39;,
+        &#39;Job_Type&#39;: &#39;Alert.65560&#39;,
+        &#39;LPAR_DB2_Subsystem&#39;: &#39;Alert.65562&#39;,
+        &#39;Language&#39;: &#39;Alert.4259855&#39;,
+        &#39;LastTime&#39;: &#39;Alert.LastTime&#39;,
+        &#39;LastTime_usec&#39;: &#39;Alert.LastTime_usec&#39;,
+        &#39;Local_User_Name&#39;: &#39;Alert.4259860&#39;,
+        &#39;Logical_Unit_Name&#39;: &#39;Alert.65561&#39;,
+        &#39;Logon_Type&#39;: &#39;Alert.65580&#39;,
+        &#39;Mail_ID&#39;: &#39;Alert.65548&#39;,
+        &#39;Mailbox&#39;: &#39;Alert.65590&#39;,
+        &#39;Mainframe_Job_Name&#39;: &#39;Alert.65568&#39;,
+        &#39;Malware_Insp_Action&#39;: &#39;Alert.65570&#39;,
+        &#39;Malware_Insp_Result&#39;: &#39;Alert.65571&#39;,
+        &#39;Management_Server&#39;: &#39;Alert.65581&#39;,
+        &#39;Message_ID&#39;: &#39;Alert.65547&#39;,
+        &#39;Message_Text&#39;: &#39;Alert.4259842&#39;,
+        &#39;Method&#39;: &#39;Alert.BIN(11)&#39;,
+        &#39;NAT_Details&#39;: &#39;Alert.262146&#39;,
+        &#39;NTP_Client_Mode&#39;: &#39;Alert.BIN(25)&#39;,
+        &#39;NTP_Offset_To_Monitor&#39;: &#39;Alert.4456457&#39;,
+        &#39;NTP_Opcode&#39;: &#39;Alert.BIN(28)&#39;,
+        &#39;NTP_Request&#39;: &#39;Alert.BIN(27)&#39;,
+        &#39;NTP_Server_Mode&#39;: &#39;Alert.BIN(26)&#39;,
+        &#39;New_Reputation - ATD_File&#39;: &#39;Alert.54919172&#39;,
+        &#39;New_Reputation - GTI_Cert&#39;: &#39;Alert.71696388&#39;,
+        &#39;New_Reputation - GTI_File&#39;: &#39;Alert.21364740&#39;,
+        &#39;New_Reputation - TIE_Cert&#39;: &#39;Alert.88473604&#39;,
+        &#39;New_Reputation - TIE_File&#39;: &#39;Alert.38141956&#39;,
+        &#39;New_Value&#39;: &#39;Alert.4259885&#39;,
+        &#39;Num_Copies&#39;: &#39;Alert.4456449&#39;,
+        &#39;ObjectID&#39;: &#39;Alert.BIN(5)&#39;,
+        &#39;ObjectIDCat&#39;: &#39;Alert.ObjectIDCat&#39;,
+        &#39;Object_GUID&#39;: &#39;Alert.262176&#39;,
+        &#39;Object_Type&#39;: &#39;Alert.BIN(10)&#39;,
+        &#39;Old_Reputation - ATD_File&#39;: &#39;Alert.54919171&#39;,
+        &#39;Old_Reputation - GTI_Cert&#39;: &#39;Alert.71696387&#39;,
+        &#39;Old_Reputation - GTI_File&#39;: &#39;Alert.21364739&#39;,
+        &#39;Old_Reputation - TIE_Cert&#39;: &#39;Alert.88473603&#39;,
+        &#39;Old_Reputation - TIE_File&#39;: &#39;Alert.38141955&#39;,
+        &#39;Old_Value&#39;: &#39;Alert.4259884&#39;,
+        &#39;Operating_System&#39;: &#39;Alert.65579&#39;,
+        &#39;Organizational_Unit&#39;: &#39;Alert.65605&#39;,
+        &#39;PCAP_Name&#39;: &#39;Alert.4259881&#39;,
+        &#39;PID&#39;: &#39;Alert.262152&#39;,
+        &#39;Parent_File_Hash&#39;: &#39;Alert.262172&#39;,
+        &#39;Policy_ID&#39;: &#39;Alert.262167&#39;,
+        &#39;Policy_Name&#39;: &#39;Alert.65544&#39;,
+        &#39;Priority&#39;: &#39;Alert.4456460&#39;,
+        &#39;Privileged_User&#39;: &#39;Alert.65578&#39;,
+        &#39;Privileges&#39;: &#39;Alert.4259879&#39;,
+        &#39;Process_Name&#39;: &#39;Alert.4259870&#39;,
+        &#39;Protocol&#39;: &#39;Alert.Protocol&#39;,
+        &#39;Query_Response&#39;: &#39;Alert.BIN(19)&#39;,
+        &#39;Queue_ID&#39;: &#39;Alert.196609&#39;,
+        &#39;RTMP_Application&#39;: &#39;Alert.4259858&#39;,
+        &#39;Reason&#39;: &#39;Alert.65597&#39;,
+        &#39;Recipient_ID&#39;: &#39;Alert.65549&#39;,
+        &#39;Referer&#39;: &#39;Alert.4259851&#39;,
+        &#39;Registry - Key&#39;: &#39;Alert.21364738&#39;,
+        &#39;Registry - Value&#39;: &#39;Alert.38141954&#39;,
+        &#39;Registry_Key&#39;: &#39;Alert.65588&#39;,
+        &#39;Registry_Value&#39;: &#39;Alert.65589&#39;,
+        &#39;RemCaseID&#39;: &#39;Alert.RemCaseID&#39;,
+        &#39;RemOpenTicketTime&#39;: &#39;Alert.RemOpenTicketTime&#39;,
+        &#39;Reputation&#39;: &#39;Alert.262164&#39;,
+        &#39;Reputation_Name&#39;: &#39;Alert.65610&#39;,
+        &#39;Reputation_Score&#39;: &#39;Alert.262171&#39;,
+        &#39;Reputation_Server_IP&#39;: &#39;Alert.262177&#39;,
+        &#39;Request_Type&#39;: &#39;Alert.65546&#39;,
+        &#39;Response_Code&#39;: &#39;Alert.BIN(33)&#39;,
+        &#39;Response_Time&#39;: &#39;Alert.262145&#39;,
+        &#39;Return_Code&#39;: &#39;Alert.BIN(34)&#39;,
+        &#39;Reviewed&#39;: &#39;Alert.Reviewed&#39;,
+        &#39;Rule.ID&#39;: &#39;Rule.ID&#39;,
+        &#39;Rule.NormID&#39;: &#39;Rule.NormID&#39;,
+        &#39;Rule.msg&#39;: &#39;Rule.msg&#39;,
+        &#39;Rule_NDSNormSigID.msg&#39;: &#39;Rule_NDSNormSigID.msg&#39;,
+        &#39;Rule_Name&#39;: &#39;Alert.65616&#39;,
+        &#39;SHA1&#39;: &#39;Alert.65619&#39;,
+        &#39;SHA256&#39;: &#39;Alert.65630&#39;,
+        &#39;SNMP_Error_Code&#39;: &#39;Alert.BIN(24)&#39;,
+        &#39;SNMP_Item&#39;: &#39;Alert.4259868&#39;,
+        &#39;SNMP_Item_Type&#39;: &#39;Alert.BIN(22)&#39;,
+        &#39;SNMP_Operation&#39;: &#39;Alert.BIN(21)&#39;,
+        &#39;SNMP_Version&#39;: &#39;Alert.BIN(23)&#39;,
+        &#39;SQL_Command&#39;: &#39;Alert.65593&#39;,
+        &#39;SQL_Statement&#39;: &#39;Alert.4259874&#39;,
+        &#39;SWF_URL&#39;: &#39;Alert.4259856&#39;,
+        &#39;Search_Query&#39;: &#39;Alert.4259880&#39;,
+        &#39;Security_ID&#39;: &#39;Alert.65617&#39;,
+        &#39;Sensor_Name&#39;: &#39;Alert.BIN(31)&#39;,
+        &#39;Sensor_Type&#39;: &#39;Alert.BIN(32)&#39;,
+        &#39;Sensor_UUID&#39;: &#39;Alert.4259869&#39;,
+        &#39;Sequence&#39;: &#39;Alert.Sequence&#39;,
+        &#39;Server_ID&#39;: &#39;Alert.262166&#39;,
+        &#39;Service_Name&#39;: &#39;Alert.65609&#39;,
+        &#39;SessionID&#39;: &#39;Alert.SessionID&#39;,
+        &#39;Session_Status&#39;: &#39;Alert.65585&#39;,
+        &#39;Severity&#39;: &#39;Alert.Severity&#39;,
+        &#39;Share_Name&#39;: &#39;Alert.65629&#39;,
+        &#39;SigID&#39;: &#39;Alert.SigID&#39;,
+        &#39;Signature_Name&#39;: &#39;Alert.65537&#39;,
+        &#39;Source_Context&#39;: &#39;Alert.4259871&#39;,
+        &#39;Source_Logon_ID&#39;: &#39;Alert.65583&#39;,
+        &#39;Source_Network&#39;: &#39;Alert.65572&#39;,
+        &#39;Source_UserID&#39;: &#39;Alert.65566&#39;,
+        &#39;Source_Zone&#39;: &#39;Alert.65541&#39;,
+        &#39;Spam_Score&#39;: &#39;Alert.262157&#39;,
+        &#39;SrcIP&#39;: &#39;Alert.SrcIP&#39;,
+        &#39;SrcMac&#39;: &#39;Alert.SrcMac&#39;,
+        &#39;SrcPort&#39;: &#39;Alert.SrcPort&#39;,
+        &#39;Start_Page&#39;: &#39;Alert.4456450&#39;,
+        &#39;Status&#39;: &#39;Alert.65611&#39;,
+        &#39;Step_Count&#39;: &#39;Alert.65563&#39;,
+        &#39;Step_Name&#39;: &#39;Alert.65564&#39;,
+        &#39;Sub_Status&#39;: &#39;Alert.65612&#39;,
+        &#39;Subcategory&#39;: &#39;Alert.65627&#39;,
+        &#39;Subject&#39;: &#39;Alert.4259848&#39;,
+        &#39;TC_URL&#39;: &#39;Alert.4259857&#39;,
+        &#39;Table_Name&#39;: &#39;Alert.65554&#39;,
+        &#39;Target_Class&#39;: &#39;Alert.65543&#39;,
+        &#39;Target_Context&#39;: &#39;Alert.4259872&#39;,
+        &#39;Target_Process_Name&#39;: &#39;Alert.4259878&#39;,
+        &#39;ThirdPartyType.Name&#39;: &#39;ThirdPartyType.Name&#39;,
+        &#39;Threat_Category&#39;: &#39;Alert.65595&#39;,
+        &#39;Threat_Handled&#39;: &#39;Alert.65596&#39;,
+        &#39;Threat_Name&#39;: &#39;Alert.65538&#39;,
+        &#39;To&#39;: &#39;Alert.4259845&#39;,
+        &#39;To_Address&#39;: &#39;Alert.4259876&#39;,
+        &#39;Trusted&#39;: &#39;Alert.Trusted&#39;,
+        &#39;URL&#39;: &#39;Alert.4259841&#39;,
+        &#39;URL_Category&#39;: &#39;Alert.65586&#39;,
+        &#39;UUID&#39;: &#39;Alert.262163&#39;,
+        &#39;UserFld10Cat&#39;: &#39;Alert.UserFld10Cat&#39;,
+        &#39;UserFld21Cat&#39;: &#39;Alert.UserFld21Cat&#39;,
+        &#39;UserFld22Cat&#39;: &#39;Alert.UserFld22Cat&#39;,
+        &#39;UserFld23Cat&#39;: &#39;Alert.UserFld23Cat&#39;,
+        &#39;UserFld24Cat&#39;: &#39;Alert.UserFld24Cat&#39;,
+        &#39;UserFld25Cat&#39;: &#39;Alert.UserFld25Cat&#39;,
+        &#39;UserFld26Cat&#39;: &#39;Alert.UserFld26Cat&#39;,
+        &#39;UserFld27Cat&#39;: &#39;Alert.UserFld27Cat&#39;,
+        &#39;UserFld8Cat&#39;: &#39;Alert.UserFld8Cat&#39;,
+        &#39;UserFld9Cat&#39;: &#39;Alert.UserFld9Cat&#39;,
+        &#39;UserIDDst&#39;: &#39;Alert.BIN(6)&#39;,
+        &#39;UserIDDstCat&#39;: &#39;Alert.UserIDDstCat&#39;,
+        &#39;UserIDSrc&#39;: &#39;Alert.BIN(7)&#39;,
+        &#39;UserIDSrcCat&#39;: &#39;Alert.UserIDSrcCat&#39;,
+        &#39;User_Agent&#39;: &#39;Alert.4259849&#39;,
+        &#39;User_Nickname&#39;: &#39;Alert.BIN(14)&#39;,
+        &#39;Users.Name&#39;: &#39;Users.Name&#39;,
+        &#39;VLan&#39;: &#39;Alert.VLan&#39;,
+        &#39;VPN_Feature_Name&#39;: &#39;Alert.65623&#39;,
+        &#39;Version&#39;: &#39;Alert.4259859&#39;,
+        &#39;Victim_IP&#39;: &#39;Alert.262174&#39;,
+        &#39;Virtual_Machine_ID&#39;: &#39;Alert.65601&#39;,
+        &#39;Virtual_Machine_Name&#39;: &#39;Alert.65600&#39;,
+        &#39;Volume_ID&#39;: &#39;Alert.65565&#39;,
+        &#39;Vulnerability_References&#39;: &#39;Alert.4259882&#39;,
+        &#39;Web_Domain&#39;: &#39;Alert.65613&#39;,
+        &#39;WriteTime&#39;: &#39;Alert.WriteTime&#39;,
+        &#39;ZoneDst&#39;: &#39;Alert.ZoneDst&#39;,
+        &#39;ZoneSrc&#39;: &#39;Alert.ZoneSrc&#39;,
+        &#39;Zone_ZoneDst.Name&#39;: &#39;Zone_ZoneDst.Name&#39;,
+        &#39;Zone_ZoneSrc.Name&#39;: &#39;Zone_ZoneSrc.Name&#39;}
+
+    def __getitem__(self, key):
+        &#34;&#34;&#34;
+        Best effort to autocomplete the field name.
+        &#34;&#34;&#34;
+        try :
+            val = collections.UserDict.__getitem__(self, key)
+            # log.debug(&#39;Returning __getitem__(self, {}) -&gt; {}&#39;.format(key, val))
+            return val
+
+        except (AttributeError, KeyError) : 
+            if key in self.SIEM_FIELDS_MAP :
+                try :
+                    val = collections.UserDict.__getitem__(self, self.SIEM_FIELDS_MAP[key])
+                    # log.debug(&#39;Returning __getitem__(self, SIEM_FIELDS_MAP[{}]) -&gt; {}&#39;.format(key, val))
+                    return val
+                except (AttributeError, KeyError) : 
+                    # log.debug(&#39;Errored __getitem__(self, SIEM_FIELDS_MAP[{}])&#39;.format(key))
+                    pass
+
+            for table in self.FIELDS_TABLES :
+                try :
+                    val = collections.UserDict.__getitem__(self, table+&#39;.&#39;+key)
+                    # log.debug(&#39;Returning __getitem__(self, {}.{}) -&gt; {}&#39;.format(table, key, val))
+                    return val
+                except (AttributeError, KeyError) : 
+                    # log.debug(&#39;Errored __getitem__(self, {}.{})&#39;.format(table, key))
+                    pass
+
+            log.error(&#39;The SIEM dict keys are not always the same are the requested fields. Check `.keys()`.&#39;)
+            raise
+
+    def clear_notes(self):
+        &#34;&#34;&#34;
+        Replace the notes by an empty string. Desctructive action.
+        &#34;&#34;&#34;
+        self.set_note(&#39;&#39;, no_date=True)
+
+    def set_note(self, note, no_date=False):
+        &#34;&#34;&#34;
+        Set the event&#39;s note. Desctructive action.
+        &#34;&#34;&#34;
+        the_id = self.data[&#34;Alert.IPSIDAlertID&#34;] if &#34;Alert.IPSIDAlertID&#34; in self.data else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if &#34;alertId&#34; in self.data else None
+
+        if isinstance(the_id, str):
+
+            if len(note) &gt;= 4000:
+                log.warning(&#34;The note is longer than 4000 characters, only the&#34; 
+                            &#34;first 4000 characters will be kept. The maximum&#34; 
+                            &#34;accepted by the SIEM is 4096 characters.&#34;)
+                note=note[:4000]+&#39;\n\n--NOTE HAS BEEN TRUNCATED--&#39;
+            
+            if no_date==False:
+                timestamp = datetime.now().strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)
+                note = note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)
+                note = timestamp + &#39; - &#39; + note
+            
+            self.nitro.request(&#34;add_note_to_event_int&#34;, 
+                id=the_id,
+                note=note)
+        else :
+            log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found.&#34;)
+
+    def add_note(self, note):
+        &#34;&#34;&#34;Deprecated, please use set_note() method instead.&#34;&#34;&#34;
+        log.warning(str(DeprecationWarning())+&#34; Please use set_note() method instead.&#34;)
+        self.set_note(note)
+        
+    def data_from_id(self, id, use_query=False, extra_fields=[]):
+        &#34;&#34;&#34;
+        Load event&#39;s data.  
+
+        Parameters :   
+        - `id` : The event ID. (i.e. : `144128388087414784|747122896`)  
+        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.  
+        &#34;&#34;&#34;
+        
+        if use_query == True :
+
+            e = EventManager(time_range=&#39;CUSTOM&#39;,
+                start_time=datetime.now()-timedelta(days=365),
+                end_time=datetime.now()+timedelta(days=1),
+                filters=[(&#39;IPSIDAlertID&#39;,id)],
+                fields=extra_fields,
+                limit=2).load_data()
+
+            if len(e) == 1 :
+                return e[0]
+            else :
+                raise NitroError(&#39;Could not load event : &#39;+str(id)+&#39; from query :&#39;+str(e.__dict__)+&#39;. Try with use_query=False.&#39;)
+
+        elif use_query == False :
+            return self.nitro.request(&#39;get_alert_data&#39;, id=id)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
+<li>collections.UserDict</li>
+<li>collections.abc.MutableMapping</li>
+<li>collections.abc.Mapping</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.event.Event.FIELDS_TABLES"><code class="name">var <span class="ident">FIELDS_TABLES</span></code></dt>
+<dd>
+<section class="desc"><p>list() -&gt; new empty list
+list(iterable) -&gt; new list initialized from iterable's items</p></section>
+</dd>
+<dt id="msiempy.event.Event.DEFAULTS_EVENT_FIELDS"><code class="name">var <span class="ident">DEFAULTS_EVENT_FIELDS</span></code></dt>
+<dd>
+<section class="desc"><p>list() -&gt; new empty list
+list(iterable) -&gt; new list initialized from iterable's items</p></section>
+</dd>
+<dt id="msiempy.event.Event.REGULAR_EVENT_FIELDS"><code class="name">var <span class="ident">REGULAR_EVENT_FIELDS</span></code></dt>
+<dd>
+<section class="desc"><p>list() -&gt; new empty list
+list(iterable) -&gt; new list initialized from iterable's items</p></section>
+</dd>
+<dt id="msiempy.event.Event.SIEM_FIELDS_MAP"><code class="name">var <span class="ident">SIEM_FIELDS_MAP</span></code></dt>
+<dd>
+<section class="desc"><p>dict() -&gt; new empty dictionary
+dict(mapping) -&gt; new dictionary initialized from a mapping object's
+(key, value) pairs
+dict(iterable) -&gt; new dictionary initialized as if via:
+d = {}
+for k, v in iterable:
+d[k] = v
+dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
+in the keyword argument list.
+For example:
+dict(one=1, two=2)</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.event.Event.data_from_id"><code class="name flex">
+<span>def <span class="ident">data_from_id</span></span>(<span>self, id, use_query=False, extra_fields=[])</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Load event's data.
+</p>
+<p>Parameters : <br>
+- <code>id</code> : The event ID. (i.e. : <code>144128388087414784|747122896</code>)<br>
+- <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.<br>
+- <code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def data_from_id(self, id, use_query=False, extra_fields=[]):
+    &#34;&#34;&#34;
+    Load event&#39;s data.  
+
+    Parameters :   
+    - `id` : The event ID. (i.e. : `144128388087414784|747122896`)  
+    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+    - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.  
+    &#34;&#34;&#34;
+    
+    if use_query == True :
+
+        e = EventManager(time_range=&#39;CUSTOM&#39;,
+            start_time=datetime.now()-timedelta(days=365),
+            end_time=datetime.now()+timedelta(days=1),
+            filters=[(&#39;IPSIDAlertID&#39;,id)],
+            fields=extra_fields,
+            limit=2).load_data()
+
+        if len(e) == 1 :
+            return e[0]
+        else :
+            raise NitroError(&#39;Could not load event : &#39;+str(id)+&#39; from query :&#39;+str(e.__dict__)+&#39;. Try with use_query=False.&#39;)
+
+    elif use_query == False :
+        return self.nitro.request(&#39;get_alert_data&#39;, id=id)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.Event.clear_notes"><code class="name flex">
+<span>def <span class="ident">clear_notes</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Replace the notes by an empty string. Desctructive action.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clear_notes(self):
+    &#34;&#34;&#34;
+    Replace the notes by an empty string. Desctructive action.
+    &#34;&#34;&#34;
+    self.set_note(&#39;&#39;, no_date=True)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.Event.add_note"><code class="name flex">
+<span>def <span class="ident">add_note</span></span>(<span>self, note)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Deprecated, please use set_note() method instead.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_note(self, note):
+    &#34;&#34;&#34;Deprecated, please use set_note() method instead.&#34;&#34;&#34;
+    log.warning(str(DeprecationWarning())+&#34; Please use set_note() method instead.&#34;)
+    self.set_note(note)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.Event.set_note"><code class="name flex">
+<span>def <span class="ident">set_note</span></span>(<span>self, note, no_date=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Set the event's note. Desctructive action.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_note(self, note, no_date=False):
+    &#34;&#34;&#34;
+    Set the event&#39;s note. Desctructive action.
+    &#34;&#34;&#34;
+    the_id = self.data[&#34;Alert.IPSIDAlertID&#34;] if &#34;Alert.IPSIDAlertID&#34; in self.data else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if &#34;alertId&#34; in self.data else None
+
+    if isinstance(the_id, str):
+
+        if len(note) &gt;= 4000:
+            log.warning(&#34;The note is longer than 4000 characters, only the&#34; 
+                        &#34;first 4000 characters will be kept. The maximum&#34; 
+                        &#34;accepted by the SIEM is 4096 characters.&#34;)
+            note=note[:4000]+&#39;\n\n--NOTE HAS BEEN TRUNCATED--&#39;
+        
+        if no_date==False:
+            timestamp = datetime.now().strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)
+            note = note.replace(&#39;&#34;&#39;,&#39;\\&#34;&#39;).replace(&#39;\n&#39;,&#39;\\n&#39;)
+            note = timestamp + &#39; - &#39; + note
+        
+        self.nitro.request(&#34;add_note_to_event_int&#34;, 
+            id=the_id,
+            note=note)
+    else :
+        log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found.&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
+<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.event.QueryFilter"><code class="flex name class">
+<span>class <span class="ident">QueryFilter</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class for all SIEM query objects, declares the <code>config_dict</code> abstract property in order to dump the filter as JSON.</p>
+<p>Creates the object session.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class QueryFilter(NitroObject):
+    &#34;&#34;&#34;Base class for all SIEM query objects, declares the `config_dict` abstract property in order to dump the filter as JSON.
+    &#34;&#34;&#34;
+    _possible_filters = []
+
+    def __init__(self):
+        super().__init__()
+
+        #Setting up static constant
+        &#34;&#34;&#34;Not checking dynamically the validity of the fields cause makes too much of unecessary requests
+            self._possible_filters = self._get_possible_filters()
+            &#34;&#34;&#34;
+
+    def get_possible_filters(self):
+        &#34;&#34;&#34;
+        Return all the fields that you can filter on in a query.
+        &#34;&#34;&#34;
+        return(self.nitro.request(&#39;get_possible_filters&#39;))
+
+    @abc.abstractproperty
+    def config_dict(self):
+        &#34;&#34;&#34;
+        Dump a filter in the right JSON format.
+        &#34;&#34;&#34;
+        pass
+
+    def refresh(self):
+        &#34;&#34;&#34;
+        Superclass method.
+        &#34;&#34;&#34;
+        log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))
+
+    @property
+    def json(self):
+        &#34;&#34;&#34;
+        Dump the filter as a json.
+        &#34;&#34;&#34;
+        return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))
+    
+    @property
+    def text(self):
+        &#34;&#34;&#34;
+        Text representation of `config_dict` property.
+        &#34;&#34;&#34;
+        return str(self.config_dict)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></li>
+<li><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.event.QueryFilter.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<section class="desc"><p>Text representation of <code>config_dict</code> property.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def text(self):
+    &#34;&#34;&#34;
+    Text representation of `config_dict` property.
+    &#34;&#34;&#34;
+    return str(self.config_dict)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.QueryFilter.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<section class="desc"><p>Dump the filter as a json.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def json(self):
+    &#34;&#34;&#34;
+    Dump the filter as a json.
+    &#34;&#34;&#34;
+    return (json.dumps(self, indent=4, cls=NitroObject.NitroJSONEncoder))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.QueryFilter.config_dict"><code class="name">var <span class="ident">config_dict</span></code></dt>
+<dd>
+<section class="desc"><p>Dump a filter in the right JSON format.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractproperty
+def config_dict(self):
+    &#34;&#34;&#34;
+    Dump a filter in the right JSON format.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.event.QueryFilter.get_possible_filters"><code class="name flex">
+<span>def <span class="ident">get_possible_filters</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return all the fields that you can filter on in a query.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_possible_filters(self):
+    &#34;&#34;&#34;
+    Return all the fields that you can filter on in a query.
+    &#34;&#34;&#34;
+    return(self.nitro.request(&#39;get_possible_filters&#39;))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.QueryFilter.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Superclass method.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def refresh(self):
+    &#34;&#34;&#34;
+    Superclass method.
+    &#34;&#34;&#34;
+    log.warning(&#34;Can&#39;t refresh filter &#34;+str(self))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2552,11 +3173,11 @@ Note : Filtering query with other type of filter than 'EsmBasicValue' is not tes
 <li>
 <h4><code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code></h4>
 <ul class="two-column">
-<li><code><a title="msiempy.event.EventManager.add_filter" href="#msiempy.event.EventManager.add_filter">add_filter</a></code></li>
 <li><code><a title="msiempy.event.EventManager.clear_filters" href="#msiempy.event.EventManager.clear_filters">clear_filters</a></code></li>
-<li><code><a title="msiempy.event.EventManager.get_possible_fields" href="#msiempy.event.EventManager.get_possible_fields">get_possible_fields</a></code></li>
 <li><code><a title="msiempy.event.EventManager.qry_load_data" href="#msiempy.event.EventManager.qry_load_data">qry_load_data</a></code></li>
+<li><code><a title="msiempy.event.EventManager.add_filter" href="#msiempy.event.EventManager.add_filter">add_filter</a></code></li>
 <li><code><a title="msiempy.event.EventManager.load_data" href="#msiempy.event.EventManager.load_data">load_data</a></code></li>
+<li><code><a title="msiempy.event.EventManager.get_possible_fields" href="#msiempy.event.EventManager.get_possible_fields">get_possible_fields</a></code></li>
 <li><code><a title="msiempy.event.EventManager.order" href="#msiempy.event.EventManager.order">order</a></code></li>
 <li><code><a title="msiempy.event.EventManager.filters" href="#msiempy.event.EventManager.filters">filters</a></code></li>
 <li><code><a title="msiempy.event.EventManager.TYPE" href="#msiempy.event.EventManager.TYPE">TYPE</a></code></li>
@@ -2565,25 +3186,16 @@ Note : Filtering query with other type of filter than 'EsmBasicValue' is not tes
 </ul>
 </li>
 <li>
-<h4><code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code></h4>
+<h4><code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code></h4>
 <ul class="">
-<li><code><a title="msiempy.event.Event.clear_notes" href="#msiempy.event.Event.clear_notes">clear_notes</a></code></li>
-<li><code><a title="msiempy.event.Event.set_note" href="#msiempy.event.Event.set_note">set_note</a></code></li>
-<li><code><a title="msiempy.event.Event.add_note" href="#msiempy.event.Event.add_note">add_note</a></code></li>
-<li><code><a title="msiempy.event.Event.data_from_id" href="#msiempy.event.Event.data_from_id">data_from_id</a></code></li>
-<li><code><a title="msiempy.event.Event.FIELDS_TABLES" href="#msiempy.event.Event.FIELDS_TABLES">FIELDS_TABLES</a></code></li>
-<li><code><a title="msiempy.event.Event.DEFAULTS_EVENT_FIELDS" href="#msiempy.event.Event.DEFAULTS_EVENT_FIELDS">DEFAULTS_EVENT_FIELDS</a></code></li>
-<li><code><a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS">REGULAR_EVENT_FIELDS</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></code></h4>
-<ul class="">
-<li><code><a title="msiempy.event.QueryFilter.get_possible_filters" href="#msiempy.event.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.config_dict" href="#msiempy.event.QueryFilter.config_dict">config_dict</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
-<li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.add_basic_value" href="#msiempy.event.FieldFilter.add_basic_value">add_basic_value</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.add_value" href="#msiempy.event.FieldFilter.add_value">add_value</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.operator" href="#msiempy.event.FieldFilter.operator">operator</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.values" href="#msiempy.event.FieldFilter.values">values</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.config_dict" href="#msiempy.event.FieldFilter.config_dict">config_dict</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.name" href="#msiempy.event.FieldFilter.name">name</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES" href="#msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES">POSSIBLE_VALUE_TYPES</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.POSSIBLE_OPERATORS" href="#msiempy.event.FieldFilter.POSSIBLE_OPERATORS">POSSIBLE_OPERATORS</a></code></li>
 </ul>
 </li>
 <li>
@@ -2593,16 +3205,26 @@ Note : Filtering query with other type of filter than 'EsmBasicValue' is not tes
 </ul>
 </li>
 <li>
-<h4><code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code></h4>
+<h4><code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code></h4>
 <ul class="">
-<li><code><a title="msiempy.event.FieldFilter.add_value" href="#msiempy.event.FieldFilter.add_value">add_value</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.add_basic_value" href="#msiempy.event.FieldFilter.add_basic_value">add_basic_value</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.config_dict" href="#msiempy.event.FieldFilter.config_dict">config_dict</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.name" href="#msiempy.event.FieldFilter.name">name</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.operator" href="#msiempy.event.FieldFilter.operator">operator</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.values" href="#msiempy.event.FieldFilter.values">values</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.POSSIBLE_OPERATORS" href="#msiempy.event.FieldFilter.POSSIBLE_OPERATORS">POSSIBLE_OPERATORS</a></code></li>
-<li><code><a title="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES" href="#msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES">POSSIBLE_VALUE_TYPES</a></code></li>
+<li><code><a title="msiempy.event.Event.data_from_id" href="#msiempy.event.Event.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.event.Event.clear_notes" href="#msiempy.event.Event.clear_notes">clear_notes</a></code></li>
+<li><code><a title="msiempy.event.Event.add_note" href="#msiempy.event.Event.add_note">add_note</a></code></li>
+<li><code><a title="msiempy.event.Event.set_note" href="#msiempy.event.Event.set_note">set_note</a></code></li>
+<li><code><a title="msiempy.event.Event.FIELDS_TABLES" href="#msiempy.event.Event.FIELDS_TABLES">FIELDS_TABLES</a></code></li>
+<li><code><a title="msiempy.event.Event.DEFAULTS_EVENT_FIELDS" href="#msiempy.event.Event.DEFAULTS_EVENT_FIELDS">DEFAULTS_EVENT_FIELDS</a></code></li>
+<li><code><a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS">REGULAR_EVENT_FIELDS</a></code></li>
+<li><code><a title="msiempy.event.Event.SIEM_FIELDS_MAP" href="#msiempy.event.Event.SIEM_FIELDS_MAP">SIEM_FIELDS_MAP</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.event.QueryFilter" href="#msiempy.event.QueryFilter">QueryFilter</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.event.QueryFilter.get_possible_filters" href="#msiempy.event.QueryFilter.get_possible_filters">get_possible_filters</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.refresh" href="#msiempy.event.QueryFilter.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.text" href="#msiempy.event.QueryFilter.text">text</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.json" href="#msiempy.event.QueryFilter.json">json</a></code></li>
+<li><code><a title="msiempy.event.QueryFilter.config_dict" href="#msiempy.event.QueryFilter.config_dict">config_dict</a></code></li>
 </ul>
 </li>
 </ul>

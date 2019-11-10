@@ -904,8 +904,6 @@ Inherits from FilteredQueryList.</p>
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
 <li>collections.abc.Sequence</li>
-<li>collections.abc.Reversible</li>
-<li>collections.abc.Collection</li>
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
@@ -914,21 +912,6 @@ Inherits from FilteredQueryList.</p>
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="msiempy.alarm.AlarmManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
-<dd>
-<section class="desc"><p>Returns the alarm related filters</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def filters(self):
-    &#34;&#34;&#34;
-    Returns the alarm related filters
-    &#34;&#34;&#34;
-    return self._alarm_filters</code></pre>
-</details>
-</dd>
 <dt id="msiempy.alarm.AlarmManager.status_filter"><code class="name">var <span class="ident">status_filter</span></code></dt>
 <dd>
 <section class="desc"><p>Status of the alarms in the query. <code>status_filter</code> is not a filter like other cause it's computed on the SIEM side.
@@ -946,6 +929,21 @@ def status_filter(self):
     You can pass synonims of each status. See `msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS`.
     &#34;&#34;&#34;
     return self._status_filter</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.AlarmManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
+<dd>
+<section class="desc"><p>Returns the alarm related filters</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def filters(self):
+    &#34;&#34;&#34;
+    Returns the alarm related filters
+    &#34;&#34;&#34;
+    return self._alarm_filters</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.AlarmManager.event_filters"><code class="name">var <span class="ident">event_filters</span></code></dt>
@@ -972,102 +970,6 @@ def event_filters(self):
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="msiempy.alarm.AlarmManager.add_filter"><code class="name flex">
-<span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Make sure the filters format is tuple(field, list(values in string)).
-Takes also care of the differents synonims fields can have : Deprecated
-- <code>afilter</code> : Can be a <code>tuple</code> (field,[values]) or <code>str</code> 'field=value'</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def add_filter(self, afilter):
-    &#34;&#34;&#34;
-        Make sure the filters format is tuple(field, list(values in string)).
-        Takes also care of the differents synonims fields can have : Deprecated
-        - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
-    &#34;&#34;&#34;
-
-    if isinstance(afilter,str):
-        afilter = afilter.split(&#39;=&#39;,1)
-    try:
-        values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
-        values = [str(v) for v in values]
-        added=False
-
-        for synonims in Alarm.ALARM_FILTER_FIELDS :
-            if afilter[0] in synonims :
-                self._alarm_filters.append((synonims[0], values))
-                added=True
-
-        for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
-            if afilter[0] in synonims :
-                log.warning(&#39;Deprecated : Passing event related filters in `filters` argument is deprecated please use `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
-                self._event_filters.append((synonims[0], values))
-                added=True
-
-        #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
-        if len(afilter[0].split(&#39;.&#39;)) == 2 :
-            self._event_filters.append((afilter[0], values))
-            log.warning(&#39;Deprecated : Passing event related filters in `filters` argument is deprecated please use `event_filters` argument.&#39;)
-            added=True
-
-        if added==False:
-            self._alarm_filters.append((afilter[0], values))
-            added=True
-
-    except IndexError:
-        added = False
-
-    if not added :
-        raise AttributeError(&#34;Illegal filter field value : &#34;+afilter[0]+&#34;. The filter field must be in :&#34;+str(Alarm.ALARM_FILTER_FIELDS + Alarm.ALARM_EVENT_FILTER_FIELDS))</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.AlarmManager.add_event_filter"><code class="name flex">
-<span>def <span class="ident">add_event_filter</span></span>(<span>self, afilter)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Make sure the filters format is tuple(field, list(values in string)).
-Takes also care of the differents synonims fields can have : Deprecated
-- <code>afilter</code> : Can be a <code>tuple</code> (field,[values]) or <code>str</code> 'field=value'</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def add_event_filter(self, afilter):
-    &#34;&#34;&#34;
-        Make sure the filters format is tuple(field, list(values in string)).
-        Takes also care of the differents synonims fields can have : Deprecated
-        - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
-    &#34;&#34;&#34;
-
-    if isinstance(afilter,str):
-        afilter = afilter.split(&#39;=&#39;,1)
-   
-    values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
-    values = [str(v) for v in values] 
-    self._event_filters.append((afilter[0], values))</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.AlarmManager.clear_filters"><code class="name flex">
-<span>def <span class="ident">clear_filters</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Reset local alarm and event filters.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def clear_filters(self):
-    &#34;&#34;&#34;
-    Reset local alarm and event filters.
-    &#34;&#34;&#34;
-    self._alarm_filters = list(tuple())
-    self._event_filters = list(tuple())</code></pre>
-</details>
-</dd>
 <dt id="msiempy.alarm.AlarmManager.load_data"><code class="name flex">
 <span>def <span class="ident">load_data</span></span>(<span>self, pages=1, **kwargs)</span>
 </code></dt>
@@ -1112,6 +1014,32 @@ Takes also care of the differents synonims fields can have : Deprecated
         log.info(str(len(alarms)) + &#34; alarms are matching your filter(s)&#34;)
 
     return(self)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.AlarmManager.add_event_filter"><code class="name flex">
+<span>def <span class="ident">add_event_filter</span></span>(<span>self, afilter)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Make sure the filters format is tuple(field, list(values in string)).
+Takes also care of the differents synonims fields can have : Deprecated
+- <code>afilter</code> : Can be a <code>tuple</code> (field,[values]) or <code>str</code> 'field=value'</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_event_filter(self, afilter):
+    &#34;&#34;&#34;
+        Make sure the filters format is tuple(field, list(values in string)).
+        Takes also care of the differents synonims fields can have : Deprecated
+        - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
+    &#34;&#34;&#34;
+
+    if isinstance(afilter,str):
+        afilter = afilter.split(&#39;=&#39;,1)
+   
+    values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
+    values = [str(v) for v in values] 
+    self._event_filters.append((afilter[0], values))</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.AlarmManager.qry_load_data"><code class="name flex">
@@ -1221,6 +1149,76 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
         log.warning(&#39;Event filters and some Alarm filters are ignored when `alarms_details is False`&#39;)
 
     return (( filtered_alarms , len(no_filtered_alarms) &lt; int(self.page_size) ))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.AlarmManager.clear_filters"><code class="name flex">
+<span>def <span class="ident">clear_filters</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Reset local alarm and event filters.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clear_filters(self):
+    &#34;&#34;&#34;
+    Reset local alarm and event filters.
+    &#34;&#34;&#34;
+    self._alarm_filters = list(tuple())
+    self._event_filters = list(tuple())</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.AlarmManager.add_filter"><code class="name flex">
+<span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Make sure the filters format is tuple(field, list(values in string)).
+Takes also care of the differents synonims fields can have : Deprecated
+- <code>afilter</code> : Can be a <code>tuple</code> (field,[values]) or <code>str</code> 'field=value'</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_filter(self, afilter):
+    &#34;&#34;&#34;
+        Make sure the filters format is tuple(field, list(values in string)).
+        Takes also care of the differents synonims fields can have : Deprecated
+        - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
+    &#34;&#34;&#34;
+
+    if isinstance(afilter,str):
+        afilter = afilter.split(&#39;=&#39;,1)
+    try:
+        values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
+        values = [str(v) for v in values]
+        added=False
+
+        for synonims in Alarm.ALARM_FILTER_FIELDS :
+            if afilter[0] in synonims :
+                self._alarm_filters.append((synonims[0], values))
+                added=True
+
+        for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
+            if afilter[0] in synonims :
+                log.warning(&#39;Deprecated : Passing event related filters in `filters` argument is deprecated please use `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+                self._event_filters.append((synonims[0], values))
+                added=True
+
+        #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
+        if len(afilter[0].split(&#39;.&#39;)) == 2 :
+            self._event_filters.append((afilter[0], values))
+            log.warning(&#39;Deprecated : Passing event related filters in `filters` argument is deprecated please use `event_filters` argument.&#39;)
+            added=True
+
+        if added==False:
+            self._alarm_filters.append((afilter[0], values))
+            added=True
+
+    except IndexError:
+        added = False
+
+    if not added :
+        raise AttributeError(&#34;Illegal filter field value : &#34;+afilter[0]+&#34;. The filter field must be in :&#34;+str(Alarm.ALARM_FILTER_FIELDS + Alarm.ALARM_EVENT_FILTER_FIELDS))</code></pre>
 </details>
 </dd>
 </dl>
@@ -1481,7 +1479,6 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <li>collections.UserDict</li>
 <li>collections.abc.MutableMapping</li>
 <li>collections.abc.Mapping</li>
-<li>collections.abc.Collection</li>
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
@@ -1490,14 +1487,6 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS"><code class="name">var <span class="ident">POSSIBLE_ALARM_STATUS</span></code></dt>
-<dd>
-<section class="desc"><p>Possible alarm statuses : <code>acknowledged/ack, unacknowledged/unack, /all/both</code></p></section>
-</dd>
-<dt id="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_FILTER_FIELDS</span></code></dt>
-<dd>
-<section class="desc"><p>Possible alarm related fields usable in a filter : <code>id, summary/sum, assignee/user, severity/sever, triggeredDate/trigdate, acknowledgedDate/ackdate, acknowledgedUsername/ackuser, alarmName/name</code></p></section>
-</dd>
 <dt id="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_EVENT_FILTER_FIELDS</span></code></dt>
 <dd>
 <section class="desc"><p>Possible event related fields usable in a filter : <code>ruleName, srcIp, destIp, protocol, lastTime, subtype, destPort, destMac, srcMac, srcPort, deviceName, sigId, normId, srcUser, destUser, normMessage, normDesc, host, domain, ipsId</code></p></section>
@@ -1507,25 +1496,34 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <section class="desc"><p>Defaulfs fields : <code>id, alarmName, summary, triggeredDate, acknowledgedUsername</code>
 (not used , may be for printing with <code>msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)</code>)</p></section>
 </dd>
+<dt id="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_FILTER_FIELDS</span></code></dt>
+<dd>
+<section class="desc"><p>Possible alarm related fields usable in a filter : <code>id, summary/sum, assignee/user, severity/sever, triggeredDate/trigdate, acknowledgedDate/ackdate, acknowledgedUsername/ackuser, alarmName/name</code></p></section>
+</dd>
+<dt id="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS"><code class="name">var <span class="ident">POSSIBLE_ALARM_STATUS</span></code></dt>
+<dd>
+<section class="desc"><p>Possible alarm statuses : <code>acknowledged/ack, unacknowledged/unack, /all/both</code></p></section>
+</dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="msiempy.alarm.Alarm.acknowledge"><code class="name flex">
-<span>def <span class="ident">acknowledge</span></span>(<span>self)</span>
+<dt id="msiempy.alarm.Alarm.load_details"><code class="name flex">
+<span>def <span class="ident">load_details</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Mark the alarm as acknowledged.</p></section>
+<section class="desc"><p>Update the alarm with detailled data loaded from the SIEM.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def acknowledge(self):
-    &#34;&#34;&#34;Mark the alarm as acknowledged.
+<pre><code class="python">def load_details(self):
+    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
     &#34;&#34;&#34;
-    if self.nitro.api_v == 1:
-        self.nitro.request(&#39;ack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-    else:
-        self.nitro.request(&#39;ack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
+    the_id = self.data[&#39;id&#39;][&#39;value&#39;]
+    self.data.update(self.data_from_id(the_id))
+    self.data[&#39;id&#39;][&#39;value&#39;]=the_id
+
+    return self</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.Alarm.unacknowledge"><code class="name flex">
@@ -1546,26 +1544,6 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
         self.nitro.request(&#39;unack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
 </details>
 </dd>
-<dt id="msiempy.alarm.Alarm.delete"><code class="name flex">
-<span>def <span class="ident">delete</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Destructive action!
-Delete the alarm.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def delete(self):
-    &#34;&#34;&#34;Destructive action!
-    Delete the alarm.
-    &#34;&#34;&#34;
-    if self.nitro.api_v == 1:
-        self.nitro.request(&#39;delete_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-    else:
-        self.nitro.request(&#39;delete_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
-</details>
-</dd>
 <dt id="msiempy.alarm.Alarm.ceate_case"><code class="name flex">
 <span>def <span class="ident">ceate_case</span></span>(<span>self)</span>
 </code></dt>
@@ -1581,79 +1559,22 @@ Delete the alarm.</p></section>
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
-<dt id="msiempy.alarm.Alarm.load_details"><code class="name flex">
-<span>def <span class="ident">load_details</span></span>(<span>self)</span>
+<dt id="msiempy.alarm.Alarm.acknowledge"><code class="name flex">
+<span>def <span class="ident">acknowledge</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Update the alarm with detailled data loaded from the SIEM.</p></section>
+<section class="desc"><p>Mark the alarm as acknowledged.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def load_details(self):
-    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
+<pre><code class="python">def acknowledge(self):
+    &#34;&#34;&#34;Mark the alarm as acknowledged.
     &#34;&#34;&#34;
-    the_id = self.data[&#39;id&#39;][&#39;value&#39;]
-    self.data.update(self.data_from_id(the_id))
-    self.data[&#39;id&#39;][&#39;value&#39;]=the_id
-
-    return self</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.Alarm.refresh"><code class="name flex">
-<span>def <span class="ident">refresh</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def refresh(self):
-    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.
-    &#34;&#34;&#34;        
-    self.load_details()</code></pre>
-</details>
-</dd>
-<dt id="msiempy.alarm.Alarm.load_events"><code class="name flex">
-<span>def <span class="ident">load_events</span></span>(<span>self, use_query=False, extra_fields=[])</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Retreive the genuine Event object from an Alarm.
-Warning : This method will only load the details of the first triggering event.<br>
-Parameters:<br>
-- <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.<br>
-- <code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a></p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def load_events(self, use_query=False, extra_fields=[]):
-    &#34;&#34;&#34;
-    Retreive the genuine Event object from an Alarm.
-    Warning : This method will only load the details of the first triggering event.  
-    Parameters:  
-    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
-    - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-    &#34;&#34;&#34;
-    if isinstance(self.data[&#39;events&#39;], str):
-
-        #Retreive the alert id from the event&#39;s string
-        events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
-        the_id = events_data[0]+&#39;|&#39;+events_data[1]
-
-        #instanciate the event
-        the_first_event=Event()
-        the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
-
-        #set it as the only item of the event list
-        self.data[&#39;events&#39;]= [ the_first_event ]
-
+    if self.nitro.api_v == 1:
+        self.nitro.request(&#39;ack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
     else:
-        log.info(&#39;The alarm {} ({}) has no events associated&#39;.format(self.data[&#39;alarmName&#39;], self.data[&#39;triggeredDate&#39;]))
-        self.data[&#39;events&#39;]= [ Event() ]
-
-    return self</code></pre>
+        self.nitro.request(&#39;ack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.Alarm.map_alarm_int_fields"><code class="name flex">
@@ -1703,6 +1624,82 @@ Parameters:<br>
     return new_alarm</code></pre>
 </details>
 </dd>
+<dt id="msiempy.alarm.Alarm.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def refresh(self):
+    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM. Concrete NitroObject method.
+    &#34;&#34;&#34;        
+    self.load_details()</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.Alarm.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Destructive action!
+Delete the alarm.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete(self):
+    &#34;&#34;&#34;Destructive action!
+    Delete the alarm.
+    &#34;&#34;&#34;
+    if self.nitro.api_v == 1:
+        self.nitro.request(&#39;delete_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+    else:
+        self.nitro.request(&#39;delete_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.Alarm.load_events"><code class="name flex">
+<span>def <span class="ident">load_events</span></span>(<span>self, use_query=False, extra_fields=[])</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Retreive the genuine Event object from an Alarm.
+Warning : This method will only load the details of the first triggering event.<br>
+Parameters:<br>
+- <code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.<br>
+- <code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a></p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_events(self, use_query=False, extra_fields=[]):
+    &#34;&#34;&#34;
+    Retreive the genuine Event object from an Alarm.
+    Warning : This method will only load the details of the first triggering event.  
+    Parameters:  
+    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+    - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
+    &#34;&#34;&#34;
+    if isinstance(self.data[&#39;events&#39;], str):
+
+        #Retreive the alert id from the event&#39;s string
+        events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
+        the_id = events_data[0]+&#39;|&#39;+events_data[1]
+
+        #instanciate the event
+        the_first_event=Event()
+        the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
+
+        #set it as the only item of the event list
+        self.data[&#39;events&#39;]= [ the_first_event ]
+
+    else:
+        log.info(&#39;The alarm {} ({}) has no events associated&#39;.format(self.data[&#39;alarmName&#39;], self.data[&#39;triggeredDate&#39;]))
+        self.data[&#39;events&#39;]= [ Event() ]
+
+    return self</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -1735,31 +1732,31 @@ Parameters:<br>
 <li>
 <h4><code><a title="msiempy.alarm.AlarmManager" href="#msiempy.alarm.AlarmManager">AlarmManager</a></code></h4>
 <ul class="two-column">
-<li><code><a title="msiempy.alarm.AlarmManager.add_filter" href="#msiempy.alarm.AlarmManager.add_filter">add_filter</a></code></li>
-<li><code><a title="msiempy.alarm.AlarmManager.add_event_filter" href="#msiempy.alarm.AlarmManager.add_event_filter">add_event_filter</a></code></li>
-<li><code><a title="msiempy.alarm.AlarmManager.clear_filters" href="#msiempy.alarm.AlarmManager.clear_filters">clear_filters</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.load_data" href="#msiempy.alarm.AlarmManager.load_data">load_data</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.add_event_filter" href="#msiempy.alarm.AlarmManager.add_event_filter">add_event_filter</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data">qry_load_data</a></code></li>
-<li><code><a title="msiempy.alarm.AlarmManager.filters" href="#msiempy.alarm.AlarmManager.filters">filters</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.clear_filters" href="#msiempy.alarm.AlarmManager.clear_filters">clear_filters</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.add_filter" href="#msiempy.alarm.AlarmManager.add_filter">add_filter</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.status_filter" href="#msiempy.alarm.AlarmManager.status_filter">status_filter</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.filters" href="#msiempy.alarm.AlarmManager.filters">filters</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.event_filters" href="#msiempy.alarm.AlarmManager.event_filters">event_filters</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="msiempy.alarm.Alarm" href="#msiempy.alarm.Alarm">Alarm</a></code></h4>
 <ul class="">
-<li><code><a title="msiempy.alarm.Alarm.acknowledge" href="#msiempy.alarm.Alarm.acknowledge">acknowledge</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.unacknowledge" href="#msiempy.alarm.Alarm.unacknowledge">unacknowledge</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.delete" href="#msiempy.alarm.Alarm.delete">delete</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.ceate_case" href="#msiempy.alarm.Alarm.ceate_case">ceate_case</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.load_details" href="#msiempy.alarm.Alarm.load_details">load_details</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.refresh" href="#msiempy.alarm.Alarm.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.load_events" href="#msiempy.alarm.Alarm.load_events">load_events</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.unacknowledge" href="#msiempy.alarm.Alarm.unacknowledge">unacknowledge</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.ceate_case" href="#msiempy.alarm.Alarm.ceate_case">ceate_case</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.acknowledge" href="#msiempy.alarm.Alarm.acknowledge">acknowledge</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.map_alarm_int_fields" href="#msiempy.alarm.Alarm.map_alarm_int_fields">map_alarm_int_fields</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS" href="#msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS">POSSIBLE_ALARM_STATUS</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_FILTER_FIELDS">ALARM_FILTER_FIELDS</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.refresh" href="#msiempy.alarm.Alarm.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.delete" href="#msiempy.alarm.Alarm.delete">delete</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.load_events" href="#msiempy.alarm.Alarm.load_events">load_events</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS">ALARM_EVENT_FILTER_FIELDS</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS" href="#msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS">ALARM_DEFAULT_FIELDS</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_FILTER_FIELDS">ALARM_FILTER_FIELDS</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS" href="#msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS">POSSIBLE_ALARM_STATUS</a></code></li>
 </ul>
 </li>
 </ul>

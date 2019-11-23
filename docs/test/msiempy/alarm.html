@@ -44,22 +44,24 @@ class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
     AlarmManager class.
     Interface to query and manage Alarms.
-    Inherits from FilteredQueryList.
 
     Parameters:  
-    
-    - `status_filter` : status of the alarms to query
+    - `status_filter` : status of the alarms to query. `status_filter` is not a filter like other cause it&#39;s computed on the SIEM side.  
+    Accepted values : `acknowledged`, `unacknowledged`, `all`, `` or `None` (default is ``).
+    `filters` are computed locally - Unlike `msiempy.event.EventManager` filters.  
     - `page_size` : max number of rows per query, by default takes the value in config `default_rows` option.
     - `page_number` : defaulted to 1.
-    - `filters` : [(field, [values]), (field, [values])]
-    - `event_filters` : [(field, [values]), (field, [values])]
-    - `*args, **kwargs` : Parameters passed to `msiempy.base.FilteredQueryList.__init__()`
+    - `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted.  
+    - `event_filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.event.Event` objects. A single `tuple` is also accepted.  
+    
+    Parameters to `msiempy.FilteredQueryList.__init__()` :
+    - `time_range` : Query time range. String representation of a time range. 
+    - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
+    - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
+    - `load_async` : Load asynchonously the sub-queries. Defaulted to `True`.  
     
     &#34;&#34;&#34;
     def __init__(self, *args, status_filter=&#39;all&#39;, page_size=200, filters=None, event_filters=None, **kwargs):
-
-        
-
         super().__init__(*args, **kwargs)
 
         #Declaring attributes
@@ -94,9 +96,7 @@ class AlarmManager(FilteredQueryList):
     @property
     def status_filter(self):
         &#34;&#34;&#34;
-        Status of the alarms in the query. `status_filter` is not a filter like other cause it&#39;s computed on the SIEM side.
-        Other filters are computed locally - Unlike EventManager filters. the status filter of the alarm query. &#39;acknowledged&#39;, &#39;unacknowledged&#39;, &#39;all&#39;, &#39;&#39; or null -&gt; all (default is &#39;&#39;).
-        You can pass synonims of each status. See `msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS`.
+        Status of the alarms in the query.  
         &#34;&#34;&#34;
         return self._status_filter
 
@@ -119,53 +119,39 @@ class AlarmManager(FilteredQueryList):
 
     def add_filter(self, afilter):
         &#34;&#34;&#34;
-            Make sure the filters format is tuple(field, list(values in string)).
-            Takes also care of the differents synonims fields can have : Deprecated
-            - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
+        Make sure the filters format is `tuple(field, list(values in string))`.  
+        
+        Parameters :  
+        - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
         &#34;&#34;&#34;
 
-        if isinstance(afilter,str):
-            afilter = afilter.split(&#39;=&#39;,1)
-        try:
-            values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
-            values = [str(v) for v in values]
-            added=False
+        if isinstance(afilter,str): afilter = afilter.split(&#39;=&#39;,1)
+        
+        values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
+        values = [str(v) for v in values]
+        added=False
 
-            for synonims in Alarm.ALARM_FILTER_FIELDS :
-                if afilter[0] in synonims :
-                    self._alarm_filters.append((synonims[0], values))
-                    added=True
-
-            for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
-                if afilter[0] in synonims :
-                    log.warning(&#39;Deprecated : Passing event related filters in `filters` argument is deprecated please use `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
-                    self._event_filters.append((synonims[0], values))
-                    added=True
-
-            #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
-            if len(afilter[0].split(&#39;.&#39;)) == 2 :
-                self._event_filters.append((afilter[0], values))
-                log.warning(&#39;Deprecated : Passing event related filters in `filters` argument is deprecated please use `event_filters` argument.&#39;)
+        for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
+            if afilter[0] in synonims :
+                log.warning(&#39;Passing event related filters in `filters` argument is not safe consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+                self._event_filters.append((synonims[0], values))
                 added=True
 
-            if added==False:
-                self._alarm_filters.append((afilter[0], values))
-                added=True
+        #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
+        if len(afilter[0].split(&#39;.&#39;)) == 2 :
+            self._event_filters.append((afilter[0], values))
+            log.warning(&#39;Passing event related filters in `filters` argument is not safe, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+            added=True
 
-        except IndexError:
-            added = False
+        if added==False:
+            self._alarm_filters.append((afilter[0], values))
+            added=True
 
-        if not added :
-            raise AttributeError(&#34;Illegal filter field value : &#34;+afilter[0]+&#34;. The filter field must be in :&#34;+str(Alarm.ALARM_FILTER_FIELDS + Alarm.ALARM_EVENT_FILTER_FIELDS))
+       
 
     @property
     def event_filters(self):
-        &#34;&#34;&#34; 
-        Returns the event related filters.  
-        Can be set with list of tuple(field, [values]). A single tuple is also accepted.  
-        None value will reset event_filters property.  
-        Raises : `AttributeError` if type not supported.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Event related filters.&#34;&#34;&#34;
         return self._event_filters
 
     @event_filters.setter
@@ -185,9 +171,10 @@ class AlarmManager(FilteredQueryList):
 
     def add_event_filter(self, afilter):
         &#34;&#34;&#34;
-            Make sure the filters format is tuple(field, list(values in string)).
-            Takes also care of the differents synonims fields can have : Deprecated
-            - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
+        Make sure the filters format is `tuple(field, list(values in string))`.  
+
+        Parameters :  
+        - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
         &#34;&#34;&#34;
 
         if isinstance(afilter,str):
@@ -208,9 +195,16 @@ class AlarmManager(FilteredQueryList):
         &#34;&#34;&#34;
         Implements automatic paging over `msiempy.alarm.AlarmManager.qry_load_data`.  
         
-        Parameters :
-        - `pages` : Automatic pagging count (not asynchronous). Events and Alarms loading are though !
-        - `**kwargs` : Same as `msiempy.alarm.AlarmManager.qry_load_data`
+        Parameters :  
+        - `pages` : Automatic pagging count (not asynchronous).   
+
+        Parameters to `msiempy.alarm.AlarmManager.qry_load_data` :
+        - `workers` : Number of asynchronous workers  
+        - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
+        - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded only `str` representation.
+        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
+        - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
+        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter 
 
         Returns : `msiempy.alarm.AlarmManager`
         &#34;&#34;&#34;
@@ -239,22 +233,20 @@ class AlarmManager(FilteredQueryList):
         alarms_details=True, events_details=True,
         use_query=False, extra_fields=[], page_number=1):
         &#34;&#34;&#34;
-        Method that loads the alarms data :
+        Method that loads the alarms data :  
             -&gt; Fetch the list of alarms and load alarms details  
             -&gt; Filter depending on alarms related filters  
             -&gt; Load the events details  
             -&gt; Filter depending on event related filters  
 
         Parameters :  
-
         - `workers` : Number of asynchronous workers  
-        - `alarms_details` : Load detailed alarms infos. If `False` only `msiempy.alarm.Alarm.ALARM_FILTER_FIELDS` values  are loaded.
-        - `events_details` : Load detailed events infos.
-        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v 11.2.1 or greater.  
+        - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
+        - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded only `str` representation.
+        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
         - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter
+        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter  
         
-
         Returns : `tuple` : ( Results : `list` , Status of the query : `completed` )
 
         &#34;&#34;&#34;
@@ -363,14 +355,18 @@ class Alarm(NitroDict):
         - `events` : The events for this user  
         - And others...  
     
+    Parameters :
+        - `id` : `Alarm` object ID.  
     &#34;&#34;&#34;
 
-    &#34;&#34;&#34;@property
-    def status(self):
-        return(&#39;acknowledged&#39; 
-            if ( (len(self.data[&#39;acknowledgedDate&#39;])&gt;0) 
-                and (len(self.data[&#39;acknowledgedUsername&#39;])&gt;0))
-            else &#39;unacknowledged&#39;)&#34;&#34;&#34;
+    def __init__(self, *arg, **kwargs):
+        &#34;&#34;&#34;Creates a empty Alarm.
+        &#34;&#34;&#34;
+        super().__init__(*arg, **kwargs)
+
+        #Keep the id in the dict when instanciating an Alarm directly from its id.
+        if &#39;id&#39; in kwargs :
+            self.data[&#39;id&#39;] = {&#39;value&#39;:str(kwargs[&#39;id&#39;])}
 
     POSSIBLE_ALARM_STATUS=[
         [&#39;acknowledged&#39;, &#39;ack&#39;,],
@@ -378,17 +374,6 @@ class Alarm(NitroDict):
         [&#39;&#39;, &#39;all&#39;, &#39;both&#39;]
     ]
     __pdoc__[&#39;Alarm.POSSIBLE_ALARM_STATUS&#39;]=&#34;&#34;&#34;Possible alarm statuses : ```%(statuses)s```&#34;&#34;&#34; % dict(statuses=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in POSSIBLE_ALARM_STATUS]))
-
-    ALARM_FILTER_FIELDS = [(&#39;id&#39;,),
-    (&#39;summary&#39;,&#39;sum&#39;),
-    (&#39;assignee&#39;,&#39;user&#39;),
-    (&#39;severity&#39;,&#39;sever&#39;),
-    (&#39;triggeredDate&#39;,&#39;trigdate&#39;),
-    (&#39;acknowledgedDate&#39;,&#39;ackdate&#39;),
-    (&#39;acknowledgedUsername&#39;,&#39;ackuser&#39;),
-    (&#39;alarmName&#39;,&#39;name&#39;),
-    ]
-    __pdoc__[&#39;Alarm.ALARM_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible alarm related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_FILTER_FIELDS]))
 
     ALARM_EVENT_FILTER_FIELDS=[
     (&#34;ruleName&#34;,),
@@ -412,20 +397,12 @@ class Alarm(NitroDict):
     (&#34;domain&#34;,),
     (&#34;ipsId&#34;,),
     ]
-    __pdoc__[&#39;Alarm.ALARM_EVENT_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible event related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_EVENT_FILTER_FIELDS]))
+    __pdoc__[&#39;Alarm.ALARM_EVENT_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Static event related fields usable in a filter. Usable in `filters` parameter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_EVENT_FILTER_FIELDS]))
 
     ALARM_DEFAULT_FIELDS=[&#39;id&#39;,&#39;alarmName&#39;, &#39;summary&#39;,&#39;triggeredDate&#39;, &#39;acknowledgedUsername&#39;]
     __pdoc__[&#39;Alarm.ALARM_DEFAULT_FIELDS&#39;]=&#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
     (not used , may be for printing with `msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join(ALARM_DEFAULT_FIELDS))
 
-    def __init__(self, *arg, **kwargs):
-        &#34;&#34;&#34;Creates a empty Alarm.
-        &#34;&#34;&#34;
-        super().__init__(*arg, **kwargs)
-
-        #Keep the id in the dict when instanciating an Alarm directly from its id.
-        if &#39;id&#39; in kwargs :
-            self.data[&#39;id&#39;] = {&#39;value&#39;:str(kwargs[&#39;id&#39;])}
 
     def acknowledge(self):
         &#34;&#34;&#34;Mark the alarm as acknowledged.
@@ -572,18 +549,21 @@ class Alarm(NitroDict):
 </code></dt>
 <dd>
 <section class="desc"><p>AlarmManager class.
-Interface to query and manage Alarms.
-Inherits from FilteredQueryList.</p>
-<p>Parameters:
+Interface to query and manage Alarms.</p>
+<p>Parameters:<br>
+- <code>status_filter</code> : status of the alarms to query. <code>status_filter</code> is not a filter like other cause it's computed on the SIEM side.<br>
+Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>all</code>, <code>or `None` (default is</code>).
+<code>filters</code> are computed locally - Unlike <code>msiempy.event.EventManager</code> filters.<br>
+- <code>page_size</code> : max number of rows per query, by default takes the value in config <code>default_rows</code> option.
+- <code>page_number</code> : defaulted to 1.
+- <code>filters</code> : <code>[(field, [values]), (field, [values])]</code> Filters applied to <code>msiempy.alarm.Alarm</code> objects. A single <code>tuple</code> is also accepted.<br>
+- <code>event_filters</code> : <code>[(field, [values]), (field, [values])]</code> Filters applied to <code>msiempy.event.Event</code> objects. A single <code>tuple</code> is also accepted.
 </p>
-<ul>
-<li><code>status_filter</code> : status of the alarms to query</li>
-<li><code>page_size</code> : max number of rows per query, by default takes the value in config <code>default_rows</code> option.</li>
-<li><code>page_number</code> : defaulted to 1.</li>
-<li><code>filters</code> : [(field, [values]), (field, [values])]</li>
-<li><code>event_filters</code> : [(field, [values]), (field, [values])]</li>
-<li><code>*args, **kwargs</code> : Parameters passed to <code>msiempy.base.FilteredQueryList.__init__()</code></li>
-</ul></section>
+<p>Parameters to <code>msiempy.FilteredQueryList.__init__()</code> :
+- <code>time_range</code> : Query time range. String representation of a time range.
+- <code>start_time</code> : Query starting time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.<br>
+- <code>end_time</code> : Query endding time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.<br>
+- <code>load_async</code> : Load asynchonously the sub-queries. Defaulted to <code>True</code>.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -592,22 +572,24 @@ Inherits from FilteredQueryList.</p>
     &#34;&#34;&#34;
     AlarmManager class.
     Interface to query and manage Alarms.
-    Inherits from FilteredQueryList.
 
     Parameters:  
-    
-    - `status_filter` : status of the alarms to query
+    - `status_filter` : status of the alarms to query. `status_filter` is not a filter like other cause it&#39;s computed on the SIEM side.  
+    Accepted values : `acknowledged`, `unacknowledged`, `all`, `` or `None` (default is ``).
+    `filters` are computed locally - Unlike `msiempy.event.EventManager` filters.  
     - `page_size` : max number of rows per query, by default takes the value in config `default_rows` option.
     - `page_number` : defaulted to 1.
-    - `filters` : [(field, [values]), (field, [values])]
-    - `event_filters` : [(field, [values]), (field, [values])]
-    - `*args, **kwargs` : Parameters passed to `msiempy.base.FilteredQueryList.__init__()`
+    - `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted.  
+    - `event_filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.event.Event` objects. A single `tuple` is also accepted.  
+    
+    Parameters to `msiempy.FilteredQueryList.__init__()` :
+    - `time_range` : Query time range. String representation of a time range. 
+    - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
+    - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
+    - `load_async` : Load asynchonously the sub-queries. Defaulted to `True`.  
     
     &#34;&#34;&#34;
     def __init__(self, *args, status_filter=&#39;all&#39;, page_size=200, filters=None, event_filters=None, **kwargs):
-
-        
-
         super().__init__(*args, **kwargs)
 
         #Declaring attributes
@@ -642,9 +624,7 @@ Inherits from FilteredQueryList.</p>
     @property
     def status_filter(self):
         &#34;&#34;&#34;
-        Status of the alarms in the query. `status_filter` is not a filter like other cause it&#39;s computed on the SIEM side.
-        Other filters are computed locally - Unlike EventManager filters. the status filter of the alarm query. &#39;acknowledged&#39;, &#39;unacknowledged&#39;, &#39;all&#39;, &#39;&#39; or null -&gt; all (default is &#39;&#39;).
-        You can pass synonims of each status. See `msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS`.
+        Status of the alarms in the query.  
         &#34;&#34;&#34;
         return self._status_filter
 
@@ -667,53 +647,39 @@ Inherits from FilteredQueryList.</p>
 
     def add_filter(self, afilter):
         &#34;&#34;&#34;
-            Make sure the filters format is tuple(field, list(values in string)).
-            Takes also care of the differents synonims fields can have : Deprecated
-            - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
+        Make sure the filters format is `tuple(field, list(values in string))`.  
+        
+        Parameters :  
+        - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
         &#34;&#34;&#34;
 
-        if isinstance(afilter,str):
-            afilter = afilter.split(&#39;=&#39;,1)
-        try:
-            values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
-            values = [str(v) for v in values]
-            added=False
+        if isinstance(afilter,str): afilter = afilter.split(&#39;=&#39;,1)
+        
+        values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
+        values = [str(v) for v in values]
+        added=False
 
-            for synonims in Alarm.ALARM_FILTER_FIELDS :
-                if afilter[0] in synonims :
-                    self._alarm_filters.append((synonims[0], values))
-                    added=True
-
-            for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
-                if afilter[0] in synonims :
-                    log.warning(&#39;Deprecated : Passing event related filters in `filters` argument is deprecated please use `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
-                    self._event_filters.append((synonims[0], values))
-                    added=True
-
-            #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
-            if len(afilter[0].split(&#39;.&#39;)) == 2 :
-                self._event_filters.append((afilter[0], values))
-                log.warning(&#39;Deprecated : Passing event related filters in `filters` argument is deprecated please use `event_filters` argument.&#39;)
+        for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
+            if afilter[0] in synonims :
+                log.warning(&#39;Passing event related filters in `filters` argument is not safe consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+                self._event_filters.append((synonims[0], values))
                 added=True
 
-            if added==False:
-                self._alarm_filters.append((afilter[0], values))
-                added=True
+        #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
+        if len(afilter[0].split(&#39;.&#39;)) == 2 :
+            self._event_filters.append((afilter[0], values))
+            log.warning(&#39;Passing event related filters in `filters` argument is not safe, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+            added=True
 
-        except IndexError:
-            added = False
+        if added==False:
+            self._alarm_filters.append((afilter[0], values))
+            added=True
 
-        if not added :
-            raise AttributeError(&#34;Illegal filter field value : &#34;+afilter[0]+&#34;. The filter field must be in :&#34;+str(Alarm.ALARM_FILTER_FIELDS + Alarm.ALARM_EVENT_FILTER_FIELDS))
+       
 
     @property
     def event_filters(self):
-        &#34;&#34;&#34; 
-        Returns the event related filters.  
-        Can be set with list of tuple(field, [values]). A single tuple is also accepted.  
-        None value will reset event_filters property.  
-        Raises : `AttributeError` if type not supported.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Event related filters.&#34;&#34;&#34;
         return self._event_filters
 
     @event_filters.setter
@@ -733,9 +699,10 @@ Inherits from FilteredQueryList.</p>
 
     def add_event_filter(self, afilter):
         &#34;&#34;&#34;
-            Make sure the filters format is tuple(field, list(values in string)).
-            Takes also care of the differents synonims fields can have : Deprecated
-            - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
+        Make sure the filters format is `tuple(field, list(values in string))`.  
+
+        Parameters :  
+        - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
         &#34;&#34;&#34;
 
         if isinstance(afilter,str):
@@ -756,9 +723,16 @@ Inherits from FilteredQueryList.</p>
         &#34;&#34;&#34;
         Implements automatic paging over `msiempy.alarm.AlarmManager.qry_load_data`.  
         
-        Parameters :
-        - `pages` : Automatic pagging count (not asynchronous). Events and Alarms loading are though !
-        - `**kwargs` : Same as `msiempy.alarm.AlarmManager.qry_load_data`
+        Parameters :  
+        - `pages` : Automatic pagging count (not asynchronous).   
+
+        Parameters to `msiempy.alarm.AlarmManager.qry_load_data` :
+        - `workers` : Number of asynchronous workers  
+        - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
+        - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded only `str` representation.
+        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
+        - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
+        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter 
 
         Returns : `msiempy.alarm.AlarmManager`
         &#34;&#34;&#34;
@@ -787,22 +761,20 @@ Inherits from FilteredQueryList.</p>
         alarms_details=True, events_details=True,
         use_query=False, extra_fields=[], page_number=1):
         &#34;&#34;&#34;
-        Method that loads the alarms data :
+        Method that loads the alarms data :  
             -&gt; Fetch the list of alarms and load alarms details  
             -&gt; Filter depending on alarms related filters  
             -&gt; Load the events details  
             -&gt; Filter depending on event related filters  
 
         Parameters :  
-
         - `workers` : Number of asynchronous workers  
-        - `alarms_details` : Load detailed alarms infos. If `False` only `msiempy.alarm.Alarm.ALARM_FILTER_FIELDS` values  are loaded.
-        - `events_details` : Load detailed events infos.
-        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v 11.2.1 or greater.  
+        - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
+        - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded only `str` representation.
+        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
         - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter
+        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter  
         
-
         Returns : `tuple` : ( Results : `list` , Status of the query : `completed` )
 
         &#34;&#34;&#34;
@@ -931,9 +903,7 @@ def filters(self):
 </dd>
 <dt id="msiempy.alarm.AlarmManager.status_filter"><code class="name">var <span class="ident">status_filter</span></code></dt>
 <dd>
-<section class="desc"><p>Status of the alarms in the query. <code>status_filter</code> is not a filter like other cause it's computed on the SIEM side.
-Other filters are computed locally - Unlike EventManager filters. the status filter of the alarm query. 'acknowledged', 'unacknowledged', 'all', '' or null -&gt; all (default is '').
-You can pass synonims of each status. See <a title="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS" href="#msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS"><code>Alarm.POSSIBLE_ALARM_STATUS</code></a>.</p></section>
+<section class="desc"><p>Status of the alarms in the query.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -941,31 +911,21 @@ You can pass synonims of each status. See <a title="msiempy.alarm.Alarm.POSSIBLE
 <pre><code class="python">@property
 def status_filter(self):
     &#34;&#34;&#34;
-    Status of the alarms in the query. `status_filter` is not a filter like other cause it&#39;s computed on the SIEM side.
-    Other filters are computed locally - Unlike EventManager filters. the status filter of the alarm query. &#39;acknowledged&#39;, &#39;unacknowledged&#39;, &#39;all&#39;, &#39;&#39; or null -&gt; all (default is &#39;&#39;).
-    You can pass synonims of each status. See `msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS`.
+    Status of the alarms in the query.  
     &#34;&#34;&#34;
     return self._status_filter</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.AlarmManager.event_filters"><code class="name">var <span class="ident">event_filters</span></code></dt>
 <dd>
-<section class="desc"><p>Returns the event related filters.<br>
-Can be set with list of tuple(field, [values]). A single tuple is also accepted.<br>
-None value will reset event_filters property.<br>
-Raises : <code>AttributeError</code> if type not supported.</p></section>
+<section class="desc"><p>Event related filters.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def event_filters(self):
-    &#34;&#34;&#34; 
-    Returns the event related filters.  
-    Can be set with list of tuple(field, [values]). A single tuple is also accepted.  
-    None value will reset event_filters property.  
-    Raises : `AttributeError` if type not supported.
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Event related filters.&#34;&#34;&#34;
     return self._event_filters</code></pre>
 </details>
 </dd>
@@ -976,8 +936,9 @@ def event_filters(self):
 <span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Make sure the filters format is tuple(field, list(values in string)).
-Takes also care of the differents synonims fields can have : Deprecated
+<section class="desc"><p>Make sure the filters format is <code>tuple(field, list(values in string))</code>.
+</p>
+<p>Parameters :<br>
 - <code>afilter</code> : Can be a <code>tuple</code> (field,[values]) or <code>str</code> 'field=value'</p></section>
 <details class="source">
 <summary>
@@ -985,52 +946,42 @@ Takes also care of the differents synonims fields can have : Deprecated
 </summary>
 <pre><code class="python">def add_filter(self, afilter):
     &#34;&#34;&#34;
-        Make sure the filters format is tuple(field, list(values in string)).
-        Takes also care of the differents synonims fields can have : Deprecated
-        - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
+    Make sure the filters format is `tuple(field, list(values in string))`.  
+    
+    Parameters :  
+    - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
     &#34;&#34;&#34;
 
-    if isinstance(afilter,str):
-        afilter = afilter.split(&#39;=&#39;,1)
-    try:
-        values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
-        values = [str(v) for v in values]
-        added=False
+    if isinstance(afilter,str): afilter = afilter.split(&#39;=&#39;,1)
+    
+    values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
+    values = [str(v) for v in values]
+    added=False
 
-        for synonims in Alarm.ALARM_FILTER_FIELDS :
-            if afilter[0] in synonims :
-                self._alarm_filters.append((synonims[0], values))
-                added=True
-
-        for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
-            if afilter[0] in synonims :
-                log.warning(&#39;Deprecated : Passing event related filters in `filters` argument is deprecated please use `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
-                self._event_filters.append((synonims[0], values))
-                added=True
-
-        #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
-        if len(afilter[0].split(&#39;.&#39;)) == 2 :
-            self._event_filters.append((afilter[0], values))
-            log.warning(&#39;Deprecated : Passing event related filters in `filters` argument is deprecated please use `event_filters` argument.&#39;)
+    for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
+        if afilter[0] in synonims :
+            log.warning(&#39;Passing event related filters in `filters` argument is not safe consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+            self._event_filters.append((synonims[0], values))
             added=True
 
-        if added==False:
-            self._alarm_filters.append((afilter[0], values))
-            added=True
+    #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
+    if len(afilter[0].split(&#39;.&#39;)) == 2 :
+        self._event_filters.append((afilter[0], values))
+        log.warning(&#39;Passing event related filters in `filters` argument is not safe, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+        added=True
 
-    except IndexError:
-        added = False
-
-    if not added :
-        raise AttributeError(&#34;Illegal filter field value : &#34;+afilter[0]+&#34;. The filter field must be in :&#34;+str(Alarm.ALARM_FILTER_FIELDS + Alarm.ALARM_EVENT_FILTER_FIELDS))</code></pre>
+    if added==False:
+        self._alarm_filters.append((afilter[0], values))
+        added=True</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.AlarmManager.add_event_filter"><code class="name flex">
 <span>def <span class="ident">add_event_filter</span></span>(<span>self, afilter)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Make sure the filters format is tuple(field, list(values in string)).
-Takes also care of the differents synonims fields can have : Deprecated
+<section class="desc"><p>Make sure the filters format is <code>tuple(field, list(values in string))</code>.
+</p>
+<p>Parameters :<br>
 - <code>afilter</code> : Can be a <code>tuple</code> (field,[values]) or <code>str</code> 'field=value'</p></section>
 <details class="source">
 <summary>
@@ -1038,9 +989,10 @@ Takes also care of the differents synonims fields can have : Deprecated
 </summary>
 <pre><code class="python">def add_event_filter(self, afilter):
     &#34;&#34;&#34;
-        Make sure the filters format is tuple(field, list(values in string)).
-        Takes also care of the differents synonims fields can have : Deprecated
-        - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
+    Make sure the filters format is `tuple(field, list(values in string))`.  
+
+    Parameters :  
+    - `afilter` : Can be a `tuple` (field,[values]) or `str` &#39;field=value&#39;
     &#34;&#34;&#34;
 
     if isinstance(afilter,str):
@@ -1074,9 +1026,17 @@ Takes also care of the differents synonims fields can have : Deprecated
 <dd>
 <section class="desc"><p>Implements automatic paging over <a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data"><code>AlarmManager.qry_load_data()</code></a>.
 </p>
-<p>Parameters :
-- <code>pages</code> : Automatic pagging count (not asynchronous). Events and Alarms loading are though !
-- <code>**kwargs</code> : Same as <a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data"><code>AlarmManager.qry_load_data()</code></a></p>
+<p>Parameters :<br>
+- <code>pages</code> : Automatic pagging count (not asynchronous).
+</p>
+<p>Parameters to <a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data"><code>AlarmManager.qry_load_data()</code></a> :
+- <code>workers</code> : Number of asynchronous workers<br>
+- <code>alarms_details</code> : Load detailed alarms infos. If <code>False</code>, only a couple values are loaded, no <code>events</code> infos.
+- <code>events_details</code> : Load detailed events infos. If <code>False</code>, no detailed <code>events</code> will be loaded only <code>str</code> representation.
+- <code>use_query</code> : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.<br>
+- <code>extra_fields</code> :
+Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a><br>
+- <code>page_number</code> : Page number, default to 1. Do not touch if you're using <code>pages</code> parameter </p>
 <p>Returns : <a title="msiempy.alarm.AlarmManager" href="#msiempy.alarm.AlarmManager"><code>AlarmManager</code></a></p></section>
 <details class="source">
 <summary>
@@ -1086,9 +1046,16 @@ Takes also care of the differents synonims fields can have : Deprecated
     &#34;&#34;&#34;
     Implements automatic paging over `msiempy.alarm.AlarmManager.qry_load_data`.  
     
-    Parameters :
-    - `pages` : Automatic pagging count (not asynchronous). Events and Alarms loading are though !
-    - `**kwargs` : Same as `msiempy.alarm.AlarmManager.qry_load_data`
+    Parameters :  
+    - `pages` : Automatic pagging count (not asynchronous).   
+
+    Parameters to `msiempy.alarm.AlarmManager.qry_load_data` :
+    - `workers` : Number of asynchronous workers  
+    - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
+    - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded only `str` representation.
+    - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
+    - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
+    - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter 
 
     Returns : `msiempy.alarm.AlarmManager`
     &#34;&#34;&#34;
@@ -1118,27 +1085,21 @@ Takes also care of the differents synonims fields can have : Deprecated
 <span>def <span class="ident">qry_load_data</span></span>(<span>self, workers=10, alarms_details=True, events_details=True, use_query=False, extra_fields=[], page_number=1)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Method that loads the alarms data :
+<section class="desc"><p>Method that loads the alarms data :<br>
 -&gt; Fetch the list of alarms and load alarms details<br>
 -&gt; Filter depending on alarms related filters<br>
 -&gt; Load the events details<br>
 -&gt; Filter depending on event related filters
 </p>
-<p>Parameters :
+<p>Parameters :<br>
+- <code>workers</code> : Number of asynchronous workers<br>
+- <code>alarms_details</code> : Load detailed alarms infos. If <code>False</code>, only a couple values are loaded, no <code>events</code> infos.
+- <code>events_details</code> : Load detailed events infos. If <code>False</code>, no detailed <code>events</code> will be loaded only <code>str</code> representation.
+- <code>use_query</code> : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.<br>
+- <code>extra_fields</code> :
+Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a><br>
+- <code>page_number</code> : Page number, default to 1. Do not touch if you're using <code>pages</code> parameter
 </p>
-<ul>
-<li><code>workers</code> : Number of asynchronous workers
-</li>
-<li><code>alarms_details</code> : Load detailed alarms infos. If <code>False</code> only <a title="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_FILTER_FIELDS"><code>Alarm.ALARM_FILTER_FIELDS</code></a> values
-are loaded.</li>
-<li><code>events_details</code> : Load detailed events infos.</li>
-<li><code>use_query</code> : Uses the query module to retreive event data. Only works with SIEM v 11.2.1 or greater.
-</li>
-<li><code>extra_fields</code> :
-Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a>
-</li>
-<li><code>page_number</code> : Page number, default to 1. Do not touch if you're using <code>pages</code> parameter</li>
-</ul>
 <p>Returns : <code>tuple</code> : ( Results : <code>list</code> , Status of the query : <code>completed</code> )</p></section>
 <details class="source">
 <summary>
@@ -1148,22 +1109,20 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
     alarms_details=True, events_details=True,
     use_query=False, extra_fields=[], page_number=1):
     &#34;&#34;&#34;
-    Method that loads the alarms data :
+    Method that loads the alarms data :  
         -&gt; Fetch the list of alarms and load alarms details  
         -&gt; Filter depending on alarms related filters  
         -&gt; Load the events details  
         -&gt; Filter depending on event related filters  
 
     Parameters :  
-
     - `workers` : Number of asynchronous workers  
-    - `alarms_details` : Load detailed alarms infos. If `False` only `msiempy.alarm.Alarm.ALARM_FILTER_FIELDS` values  are loaded.
-    - `events_details` : Load detailed events infos.
-    - `use_query` : Uses the query module to retreive event data. Only works with SIEM v 11.2.1 or greater.  
+    - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
+    - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded only `str` representation.
+    - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
     - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-    - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter
+    - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter  
     
-
     Returns : `tuple` : ( Results : `list` , Status of the query : `completed` )
 
     &#34;&#34;&#34;
@@ -1263,6 +1222,9 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 - <code>events</code> : The events for this user<br>
 - And others&hellip;
 </p>
+<p>Parameters :
+- <code>id</code> : <a title="msiempy.alarm.Alarm" href="#msiempy.alarm.Alarm"><code>Alarm</code></a> object ID.
+</p>
 <p>Creates a empty Alarm.</p></section>
 <details class="source">
 <summary>
@@ -1282,14 +1244,18 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
         - `events` : The events for this user  
         - And others...  
     
+    Parameters :
+        - `id` : `Alarm` object ID.  
     &#34;&#34;&#34;
 
-    &#34;&#34;&#34;@property
-    def status(self):
-        return(&#39;acknowledged&#39; 
-            if ( (len(self.data[&#39;acknowledgedDate&#39;])&gt;0) 
-                and (len(self.data[&#39;acknowledgedUsername&#39;])&gt;0))
-            else &#39;unacknowledged&#39;)&#34;&#34;&#34;
+    def __init__(self, *arg, **kwargs):
+        &#34;&#34;&#34;Creates a empty Alarm.
+        &#34;&#34;&#34;
+        super().__init__(*arg, **kwargs)
+
+        #Keep the id in the dict when instanciating an Alarm directly from its id.
+        if &#39;id&#39; in kwargs :
+            self.data[&#39;id&#39;] = {&#39;value&#39;:str(kwargs[&#39;id&#39;])}
 
     POSSIBLE_ALARM_STATUS=[
         [&#39;acknowledged&#39;, &#39;ack&#39;,],
@@ -1297,17 +1263,6 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
         [&#39;&#39;, &#39;all&#39;, &#39;both&#39;]
     ]
     __pdoc__[&#39;Alarm.POSSIBLE_ALARM_STATUS&#39;]=&#34;&#34;&#34;Possible alarm statuses : ```%(statuses)s```&#34;&#34;&#34; % dict(statuses=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in POSSIBLE_ALARM_STATUS]))
-
-    ALARM_FILTER_FIELDS = [(&#39;id&#39;,),
-    (&#39;summary&#39;,&#39;sum&#39;),
-    (&#39;assignee&#39;,&#39;user&#39;),
-    (&#39;severity&#39;,&#39;sever&#39;),
-    (&#39;triggeredDate&#39;,&#39;trigdate&#39;),
-    (&#39;acknowledgedDate&#39;,&#39;ackdate&#39;),
-    (&#39;acknowledgedUsername&#39;,&#39;ackuser&#39;),
-    (&#39;alarmName&#39;,&#39;name&#39;),
-    ]
-    __pdoc__[&#39;Alarm.ALARM_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible alarm related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_FILTER_FIELDS]))
 
     ALARM_EVENT_FILTER_FIELDS=[
     (&#34;ruleName&#34;,),
@@ -1331,20 +1286,12 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
     (&#34;domain&#34;,),
     (&#34;ipsId&#34;,),
     ]
-    __pdoc__[&#39;Alarm.ALARM_EVENT_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Possible event related fields usable in a filter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_EVENT_FILTER_FIELDS]))
+    __pdoc__[&#39;Alarm.ALARM_EVENT_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Static event related fields usable in a filter. Usable in `filters` parameter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_EVENT_FILTER_FIELDS]))
 
     ALARM_DEFAULT_FIELDS=[&#39;id&#39;,&#39;alarmName&#39;, &#39;summary&#39;,&#39;triggeredDate&#39;, &#39;acknowledgedUsername&#39;]
     __pdoc__[&#39;Alarm.ALARM_DEFAULT_FIELDS&#39;]=&#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
     (not used , may be for printing with `msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join(ALARM_DEFAULT_FIELDS))
 
-    def __init__(self, *arg, **kwargs):
-        &#34;&#34;&#34;Creates a empty Alarm.
-        &#34;&#34;&#34;
-        super().__init__(*arg, **kwargs)
-
-        #Keep the id in the dict when instanciating an Alarm directly from its id.
-        if &#39;id&#39; in kwargs :
-            self.data[&#39;id&#39;] = {&#39;value&#39;:str(kwargs[&#39;id&#39;])}
 
     def acknowledge(self):
         &#34;&#34;&#34;Mark the alarm as acknowledged.
@@ -1494,13 +1441,9 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <dd>
 <section class="desc"><p>Possible alarm statuses : <code>acknowledged/ack, unacknowledged/unack, /all/both</code></p></section>
 </dd>
-<dt id="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_FILTER_FIELDS</span></code></dt>
-<dd>
-<section class="desc"><p>Possible alarm related fields usable in a filter : <code>id, summary/sum, assignee/user, severity/sever, triggeredDate/trigdate, acknowledgedDate/ackdate, acknowledgedUsername/ackuser, alarmName/name</code></p></section>
-</dd>
 <dt id="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_EVENT_FILTER_FIELDS</span></code></dt>
 <dd>
-<section class="desc"><p>Possible event related fields usable in a filter : <code>ruleName, srcIp, destIp, protocol, lastTime, subtype, destPort, destMac, srcMac, srcPort, deviceName, sigId, normId, srcUser, destUser, normMessage, normDesc, host, domain, ipsId</code></p></section>
+<section class="desc"><p>Static event related fields usable in a filter. Usable in <code>filters</code> parameter : <code>ruleName, srcIp, destIp, protocol, lastTime, subtype, destPort, destMac, srcMac, srcPort, deviceName, sigId, normId, srcUser, destUser, normMessage, normDesc, host, domain, ipsId</code></p></section>
 </dd>
 <dt id="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS"><code class="name">var <span class="ident">ALARM_DEFAULT_FIELDS</span></code></dt>
 <dd>
@@ -1757,7 +1700,6 @@ Parameters:<br>
 <li><code><a title="msiempy.alarm.Alarm.load_events" href="#msiempy.alarm.Alarm.load_events">load_events</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.map_alarm_int_fields" href="#msiempy.alarm.Alarm.map_alarm_int_fields">map_alarm_int_fields</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS" href="#msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS">POSSIBLE_ALARM_STATUS</a></code></li>
-<li><code><a title="msiempy.alarm.Alarm.ALARM_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_FILTER_FIELDS">ALARM_FILTER_FIELDS</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS">ALARM_EVENT_FILTER_FIELDS</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS" href="#msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS">ALARM_DEFAULT_FIELDS</a></code></li>
 </ul>

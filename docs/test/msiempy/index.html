@@ -863,11 +863,16 @@ class NitroSession():
             Wrapper around the `msiempy.NitroSession.esm_request` method.  
 
             Parameters:  
-
             - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
-            - `**kwargs` Can contain :
-                - `msiempy.NitroSession.esm_request` arguments except `method` and `data`
-                - Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Check the file to be sure of the keyword arguments.  
+
+            Parameters to `msiempy.NitroSession.esm_request` :
+            - `http`: HTTP method.  
+            - `callback` : function to apply afterwards  
+            - `raw` : If true will return the Response object from requests module.   
+            - `secure` : If true will not log the content of the request.   
+            
+            Interpolation parameters :  
+            - `**kwargs` : Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
 
             Returns : 
             - a `dict`, `list` or `str` object  
@@ -1068,13 +1073,12 @@ class NitroDict(collections.UserDict, NitroObject):
     Exemple : Event, Alarm, etc...
     Inherits from dict.
 
-    Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument 
-        and update dict values accordingly.
+    Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument and update dict values accordingly.
 
-        Parameters:  
+    Parameters:  
 
-        - `adict`: dict object to wrap.  
-        - `id`: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple. 
+    - `adict`: dict object to wrap.  
+    - `id`: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple. 
     &#34;&#34;&#34;
     def __init__(self, adict=None, id=None):
         NitroObject.__init__(self)
@@ -1133,8 +1137,7 @@ class NitroList(collections.UserList, NitroObject):
     See : https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects  
 
     Parameters:  
-
-        - `alist`: list object to wrap.
+    - `alist`: list object to wrap.
     &#34;&#34;&#34;
 
     def __init__(self, alist=None):
@@ -1324,7 +1327,7 @@ class NitroList(collections.UserList, NitroObject):
         - `func`: callable function. `func` is going to be called like `func(item, **func_args)` on all items in data.  This function can be stateless (static) or statefull (first argument is `self`),
         it doesn&#39;t really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
         set/delete/change any global variable, as a result, you&#39;ll see your varible beeing potentially corrupted or chalenged with conccurent accesses.
-        - `data`: if stays `None`, will perform the action on all list&#39;s rows (aka `self.data`), else it will perfom the action on the `data` list.
+        - `data`: if stays `None`, will perform the action on itself (`list(self)`) else it will perfom the action on the `data` list.
         - `func_args`: arguments that will be passed by default to `func` in all calls.
         - `confirm`: will ask interactively confirmation.
         - `asynch`: execute the task asynchronously with `concurrent.futures.ThreadPoolExecutor`. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
@@ -1334,17 +1337,14 @@ class NitroList(collections.UserList, NitroObject):
         - `message` : To show to the user.  
 
         This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.  
-        Basically, if `asynch=True`, will return :  
-            ```
+        Basically, if `asynch==True`, will return :  
             returned=list(concurrent.futures.ThreadPoolExecutor(
                         max_workers=workers ).map(
-                            func, data))
-            ```  
-        if `asynch=False`, will iterate and return :
-            ```
+                            func, data))  
+
+        if `asynch==False`, will iterate and return :
             for index_or_item in data:
                 returned.append(func(index_or_item))
-            ```  
 
         Returns a list of returned results.
         &#34;&#34;&#34;
@@ -1433,20 +1433,17 @@ class NitroList(collections.UserList, NitroObject):
 
 class FilteredQueryList(NitroList):
     &#34;&#34;&#34;
-    Base class for query based managers : AlarmManager, EventManager
-    FilteredQueryList object can handle time_ranges and time splitting.
-    Provide time ranged filtered query wrapper.
+    Base class for query based managers : `msiempy.alarm.AlarmManager`, `msiempy.event.EventManager`.  
+    FilteredQueryList object can handle time_ranges and time splitting.  
+    Abstract base class that provide time ranged filtered query wrapper.  
 
-     Abstract base class that handles the time ranges operations, loading data from the SIEM.
-
-        Parameters:  
-    
-        - `time_range` : Query time range. String representation of a time range. 
-            See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`
-        - `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
-        - `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
-        - `filters` : List of filters applied to the query.
-        - `load_async` : Load asynchonously the sub-queries. Defaulted to True.       
+    Parameters:  
+    - `time_range` : Query time range. String representation of a time range. 
+        See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`.  
+    - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
+    - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
+    - `filters` : List of filters applied to the query.  
+    - `load_async` : Load asynchonously the sub-queries. Defaulted to `True`.  
     &#34;&#34;&#34;
     def __init__(self, *arg, time_range=None, start_time=None, end_time=None, filters=None, 
         load_async=True, **kwargs):
@@ -1545,7 +1542,8 @@ class FilteredQueryList(NitroList):
         &#34;&#34;&#34;
         Start time of the query in the right SIEM format.  
         Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.  
-        If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.  
+        If `None`, equivalent CURRENT_DAY start 00:00:00.  
+        Raises: `ValueError` if not the right type.  
         &#34;&#34;&#34;
         return format_esm_time(self._start_time)
 
@@ -1565,7 +1563,8 @@ class FilteredQueryList(NitroList):
         &#34;&#34;&#34;
         End time of the query in the right SIEM format.  
         Use `_end_time` property to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.  
-        If `None`, equivalent CURRENT_DAY. Raises `ValueError` if not the right type.
+        If `None`, equivalent CURRENT_DAY.  
+        Raises `ValueError` if not the right type.
         &#34;&#34;&#34;
         return format_esm_time(self._end_time)
 
@@ -1585,11 +1584,12 @@ class FilteredQueryList(NitroList):
         &#34;&#34;&#34; 
         Filter property : Returns a list of filters.
         Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
-        `None value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
+        `None` value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
         Raises : `AttributeError` if type not supported.
+        Abstract declaration.
         TODO find a better solution to integrate the filter propertie
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        pass
 
     @filters.setter
     def filters(self, filters):
@@ -1625,8 +1625,7 @@ class FilteredQueryList(NitroList):
     def qry_load_data(self, *args, **kwargs):
         &#34;&#34;&#34;
         Method to load the data from the SIEM.  
-        Rturn a tuple (items, completed).  
-        completed = True if all the data that should be load is loaded.  
+        Rturns a `tuple ((items, completed))`.  
         Abstract declaration.
         &#34;&#34;&#34;
         pass
@@ -2749,11 +2748,16 @@ Use logout() to reinstanciate NitroSession.
             Wrapper around the `msiempy.NitroSession.esm_request` method.  
 
             Parameters:  
-
             - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
-            - `**kwargs` Can contain :
-                - `msiempy.NitroSession.esm_request` arguments except `method` and `data`
-                - Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Check the file to be sure of the keyword arguments.  
+
+            Parameters to `msiempy.NitroSession.esm_request` :
+            - `http`: HTTP method.  
+            - `callback` : function to apply afterwards  
+            - `raw` : If true will return the Response object from requests module.   
+            - `secure` : If true will not log the content of the request.   
+            
+            Interpolation parameters :  
+            - `**kwargs` : Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
 
             Returns : 
             - a `dict`, `list` or `str` object  
@@ -3333,18 +3337,18 @@ Throws <a title="msiempy.NitroError" href="#msiempy.NitroError"><code>NitroError
 It interpolates <code>**params</code> with <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a> docstrings and build a valid datastructure with <code>ast</code>.<br>
 Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.NitroSession.esm_request"><code>NitroSession.esm_request()</code></a> method.
 </p>
-<p>Parameters:
+<p>Parameters:<br>
+- <code>request</code>: Keyword corresponding to the request name in <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a> mapping.
 </p>
-<ul>
-<li><code>request</code>: Keyword corresponding to the request name in <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a> mapping.
-</li>
-<li><code>**kwargs</code> Can contain :<ul>
-<li><a title="msiempy.NitroSession.esm_request" href="#msiempy.NitroSession.esm_request"><code>NitroSession.esm_request()</code></a> arguments except <code>method</code> and <code>data</code></li>
-<li>Interpolation parameters that will be match to <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a> templates. Check the file to be sure of the keyword arguments.
-</li>
-</ul>
-</li>
-</ul>
+<p>Parameters to <a title="msiempy.NitroSession.esm_request" href="#msiempy.NitroSession.esm_request"><code>NitroSession.esm_request()</code></a> :
+- <code>http</code>: HTTP method.<br>
+- <code>callback</code> : function to apply afterwards<br>
+- <code>raw</code> : If true will return the Response object from requests module. <br>
+- <code>secure</code> : If true will not log the content of the request.
+</p>
+<p>Interpolation parameters :<br>
+- <code>**kwargs</code> : Interpolation parameters that will be match to <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a> templates. Dynamic keyword arguments.
+</p>
 <p>Returns :
 - a <code>dict</code>, <code>list</code> or <code>str</code> object<br>
 - the <code>resquest.Response</code> object if raw=True<br>
@@ -3361,11 +3365,16 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
         Wrapper around the `msiempy.NitroSession.esm_request` method.  
 
         Parameters:  
-
         - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
-        - `**kwargs` Can contain :
-            - `msiempy.NitroSession.esm_request` arguments except `method` and `data`
-            - Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Check the file to be sure of the keyword arguments.  
+
+        Parameters to `msiempy.NitroSession.esm_request` :
+        - `http`: HTTP method.  
+        - `callback` : function to apply afterwards  
+        - `raw` : If true will return the Response object from requests module.   
+        - `secure` : If true will not log the content of the request.   
+        
+        Interpolation parameters :  
+        - `**kwargs` : Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
 
         Returns : 
         - a `dict`, `list` or `str` object  
@@ -3497,8 +3506,7 @@ a new session will be instanciated next time.</p></section>
 <ul class="hlist">
 <li><a title="msiempy.NitroDict" href="#msiempy.NitroDict">NitroDict</a></li>
 <li><a title="msiempy.NitroList" href="#msiempy.NitroList">NitroList</a></li>
-<li><a title="msiempy.event.QueryFilter" href="event.html#msiempy.event.QueryFilter">QueryFilter</a></li>
-<li><a title="msiempy.device.Device" href="device.html#msiempy.device.Device">Device</a></li>
+<li><a title="msiempy.device.ESM" href="device.html#msiempy.device.ESM">ESM</a></li>
 </ul>
 <h3>Class variables</h3>
 <dl>
@@ -3584,13 +3592,14 @@ def refresh(self):
 <section class="desc"><p>Base class that represent any SIEM data that can be represented as a item of a list.
 Exemple : Event, Alarm, etc&hellip;
 Inherits from dict.</p>
-<p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument
-and update dict values accordingly.</p>
-<pre><code>Parameters:
-
-- `adict`: dict object to wrap.  
-- `id`: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.
-</code></pre></section>
+<p>Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument and update dict values accordingly.</p>
+<p>Parameters:
+</p>
+<ul>
+<li><code>adict</code>: dict object to wrap.
+</li>
+<li><code>id</code>: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3601,13 +3610,12 @@ and update dict values accordingly.</p>
     Exemple : Event, Alarm, etc...
     Inherits from dict.
 
-    Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument 
-        and update dict values accordingly.
+    Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument and update dict values accordingly.
 
-        Parameters:  
+    Parameters:  
 
-        - `adict`: dict object to wrap.  
-        - `id`: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple. 
+    - `adict`: dict object to wrap.  
+    - `id`: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple. 
     &#34;&#34;&#34;
     def __init__(self, adict=None, id=None):
         NitroObject.__init__(self)
@@ -3761,10 +3769,8 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
 If a derived class does not wish to comply with this requirement, all of the special methods supported by this class will need to be overridden; please consult the sources for information about the methods which need to be provided in that case.
 See : <a href="https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects">https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects</a>
 </p>
-<p>Parameters:
-</p>
-<pre><code>- `alist`: list object to wrap.
-</code></pre></section>
+<p>Parameters:<br>
+- <code>alist</code>: list object to wrap.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3779,8 +3785,7 @@ See : <a href="https://docs.python.org/3.8/library/collections.html?highlight=us
     See : https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects  
 
     Parameters:  
-
-        - `alist`: list object to wrap.
+    - `alist`: list object to wrap.
     &#34;&#34;&#34;
 
     def __init__(self, alist=None):
@@ -3970,7 +3975,7 @@ See : <a href="https://docs.python.org/3.8/library/collections.html?highlight=us
         - `func`: callable function. `func` is going to be called like `func(item, **func_args)` on all items in data.  This function can be stateless (static) or statefull (first argument is `self`),
         it doesn&#39;t really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
         set/delete/change any global variable, as a result, you&#39;ll see your varible beeing potentially corrupted or chalenged with conccurent accesses.
-        - `data`: if stays `None`, will perform the action on all list&#39;s rows (aka `self.data`), else it will perfom the action on the `data` list.
+        - `data`: if stays `None`, will perform the action on itself (`list(self)`) else it will perfom the action on the `data` list.
         - `func_args`: arguments that will be passed by default to `func` in all calls.
         - `confirm`: will ask interactively confirmation.
         - `asynch`: execute the task asynchronously with `concurrent.futures.ThreadPoolExecutor`. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
@@ -3980,17 +3985,14 @@ See : <a href="https://docs.python.org/3.8/library/collections.html?highlight=us
         - `message` : To show to the user.  
 
         This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.  
-        Basically, if `asynch=True`, will return :  
-            ```
+        Basically, if `asynch==True`, will return :  
             returned=list(concurrent.futures.ThreadPoolExecutor(
                         max_workers=workers ).map(
-                            func, data))
-            ```  
-        if `asynch=False`, will iterate and return :
-            ```
+                            func, data))  
+
+        if `asynch==False`, will iterate and return :
             for index_or_item in data:
                 returned.append(func(index_or_item))
-            ```  
 
         Returns a list of returned results.
         &#34;&#34;&#34;
@@ -4334,7 +4336,7 @@ i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
 This function can be stateless (static) or statefull (first argument is <code>self</code>),
 it doesn't really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
 set/delete/change any global variable, as a result, you'll see your varible beeing potentially corrupted or chalenged with conccurent accesses.</li>
-<li><code>data</code>: if stays <code>None</code>, will perform the action on all list's rows (aka <code>self.data</code>), else it will perfom the action on the <code>data</code> list.</li>
+<li><code>data</code>: if stays <code>None</code>, will perform the action on itself (<code>list(self)</code>) else it will perfom the action on the <code>data</code> list.</li>
 <li><code>func_args</code>: arguments that will be passed by default to <code>func</code> in all calls.</li>
 <li><code>confirm</code>: will ask interactively confirmation.</li>
 <li><code>asynch</code>: execute the task asynchronously with <code>concurrent.futures.ThreadPoolExecutor</code>. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
@@ -4345,14 +4347,14 @@ it will be a mess.</li>
 </li>
 </ul>
 <p>This method is where the core of asynchronous tasks resides. <code>func</code> will be executed on all <code>data</code> elements.<br>
-Basically, if <code>asynch=True</code>, will return :<br>
-<code>returned=list(concurrent.futures.ThreadPoolExecutor(
+Basically, if <code>asynch==True</code>, will return :<br>
+returned=list(concurrent.futures.ThreadPoolExecutor(
 max_workers=workers ).map(
-func, data))</code><br>
-if <code>asynch=False</code>, will iterate and return :
-<code>for index_or_item in data:
-returned.append(func(index_or_item))</code>
+func, data))
 </p>
+<p>if <code>asynch==False</code>, will iterate and return :
+for index_or_item in data:
+returned.append(func(index_or_item))</p>
 <p>Returns a list of returned results.</p></section>
 <details class="source">
 <summary>
@@ -4367,7 +4369,7 @@ returned.append(func(index_or_item))</code>
     - `func`: callable function. `func` is going to be called like `func(item, **func_args)` on all items in data.  This function can be stateless (static) or statefull (first argument is `self`),
     it doesn&#39;t really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
     set/delete/change any global variable, as a result, you&#39;ll see your varible beeing potentially corrupted or chalenged with conccurent accesses.
-    - `data`: if stays `None`, will perform the action on all list&#39;s rows (aka `self.data`), else it will perfom the action on the `data` list.
+    - `data`: if stays `None`, will perform the action on itself (`list(self)`) else it will perfom the action on the `data` list.
     - `func_args`: arguments that will be passed by default to `func` in all calls.
     - `confirm`: will ask interactively confirmation.
     - `asynch`: execute the task asynchronously with `concurrent.futures.ThreadPoolExecutor`. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
@@ -4377,17 +4379,14 @@ returned.append(func(index_or_item))</code>
     - `message` : To show to the user.  
 
     This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.  
-    Basically, if `asynch=True`, will return :  
-        ```
+    Basically, if `asynch==True`, will return :  
         returned=list(concurrent.futures.ThreadPoolExecutor(
                     max_workers=workers ).map(
-                        func, data))
-        ```  
-    if `asynch=False`, will iterate and return :
-        ```
+                        func, data))  
+
+    if `asynch==False`, will iterate and return :
         for index_or_item in data:
             returned.append(func(index_or_item))
-        ```  
 
     Returns a list of returned results.
     &#34;&#34;&#34;
@@ -4481,39 +4480,34 @@ returned.append(func(index_or_item))</code>
 <span>(</span><span>*arg, time_range=None, start_time=None, end_time=None, filters=None, load_async=True, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for query based managers : AlarmManager, EventManager
-FilteredQueryList object can handle time_ranges and time splitting.
-Provide time ranged filtered query wrapper.</p>
-<p>Abstract base class that handles the time ranges operations, loading data from the SIEM.</p>
-<pre><code>Parameters:
-
-- `time_range` : Query time range. String representation of a time range. 
-    See &lt;a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE"&gt;`FilteredQueryList.POSSIBLE_TIME_RANGE`&lt;/a&gt;
-- `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
-- `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
-- `filters` : List of filters applied to the query.
-- `load_async` : Load asynchonously the sub-queries. Defaulted to True.
-</code></pre></section>
+<section class="desc"><p>Base class for query based managers : <a title="msiempy.alarm.AlarmManager" href="alarm.html#msiempy.alarm.AlarmManager"><code>AlarmManager</code></a>, <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a>.<br>
+FilteredQueryList object can handle time_ranges and time splitting.<br>
+Abstract base class that provide time ranged filtered query wrapper.
+</p>
+<p>Parameters:<br>
+- <code>time_range</code> : Query time range. String representation of a time range.
+See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE"><code>FilteredQueryList.POSSIBLE_TIME_RANGE</code></a>.<br>
+- <code>start_time</code> : Query starting time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.<br>
+- <code>end_time</code> : Query endding time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.<br>
+- <code>filters</code> : List of filters applied to the query.<br>
+- <code>load_async</code> : Load asynchonously the sub-queries. Defaulted to <code>True</code>.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FilteredQueryList(NitroList):
     &#34;&#34;&#34;
-    Base class for query based managers : AlarmManager, EventManager
-    FilteredQueryList object can handle time_ranges and time splitting.
-    Provide time ranged filtered query wrapper.
+    Base class for query based managers : `msiempy.alarm.AlarmManager`, `msiempy.event.EventManager`.  
+    FilteredQueryList object can handle time_ranges and time splitting.  
+    Abstract base class that provide time ranged filtered query wrapper.  
 
-     Abstract base class that handles the time ranges operations, loading data from the SIEM.
-
-        Parameters:  
-    
-        - `time_range` : Query time range. String representation of a time range. 
-            See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`
-        - `start_time` : Query starting time, can be a string or a datetime object. Parsed with dateutil.
-        - `end_time` : Query endding time, can be a string or a datetime object. Parsed with dateutil.
-        - `filters` : List of filters applied to the query.
-        - `load_async` : Load asynchonously the sub-queries. Defaulted to True.       
+    Parameters:  
+    - `time_range` : Query time range. String representation of a time range. 
+        See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`.  
+    - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
+    - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
+    - `filters` : List of filters applied to the query.  
+    - `load_async` : Load asynchonously the sub-queries. Defaulted to `True`.  
     &#34;&#34;&#34;
     def __init__(self, *arg, time_range=None, start_time=None, end_time=None, filters=None, 
         load_async=True, **kwargs):
@@ -4612,7 +4606,8 @@ Provide time ranged filtered query wrapper.</p>
         &#34;&#34;&#34;
         Start time of the query in the right SIEM format.  
         Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.  
-        If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.  
+        If `None`, equivalent CURRENT_DAY start 00:00:00.  
+        Raises: `ValueError` if not the right type.  
         &#34;&#34;&#34;
         return format_esm_time(self._start_time)
 
@@ -4632,7 +4627,8 @@ Provide time ranged filtered query wrapper.</p>
         &#34;&#34;&#34;
         End time of the query in the right SIEM format.  
         Use `_end_time` property to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.  
-        If `None`, equivalent CURRENT_DAY. Raises `ValueError` if not the right type.
+        If `None`, equivalent CURRENT_DAY.  
+        Raises `ValueError` if not the right type.
         &#34;&#34;&#34;
         return format_esm_time(self._end_time)
 
@@ -4652,11 +4648,12 @@ Provide time ranged filtered query wrapper.</p>
         &#34;&#34;&#34; 
         Filter property : Returns a list of filters.
         Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
-        `None value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
+        `None` value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
         Raises : `AttributeError` if type not supported.
+        Abstract declaration.
         TODO find a better solution to integrate the filter propertie
         &#34;&#34;&#34;
-        raise NotImplementedError()
+        pass
 
     @filters.setter
     def filters(self, filters):
@@ -4692,8 +4689,7 @@ Provide time ranged filtered query wrapper.</p>
     def qry_load_data(self, *args, **kwargs):
         &#34;&#34;&#34;
         Method to load the data from the SIEM.  
-        Rturn a tuple (items, completed).  
-        completed = True if all the data that should be load is loaded.  
+        Rturns a `tuple ((items, completed))`.  
         Abstract declaration.
         &#34;&#34;&#34;
         pass
@@ -4761,7 +4757,8 @@ def time_range(self):
 <dd>
 <section class="desc"><p>Start time of the query in the right SIEM format.<br>
 Use <code>_start_time</code> to get the datetime object. You can set the <code>star_time</code> as a <code>str</code> or a <code>datetime</code>.<br>
-If <code>None</code>, equivalent CURRENT_DAY start 00:00:00. Raises <code>ValueError</code> if not the right type.</p></section>
+If <code>None</code>, equivalent CURRENT_DAY start 00:00:00.<br>
+Raises: <code>ValueError</code> if not the right type.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -4771,7 +4768,8 @@ def start_time(self):
     &#34;&#34;&#34;
     Start time of the query in the right SIEM format.  
     Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.  
-    If `None`, equivalent CURRENT_DAY start 00:00:00. Raises `ValueError` if not the right type.  
+    If `None`, equivalent CURRENT_DAY start 00:00:00.  
+    Raises: `ValueError` if not the right type.  
     &#34;&#34;&#34;
     return format_esm_time(self._start_time)</code></pre>
 </details>
@@ -4780,7 +4778,8 @@ def start_time(self):
 <dd>
 <section class="desc"><p>End time of the query in the right SIEM format.<br>
 Use <code>_end_time</code> property to get the datetime object. You can set the <code>end_time</code> as a <code>str</code> or a <code>datetime</code>.<br>
-If <code>None</code>, equivalent CURRENT_DAY. Raises <code>ValueError</code> if not the right type.</p></section>
+If <code>None</code>, equivalent CURRENT_DAY.<br>
+Raises <code>ValueError</code> if not the right type.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -4790,7 +4789,8 @@ def end_time(self):
     &#34;&#34;&#34;
     End time of the query in the right SIEM format.  
     Use `_end_time` property to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.  
-    If `None`, equivalent CURRENT_DAY. Raises `ValueError` if not the right type.
+    If `None`, equivalent CURRENT_DAY.  
+    Raises `ValueError` if not the right type.
     &#34;&#34;&#34;
     return format_esm_time(self._end_time)</code></pre>
 </details>
@@ -4798,9 +4798,10 @@ def end_time(self):
 <dt id="msiempy.FilteredQueryList.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
 <section class="desc"><p>Filter property : Returns a list of filters.
-Can be set with list of tuple(field, [values]) or <a title="msiempy.event.QueryFilter" href="event.html#msiempy.event.QueryFilter"><code>QueryFilter</code></a> in the case of a <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a> query. A single tuple is also accepted.<br>
-<code>None value will call</code>msiempy.query.FilteredQueryList.clear_filters()<code>.
-Raises :</code>AttributeError` if type not supported.
+Can be set with list of tuple(field, [values]) or <code>msiempy.event.QueryFilter</code> in the case of a <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a> query. A single tuple is also accepted.<br>
+<code>None</code> value will call <code>msiempy.query.FilteredQueryList.clear_filters()</code>.<br>
+Raises : <code>AttributeError</code> if type not supported.
+Abstract declaration.
 TODO find a better solution to integrate the filter propertie</p></section>
 <details class="source">
 <summary>
@@ -4811,11 +4812,12 @@ def filters(self):
     &#34;&#34;&#34; 
     Filter property : Returns a list of filters.
     Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
-    `None value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
+    `None` value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
     Raises : `AttributeError` if type not supported.
+    Abstract declaration.
     TODO find a better solution to integrate the filter propertie
     &#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    pass</code></pre>
 </details>
 </dd>
 </dl>
@@ -4862,8 +4864,7 @@ def clear_filters(self):
 </code></dt>
 <dd>
 <section class="desc"><p>Method to load the data from the SIEM.<br>
-Rturn a tuple (items, completed).<br>
-completed = True if all the data that should be load is loaded.<br>
+Rturns a <code>tuple ((items, completed))</code>.<br>
 Abstract declaration.</p></section>
 <details class="source">
 <summary>
@@ -4873,8 +4874,7 @@ Abstract declaration.</p></section>
 def qry_load_data(self, *args, **kwargs):
     &#34;&#34;&#34;
     Method to load the data from the SIEM.  
-    Rturn a tuple (items, completed).  
-    completed = True if all the data that should be load is loaded.  
+    Rturns a `tuple ((items, completed))`.  
     Abstract declaration.
     &#34;&#34;&#34;
     pass</code></pre>

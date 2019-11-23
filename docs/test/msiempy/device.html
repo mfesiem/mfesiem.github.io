@@ -45,72 +45,9 @@ from functools import partial, lru_cache
 from . import NitroDict, NitroList, NitroError, NitroObject
 from .__utils__ import dehexify
 
-class Device(NitroObject):
-    pass
-
-class ERC(Device):
-    pass
-
-class ESM(Device):
-    &#34;&#34;&#34;
-    ESM class
+class ESM(NitroObject):
+    &#34;&#34;&#34;Enterprise Security Manager interface&#34;&#34;&#34;
     
-    Public Methods:
-    
-        version()       Returns simple version string, &#39;10.1.0&#39;
-        
-        buildstamp()    Returns buildstamp string, &#39;10.0.2 20170516001031&#39;
-        
-        time()          Returns ESM time (GMT)
-        
-        disks()         Returns string of disk status
-        
-        ram()           Returns string of disk status
-        
-        backup_status()     Returns dict with keys:
-                             - autoBackupEnabled: bool
-                             - autoBackupDay: int
-                             - backupLastTime: str (timestamp)
-                             - backupNextTime: str (timestamp)
-        
-        callhome()      Returns True/False if callhome is active/not active
-        
-        rulestatus()    Returns dict with keys:
-                        - rulesAndSoftwareCheckEnabled: bool
-                        - rulesAndSoftLastCheck: str (timestamp)
-                        - rulesAndSoftNextCheck: str (timestamp)
-
-        status()        Returns dict with the status outputs above plus a few
-                        other less interesting details.
-               
-        timezones()     Returns dict (str, str)
-                            timezone_id: timezone_name
-        
-        tz_name_to_id(id)         Returns timezone name matching given timezone ID.
-        
-        tz_id_to_name(tz_name)    Returns timezone ID matching given timezone name.
-        
-        tz_offsets()    Returns list of timezone tuples. 
-                        (tz_id, tz_name, tz_offset)
-                        [(1, &#39;Midway Island, Samoa&#39;, &#39;-11:00&#39;),
-                         (2, &#39;Hawaii&#39;, &#39;-10:00&#39;),
-            
-        type_id_to_venmod(type_id)     Returns tuple. (vendor, model) matching
-                                       provided type_id.
-        
-        venmod_to_type_id(vendor, model)    Returns string of matching type_id
-        
-    &#34;&#34;&#34;
-    def __init__(self, *args, **kwargs):
-        &#34;&#34;&#34;
-        Returns:
-            obj. ESM object
-        &#34;&#34;&#34;
-        super().__init__(*args, **kwargs)
-        
-    def refresh(self):
-        super().refresh()
-
     @property
     def text(self):
         return str(&#39;ESM object&#39;)
@@ -121,38 +58,46 @@ class ESM(Device):
         #return (dict(self))
 
     def time(self):
-        &#34;&#34;&#34;
-        Returns:
-            str. ESM time (GMT).
-
-        Example:
-            &#39;2017-07-06T12:21:59.0+0000&#39;
+        &#34;&#34;&#34;Returns: string of ESM time (GMT)  
+        Example: `2017-07-06T12:21:59.0+0000`
         &#34;&#34;&#34;
         return self.nitro.request(&#34;get_esm_time&#34;)[&#39;value&#39;]
 
     def buildstamp(self):
+        &#34;&#34;&#34;Returns: buildstamp string  
+        Example: `10.0.2 20170516001031`
+        &#34;&#34;&#34;
         return self.nitro.buildstamp()
     
     def version(self):
+        &#34;&#34;&#34;
+        Returns: simple version string  
+        Example: `10.1.0`
+        &#34;&#34;&#34;
         return self.nitro.version
 
     def status(self):
         &#34;&#34;&#34;
-        Returns:
-            dict. ESM stats.
-            including:
-                - processor status
-                - hdd status
-                - ram status
-                - rule update status
-                - backup status
-                - list of top level devices
+        Returns: `dict`  
+        ESM statuses including :  
+        - `cpu`, example: `Avail: 7977MB, Used: 7857MB, Free: 119MB`  
+        - `hdd`, example: `sda3     Size:  491GB, Used:   55GB(12%), Available:  413GB, Mount: /`  
+        - `ram`  
+        - `callHomeIp`  
+        - `autoBackupEnabled`  
+        - `autoBackupHour`  
+        - `autoBackupDay`  
+        - `backupNextTime`  
+        - `backupLastTime`  
+        - `rulesAndSoftwareCheckEnabled`  
+        - `rulesAndSoftNextCheck`  
+        - `rulesAndSoftLastCheck`  
         Other functions exist to return subsets of this data also.
         &#34;&#34;&#34;
         status = self.nitro.request(&#34;get_sys_info&#34;)
-        return self.map_status_int_fields(status)
+        return self._map_status_int_fields(status)
 
-    def map_status_int_fields(self, status):
+    def _map_status_int_fields(self, status):
         new_status = {}
         new_status[&#39;cpu&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[0][6:]
         new_status[&#39;hdd&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[1][6:]
@@ -176,35 +121,23 @@ class ESM(Device):
 
 
     def disks(self):
-        &#34;&#34;&#34;
-        Returns:
-            str. ESM disks and utilization.
-
-        Example:
-            &#39;sda3     Size:  491GB, Used:   55GB(12%), Available:  413GB, Mount: /&#39;
+        &#34;&#34;&#34;Returns: `self.status()[&#39;hdd&#39;]`
         &#34;&#34;&#34;
         return self.status()[&#39;hdd&#39;]
 
     def ram(self):
-        &#34;&#34;&#34;
-        Returns:
-            str. ESM ram and utilization.
-
-        Example:
-            &#39;Avail: 7977MB, Used: 7857MB, Free: 119MB&#39;
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Returns: `self.status()[&#39;ram&#39;]`&#34;&#34;&#34;
         return self.status()[&#39;ram&#39;]
 
     def backup_status(self):
         &#34;&#34;&#34;
-        Returns:
-            dict. Backup status and timestamps.
-
-            {&#39;autoBackupEnabled&#39;: True,
-                &#39;autoBackupDay&#39;: 7,
-                &#39;autoBackupHour&#39;: 0,
-                &#39;backupLastTime&#39;: &#39;07/03/2017 08:59:36&#39;,
-                &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}
+        Returns: Backup status and timestamps.  
+        Example :  
+            {&#39;autoBackupEnabled&#39;: True,  
+            &#39;autoBackupDay&#39;: 7,  
+            &#39;autoBackupHour&#39;: 0,  
+            &#39;backupLastTime&#39;: &#39;07/03/2017 08:59:36&#39;,  
+            &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}  
         &#34;&#34;&#34;
         fields = [&#39;autoBackupEnabled&#39;,
                    &#39;autoBackupDay&#39;,
@@ -217,21 +150,18 @@ class ESM(Device):
 
     def callhome(self):
         &#34;&#34;&#34;
-        Returns:
-            bool. True/False if there is currently a callhome connection
+        Returns: `True/False` if there is currently a callhome connection  
         &#34;&#34;&#34;
         if self.status()[&#39;callHomeIp&#39;]:
             return True
 
     def rules_status(self):
         &#34;&#34;&#34;
-        Returns:
-            dict. Rules autocheck status and timestamps.
-
-        Example:
-        { &#39;rulesAndSoftwareCheckEnabled&#39;: True
-          &#39;rulesAndSoftLastCheck&#39;: &#39;07/06/2017 10:28:43&#39;,
-          &#39;rulesAndSoftNextCheck&#39;: &#39;07/06/2017 22:28:43&#39;,}
+        Returns: Rules autocheck status and timestamps.  
+        Example:  
+            { &#39;rulesAndSoftwareCheckEnabled&#39;: True
+            &#39;rulesAndSoftLastCheck&#39;: &#39;07/06/2017 10:28:43&#39;,
+            &#39;rulesAndSoftNextCheck&#39;: &#39;07/06/2017 22:28:43&#39;,}
 
         &#34;&#34;&#34;
         self._fields = [&#39;rulesAndSoftwareCheckEnabled&#39;,
@@ -241,14 +171,13 @@ class ESM(Device):
                 if self.key in self._fields}
 
     def get_alerts(self, ds_id, flows=False):
-        &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.
+        &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.  
         
-        Arguments:
-            ds_id (str): IPSID for the device, e.g. 144116287587483648
-            flows (bool): Also get flows from the device (default: False)
+        Arguments:  
+        - `ds_id`: (`str`) `IPSID` for the device, e.g. `144116287587483648`  
+        - `flows`: (`bool`) Also get flows from the device (default: False)  
         
-        Returns:
-            None
+        Returns: `None`
         &#34;&#34;&#34;
         self.nitro.request(&#39;get_alerts_now&#39;, ds_id=ds_id)
         if flows:
@@ -257,30 +186,25 @@ class ESM(Device):
     @lru_cache(maxsize=None)    
     def recs(self):
         &#34;&#34;&#34;
-        Returns: 
-            
+        Returns: `list(tuple())`, List of receivers name and id 
         &#34;&#34;&#34;
         rec_list = self.nitro.request(&#39;get_recs&#39;)
         return [(rec[&#39;name&#39;], rec[&#39;id&#39;][&#39;id&#39;])for rec in rec_list]
                 
     @lru_cache(maxsize=None)   
     def _get_timezones(self):
-        &#34;&#34;&#34;
-        Gets list of timezones from the ESM.
-        
-        Returns:
-            str. Raw return string from ESM including 
+        &#34;&#34;&#34;Gets list of timezones from the ESM.  
+        Returns: Raw `string` from ESM 
         &#34;&#34;&#34;
         return self.nitro.request(&#39;time_zones&#39;)
         
     def tz_offsets(self):
         &#34;&#34;&#34;
-        Builds table of ESM timezones including offsets.
+        Builds table of ESM timezones including offsets.  
         
-        Returns:
-            list. List of timezone tuples (name, id, offset)
+        Returns: `list(tuple())`, List of timezone `tuples(name, id, offset)`  
             
-        Example:
+        Example:  
             [(1, &#39;Midway Island, Samoa&#39;, &#39;-11:00&#39;),
              (2, &#39;Hawaii&#39;, &#39;-10:00&#39;),
              ...
@@ -292,21 +216,19 @@ class ESM(Device):
         
     def timezones(self):
         &#34;&#34;&#34;
-        Builds table of ESM timezones and names only. No offsets.
+        Builds table of ESM timezones and names only. No offsets.  
         
-        Returns:
-            dict. {timezone_id, timezone_name}
+        Returns: `dict`: `{timezone_id:timezone_name, ...}`  
         &#34;&#34;&#34;
         return {str(tz[&#39;id&#39;][&#39;value&#39;]): tz[&#39;name&#39;]
                             for tz in self._get_timezones()}
 
     def tz_name_to_id(self, tz_name):
         &#34;&#34;&#34;
-        Args:
-            tz_name (str): Case sensitive, exact match timezone name
-            
-        Returns:
-            str. Timezone id or None if there is no match
+        Arguments:  
+        - `tz_name`: (`str`) Case sensitive, exact match timezone name  
+        
+        Returns: `str`, Timezone id or `None` if there is no match
         &#34;&#34;&#34;
         tz_reverse = {tz_name.lower(): tz_id 
                         for tz_id, tz_name in self.timezones().items()}
@@ -317,11 +239,10 @@ class ESM(Device):
     
     def tz_id_to_name(self, tz_id):
         &#34;&#34;&#34;
-        Args:
-            td_id (str): Numerical string (Currently 1-74)
+        Arguments:  
+        - `td_id`: (`str`) Numerical string (Currently `1` to `74`)  
         
-        Returns:
-            str. Timezone name or None if there is no match
+        Returns: `str` Timezone name or `None` if there is no match
         &#34;&#34;&#34;
         try:
             return self.timezones()[tz_id]
@@ -330,11 +251,10 @@ class ESM(Device):
     
     def type_id_to_venmod(self, type_id):
         &#34;&#34;&#34;
-        Args:
-            type_id (str): Numerical string 
+        Arguments:  
+        - `type_id`: (`str`) Numerical string   
         
-        Returns:
-            tuple. (vendor, model) or None if there is no match
+        Returns: `tuple(vendor, model)` or `None` if there is no match
         &#34;&#34;&#34;
         ds_types = self._get_ds_types()
         for venmod in ds_types:
@@ -344,12 +264,11 @@ class ESM(Device):
 
     def venmod_to_type_id(self, vendor, model):
         &#34;&#34;&#34;
-        Args:
-            vendor (str): Exact vendor string including puncuation
-            model (str): Exact vendor string including puncuation
+        Arguments:  
+        - `vendor`: (`str`) Exact vendor string including puncuation  
+        - `model`: (`str`) Exact model string including puncuation  
         
-        Returns:
-            str. Matching type_id or None if there is no match
+        Returns: `str` Matching type_id or None if there is no match
         &#34;&#34;&#34;
         for venmod in self._get_ds_types():
             if vendor == venmod[1]:
@@ -358,8 +277,7 @@ class ESM(Device):
 
     def rules_history(self):
         &#34;&#34;&#34;
-        Returns: 
-            Policy Editor rule history.
+        Returns: Policy Editor rule history.
         &#34;&#34;&#34;
         file = self.nitro.request(&#39;get_rule_history&#39;)[&#39;TK&#39;]
         return self.nitro.get_internal_file(file)
@@ -367,23 +285,18 @@ class ESM(Device):
     @lru_cache(maxsize=None)   
     def _get_ds_types(self):
         &#34;&#34;&#34;
-        Retrieves device table from ESM
-                    
-        Returns:
-            list. of tuples output from callback: _format_ds_types()
-
-        Note:
-            rec_id (str): self.rec_id assigned in method
+        Retrieves device table from ESM  
+        Returns: `list` of tuples output from callback: _format_ds_types()
         &#34;&#34;&#34;
         rec_id = self.recs()[0][1]
         return  self.nitro.request(&#39;get_dstypes&#39;, rec_id=rec_id)
                     
     def _format_ds_types(self, venmods):
         &#34;&#34;&#34;
-        Callback to create type_id/vendor/model table
+        Callback to create type_id/vendor/model table  
         
-        Args:
-            venmods (obj): request object from _get_ds_types
+        Args:  
+            venmods (obj): request object from _get_ds_types  
         
         Returns:
             list. of tuples 
@@ -403,48 +316,8 @@ class ESM(Device):
                     for mod in ven[&#39;models&#39;]]
 
 class DevTree(NitroList):
-    &#34;&#34;&#34;
-    Interface to the ESM device tree.
-    
-    Public Methods:
-    
-        search(&#39;term&#39;)      Returns a DataSource object matching the name,
-                        IPv4/IPv6 address, hostname or device ID.
-
-        search_group(field=&#39;term&#39;)    Returns a list of DataSource objects that match 
-                                  the given term for the given field. 
-                                  Valid field options include:
-                                    - parent_id = &#39;144119615532826624&#39;
-                                    - type_id = &#39;65&#39;
-                                    - vendor = &#39;Intersect Alliance&#39;
-                                    - model = &#39;Snare for Windows&#39;
-                                    - require_tls = &#39;T&#39;
-                                    - port = &#39;514&#39;
-                                    - tz_id = &#39;51&#39;
-                                    - tz_name = &#39;Darwin&#39;
-                                    - zone_id = &#39;7&#39;
-                                                            
-        last_times(days=,       Returns a list of DataSource objects that 
-                   hours=,      the ESM has NOT heard from since the
-                   minutes=)    provided timeframe.
-                                  args are cummulative, 
-                               e.g. (days=30, hours=5) will added together
-
-
-        refresh()   Rebuilds the tree
-                            
-        __len__     Returns the total number of devices in the tree
-        
-        __iter__    Interates through each DataSource object in the tree. 
-        
-        __contains__    Returns bool as to whether a datasource name, IP,
-                        hostname or ds_id exist in the device tree.
-                        
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;ESM device tree interface&#34;&#34;&#34;
     def __init__(self, *args, **kwargs):
-        &#34;&#34;&#34;
-        Initalize the DevTree object
-        &#34;&#34;&#34;
         super().__init__(*args, **kwargs)
         self.data = self.build_devtree()
         self._cast_datasources()
@@ -472,8 +345,7 @@ class DevTree(NitroList):
 
     def __contains__(self, term):
         &#34;&#34;&#34;
-        Returns:
-            bool: True/False the name or IP matches the provided search term.
+        Returns: (`bool`) `True/False` the name or IP matches the provided search term.
         &#34;&#34;&#34;
         if self.search(term):
             return True
@@ -483,14 +355,11 @@ class DevTree(NitroList):
    
     def search(self, term, zone_id=&#39;0&#39;):
         &#34;&#34;&#34;
-        Args:
-            term (str): Datasource name, IP, hostname or ds_id
-            
-            zone_id (int): Provide zone_id to limit search to a specific zone
+        Arguments:
+        - `term` (`str`): Datasource name, IP, hostname or ds_id. Matching the `name`, `IPv4/IPv6 address`, `hostname` or `device ID`.  
+        - `zone_id` (`int`): Provide zone_id to limit search to a specific zone  
 
-        Returns:
-            Datasource object that matches the provided search term or None
-
+        Returns: `Datasource` object that matches the provided search term or None.
         &#34;&#34;&#34;
         search_fields = [&#39;ds_ip&#39;, &#39;name&#39;, &#39;hostname&#39;, &#39;ds_id&#39;]
 
@@ -504,24 +373,31 @@ class DevTree(NitroList):
 
     def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
         &#34;&#34;&#34;
-        Args:
-            field (str): Valid DS config field to search
-            term (str): Data to search for in specified field
+        Arguments:
+        - `field` (`str`): Valid DS config field to search  
+        - `term` (`str`): Data to search for in specified field  
+
+        Valid field options include:    
+        - `parent_id` = &#39;144119615532826624&#39;  
+        - `type_id` = &#39;65&#39;  
+        - `vendor` = &#39;Intersect Alliance&#39;  
+        - `model` = &#39;Snare for Windows&#39;  
+        - `require_tls` = &#39;T&#39;  
+        - `port` = &#39;514&#39;  
+        - `tz_id` = &#39;51&#39;  
+        - `tz_name` = &#39;Darwin&#39;  
+        - `zone_id` = &#39;7&#39;  
+
+        Returns: `Generator` containing any matching DataSource objects or `None`  
+        Result must be iterated through.
             
-        Returns:
-            Generator containing any matching DataSource objects or None
-            Result must be iterated through.
-            
-        Raises:
-            ValueError: if field or term are None
+        Raises: `ValueError`: if field or term are None
         &#34;&#34;&#34;
         return (DataSource(adict=ds) for ds in self.data
                         if ds.get(field) == term)
                        
     def refresh(self):
-        &#34;&#34;&#34;
-        Rebuilds the devtree
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Rebuilds the devtree&#34;&#34;&#34;
         self.data = self.build_devtree()
         self._cast_datasources()
 
@@ -535,16 +411,13 @@ class DevTree(NitroList):
         
     def recs(self):
         &#34;&#34;&#34;
-        Returns:
-            list of Receiver dicts (str:str)
+        Returns: `list` of Receiver `dict`
         &#34;&#34;&#34;
         return [self._rec for self._rec in self.data
                     if self._rec[&#39;desc_id&#39;] == &#39;2&#39;]
     
     def build_devtree(self):
-        &#34;&#34;&#34;
-        Coordinates assembly of the devtree object
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Coordinates assembly of the devtree object&#34;&#34;&#34;
         devtree = self._get_devtree()
         if devtree == &#39;ITEMS&#39;:
             print(&#39;Device tree is empty. Must add at least one datasource for this to work.&#39;)
@@ -567,19 +440,16 @@ class DevTree(NitroList):
 
     def _get_devtree(self):
         &#34;&#34;&#34;
-        Returns:
-            ESM device tree; raw, but ordered, string.
-            Does not include client datasources.
+        Returns:  ESM device tree; raw, but ordered, string.  
+        Does not include client datasources.
         &#34;&#34;&#34;
         resp = self.nitro.request(&#39;get_devtree&#39;)
         return dehexify(resp[&#39;ITEMS&#39;])
 
     def _format_devtree(self, devtree):
         &#34;&#34;&#34;
-        Parse key fields from raw device strings into datasource dicts
-
-        Returns:
-            List of datasource dicts
+        Parse key fields from raw device strings into datasource dicts.  
+        Returns: List of datasource dicts
         &#34;&#34;&#34;
         devtree = StringIO(devtree)
         devtree = csv.reader(devtree, delimiter=&#39;,&#39;)
@@ -641,10 +511,9 @@ class DevTree(NitroList):
         &#34;&#34;&#34;
         Adds parent_ids to datasources in the tree based upon the
         ordered list provided by the ESM. All the datasources below
-        a Receiver row have it&#39;s id set as their parent ID.
+        a Receiver row have it&#39;s id set as their parent ID.  
 
-        Returns:
-            List of datasource dicts
+        Returns: List of datasource dicts
         &#34;&#34;&#34;
         _pid = &#39;0&#39;
         esm_dev_id = [&#39;14&#39;]
@@ -686,10 +555,9 @@ class DevTree(NitroList):
 
     def _get_client_containers(self, devtree):
         &#34;&#34;&#34;
-        Filters DevTree for datasources that have client datasources.
+        Filters DevTree for datasources that have client datasources.  
         
-        Returns:
-            List of datasource dicts that have clients
+        Returns: List of datasource dicts that have clients
         &#34;&#34;&#34;
         return [ds for ds in devtree
                 if ds[&#39;desc_id&#39;] == &#34;3&#34;
@@ -719,14 +587,13 @@ class DevTree(NitroList):
 
     def _get_clients(self, ds_id):
         &#34;&#34;&#34;
-        Get list of raw client strings.
+        Get list of raw client strings.  
 
         Args:
-            ds_id (str): Parent ds_id(s) are collected on init
-            ftoken (str): Set and used after requesting clients for ds_id
+        - `ds_id` (str): Parent ds_id(s) are collected on init  
+        - `ftoken` (str): Set and used after requesting clients for ds_id  
 
-        Returns:
-            List of strings representing unparsed client datasources
+        Returns: List of strings representing unparsed client datasources
         &#34;&#34;&#34;
 
         file = self.nitro.request(&#39;req_client_str&#39;, ds_id=ds_id)[&#39;FTOKEN&#39;]
@@ -734,10 +601,8 @@ class DevTree(NitroList):
 
     def _format_clients(self, clients):
         &#34;&#34;&#34;
-        Parse key fields from _get_clients() output.
-
-        Returns:
-            list of dicts
+        Parse key fields from _get_clients() output.  
+        Returns: list of dicts
         &#34;&#34;&#34;
         clients = StringIO(clients)
         clients = csv.reader(clients, delimiter=&#39;,&#39;)
@@ -769,10 +634,8 @@ class DevTree(NitroList):
 
     def _get_zonetree(self):
         &#34;&#34;&#34;
-        Retrieve zone data.
-        
-        Returns:
-            str: device tree string sorted by zones
+        Retrieve zone data.  
+        Returns: `str` device tree string sorted by zones
         &#34;&#34;&#34;        
         resp = self.nitro.request(&#39;get_zones_devtree&#39;)
         return dehexify(resp[&#39;ITEMS&#39;])
@@ -780,10 +643,9 @@ class DevTree(NitroList):
     def _insert_zone_names(self, zonetree, devtree):
         &#34;&#34;&#34;
         Args:
-            zonetree (str): Built by self._get_zonetree
+        - `zonetree` (str): Built by self._get_zonetree  
         
-        Returns:
-            List of dicts (str: str) devices by zone
+        Returns: List of dicts (str: str) devices by zone
         &#34;&#34;&#34;
         zone_name = None
         zonetree = StringIO(zonetree)
@@ -802,10 +664,8 @@ class DevTree(NitroList):
 
     def _get_zone_map(self):
         &#34;&#34;&#34;
-        Builds a table of zone names to zone ids.
-        
-        Returns:
-            dict (str: str) zone name : zone ids
+        Builds a table of zone names to zone ids.  
+        Returns: dict (str: str) zone name : zone ids
         &#34;&#34;&#34;
         zone_map = {}
         resp = self.nitro.request(&#39;zonetree&#39;)
@@ -819,8 +679,6 @@ class DevTree(NitroList):
         return zone_map
         
     def _insert_zone_ids(self, zone_map, devtree):
-        &#34;&#34;&#34;
-        &#34;&#34;&#34;
         for device in devtree:
             if device[&#39;zone_name&#39;] in zone_map.keys():
                 device[&#39;zone_id&#39;] = zone_map.get(device[&#39;zone_name&#39;])
@@ -878,21 +736,19 @@ class DevTree(NitroList):
                         
     def _get_last_times(self):
         &#34;&#34;&#34;
-        Returns:
-            string with datasource names and last event times.
+        Returns: string with datasource names and last event times.
         &#34;&#34;&#34;
         resp = self.nitro.request(&#39;ds_last_times&#39;)
         return dehexify(resp[&#39;ITEMS&#39;])
 
     def _format_times(self, last_times):
-        &#34;&#34;&#34;
-        Formats the output of _get_last_times
+        &#34;&#34;&#34; 
+        Formats the output of _get_last_times  
 
         Args:
-            last_times (str): string output from _get_last_times()
+        - `last_times` (str): string output from _get_last_times()  
 
-        Returns:
-            list of dicts - [{&#39;name&#39;, &#39;model&#39;, &#39;last_time&#39;}]
+        Returns: list of dicts - [{&#39;name&#39;, &#39;model&#39;, &#39;last_time&#39;}]
         &#34;&#34;&#34;
             
         last_times = StringIO(last_times)
@@ -912,10 +768,9 @@ class DevTree(NitroList):
 
     def _insert_ds_last_times(self, last_times, devtree):
         &#34;&#34;&#34;
-        Parse event times str and insert it into the _devtree
+        Parse event times str and insert it into the _devtree  
 
-        Returns:
-            List of datasource dicts - the devtree
+        Returns: List of datasource dicts - the devtree
         &#34;&#34;&#34;
         for device in devtree:
             for d_time in last_times:
@@ -928,7 +783,7 @@ class DevTree(NitroList):
         &#34;&#34;&#34;Filters objects that inaccurately show up as datasources sometimes.
         
         Arguments:
-            devtree (list) -- the devtree
+        - `devtree` (list): the devtree
         &#34;&#34;&#34;
         type_filter = [&#39;1&#39;, &#39;16&#39;, &#39;254&#39;]
         return [ds for ds in devtree if ds[&#39;desc_id&#39;] not in type_filter]
@@ -938,110 +793,111 @@ class DevTree(NitroList):
             if dev[&#39;desc_id&#39;] in [&#39;3&#39;,&#39;256&#39;]:
                 self.data[int(dev[&#39;idx&#39;])] = DataSource(dev)
                 
-    def duplicate_datasource(self, p):
+    def duplicate_datasource(self, ds_params):
         &#34;&#34;&#34;Check for duplicate dataname name or IP address.
         
-        Arguments:
-            p (dict) -- datasource params 
-
-        Parameters:
-            name (str): datasource name
-            ds_ip (str): datasource IP
-            zone_id (str): optional zone_id
+        Arguments:  
+        - `ds_params` (dict) : datasource params  
+        
+        `ds_params` should contain :  
+        - `name` (str): datasource name  
+        - `ds_ip` (str): datasource IP  
+        - `zone_id` (str): optional zone_id  
         &#34;&#34;&#34;
         
-        if p.get(&#39;zone_id&#39;):
-            result = self.search(p[&#39;name&#39;], zone_id=[&#39;zone_id&#39;])
+        if ds_params.get(&#39;zone_id&#39;):
+            result = self.search(ds_params[&#39;name&#39;], zone_id=[&#39;zone_id&#39;])
             if not result:
-                result = self.search(p[&#39;ds_ip&#39;], zone_id=[&#39;zone_id&#39;])
+                result = self.search(ds_params[&#39;ds_ip&#39;], zone_id=[&#39;zone_id&#39;])
         else:
-            result = self.search(p[&#39;name&#39;])
+            result = self.search(ds_params[&#39;name&#39;])
             if not result:
-                result = self.search(p[&#39;ds_ip&#39;])
+                result = self.search(ds_params[&#39;ds_ip&#39;])
         return result
 
-    def add(self, kwargs):
-            &#34;&#34;&#34;
-            Adds a datasource. 
+    def add(self, attr):
+        &#34;&#34;&#34;
+        Adds a datasource. 
 
-            Args:
-                **kwargs: datasource attributes
-            
-            Attributes:
-                client (bool): designate a client datasource (not child)
-                name (str): name of datasource (req)
-                parent_id (str): id of parent device (req)
-                ds_ip (str): ip of datasource (ip or hostname required)
-                hostname (str): hostname of datasource 
-                type_id (str): type of datasource (req)
-                enabled (bool): enabled or not (default: True)
-                tz_id (str): timezone of datasource (default UTC: 8)
-                zone_id (str): numberic ESM id for zone (default: 0)
-                    Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 
-                require_tls (bool): datasource uses syslog tls
-            
-            Returns:
-                result id (str): id of the result. Not the ds_id as of 11.2.1
-                    or None on Error            
-            &#34;&#34;&#34;
-            p = self._validate_ds_params(kwargs)
-            dd = self.duplicate_datasource(p)
-            if dd:
-                print(&#39;Error: Cannot add Datasource. Duplicate name: {} or IP Address: {}&#39;
-                    .format(dd[&#39;name&#39;], dd[&#39;ds_ip&#39;]))
-                return
+        Argumentss:
+        - `attr` (`dict`): datasource attributes
+        
+        Attributes keys:  
+        - `client` (`bool`): designate a client datasource (not child)  
+        - `name` (`str`): name of datasource (req)  
+        - `parent_id` (`str`): id of parent device (req)  
+        - `ds_ip` (`str`): ip of datasource (ip or hostname required)  
+        - `hostname` (`str`): hostname of datasource   
+        - `type_id` (`str`): type of datasource (req)  
+        - `enabled` (`bool`): enabled or not (default: True)  
+        - `tz_id` (`str`): timezone of datasource (default UTC: 8)  
+        - `zone_id` (`str`): numberic ESM id for zone (default: 0)  
+        Examples (`tz_id` only): PST: 27, MST: 12, CST: 11, EST: 32   
+        - `require_tls` (`bool`): datasource uses syslog tls  
+        
+        Returns: result id (`str`): id of the result. Not the ds_id as of 11.2.1 or `None` on Error            
+        &#34;&#34;&#34;
+        p = self._validate_ds_params(attr)
+        dd = self.duplicate_datasource(p)
+        if dd:
+            print(&#39;Error: Cannot add Datasource. Duplicate name: {} or IP Address: {}&#39;
+                .format(dd[&#39;name&#39;], dd[&#39;ds_ip&#39;]))
+            return
 
-            if p.get(&#39;client&#39;):
-                self.add_client(p)
-                return
+        if p.get(&#39;client&#39;):
+            self.add_client(p)
+            return
 
-            if self.nitro.api_v == 1:
-                result_id = self.nitro.request(&#39;add_ds_11_1_3&#39;, 
-                                                parent_id=p[&#39;parent_id&#39;],
-                                                name=p[&#39;name&#39;],
-                                                ds_ip=p[&#39;ds_ip&#39;],
-                                                type_id=p[&#39;type_id&#39;],
-                                                zone_id=p[&#39;zone_id&#39;],
-                                                enabled=p[&#39;enabled&#39;],
-                                                url=p[&#39;url&#39;],
-                                                ds_id=0,
-                                                child_enabled=&#39;false&#39;,
-                                                child_count=0,
-                                                child_type=0,
-                                                idm_id=0,
-                                                parameters=p[&#39;parameters&#39;])
-            else:
-                result_id = self.nitro.request(&#39;add_ds_11_2_1&#39;, 
-                                               parent_id=p[&#39;parent_id&#39;],
-                                                name=p[&#39;name&#39;],
-                                                ds_ip=p[&#39;ds_ip&#39;],
-                                                type_id=p[&#39;type_id&#39;],
-                                                zone_id=p[&#39;zone_id&#39;],
-                                                enabled=p[&#39;enabled&#39;],
-                                                url=p[&#39;url&#39;],
-                                                parameters=p[&#39;parameters&#39;])
-            self.data.append(p)
-            return result_id
+        if self.nitro.api_v == 1:
+            result_id = self.nitro.request(&#39;add_ds_11_1_3&#39;, 
+                                            parent_id=p[&#39;parent_id&#39;],
+                                            name=p[&#39;name&#39;],
+                                            ds_ip=p[&#39;ds_ip&#39;],
+                                            type_id=p[&#39;type_id&#39;],
+                                            zone_id=p[&#39;zone_id&#39;],
+                                            enabled=p[&#39;enabled&#39;],
+                                            url=p[&#39;url&#39;],
+                                            ds_id=0,
+                                            child_enabled=&#39;false&#39;,
+                                            child_count=0,
+                                            child_type=0,
+                                            idm_id=0,
+                                            parameters=p[&#39;parameters&#39;])
+        else:
+            result_id = self.nitro.request(&#39;add_ds_11_2_1&#39;, 
+                                            parent_id=p[&#39;parent_id&#39;],
+                                            name=p[&#39;name&#39;],
+                                            ds_ip=p[&#39;ds_ip&#39;],
+                                            type_id=p[&#39;type_id&#39;],
+                                            zone_id=p[&#39;zone_id&#39;],
+                                            enabled=p[&#39;enabled&#39;],
+                                            url=p[&#39;url&#39;],
+                                            parameters=p[&#39;parameters&#39;])
+        self.data.append(p)
+        return result_id
 
-    def add_client(self, p):
+    def add_client(self, attr):
         &#34;&#34;&#34;Add a datasource client
         
-        Arguments:
-            p (dict)) -- datasource parameters
+        Arguments:  
+        - `attr` (`dict`) : datasource attributes  
         
-        Parameters:
-            parent_id (str): datasource id of the client group datasource
-            name (str): name of the client
-            enabled (bool): enabled or not (default: True
-            ds_ip (str): IP address for client 
-            hostname (str): hostname for client
-            type_id (str): numeric ESM type-id
-            tz_id (str): numeric ESM timezone id or GMT
-            dorder (str): Date order
-            maskflag (str): 
-            port (str): IP port to use
-            require_tls (bool): use syslog-TLS (default: False)
+        Attributes keys:  
+        - `parent_id` (`str`): datasource id of the client group datasource  
+        - `name` (`str`): name of the client  
+        - `enabled` (`bool`): enabled or not (default: `True`)  
+        - `ds_ip` (`str`): IP address for client  
+        - `hostname` (`str`): hostname for client  
+        - `type_id` (`str`): numeric ESM type-id  
+        - `tz_id` (`str`): numeric ESM timezone id or GMT  
+        - `dorder` (`str`): Date order  
+        - `maskflag` (`str`):   
+        - `port` (`str`): IP port to use  
+        - `require_tls` (`bool`): use syslog-TLS (default: `False`)  
+
+        Returns: result id (`str`) or `None` on Error   
         &#34;&#34;&#34;
+        p=attr
         for ds in self.data:
             if ds[&#39;ds_id&#39;] == p[&#39;parent_id&#39;]:
                 if ds[&#39;desc_id&#39;] != &#39;3&#39;:
@@ -1062,19 +918,16 @@ class DevTree(NitroList):
                             maskflag=p[&#39;maskflag&#39;],
                             port=p[&#39;port&#39;],
                             require_tls=[&#39;require_tls&#39;])
-        return
+        return result_id
 
 
     def _validate_ds_params(self, p):
         &#34;&#34;&#34;Validate parameters for new datasource.
         
-        Arguments:
-            p (dict) -- datasource parameters
+        Arguments:  
+        - `p` (`dict`) : datasource parameters  
         
-        Returns:
-            datasource dict with normalized values
-        
-            or False if something is invalid.
+        Returns: datasource dict with normalized values or `False` if something is invalid.
         &#34;&#34;&#34;
         # Common for all datasources
         if not p.get(&#39;name&#39;):
@@ -1155,11 +1008,10 @@ class DevTree(NitroList):
     def _validate_ds_tz_id(self, p):
         &#34;&#34;&#34;Validates datasource time zone id.
         
-        Arguments:
-            p (dict): datasource param
+        Arguments:  
+        - `p` (`dict`): datasource param
         
-        Returns:
-            dict of datasource params or None if invalid
+        Returns: `dict` of datasource params or None if invalid
         &#34;&#34;&#34;
         if p.get(&#39;tz_id&#39;):
             if p[&#39;tz_id&#39;] == &#39;GMT&#39;:
@@ -1177,10 +1029,10 @@ class DevTree(NitroList):
 
     @staticmethod
     def _normalize_bool_vals(d):
-        &#34;&#34;&#34;Recursively changes strings &#39;T&#39;, &#39;F&#39; to bool
+        &#34;&#34;&#34;Recursively changes strings &#39;T&#39;, &#39;F&#39; to `bool`  
         
-        Arguments:
-            d (dict) -- nested dicts and lists okay
+        Arguments:  
+        - `d` (`dict`) : nested dicts and lists okay  
         &#34;&#34;&#34;
         for k, v in d.items():
             if isinstance(v, dict):
@@ -1196,10 +1048,10 @@ class DevTree(NitroList):
         return d
 
 class DataSource(NitroDict):
-    &#34;&#34;&#34;DataSource class
+    &#34;&#34;&#34;DataSource class  
     
-    Arguments:
-        adict (dict): datasource parameters
+    Arguments:  
+    - `adict` (`dict`): datasource parameters
         
     Best instantiated from DevTree():
         &gt;&gt;&gt; dt = DevTree()
@@ -1207,34 +1059,30 @@ class DataSource(NitroDict):
         or
         &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)
 
-    Parameters:
-        name (str): name of the datasource
-        ds_ip (str): IP of the datasource
-        hostname (str): hostname for the datasource
-        ds_id (str): internal datasource ID (e.g 144234544545444)
-        type_id (str): numeric internal datasource type id
-        desc_id (str): always &#39;3&#39; a datasource or &#39;254&#39; for a client
-        parent_id (str): internal ds_id for the parent device
-        parent_name (str): name of the parent device
-        enabled (str): &#39;T&#39; or &#39;F&#39;
-        client (bool): Client datasource or not
-        zone_id (str): numeric zone_id
-        zone_name (str): name of the zone
-        tz_id (str): internal numeric timezone ID
-        vendor (str): vendor of datasource (e.g. Microsoft)
-        model (str): model of datasource (e.g. Windows)
-        require_tls (str): Use syslog over TLS
-        url (str): URL of the datasource
+    Dict keys:  
+    - `name` (`str`): name of the datasource  
+    - `ds_ip` (`str`): IP of the datasource  
+    - `hostname` (`str`): hostname for the datasource  
+    - `ds_id` (`str`): internal datasource ID (e.g `144234544545444`)  
+    - `type_id` (`str`): numeric internal datasource type id  
+    - `desc_id` (`str`): always &#39;3&#39; a datasource or &#39;254&#39; for a client  
+    - `parent_id` (`str`): internal ds_id for the parent device  
+    - `parent_name` (`str`): name of the parent device  
+    - `enabled` (`str`): &#39;T&#39; or &#39;F&#39;  
+    - `client` (`bool`): Client datasource or not  
+    - `zone_id` (`str`): numeric zone_id  
+    - `zone_name` (`str`): name of the zone  
+    - `tz_id` (`str`): internal numeric timezone ID  
+    - `vendor` (`str`): vendor of datasource (e.g. Microsoft)   
+    - `model` (`str`): model of datasource (e.g. Windows)  
+    - `require_tls` (`str`): Use syslog over TLS  
+    - `url` (`str`): URL of the datasource  
 
     &#34;&#34;&#34;
-    def __init__(self, *args, **kwargs):
-        &#34;&#34;&#34;
-        Initalize the DataSource object
-        &#34;&#34;&#34;
-        super().__init__(*args, **kwargs)
 
-    def data_from_id(self):
-        pass
+    def data_from_id(self, id):
+        &#34;&#34;&#34;NotImplementedError&#34;&#34;&#34;
+        raise NotImplementedError()
 
     def load_details(self):
         &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
@@ -1282,6 +1130,7 @@ class DataSource(NitroDict):
         if self.nitro.api_v == 1:
             self.data[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;)
             self.data[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;id&#39;)
+
         elif self.nitro.api_v == 2:
             self.data[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;).get(&#39;value&#39;)
             self.data[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;value&#39;)
@@ -1294,6 +1143,7 @@ class DataSource(NitroDict):
             self.data[&#39;child_count&#39;] = p.get(&#39;childCount&#39;)
             self.data[&#39;child_type&#39;] = p.get(&#39;childType&#39;)
             self.data[&#39;type_id&#39;] = p.get(&#39;typeId&#39;).get(&#39;id&#39;)
+
             if p.get(&#39;parameters&#39;):
                 for d in p[&#39;parameters&#39;]:
                     # The key is called &#34;key&#34; and the value is the key. 
@@ -1310,191 +1160,19 @@ class DataSource(NitroDict):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="msiempy.device.Device"><code class="flex name class">
-<span>class <span class="ident">Device</span></span>
-</code></dt>
-<dd>
-<section class="desc"><p>Base class for all nitro objects. All objects have a reference to the single <a title="msiempy.NitroSession" href="index.html#msiempy.NitroSession"><code>NitroSession</code></a> object that handle the esm requests.</p>
-<p>Creates the object session.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Device(NitroObject):
-    pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="msiempy.device.ERC" href="#msiempy.device.ERC">ERC</a></li>
-<li><a title="msiempy.device.ESM" href="#msiempy.device.ESM">ESM</a></li>
-</ul>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroObject.json" href="index.html#msiempy.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.NitroObject.refresh" href="index.html#msiempy.NitroObject.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.NitroObject.text" href="index.html#msiempy.NitroObject.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="msiempy.device.ERC"><code class="flex name class">
-<span>class <span class="ident">ERC</span></span>
-</code></dt>
-<dd>
-<section class="desc"><p>Base class for all nitro objects. All objects have a reference to the single <a title="msiempy.NitroSession" href="index.html#msiempy.NitroSession"><code>NitroSession</code></a> object that handle the esm requests.</p>
-<p>Creates the object session.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class ERC(Device):
-    pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.device.Device" href="#msiempy.device.Device">Device</a></li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.device.Device" href="#msiempy.device.Device">Device</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.device.Device.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.device.Device.json" href="index.html#msiempy.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.device.Device.refresh" href="index.html#msiempy.NitroObject.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.device.Device.text" href="index.html#msiempy.NitroObject.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
 <dt id="msiempy.device.ESM"><code class="flex name class">
 <span>class <span class="ident">ESM</span></span>
-<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>ESM class</p>
-<p>Public Methods:</p>
-<pre><code>version()       Returns simple version string, '10.1.0'
-
-buildstamp()    Returns buildstamp string, '10.0.2 20170516001031'
-
-time()          Returns ESM time (GMT)
-
-disks()         Returns string of disk status
-
-ram()           Returns string of disk status
-
-backup_status()     Returns dict with keys:
-                     - autoBackupEnabled: bool
-                     - autoBackupDay: int
-                     - backupLastTime: str (timestamp)
-                     - backupNextTime: str (timestamp)
-
-callhome()      Returns True/False if callhome is active/not active
-
-rulestatus()    Returns dict with keys:
-                - rulesAndSoftwareCheckEnabled: bool
-                - rulesAndSoftLastCheck: str (timestamp)
-                - rulesAndSoftNextCheck: str (timestamp)
-
-status()        Returns dict with the status outputs above plus a few
-                other less interesting details.
-
-timezones()     Returns dict (str, str)
-                    timezone_id: timezone_name
-
-tz_name_to_id(id)         Returns timezone name matching given timezone ID.
-
-tz_id_to_name(tz_name)    Returns timezone ID matching given timezone name.
-
-tz_offsets()    Returns list of timezone tuples. 
-                (tz_id, tz_name, tz_offset)
-                [(1, 'Midway Island, Samoa', '-11:00'),
-                 (2, 'Hawaii', '-10:00'),
-
-type_id_to_venmod(type_id)     Returns tuple. (vendor, model) matching
-                               provided type_id.
-
-venmod_to_type_id(vendor, model)    Returns string of matching type_id
-</code></pre>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>obj.</code> <a title="msiempy.device.ESM" href="#msiempy.device.ESM"><code>ESM</code></a> <code>object</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<section class="desc"><p>Enterprise Security Manager interface</p>
+<p>Creates the object session.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class ESM(Device):
-    &#34;&#34;&#34;
-    ESM class
+<pre><code class="python">class ESM(NitroObject):
+    &#34;&#34;&#34;Enterprise Security Manager interface&#34;&#34;&#34;
     
-    Public Methods:
-    
-        version()       Returns simple version string, &#39;10.1.0&#39;
-        
-        buildstamp()    Returns buildstamp string, &#39;10.0.2 20170516001031&#39;
-        
-        time()          Returns ESM time (GMT)
-        
-        disks()         Returns string of disk status
-        
-        ram()           Returns string of disk status
-        
-        backup_status()     Returns dict with keys:
-                             - autoBackupEnabled: bool
-                             - autoBackupDay: int
-                             - backupLastTime: str (timestamp)
-                             - backupNextTime: str (timestamp)
-        
-        callhome()      Returns True/False if callhome is active/not active
-        
-        rulestatus()    Returns dict with keys:
-                        - rulesAndSoftwareCheckEnabled: bool
-                        - rulesAndSoftLastCheck: str (timestamp)
-                        - rulesAndSoftNextCheck: str (timestamp)
-
-        status()        Returns dict with the status outputs above plus a few
-                        other less interesting details.
-               
-        timezones()     Returns dict (str, str)
-                            timezone_id: timezone_name
-        
-        tz_name_to_id(id)         Returns timezone name matching given timezone ID.
-        
-        tz_id_to_name(tz_name)    Returns timezone ID matching given timezone name.
-        
-        tz_offsets()    Returns list of timezone tuples. 
-                        (tz_id, tz_name, tz_offset)
-                        [(1, &#39;Midway Island, Samoa&#39;, &#39;-11:00&#39;),
-                         (2, &#39;Hawaii&#39;, &#39;-10:00&#39;),
-            
-        type_id_to_venmod(type_id)     Returns tuple. (vendor, model) matching
-                                       provided type_id.
-        
-        venmod_to_type_id(vendor, model)    Returns string of matching type_id
-        
-    &#34;&#34;&#34;
-    def __init__(self, *args, **kwargs):
-        &#34;&#34;&#34;
-        Returns:
-            obj. ESM object
-        &#34;&#34;&#34;
-        super().__init__(*args, **kwargs)
-        
-    def refresh(self):
-        super().refresh()
-
     @property
     def text(self):
         return str(&#39;ESM object&#39;)
@@ -1505,38 +1183,46 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
         #return (dict(self))
 
     def time(self):
-        &#34;&#34;&#34;
-        Returns:
-            str. ESM time (GMT).
-
-        Example:
-            &#39;2017-07-06T12:21:59.0+0000&#39;
+        &#34;&#34;&#34;Returns: string of ESM time (GMT)  
+        Example: `2017-07-06T12:21:59.0+0000`
         &#34;&#34;&#34;
         return self.nitro.request(&#34;get_esm_time&#34;)[&#39;value&#39;]
 
     def buildstamp(self):
+        &#34;&#34;&#34;Returns: buildstamp string  
+        Example: `10.0.2 20170516001031`
+        &#34;&#34;&#34;
         return self.nitro.buildstamp()
     
     def version(self):
+        &#34;&#34;&#34;
+        Returns: simple version string  
+        Example: `10.1.0`
+        &#34;&#34;&#34;
         return self.nitro.version
 
     def status(self):
         &#34;&#34;&#34;
-        Returns:
-            dict. ESM stats.
-            including:
-                - processor status
-                - hdd status
-                - ram status
-                - rule update status
-                - backup status
-                - list of top level devices
+        Returns: `dict`  
+        ESM statuses including :  
+        - `cpu`, example: `Avail: 7977MB, Used: 7857MB, Free: 119MB`  
+        - `hdd`, example: `sda3     Size:  491GB, Used:   55GB(12%), Available:  413GB, Mount: /`  
+        - `ram`  
+        - `callHomeIp`  
+        - `autoBackupEnabled`  
+        - `autoBackupHour`  
+        - `autoBackupDay`  
+        - `backupNextTime`  
+        - `backupLastTime`  
+        - `rulesAndSoftwareCheckEnabled`  
+        - `rulesAndSoftNextCheck`  
+        - `rulesAndSoftLastCheck`  
         Other functions exist to return subsets of this data also.
         &#34;&#34;&#34;
         status = self.nitro.request(&#34;get_sys_info&#34;)
-        return self.map_status_int_fields(status)
+        return self._map_status_int_fields(status)
 
-    def map_status_int_fields(self, status):
+    def _map_status_int_fields(self, status):
         new_status = {}
         new_status[&#39;cpu&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[0][6:]
         new_status[&#39;hdd&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[1][6:]
@@ -1560,35 +1246,23 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
 
 
     def disks(self):
-        &#34;&#34;&#34;
-        Returns:
-            str. ESM disks and utilization.
-
-        Example:
-            &#39;sda3     Size:  491GB, Used:   55GB(12%), Available:  413GB, Mount: /&#39;
+        &#34;&#34;&#34;Returns: `self.status()[&#39;hdd&#39;]`
         &#34;&#34;&#34;
         return self.status()[&#39;hdd&#39;]
 
     def ram(self):
-        &#34;&#34;&#34;
-        Returns:
-            str. ESM ram and utilization.
-
-        Example:
-            &#39;Avail: 7977MB, Used: 7857MB, Free: 119MB&#39;
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Returns: `self.status()[&#39;ram&#39;]`&#34;&#34;&#34;
         return self.status()[&#39;ram&#39;]
 
     def backup_status(self):
         &#34;&#34;&#34;
-        Returns:
-            dict. Backup status and timestamps.
-
-            {&#39;autoBackupEnabled&#39;: True,
-                &#39;autoBackupDay&#39;: 7,
-                &#39;autoBackupHour&#39;: 0,
-                &#39;backupLastTime&#39;: &#39;07/03/2017 08:59:36&#39;,
-                &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}
+        Returns: Backup status and timestamps.  
+        Example :  
+            {&#39;autoBackupEnabled&#39;: True,  
+            &#39;autoBackupDay&#39;: 7,  
+            &#39;autoBackupHour&#39;: 0,  
+            &#39;backupLastTime&#39;: &#39;07/03/2017 08:59:36&#39;,  
+            &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}  
         &#34;&#34;&#34;
         fields = [&#39;autoBackupEnabled&#39;,
                    &#39;autoBackupDay&#39;,
@@ -1601,21 +1275,18 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
 
     def callhome(self):
         &#34;&#34;&#34;
-        Returns:
-            bool. True/False if there is currently a callhome connection
+        Returns: `True/False` if there is currently a callhome connection  
         &#34;&#34;&#34;
         if self.status()[&#39;callHomeIp&#39;]:
             return True
 
     def rules_status(self):
         &#34;&#34;&#34;
-        Returns:
-            dict. Rules autocheck status and timestamps.
-
-        Example:
-        { &#39;rulesAndSoftwareCheckEnabled&#39;: True
-          &#39;rulesAndSoftLastCheck&#39;: &#39;07/06/2017 10:28:43&#39;,
-          &#39;rulesAndSoftNextCheck&#39;: &#39;07/06/2017 22:28:43&#39;,}
+        Returns: Rules autocheck status and timestamps.  
+        Example:  
+            { &#39;rulesAndSoftwareCheckEnabled&#39;: True
+            &#39;rulesAndSoftLastCheck&#39;: &#39;07/06/2017 10:28:43&#39;,
+            &#39;rulesAndSoftNextCheck&#39;: &#39;07/06/2017 22:28:43&#39;,}
 
         &#34;&#34;&#34;
         self._fields = [&#39;rulesAndSoftwareCheckEnabled&#39;,
@@ -1625,14 +1296,13 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
                 if self.key in self._fields}
 
     def get_alerts(self, ds_id, flows=False):
-        &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.
+        &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.  
         
-        Arguments:
-            ds_id (str): IPSID for the device, e.g. 144116287587483648
-            flows (bool): Also get flows from the device (default: False)
+        Arguments:  
+        - `ds_id`: (`str`) `IPSID` for the device, e.g. `144116287587483648`  
+        - `flows`: (`bool`) Also get flows from the device (default: False)  
         
-        Returns:
-            None
+        Returns: `None`
         &#34;&#34;&#34;
         self.nitro.request(&#39;get_alerts_now&#39;, ds_id=ds_id)
         if flows:
@@ -1641,30 +1311,25 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
     @lru_cache(maxsize=None)    
     def recs(self):
         &#34;&#34;&#34;
-        Returns: 
-            
+        Returns: `list(tuple())`, List of receivers name and id 
         &#34;&#34;&#34;
         rec_list = self.nitro.request(&#39;get_recs&#39;)
         return [(rec[&#39;name&#39;], rec[&#39;id&#39;][&#39;id&#39;])for rec in rec_list]
                 
     @lru_cache(maxsize=None)   
     def _get_timezones(self):
-        &#34;&#34;&#34;
-        Gets list of timezones from the ESM.
-        
-        Returns:
-            str. Raw return string from ESM including 
+        &#34;&#34;&#34;Gets list of timezones from the ESM.  
+        Returns: Raw `string` from ESM 
         &#34;&#34;&#34;
         return self.nitro.request(&#39;time_zones&#39;)
         
     def tz_offsets(self):
         &#34;&#34;&#34;
-        Builds table of ESM timezones including offsets.
+        Builds table of ESM timezones including offsets.  
         
-        Returns:
-            list. List of timezone tuples (name, id, offset)
+        Returns: `list(tuple())`, List of timezone `tuples(name, id, offset)`  
             
-        Example:
+        Example:  
             [(1, &#39;Midway Island, Samoa&#39;, &#39;-11:00&#39;),
              (2, &#39;Hawaii&#39;, &#39;-10:00&#39;),
              ...
@@ -1676,21 +1341,19 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
         
     def timezones(self):
         &#34;&#34;&#34;
-        Builds table of ESM timezones and names only. No offsets.
+        Builds table of ESM timezones and names only. No offsets.  
         
-        Returns:
-            dict. {timezone_id, timezone_name}
+        Returns: `dict`: `{timezone_id:timezone_name, ...}`  
         &#34;&#34;&#34;
         return {str(tz[&#39;id&#39;][&#39;value&#39;]): tz[&#39;name&#39;]
                             for tz in self._get_timezones()}
 
     def tz_name_to_id(self, tz_name):
         &#34;&#34;&#34;
-        Args:
-            tz_name (str): Case sensitive, exact match timezone name
-            
-        Returns:
-            str. Timezone id or None if there is no match
+        Arguments:  
+        - `tz_name`: (`str`) Case sensitive, exact match timezone name  
+        
+        Returns: `str`, Timezone id or `None` if there is no match
         &#34;&#34;&#34;
         tz_reverse = {tz_name.lower(): tz_id 
                         for tz_id, tz_name in self.timezones().items()}
@@ -1701,11 +1364,10 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
     
     def tz_id_to_name(self, tz_id):
         &#34;&#34;&#34;
-        Args:
-            td_id (str): Numerical string (Currently 1-74)
+        Arguments:  
+        - `td_id`: (`str`) Numerical string (Currently `1` to `74`)  
         
-        Returns:
-            str. Timezone name or None if there is no match
+        Returns: `str` Timezone name or `None` if there is no match
         &#34;&#34;&#34;
         try:
             return self.timezones()[tz_id]
@@ -1714,11 +1376,10 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
     
     def type_id_to_venmod(self, type_id):
         &#34;&#34;&#34;
-        Args:
-            type_id (str): Numerical string 
+        Arguments:  
+        - `type_id`: (`str`) Numerical string   
         
-        Returns:
-            tuple. (vendor, model) or None if there is no match
+        Returns: `tuple(vendor, model)` or `None` if there is no match
         &#34;&#34;&#34;
         ds_types = self._get_ds_types()
         for venmod in ds_types:
@@ -1728,12 +1389,11 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
 
     def venmod_to_type_id(self, vendor, model):
         &#34;&#34;&#34;
-        Args:
-            vendor (str): Exact vendor string including puncuation
-            model (str): Exact vendor string including puncuation
+        Arguments:  
+        - `vendor`: (`str`) Exact vendor string including puncuation  
+        - `model`: (`str`) Exact model string including puncuation  
         
-        Returns:
-            str. Matching type_id or None if there is no match
+        Returns: `str` Matching type_id or None if there is no match
         &#34;&#34;&#34;
         for venmod in self._get_ds_types():
             if vendor == venmod[1]:
@@ -1742,8 +1402,7 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
 
     def rules_history(self):
         &#34;&#34;&#34;
-        Returns: 
-            Policy Editor rule history.
+        Returns: Policy Editor rule history.
         &#34;&#34;&#34;
         file = self.nitro.request(&#39;get_rule_history&#39;)[&#39;TK&#39;]
         return self.nitro.get_internal_file(file)
@@ -1751,23 +1410,18 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
     @lru_cache(maxsize=None)   
     def _get_ds_types(self):
         &#34;&#34;&#34;
-        Retrieves device table from ESM
-                    
-        Returns:
-            list. of tuples output from callback: _format_ds_types()
-
-        Note:
-            rec_id (str): self.rec_id assigned in method
+        Retrieves device table from ESM  
+        Returns: `list` of tuples output from callback: _format_ds_types()
         &#34;&#34;&#34;
         rec_id = self.recs()[0][1]
         return  self.nitro.request(&#39;get_dstypes&#39;, rec_id=rec_id)
                     
     def _format_ds_types(self, venmods):
         &#34;&#34;&#34;
-        Callback to create type_id/vendor/model table
+        Callback to create type_id/vendor/model table  
         
-        Args:
-            venmods (obj): request object from _get_ds_types
+        Args:  
+            venmods (obj): request object from _get_ds_types  
         
         Returns:
             list. of tuples 
@@ -1788,7 +1442,6 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.device.Device" href="#msiempy.device.Device">Device</a></li>
 <li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
@@ -1798,21 +1451,15 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
 <span>def <span class="ident">time</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<p>str. ESM time (GMT).</p>
-<h2 id="example">Example</h2>
-<p>'2017-07-06T12:21:59.0+0000'</p></section>
+<section class="desc"><p>Returns: string of ESM time (GMT)<br>
+Example: <code>2017-07-06T12:21:59.0+0000</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def time(self):
-    &#34;&#34;&#34;
-    Returns:
-        str. ESM time (GMT).
-
-    Example:
-        &#39;2017-07-06T12:21:59.0+0000&#39;
+    &#34;&#34;&#34;Returns: string of ESM time (GMT)  
+    Example: `2017-07-06T12:21:59.0+0000`
     &#34;&#34;&#34;
     return self.nitro.request(&#34;get_esm_time&#34;)[&#39;value&#39;]</code></pre>
 </details>
@@ -1821,12 +1468,16 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
 <span>def <span class="ident">buildstamp</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns: buildstamp string<br>
+Example: <code>10.0.2 20170516001031</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def buildstamp(self):
+    &#34;&#34;&#34;Returns: buildstamp string  
+    Example: `10.0.2 20170516001031`
+    &#34;&#34;&#34;
     return self.nitro.buildstamp()</code></pre>
 </details>
 </dd>
@@ -1834,12 +1485,17 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
 <span>def <span class="ident">version</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns: simple version string<br>
+Example: <code>10.1.0</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def version(self):
+    &#34;&#34;&#34;
+    Returns: simple version string  
+    Example: `10.1.0`
+    &#34;&#34;&#34;
     return self.nitro.version</code></pre>
 </details>
 </dd>
@@ -1847,98 +1503,62 @@ venmod_to_type_id(vendor, model)    Returns string of matching type_id
 <span>def <span class="ident">status</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<dl>
-<dt>dict. ESM stats.</dt>
-<dt><code>including</code>:</dt>
-<dd>
-<ul>
-<li>processor status</li>
-<li>hdd status</li>
-<li>ram status</li>
-<li>rule update status</li>
-<li>backup status</li>
-<li>list of top level devices</li>
-</ul>
-</dd>
-</dl>
-<p>Other functions exist to return subsets of this data also.</p></section>
+<section class="desc"><p>Returns: <code>dict</code><br>
+ESM statuses including :<br>
+- <code>cpu</code>, example: <code>Avail: 7977MB, Used: 7857MB, Free: 119MB</code><br>
+- <code>hdd</code>, example: <code>sda3
+Size:
+491GB, Used:
+55GB(12%), Available:
+413GB, Mount: /</code><br>
+- <code>ram</code><br>
+- <code>callHomeIp</code><br>
+- <code>autoBackupEnabled</code><br>
+- <code>autoBackupHour</code><br>
+- <code>autoBackupDay</code><br>
+- <code>backupNextTime</code><br>
+- <code>backupLastTime</code><br>
+- <code>rulesAndSoftwareCheckEnabled</code><br>
+- <code>rulesAndSoftNextCheck</code><br>
+- <code>rulesAndSoftLastCheck</code><br>
+Other functions exist to return subsets of this data also.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def status(self):
     &#34;&#34;&#34;
-    Returns:
-        dict. ESM stats.
-        including:
-            - processor status
-            - hdd status
-            - ram status
-            - rule update status
-            - backup status
-            - list of top level devices
+    Returns: `dict`  
+    ESM statuses including :  
+    - `cpu`, example: `Avail: 7977MB, Used: 7857MB, Free: 119MB`  
+    - `hdd`, example: `sda3     Size:  491GB, Used:   55GB(12%), Available:  413GB, Mount: /`  
+    - `ram`  
+    - `callHomeIp`  
+    - `autoBackupEnabled`  
+    - `autoBackupHour`  
+    - `autoBackupDay`  
+    - `backupNextTime`  
+    - `backupLastTime`  
+    - `rulesAndSoftwareCheckEnabled`  
+    - `rulesAndSoftNextCheck`  
+    - `rulesAndSoftLastCheck`  
     Other functions exist to return subsets of this data also.
     &#34;&#34;&#34;
     status = self.nitro.request(&#34;get_sys_info&#34;)
-    return self.map_status_int_fields(status)</code></pre>
-</details>
-</dd>
-<dt id="msiempy.device.ESM.map_status_int_fields"><code class="name flex">
-<span>def <span class="ident">map_status_int_fields</span></span>(<span>self, status)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def map_status_int_fields(self, status):
-    new_status = {}
-    new_status[&#39;cpu&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[0][6:]
-    new_status[&#39;hdd&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[1][6:]
-    new_status[&#39;ram&#39;] = status[&#39;HDW&#39;].split(&#39;\n&#39;)[2][6:]
-    new_status[&#39;autoBackupEnabled&#39;] = status[&#39;ABENABLED&#39;]
-    new_status[&#39;autoBackupHour&#39;] = status[&#39;ABHOUR&#39;]
-    new_status[&#39;autoBackupDay&#39;] = status[&#39;ABDAY&#39;]
-    new_status[&#39;backupNextTime&#39;] = status[&#39;BUNEXT&#39;]
-    new_status[&#39;backupLastTime&#39;] = status[&#39;BULAST&#39;]
-    new_status[&#39;rulesAndSoftwareCheckEnabled&#39;] = status[&#39;RSCENABLED&#39;]
-    new_status[&#39;rulesAndSoftNextCheck&#39;] = status[&#39;RSNEXT&#39;]
-    if status[&#39;RSLAST&#39;] == &#39;RSLAST&#39;:
-        new_status[&#39;rulesAndSoftLastCheck&#39;] = None
-    else:
-        new_status[&#39;rulesAndSoftLastCheck&#39;] = status[&#39;RSLAST&#39;]
-    if status[&#39;CHIP&#39;] == &#39;CHIP&#39;:
-        new_status[&#39;callHomeIp&#39;] = None
-    else:
-        new_status[&#39;callHomeIp&#39;] = status[&#39;CHIP&#39;]
-    return new_status</code></pre>
+    return self._map_status_int_fields(status)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.ESM.disks"><code class="name flex">
 <span>def <span class="ident">disks</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<p>str. ESM disks and utilization.</p>
-<h2 id="example">Example</h2>
-<p>'sda3
-Size:
-491GB, Used:
-55GB(12%), Available:
-413GB, Mount: /'</p></section>
+<section class="desc"><p>Returns: <code>self.status()['hdd']</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def disks(self):
-    &#34;&#34;&#34;
-    Returns:
-        str. ESM disks and utilization.
-
-    Example:
-        &#39;sda3     Size:  491GB, Used:   55GB(12%), Available:  413GB, Mount: /&#39;
+    &#34;&#34;&#34;Returns: `self.status()[&#39;hdd&#39;]`
     &#34;&#34;&#34;
     return self.status()[&#39;hdd&#39;]</code></pre>
 </details>
@@ -1947,22 +1567,13 @@ Size:
 <span>def <span class="ident">ram</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<p>str. ESM ram and utilization.</p>
-<h2 id="example">Example</h2>
-<p>'Avail: 7977MB, Used: 7857MB, Free: 119MB'</p></section>
+<section class="desc"><p>Returns: <code>self.status()['ram']</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def ram(self):
-    &#34;&#34;&#34;
-    Returns:
-        str. ESM ram and utilization.
-
-    Example:
-        &#39;Avail: 7977MB, Used: 7857MB, Free: 119MB&#39;
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Returns: `self.status()[&#39;ram&#39;]`&#34;&#34;&#34;
     return self.status()[&#39;ram&#39;]</code></pre>
 </details>
 </dd>
@@ -1970,12 +1581,12 @@ Size:
 <span>def <span class="ident">backup_status</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<p>dict. Backup status and timestamps.</p>
-<p>{'autoBackupEnabled': True,
-'autoBackupDay': 7,
-'autoBackupHour': 0,
-'backupLastTime': '07/03/2017 08:59:36',
+<section class="desc"><p>Returns: Backup status and timestamps.<br>
+Example :<br>
+{'autoBackupEnabled': True,<br>
+'autoBackupDay': 7,<br>
+'autoBackupHour': 0,<br>
+'backupLastTime': '07/03/2017 08:59:36',<br>
 'backupNextTime': '07/10/2017 08:59'}</p></section>
 <details class="source">
 <summary>
@@ -1983,14 +1594,13 @@ Size:
 </summary>
 <pre><code class="python">def backup_status(self):
     &#34;&#34;&#34;
-    Returns:
-        dict. Backup status and timestamps.
-
-        {&#39;autoBackupEnabled&#39;: True,
-            &#39;autoBackupDay&#39;: 7,
-            &#39;autoBackupHour&#39;: 0,
-            &#39;backupLastTime&#39;: &#39;07/03/2017 08:59:36&#39;,
-            &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}
+    Returns: Backup status and timestamps.  
+    Example :  
+        {&#39;autoBackupEnabled&#39;: True,  
+        &#39;autoBackupDay&#39;: 7,  
+        &#39;autoBackupHour&#39;: 0,  
+        &#39;backupLastTime&#39;: &#39;07/03/2017 08:59:36&#39;,  
+        &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}  
     &#34;&#34;&#34;
     fields = [&#39;autoBackupEnabled&#39;,
                &#39;autoBackupDay&#39;,
@@ -2006,19 +1616,14 @@ Size:
 <span>def <span class="ident">callhome</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<dl>
-<dt><code>bool.</code> <code>True</code>/<code>False</code> <code>if</code> <code>there</code> <code>is</code> <code>currently</code> <code>a</code> <code>callhome</code> <code>connection</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<section class="desc"><p>Returns: <code>True/False</code> if there is currently a callhome connection</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def callhome(self):
     &#34;&#34;&#34;
-    Returns:
-        bool. True/False if there is currently a callhome connection
+    Returns: `True/False` if there is currently a callhome connection  
     &#34;&#34;&#34;
     if self.status()[&#39;callHomeIp&#39;]:
         return True</code></pre>
@@ -2028,13 +1633,9 @@ Size:
 <span>def <span class="ident">rules_status</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<dl>
-<dt>dict. Rules autocheck status and timestamps.</dt>
-<dt><code>Example</code>:</dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>{ 'rulesAndSoftwareCheckEnabled': True
+<section class="desc"><p>Returns: Rules autocheck status and timestamps.<br>
+Example:<br>
+{ 'rulesAndSoftwareCheckEnabled': True
 'rulesAndSoftLastCheck': '07/06/2017 10:28:43',
 'rulesAndSoftNextCheck': '07/06/2017 22:28:43',}</p></section>
 <details class="source">
@@ -2043,13 +1644,11 @@ Size:
 </summary>
 <pre><code class="python">def rules_status(self):
     &#34;&#34;&#34;
-    Returns:
-        dict. Rules autocheck status and timestamps.
-
-    Example:
-    { &#39;rulesAndSoftwareCheckEnabled&#39;: True
-      &#39;rulesAndSoftLastCheck&#39;: &#39;07/06/2017 10:28:43&#39;,
-      &#39;rulesAndSoftNextCheck&#39;: &#39;07/06/2017 22:28:43&#39;,}
+    Returns: Rules autocheck status and timestamps.  
+    Example:  
+        { &#39;rulesAndSoftwareCheckEnabled&#39;: True
+        &#39;rulesAndSoftLastCheck&#39;: &#39;07/06/2017 10:28:43&#39;,
+        &#39;rulesAndSoftNextCheck&#39;: &#39;07/06/2017 22:28:43&#39;,}
 
     &#34;&#34;&#34;
     self._fields = [&#39;rulesAndSoftwareCheckEnabled&#39;,
@@ -2063,32 +1662,25 @@ Size:
 <span>def <span class="ident">get_alerts</span></span>(<span>self, ds_id, flows=False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Tells the ESM to retrieve alerts from the provided device ID.</p>
-<h2 id="arguments">Arguments</h2>
-<dl>
-<dt><strong><code>ds_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>IPSID for the device, e.g. 144116287587483648</dd>
-<dt><strong><code>flows</code></strong> :&ensp;<code>bool</code></dt>
-<dd>Also get flows from the device (default: False)</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>None</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<section class="desc"><p>Tells the ESM to retrieve alerts from the provided device ID.
+</p>
+<p>Arguments:<br>
+- <code>ds_id</code>: (<code>str</code>) <code>IPSID</code> for the device, e.g. <code>144116287587483648</code><br>
+- <code>flows</code>: (<code>bool</code>) Also get flows from the device (default: False)
+</p>
+<p>Returns: <code>None</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_alerts(self, ds_id, flows=False):
-    &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.
+    &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.  
     
-    Arguments:
-        ds_id (str): IPSID for the device, e.g. 144116287587483648
-        flows (bool): Also get flows from the device (default: False)
+    Arguments:  
+    - `ds_id`: (`str`) `IPSID` for the device, e.g. `144116287587483648`  
+    - `flows`: (`bool`) Also get flows from the device (default: False)  
     
-    Returns:
-        None
+    Returns: `None`
     &#34;&#34;&#34;
     self.nitro.request(&#39;get_alerts_now&#39;, ds_id=ds_id)
     if flows:
@@ -2099,7 +1691,7 @@ Size:
 <span>def <span class="ident">recs</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Returns:</p></section>
+<section class="desc"><p>Returns: <code>list(tuple())</code>, List of receivers name and id</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2107,8 +1699,7 @@ Size:
 <pre><code class="python">@lru_cache(maxsize=None)    
 def recs(self):
     &#34;&#34;&#34;
-    Returns: 
-        
+    Returns: `list(tuple())`, List of receivers name and id 
     &#34;&#34;&#34;
     rec_list = self.nitro.request(&#39;get_recs&#39;)
     return [(rec[&#39;name&#39;], rec[&#39;id&#39;][&#39;id&#39;])for rec in rec_list]</code></pre>
@@ -2118,14 +1709,12 @@ def recs(self):
 <span>def <span class="ident">tz_offsets</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Builds table of ESM timezones including offsets.</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>list.</code> <code>List</code> of <code>timezone</code> <code>tuples</code> (<code>name</code>, <code>id</code>, <code>offset</code>)</dt>
-<dd>&nbsp;</dd>
-</dl>
-<h2 id="example">Example</h2>
-<p>[(1, 'Midway Island, Samoa', '-11:00'),
+<section class="desc"><p>Builds table of ESM timezones including offsets.
+</p>
+<p>Returns: <code>list(tuple())</code>, List of timezone <code>tuples(name, id, offset)</code>
+</p>
+<p>Example:<br>
+[(1, 'Midway Island, Samoa', '-11:00'),
 (2, 'Hawaii', '-10:00'),
 &hellip;
 ]</p></section>
@@ -2135,12 +1724,11 @@ def recs(self):
 </summary>
 <pre><code class="python">def tz_offsets(self):
     &#34;&#34;&#34;
-    Builds table of ESM timezones including offsets.
+    Builds table of ESM timezones including offsets.  
     
-    Returns:
-        list. List of timezone tuples (name, id, offset)
+    Returns: `list(tuple())`, List of timezone `tuples(name, id, offset)`  
         
-    Example:
+    Example:  
         [(1, &#39;Midway Island, Samoa&#39;, &#39;-11:00&#39;),
          (2, &#39;Hawaii&#39;, &#39;-10:00&#39;),
          ...
@@ -2154,22 +1742,18 @@ def recs(self):
 <span>def <span class="ident">timezones</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Builds table of ESM timezones and names only. No offsets.</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>dict.</code> {<code>timezone_id</code>, <code>timezone_name</code>}</dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<section class="desc"><p>Builds table of ESM timezones and names only. No offsets.
+</p>
+<p>Returns: <code>dict</code>: <code>{timezone_id:timezone_name, ...}</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def timezones(self):
     &#34;&#34;&#34;
-    Builds table of ESM timezones and names only. No offsets.
+    Builds table of ESM timezones and names only. No offsets.  
     
-    Returns:
-        dict. {timezone_id, timezone_name}
+    Returns: `dict`: `{timezone_id:timezone_name, ...}`  
     &#34;&#34;&#34;
     return {str(tz[&#39;id&#39;][&#39;value&#39;]): tz[&#39;name&#39;]
                         for tz in self._get_timezones()}</code></pre>
@@ -2179,27 +1763,20 @@ def recs(self):
 <span>def <span class="ident">tz_name_to_id</span></span>(<span>self, tz_name)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>tz_name</code></strong> :&ensp;<code>str</code></dt>
-<dd>Case sensitive, exact match timezone name</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>str.</code> <code>Timezone</code> <code>id</code> or <code>None</code> <code>if</code> <code>there</code> <code>is</code> <code>no</code> <code>match</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<section class="desc"><p>Arguments:<br>
+- <code>tz_name</code>: (<code>str</code>) Case sensitive, exact match timezone name
+</p>
+<p>Returns: <code>str</code>, Timezone id or <code>None</code> if there is no match</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def tz_name_to_id(self, tz_name):
     &#34;&#34;&#34;
-    Args:
-        tz_name (str): Case sensitive, exact match timezone name
-        
-    Returns:
-        str. Timezone id or None if there is no match
+    Arguments:  
+    - `tz_name`: (`str`) Case sensitive, exact match timezone name  
+    
+    Returns: `str`, Timezone id or `None` if there is no match
     &#34;&#34;&#34;
     tz_reverse = {tz_name.lower(): tz_id 
                     for tz_id, tz_name in self.timezones().items()}
@@ -2213,27 +1790,20 @@ def recs(self):
 <span>def <span class="ident">tz_id_to_name</span></span>(<span>self, tz_id)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>td_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>Numerical string (Currently 1-74)</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>str.</code> <code>Timezone</code> <code>name</code> or <code>None</code> <code>if</code> <code>there</code> <code>is</code> <code>no</code> <code>match</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<section class="desc"><p>Arguments:<br>
+- <code>td_id</code>: (<code>str</code>) Numerical string (Currently <code>1</code> to <code>74</code>)
+</p>
+<p>Returns: <code>str</code> Timezone name or <code>None</code> if there is no match</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def tz_id_to_name(self, tz_id):
     &#34;&#34;&#34;
-    Args:
-        td_id (str): Numerical string (Currently 1-74)
+    Arguments:  
+    - `td_id`: (`str`) Numerical string (Currently `1` to `74`)  
     
-    Returns:
-        str. Timezone name or None if there is no match
+    Returns: `str` Timezone name or `None` if there is no match
     &#34;&#34;&#34;
     try:
         return self.timezones()[tz_id]
@@ -2245,27 +1815,20 @@ def recs(self):
 <span>def <span class="ident">type_id_to_venmod</span></span>(<span>self, type_id)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>type_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>Numerical string </dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>tuple.</code> (<code>vendor</code>, <code>model</code>) or <code>None</code> <code>if</code> <code>there</code> <code>is</code> <code>no</code> <code>match</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<section class="desc"><p>Arguments:<br>
+- <code>type_id</code>: (<code>str</code>) Numerical string
+</p>
+<p>Returns: <code>tuple(vendor, model)</code> or <code>None</code> if there is no match</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def type_id_to_venmod(self, type_id):
     &#34;&#34;&#34;
-    Args:
-        type_id (str): Numerical string 
+    Arguments:  
+    - `type_id`: (`str`) Numerical string   
     
-    Returns:
-        tuple. (vendor, model) or None if there is no match
+    Returns: `tuple(vendor, model)` or `None` if there is no match
     &#34;&#34;&#34;
     ds_types = self._get_ds_types()
     for venmod in ds_types:
@@ -2278,30 +1841,22 @@ def recs(self):
 <span>def <span class="ident">venmod_to_type_id</span></span>(<span>self, vendor, model)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>vendor</code></strong> :&ensp;<code>str</code></dt>
-<dd>Exact vendor string including puncuation</dd>
-<dt><strong><code>model</code></strong> :&ensp;<code>str</code></dt>
-<dd>Exact vendor string including puncuation</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>str.</code> <code>Matching</code> <code>type_id</code> or <code>None</code> <code>if</code> <code>there</code> <code>is</code> <code>no</code> <code>match</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<section class="desc"><p>Arguments:<br>
+- <code>vendor</code>: (<code>str</code>) Exact vendor string including puncuation<br>
+- <code>model</code>: (<code>str</code>) Exact model string including puncuation
+</p>
+<p>Returns: <code>str</code> Matching type_id or None if there is no match</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def venmod_to_type_id(self, vendor, model):
     &#34;&#34;&#34;
-    Args:
-        vendor (str): Exact vendor string including puncuation
-        model (str): Exact vendor string including puncuation
+    Arguments:  
+    - `vendor`: (`str`) Exact vendor string including puncuation  
+    - `model`: (`str`) Exact model string including puncuation  
     
-    Returns:
-        str. Matching type_id or None if there is no match
+    Returns: `str` Matching type_id or None if there is no match
     &#34;&#34;&#34;
     for venmod in self._get_ds_types():
         if vendor == venmod[1]:
@@ -2313,16 +1868,14 @@ def recs(self):
 <span>def <span class="ident">rules_history</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Returns:
-Policy Editor rule history.</p></section>
+<section class="desc"><p>Returns: Policy Editor rule history.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def rules_history(self):
     &#34;&#34;&#34;
-    Returns: 
-        Policy Editor rule history.
+    Returns: Policy Editor rule history.
     &#34;&#34;&#34;
     file = self.nitro.request(&#39;get_rule_history&#39;)[&#39;TK&#39;]
     return self.nitro.get_internal_file(file)</code></pre>
@@ -2331,12 +1884,12 @@ Policy Editor rule history.</p></section>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.device.Device" href="#msiempy.device.Device">Device</a></b></code>:
+<li><code><b><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.device.Device.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.device.Device.json" href="index.html#msiempy.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.device.Device.refresh" href="index.html#msiempy.NitroObject.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.device.Device.text" href="index.html#msiempy.NitroObject.text">text</a></code></li>
+<li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.NitroObject.json" href="index.html#msiempy.NitroObject.json">json</a></code></li>
+<li><code><a title="msiempy.NitroObject.refresh" href="index.html#msiempy.NitroObject.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroObject.text" href="index.html#msiempy.NitroObject.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2346,88 +1899,14 @@ Policy Editor rule history.</p></section>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Interface to the ESM device tree.</p>
-<p>Public Methods:</p>
-<pre><code>search('term')      Returns a DataSource object matching the name,
-                IPv4/IPv6 address, hostname or device ID.
-
-search_group(field='term')    Returns a list of DataSource objects that match 
-                          the given term for the given field. 
-                          Valid field options include:
-                            - parent_id = '144119615532826624'
-                            - type_id = '65'
-                            - vendor = 'Intersect Alliance'
-                            - model = 'Snare for Windows'
-                            - require_tls = 'T'
-                            - port = '514'
-                            - tz_id = '51'
-                            - tz_name = 'Darwin'
-                            - zone_id = '7'
-
-last_times(days=,       Returns a list of DataSource objects that 
-           hours=,      the ESM has NOT heard from since the
-           minutes=)    provided timeframe.
-                          args are cummulative, 
-                       e.g. (days=30, hours=5) will added together
-
-
-refresh()   Rebuilds the tree
-
-__len__     Returns the total number of devices in the tree
-
-__iter__    Interates through each DataSource object in the tree.
-
-__contains__    Returns bool as to whether a datasource name, IP,
-                hostname or ds_id exist in the device tree.
-</code></pre>
-<p>Initalize the DevTree object</p></section>
+<section class="desc"><p>ESM device tree interface</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DevTree(NitroList):
-    &#34;&#34;&#34;
-    Interface to the ESM device tree.
-    
-    Public Methods:
-    
-        search(&#39;term&#39;)      Returns a DataSource object matching the name,
-                        IPv4/IPv6 address, hostname or device ID.
-
-        search_group(field=&#39;term&#39;)    Returns a list of DataSource objects that match 
-                                  the given term for the given field. 
-                                  Valid field options include:
-                                    - parent_id = &#39;144119615532826624&#39;
-                                    - type_id = &#39;65&#39;
-                                    - vendor = &#39;Intersect Alliance&#39;
-                                    - model = &#39;Snare for Windows&#39;
-                                    - require_tls = &#39;T&#39;
-                                    - port = &#39;514&#39;
-                                    - tz_id = &#39;51&#39;
-                                    - tz_name = &#39;Darwin&#39;
-                                    - zone_id = &#39;7&#39;
-                                                            
-        last_times(days=,       Returns a list of DataSource objects that 
-                   hours=,      the ESM has NOT heard from since the
-                   minutes=)    provided timeframe.
-                                  args are cummulative, 
-                               e.g. (days=30, hours=5) will added together
-
-
-        refresh()   Rebuilds the tree
-                            
-        __len__     Returns the total number of devices in the tree
-        
-        __iter__    Interates through each DataSource object in the tree. 
-        
-        __contains__    Returns bool as to whether a datasource name, IP,
-                        hostname or ds_id exist in the device tree.
-                        
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;ESM device tree interface&#34;&#34;&#34;
     def __init__(self, *args, **kwargs):
-        &#34;&#34;&#34;
-        Initalize the DevTree object
-        &#34;&#34;&#34;
         super().__init__(*args, **kwargs)
         self.data = self.build_devtree()
         self._cast_datasources()
@@ -2455,8 +1934,7 @@ __contains__    Returns bool as to whether a datasource name, IP,
 
     def __contains__(self, term):
         &#34;&#34;&#34;
-        Returns:
-            bool: True/False the name or IP matches the provided search term.
+        Returns: (`bool`) `True/False` the name or IP matches the provided search term.
         &#34;&#34;&#34;
         if self.search(term):
             return True
@@ -2466,14 +1944,11 @@ __contains__    Returns bool as to whether a datasource name, IP,
    
     def search(self, term, zone_id=&#39;0&#39;):
         &#34;&#34;&#34;
-        Args:
-            term (str): Datasource name, IP, hostname or ds_id
-            
-            zone_id (int): Provide zone_id to limit search to a specific zone
+        Arguments:
+        - `term` (`str`): Datasource name, IP, hostname or ds_id. Matching the `name`, `IPv4/IPv6 address`, `hostname` or `device ID`.  
+        - `zone_id` (`int`): Provide zone_id to limit search to a specific zone  
 
-        Returns:
-            Datasource object that matches the provided search term or None
-
+        Returns: `Datasource` object that matches the provided search term or None.
         &#34;&#34;&#34;
         search_fields = [&#39;ds_ip&#39;, &#39;name&#39;, &#39;hostname&#39;, &#39;ds_id&#39;]
 
@@ -2487,24 +1962,31 @@ __contains__    Returns bool as to whether a datasource name, IP,
 
     def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
         &#34;&#34;&#34;
-        Args:
-            field (str): Valid DS config field to search
-            term (str): Data to search for in specified field
+        Arguments:
+        - `field` (`str`): Valid DS config field to search  
+        - `term` (`str`): Data to search for in specified field  
+
+        Valid field options include:    
+        - `parent_id` = &#39;144119615532826624&#39;  
+        - `type_id` = &#39;65&#39;  
+        - `vendor` = &#39;Intersect Alliance&#39;  
+        - `model` = &#39;Snare for Windows&#39;  
+        - `require_tls` = &#39;T&#39;  
+        - `port` = &#39;514&#39;  
+        - `tz_id` = &#39;51&#39;  
+        - `tz_name` = &#39;Darwin&#39;  
+        - `zone_id` = &#39;7&#39;  
+
+        Returns: `Generator` containing any matching DataSource objects or `None`  
+        Result must be iterated through.
             
-        Returns:
-            Generator containing any matching DataSource objects or None
-            Result must be iterated through.
-            
-        Raises:
-            ValueError: if field or term are None
+        Raises: `ValueError`: if field or term are None
         &#34;&#34;&#34;
         return (DataSource(adict=ds) for ds in self.data
                         if ds.get(field) == term)
                        
     def refresh(self):
-        &#34;&#34;&#34;
-        Rebuilds the devtree
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Rebuilds the devtree&#34;&#34;&#34;
         self.data = self.build_devtree()
         self._cast_datasources()
 
@@ -2518,16 +2000,13 @@ __contains__    Returns bool as to whether a datasource name, IP,
         
     def recs(self):
         &#34;&#34;&#34;
-        Returns:
-            list of Receiver dicts (str:str)
+        Returns: `list` of Receiver `dict`
         &#34;&#34;&#34;
         return [self._rec for self._rec in self.data
                     if self._rec[&#39;desc_id&#39;] == &#39;2&#39;]
     
     def build_devtree(self):
-        &#34;&#34;&#34;
-        Coordinates assembly of the devtree object
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Coordinates assembly of the devtree object&#34;&#34;&#34;
         devtree = self._get_devtree()
         if devtree == &#39;ITEMS&#39;:
             print(&#39;Device tree is empty. Must add at least one datasource for this to work.&#39;)
@@ -2550,19 +2029,16 @@ __contains__    Returns bool as to whether a datasource name, IP,
 
     def _get_devtree(self):
         &#34;&#34;&#34;
-        Returns:
-            ESM device tree; raw, but ordered, string.
-            Does not include client datasources.
+        Returns:  ESM device tree; raw, but ordered, string.  
+        Does not include client datasources.
         &#34;&#34;&#34;
         resp = self.nitro.request(&#39;get_devtree&#39;)
         return dehexify(resp[&#39;ITEMS&#39;])
 
     def _format_devtree(self, devtree):
         &#34;&#34;&#34;
-        Parse key fields from raw device strings into datasource dicts
-
-        Returns:
-            List of datasource dicts
+        Parse key fields from raw device strings into datasource dicts.  
+        Returns: List of datasource dicts
         &#34;&#34;&#34;
         devtree = StringIO(devtree)
         devtree = csv.reader(devtree, delimiter=&#39;,&#39;)
@@ -2624,10 +2100,9 @@ __contains__    Returns bool as to whether a datasource name, IP,
         &#34;&#34;&#34;
         Adds parent_ids to datasources in the tree based upon the
         ordered list provided by the ESM. All the datasources below
-        a Receiver row have it&#39;s id set as their parent ID.
+        a Receiver row have it&#39;s id set as their parent ID.  
 
-        Returns:
-            List of datasource dicts
+        Returns: List of datasource dicts
         &#34;&#34;&#34;
         _pid = &#39;0&#39;
         esm_dev_id = [&#39;14&#39;]
@@ -2669,10 +2144,9 @@ __contains__    Returns bool as to whether a datasource name, IP,
 
     def _get_client_containers(self, devtree):
         &#34;&#34;&#34;
-        Filters DevTree for datasources that have client datasources.
+        Filters DevTree for datasources that have client datasources.  
         
-        Returns:
-            List of datasource dicts that have clients
+        Returns: List of datasource dicts that have clients
         &#34;&#34;&#34;
         return [ds for ds in devtree
                 if ds[&#39;desc_id&#39;] == &#34;3&#34;
@@ -2702,14 +2176,13 @@ __contains__    Returns bool as to whether a datasource name, IP,
 
     def _get_clients(self, ds_id):
         &#34;&#34;&#34;
-        Get list of raw client strings.
+        Get list of raw client strings.  
 
         Args:
-            ds_id (str): Parent ds_id(s) are collected on init
-            ftoken (str): Set and used after requesting clients for ds_id
+        - `ds_id` (str): Parent ds_id(s) are collected on init  
+        - `ftoken` (str): Set and used after requesting clients for ds_id  
 
-        Returns:
-            List of strings representing unparsed client datasources
+        Returns: List of strings representing unparsed client datasources
         &#34;&#34;&#34;
 
         file = self.nitro.request(&#39;req_client_str&#39;, ds_id=ds_id)[&#39;FTOKEN&#39;]
@@ -2717,10 +2190,8 @@ __contains__    Returns bool as to whether a datasource name, IP,
 
     def _format_clients(self, clients):
         &#34;&#34;&#34;
-        Parse key fields from _get_clients() output.
-
-        Returns:
-            list of dicts
+        Parse key fields from _get_clients() output.  
+        Returns: list of dicts
         &#34;&#34;&#34;
         clients = StringIO(clients)
         clients = csv.reader(clients, delimiter=&#39;,&#39;)
@@ -2752,10 +2223,8 @@ __contains__    Returns bool as to whether a datasource name, IP,
 
     def _get_zonetree(self):
         &#34;&#34;&#34;
-        Retrieve zone data.
-        
-        Returns:
-            str: device tree string sorted by zones
+        Retrieve zone data.  
+        Returns: `str` device tree string sorted by zones
         &#34;&#34;&#34;        
         resp = self.nitro.request(&#39;get_zones_devtree&#39;)
         return dehexify(resp[&#39;ITEMS&#39;])
@@ -2763,10 +2232,9 @@ __contains__    Returns bool as to whether a datasource name, IP,
     def _insert_zone_names(self, zonetree, devtree):
         &#34;&#34;&#34;
         Args:
-            zonetree (str): Built by self._get_zonetree
+        - `zonetree` (str): Built by self._get_zonetree  
         
-        Returns:
-            List of dicts (str: str) devices by zone
+        Returns: List of dicts (str: str) devices by zone
         &#34;&#34;&#34;
         zone_name = None
         zonetree = StringIO(zonetree)
@@ -2785,10 +2253,8 @@ __contains__    Returns bool as to whether a datasource name, IP,
 
     def _get_zone_map(self):
         &#34;&#34;&#34;
-        Builds a table of zone names to zone ids.
-        
-        Returns:
-            dict (str: str) zone name : zone ids
+        Builds a table of zone names to zone ids.  
+        Returns: dict (str: str) zone name : zone ids
         &#34;&#34;&#34;
         zone_map = {}
         resp = self.nitro.request(&#39;zonetree&#39;)
@@ -2802,8 +2268,6 @@ __contains__    Returns bool as to whether a datasource name, IP,
         return zone_map
         
     def _insert_zone_ids(self, zone_map, devtree):
-        &#34;&#34;&#34;
-        &#34;&#34;&#34;
         for device in devtree:
             if device[&#39;zone_name&#39;] in zone_map.keys():
                 device[&#39;zone_id&#39;] = zone_map.get(device[&#39;zone_name&#39;])
@@ -2861,21 +2325,19 @@ __contains__    Returns bool as to whether a datasource name, IP,
                         
     def _get_last_times(self):
         &#34;&#34;&#34;
-        Returns:
-            string with datasource names and last event times.
+        Returns: string with datasource names and last event times.
         &#34;&#34;&#34;
         resp = self.nitro.request(&#39;ds_last_times&#39;)
         return dehexify(resp[&#39;ITEMS&#39;])
 
     def _format_times(self, last_times):
-        &#34;&#34;&#34;
-        Formats the output of _get_last_times
+        &#34;&#34;&#34; 
+        Formats the output of _get_last_times  
 
         Args:
-            last_times (str): string output from _get_last_times()
+        - `last_times` (str): string output from _get_last_times()  
 
-        Returns:
-            list of dicts - [{&#39;name&#39;, &#39;model&#39;, &#39;last_time&#39;}]
+        Returns: list of dicts - [{&#39;name&#39;, &#39;model&#39;, &#39;last_time&#39;}]
         &#34;&#34;&#34;
             
         last_times = StringIO(last_times)
@@ -2895,10 +2357,9 @@ __contains__    Returns bool as to whether a datasource name, IP,
 
     def _insert_ds_last_times(self, last_times, devtree):
         &#34;&#34;&#34;
-        Parse event times str and insert it into the _devtree
+        Parse event times str and insert it into the _devtree  
 
-        Returns:
-            List of datasource dicts - the devtree
+        Returns: List of datasource dicts - the devtree
         &#34;&#34;&#34;
         for device in devtree:
             for d_time in last_times:
@@ -2911,7 +2372,7 @@ __contains__    Returns bool as to whether a datasource name, IP,
         &#34;&#34;&#34;Filters objects that inaccurately show up as datasources sometimes.
         
         Arguments:
-            devtree (list) -- the devtree
+        - `devtree` (list): the devtree
         &#34;&#34;&#34;
         type_filter = [&#39;1&#39;, &#39;16&#39;, &#39;254&#39;]
         return [ds for ds in devtree if ds[&#39;desc_id&#39;] not in type_filter]
@@ -2921,110 +2382,111 @@ __contains__    Returns bool as to whether a datasource name, IP,
             if dev[&#39;desc_id&#39;] in [&#39;3&#39;,&#39;256&#39;]:
                 self.data[int(dev[&#39;idx&#39;])] = DataSource(dev)
                 
-    def duplicate_datasource(self, p):
+    def duplicate_datasource(self, ds_params):
         &#34;&#34;&#34;Check for duplicate dataname name or IP address.
         
-        Arguments:
-            p (dict) -- datasource params 
-
-        Parameters:
-            name (str): datasource name
-            ds_ip (str): datasource IP
-            zone_id (str): optional zone_id
+        Arguments:  
+        - `ds_params` (dict) : datasource params  
+        
+        `ds_params` should contain :  
+        - `name` (str): datasource name  
+        - `ds_ip` (str): datasource IP  
+        - `zone_id` (str): optional zone_id  
         &#34;&#34;&#34;
         
-        if p.get(&#39;zone_id&#39;):
-            result = self.search(p[&#39;name&#39;], zone_id=[&#39;zone_id&#39;])
+        if ds_params.get(&#39;zone_id&#39;):
+            result = self.search(ds_params[&#39;name&#39;], zone_id=[&#39;zone_id&#39;])
             if not result:
-                result = self.search(p[&#39;ds_ip&#39;], zone_id=[&#39;zone_id&#39;])
+                result = self.search(ds_params[&#39;ds_ip&#39;], zone_id=[&#39;zone_id&#39;])
         else:
-            result = self.search(p[&#39;name&#39;])
+            result = self.search(ds_params[&#39;name&#39;])
             if not result:
-                result = self.search(p[&#39;ds_ip&#39;])
+                result = self.search(ds_params[&#39;ds_ip&#39;])
         return result
 
-    def add(self, kwargs):
-            &#34;&#34;&#34;
-            Adds a datasource. 
+    def add(self, attr):
+        &#34;&#34;&#34;
+        Adds a datasource. 
 
-            Args:
-                **kwargs: datasource attributes
-            
-            Attributes:
-                client (bool): designate a client datasource (not child)
-                name (str): name of datasource (req)
-                parent_id (str): id of parent device (req)
-                ds_ip (str): ip of datasource (ip or hostname required)
-                hostname (str): hostname of datasource 
-                type_id (str): type of datasource (req)
-                enabled (bool): enabled or not (default: True)
-                tz_id (str): timezone of datasource (default UTC: 8)
-                zone_id (str): numberic ESM id for zone (default: 0)
-                    Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 
-                require_tls (bool): datasource uses syslog tls
-            
-            Returns:
-                result id (str): id of the result. Not the ds_id as of 11.2.1
-                    or None on Error            
-            &#34;&#34;&#34;
-            p = self._validate_ds_params(kwargs)
-            dd = self.duplicate_datasource(p)
-            if dd:
-                print(&#39;Error: Cannot add Datasource. Duplicate name: {} or IP Address: {}&#39;
-                    .format(dd[&#39;name&#39;], dd[&#39;ds_ip&#39;]))
-                return
+        Argumentss:
+        - `attr` (`dict`): datasource attributes
+        
+        Attributes keys:  
+        - `client` (`bool`): designate a client datasource (not child)  
+        - `name` (`str`): name of datasource (req)  
+        - `parent_id` (`str`): id of parent device (req)  
+        - `ds_ip` (`str`): ip of datasource (ip or hostname required)  
+        - `hostname` (`str`): hostname of datasource   
+        - `type_id` (`str`): type of datasource (req)  
+        - `enabled` (`bool`): enabled or not (default: True)  
+        - `tz_id` (`str`): timezone of datasource (default UTC: 8)  
+        - `zone_id` (`str`): numberic ESM id for zone (default: 0)  
+        Examples (`tz_id` only): PST: 27, MST: 12, CST: 11, EST: 32   
+        - `require_tls` (`bool`): datasource uses syslog tls  
+        
+        Returns: result id (`str`): id of the result. Not the ds_id as of 11.2.1 or `None` on Error            
+        &#34;&#34;&#34;
+        p = self._validate_ds_params(attr)
+        dd = self.duplicate_datasource(p)
+        if dd:
+            print(&#39;Error: Cannot add Datasource. Duplicate name: {} or IP Address: {}&#39;
+                .format(dd[&#39;name&#39;], dd[&#39;ds_ip&#39;]))
+            return
 
-            if p.get(&#39;client&#39;):
-                self.add_client(p)
-                return
+        if p.get(&#39;client&#39;):
+            self.add_client(p)
+            return
 
-            if self.nitro.api_v == 1:
-                result_id = self.nitro.request(&#39;add_ds_11_1_3&#39;, 
-                                                parent_id=p[&#39;parent_id&#39;],
-                                                name=p[&#39;name&#39;],
-                                                ds_ip=p[&#39;ds_ip&#39;],
-                                                type_id=p[&#39;type_id&#39;],
-                                                zone_id=p[&#39;zone_id&#39;],
-                                                enabled=p[&#39;enabled&#39;],
-                                                url=p[&#39;url&#39;],
-                                                ds_id=0,
-                                                child_enabled=&#39;false&#39;,
-                                                child_count=0,
-                                                child_type=0,
-                                                idm_id=0,
-                                                parameters=p[&#39;parameters&#39;])
-            else:
-                result_id = self.nitro.request(&#39;add_ds_11_2_1&#39;, 
-                                               parent_id=p[&#39;parent_id&#39;],
-                                                name=p[&#39;name&#39;],
-                                                ds_ip=p[&#39;ds_ip&#39;],
-                                                type_id=p[&#39;type_id&#39;],
-                                                zone_id=p[&#39;zone_id&#39;],
-                                                enabled=p[&#39;enabled&#39;],
-                                                url=p[&#39;url&#39;],
-                                                parameters=p[&#39;parameters&#39;])
-            self.data.append(p)
-            return result_id
+        if self.nitro.api_v == 1:
+            result_id = self.nitro.request(&#39;add_ds_11_1_3&#39;, 
+                                            parent_id=p[&#39;parent_id&#39;],
+                                            name=p[&#39;name&#39;],
+                                            ds_ip=p[&#39;ds_ip&#39;],
+                                            type_id=p[&#39;type_id&#39;],
+                                            zone_id=p[&#39;zone_id&#39;],
+                                            enabled=p[&#39;enabled&#39;],
+                                            url=p[&#39;url&#39;],
+                                            ds_id=0,
+                                            child_enabled=&#39;false&#39;,
+                                            child_count=0,
+                                            child_type=0,
+                                            idm_id=0,
+                                            parameters=p[&#39;parameters&#39;])
+        else:
+            result_id = self.nitro.request(&#39;add_ds_11_2_1&#39;, 
+                                            parent_id=p[&#39;parent_id&#39;],
+                                            name=p[&#39;name&#39;],
+                                            ds_ip=p[&#39;ds_ip&#39;],
+                                            type_id=p[&#39;type_id&#39;],
+                                            zone_id=p[&#39;zone_id&#39;],
+                                            enabled=p[&#39;enabled&#39;],
+                                            url=p[&#39;url&#39;],
+                                            parameters=p[&#39;parameters&#39;])
+        self.data.append(p)
+        return result_id
 
-    def add_client(self, p):
+    def add_client(self, attr):
         &#34;&#34;&#34;Add a datasource client
         
-        Arguments:
-            p (dict)) -- datasource parameters
+        Arguments:  
+        - `attr` (`dict`) : datasource attributes  
         
-        Parameters:
-            parent_id (str): datasource id of the client group datasource
-            name (str): name of the client
-            enabled (bool): enabled or not (default: True
-            ds_ip (str): IP address for client 
-            hostname (str): hostname for client
-            type_id (str): numeric ESM type-id
-            tz_id (str): numeric ESM timezone id or GMT
-            dorder (str): Date order
-            maskflag (str): 
-            port (str): IP port to use
-            require_tls (bool): use syslog-TLS (default: False)
+        Attributes keys:  
+        - `parent_id` (`str`): datasource id of the client group datasource  
+        - `name` (`str`): name of the client  
+        - `enabled` (`bool`): enabled or not (default: `True`)  
+        - `ds_ip` (`str`): IP address for client  
+        - `hostname` (`str`): hostname for client  
+        - `type_id` (`str`): numeric ESM type-id  
+        - `tz_id` (`str`): numeric ESM timezone id or GMT  
+        - `dorder` (`str`): Date order  
+        - `maskflag` (`str`):   
+        - `port` (`str`): IP port to use  
+        - `require_tls` (`bool`): use syslog-TLS (default: `False`)  
+
+        Returns: result id (`str`) or `None` on Error   
         &#34;&#34;&#34;
+        p=attr
         for ds in self.data:
             if ds[&#39;ds_id&#39;] == p[&#39;parent_id&#39;]:
                 if ds[&#39;desc_id&#39;] != &#39;3&#39;:
@@ -3045,19 +2507,16 @@ __contains__    Returns bool as to whether a datasource name, IP,
                             maskflag=p[&#39;maskflag&#39;],
                             port=p[&#39;port&#39;],
                             require_tls=[&#39;require_tls&#39;])
-        return
+        return result_id
 
 
     def _validate_ds_params(self, p):
         &#34;&#34;&#34;Validate parameters for new datasource.
         
-        Arguments:
-            p (dict) -- datasource parameters
+        Arguments:  
+        - `p` (`dict`) : datasource parameters  
         
-        Returns:
-            datasource dict with normalized values
-        
-            or False if something is invalid.
+        Returns: datasource dict with normalized values or `False` if something is invalid.
         &#34;&#34;&#34;
         # Common for all datasources
         if not p.get(&#39;name&#39;):
@@ -3138,11 +2597,10 @@ __contains__    Returns bool as to whether a datasource name, IP,
     def _validate_ds_tz_id(self, p):
         &#34;&#34;&#34;Validates datasource time zone id.
         
-        Arguments:
-            p (dict): datasource param
+        Arguments:  
+        - `p` (`dict`): datasource param
         
-        Returns:
-            dict of datasource params or None if invalid
+        Returns: `dict` of datasource params or None if invalid
         &#34;&#34;&#34;
         if p.get(&#39;tz_id&#39;):
             if p[&#39;tz_id&#39;] == &#39;GMT&#39;:
@@ -3160,10 +2618,10 @@ __contains__    Returns bool as to whether a datasource name, IP,
 
     @staticmethod
     def _normalize_bool_vals(d):
-        &#34;&#34;&#34;Recursively changes strings &#39;T&#39;, &#39;F&#39; to bool
+        &#34;&#34;&#34;Recursively changes strings &#39;T&#39;, &#39;F&#39; to `bool`  
         
-        Arguments:
-            d (dict) -- nested dicts and lists okay
+        Arguments:  
+        - `d` (`dict`) : nested dicts and lists okay  
         &#34;&#34;&#34;
         for k, v in d.items():
             if isinstance(v, dict):
@@ -3198,32 +2656,22 @@ __contains__    Returns bool as to whether a datasource name, IP,
 <span>def <span class="ident">search</span></span>(<span>self, term, zone_id='0')</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>term</code></strong> :&ensp;<code>str</code></dt>
-<dd>Datasource name, IP, hostname or ds_id</dd>
-<dt><strong><code>zone_id</code></strong> :&ensp;<code>int</code></dt>
-<dd>Provide zone_id to limit search to a specific zone</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>Datasource</code> <code>object</code> <code>that</code> <code>matches</code> <code>the</code> <code>provided</code> <code>search</code> <code>term</code> or <code>None</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<section class="desc"><p>Arguments:
+- <code>term</code> (<code>str</code>): Datasource name, IP, hostname or ds_id. Matching the <code>name</code>, <code>IPv4/IPv6 address</code>, <code>hostname</code> or <code>device ID</code>.<br>
+- <code>zone_id</code> (<code>int</code>): Provide zone_id to limit search to a specific zone
+</p>
+<p>Returns: <code>Datasource</code> object that matches the provided search term or None.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def search(self, term, zone_id=&#39;0&#39;):
     &#34;&#34;&#34;
-    Args:
-        term (str): Datasource name, IP, hostname or ds_id
-        
-        zone_id (int): Provide zone_id to limit search to a specific zone
+    Arguments:
+    - `term` (`str`): Datasource name, IP, hostname or ds_id. Matching the `name`, `IPv4/IPv6 address`, `hostname` or `device ID`.  
+    - `zone_id` (`int`): Provide zone_id to limit search to a specific zone  
 
-    Returns:
-        Datasource object that matches the provided search term or None
-
+    Returns: `Datasource` object that matches the provided search term or None.
     &#34;&#34;&#34;
     search_fields = [&#39;ds_ip&#39;, &#39;name&#39;, &#39;hostname&#39;, &#39;ds_id&#39;]
 
@@ -3240,40 +2688,50 @@ __contains__    Returns bool as to whether a datasource name, IP,
 <span>def <span class="ident">search_ds_group</span></span>(<span>self, field, term, zone_id='0')</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>field</code></strong> :&ensp;<code>str</code></dt>
-<dd>Valid DS config field to search</dd>
-<dt><strong><code>term</code></strong> :&ensp;<code>str</code></dt>
-<dd>Data to search for in specified field</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>Generator</code> <code>containing</code> <code>any</code> <code>matching</code> <a title="msiempy.device.DataSource" href="#msiempy.device.DataSource"><code>DataSource</code></a> <code>objects</code> or <code>None</code></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Result must be iterated through.</p>
-<h2 id="raises">Raises</h2>
-<dl>
-<dt><strong><code>ValueError</code></strong></dt>
-<dd>if field or term are None</dd>
-</dl></section>
+<section class="desc"><p>Arguments:
+- <code>field</code> (<code>str</code>): Valid DS config field to search<br>
+- <code>term</code> (<code>str</code>): Data to search for in specified field
+</p>
+<p>Valid field options include:
+<br>
+- <code>parent_id</code> = '144119615532826624'<br>
+- <code>type_id</code> = '65'<br>
+- <code>vendor</code> = 'Intersect Alliance'<br>
+- <code>model</code> = 'Snare for Windows'<br>
+- <code>require_tls</code> = 'T'<br>
+- <code>port</code> = '514'<br>
+- <code>tz_id</code> = '51'<br>
+- <code>tz_name</code> = 'Darwin'<br>
+- <code>zone_id</code> = '7'
+</p>
+<p>Returns: <code>Generator</code> containing any matching DataSource objects or <code>None</code><br>
+Result must be iterated through.</p>
+<p>Raises: <code>ValueError</code>: if field or term are None</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
     &#34;&#34;&#34;
-    Args:
-        field (str): Valid DS config field to search
-        term (str): Data to search for in specified field
+    Arguments:
+    - `field` (`str`): Valid DS config field to search  
+    - `term` (`str`): Data to search for in specified field  
+
+    Valid field options include:    
+    - `parent_id` = &#39;144119615532826624&#39;  
+    - `type_id` = &#39;65&#39;  
+    - `vendor` = &#39;Intersect Alliance&#39;  
+    - `model` = &#39;Snare for Windows&#39;  
+    - `require_tls` = &#39;T&#39;  
+    - `port` = &#39;514&#39;  
+    - `tz_id` = &#39;51&#39;  
+    - `tz_name` = &#39;Darwin&#39;  
+    - `zone_id` = &#39;7&#39;  
+
+    Returns: `Generator` containing any matching DataSource objects or `None`  
+    Result must be iterated through.
         
-    Returns:
-        Generator containing any matching DataSource objects or None
-        Result must be iterated through.
-        
-    Raises:
-        ValueError: if field or term are None
+    Raises: `ValueError`: if field or term are None
     &#34;&#34;&#34;
     return (DataSource(adict=ds) for ds in self.data
                     if ds.get(field) == term)</code></pre>
@@ -3289,9 +2747,7 @@ __contains__    Returns bool as to whether a datasource name, IP,
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def refresh(self):
-    &#34;&#34;&#34;
-    Rebuilds the devtree
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Rebuilds the devtree&#34;&#34;&#34;
     self.data = self.build_devtree()
     self._cast_datasources()</code></pre>
 </details>
@@ -3300,19 +2756,14 @@ __contains__    Returns bool as to whether a datasource name, IP,
 <span>def <span class="ident">recs</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><h2 id="returns">Returns</h2>
-<dl>
-<dt><code>list</code> of <code>Receiver</code> <code>dicts</code> (<code>str</code>:<code>str</code>)</dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<section class="desc"><p>Returns: <code>list</code> of Receiver <code>dict</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def recs(self):
     &#34;&#34;&#34;
-    Returns:
-        list of Receiver dicts (str:str)
+    Returns: `list` of Receiver `dict`
     &#34;&#34;&#34;
     return [self._rec for self._rec in self.data
                 if self._rec[&#39;desc_id&#39;] == &#39;2&#39;]</code></pre>
@@ -3328,9 +2779,7 @@ __contains__    Returns bool as to whether a datasource name, IP,
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def build_devtree(self):
-    &#34;&#34;&#34;
-    Coordinates assembly of the devtree object
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Coordinates assembly of the devtree object&#34;&#34;&#34;
     devtree = self._get_devtree()
     if devtree == &#39;ITEMS&#39;:
         print(&#39;Device tree is empty. Must add at least one datasource for this to work.&#39;)
@@ -3353,210 +2802,179 @@ __contains__    Returns bool as to whether a datasource name, IP,
 </details>
 </dd>
 <dt id="msiempy.device.DevTree.duplicate_datasource"><code class="name flex">
-<span>def <span class="ident">duplicate_datasource</span></span>(<span>self, p)</span>
+<span>def <span class="ident">duplicate_datasource</span></span>(<span>self, ds_params)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Check for duplicate dataname name or IP address.</p>
-<h2 id="arguments">Arguments</h2>
-<p>p (dict) &ndash; datasource params </p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
-<dd>datasource name</dd>
-<dt><strong><code>ds_ip</code></strong> :&ensp;<code>str</code></dt>
-<dd>datasource IP</dd>
-<dt><strong><code>zone_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>optional zone_id</dd>
-</dl></section>
+<p>Arguments:<br>
+- <code>ds_params</code> (dict) : datasource params
+</p>
+<p><code>ds_params</code> should contain :<br>
+- <code>name</code> (str): datasource name<br>
+- <code>ds_ip</code> (str): datasource IP<br>
+- <code>zone_id</code> (str): optional zone_id</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def duplicate_datasource(self, p):
+<pre><code class="python">def duplicate_datasource(self, ds_params):
     &#34;&#34;&#34;Check for duplicate dataname name or IP address.
     
-    Arguments:
-        p (dict) -- datasource params 
-
-    Parameters:
-        name (str): datasource name
-        ds_ip (str): datasource IP
-        zone_id (str): optional zone_id
+    Arguments:  
+    - `ds_params` (dict) : datasource params  
+    
+    `ds_params` should contain :  
+    - `name` (str): datasource name  
+    - `ds_ip` (str): datasource IP  
+    - `zone_id` (str): optional zone_id  
     &#34;&#34;&#34;
     
-    if p.get(&#39;zone_id&#39;):
-        result = self.search(p[&#39;name&#39;], zone_id=[&#39;zone_id&#39;])
+    if ds_params.get(&#39;zone_id&#39;):
+        result = self.search(ds_params[&#39;name&#39;], zone_id=[&#39;zone_id&#39;])
         if not result:
-            result = self.search(p[&#39;ds_ip&#39;], zone_id=[&#39;zone_id&#39;])
+            result = self.search(ds_params[&#39;ds_ip&#39;], zone_id=[&#39;zone_id&#39;])
     else:
-        result = self.search(p[&#39;name&#39;])
+        result = self.search(ds_params[&#39;name&#39;])
         if not result:
-            result = self.search(p[&#39;ds_ip&#39;])
+            result = self.search(ds_params[&#39;ds_ip&#39;])
     return result</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.DevTree.add"><code class="name flex">
-<span>def <span class="ident">add</span></span>(<span>self, kwargs)</span>
+<span>def <span class="ident">add</span></span>(<span>self, attr)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Adds a datasource. </p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>datasource attributes</dd>
-</dl>
-<h2 id="attributes">Attributes</h2>
-<dl>
-<dt><strong><code>client</code></strong> :&ensp;<code>bool</code></dt>
-<dd>designate a client datasource (not child)</dd>
-<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
-<dd>name of datasource (req)</dd>
-<dt><strong><code>parent_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>id of parent device (req)</dd>
-<dt><strong><code>ds_ip</code></strong> :&ensp;<code>str</code></dt>
-<dd>ip of datasource (ip or hostname required)</dd>
-<dt><strong><code>hostname</code></strong> :&ensp;<code>str</code></dt>
-<dd>hostname of datasource </dd>
-<dt><strong><code>type_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>type of datasource (req)</dd>
-<dt><strong><code>enabled</code></strong> :&ensp;<code>bool</code></dt>
-<dd>enabled or not (default: True)</dd>
-<dt><strong><code>tz_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>timezone of datasource (default UTC: 8)</dd>
-<dt><strong><code>zone_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>numberic ESM id for zone (default: 0)
-Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 </dd>
-<dt><strong><code>require_tls</code></strong> :&ensp;<code>bool</code></dt>
-<dd>datasource uses syslog tls</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>result</code> <code>id</code> (<code>str</code>): <code>id</code> of <code>the</code> <code>result.</code> <code>Not</code> <code>the</code> <code>ds_id</code> <code>as</code> of <code>11.2.1</code></dt>
-<dd>or None on Error</dd>
-</dl></section>
+<p>Argumentss:
+- <code>attr</code> (<code>dict</code>): datasource attributes</p>
+<p>Attributes keys:<br>
+- <code>client</code> (<code>bool</code>): designate a client datasource (not child)<br>
+- <code>name</code> (<code>str</code>): name of datasource (req)<br>
+- <code>parent_id</code> (<code>str</code>): id of parent device (req)<br>
+- <code>ds_ip</code> (<code>str</code>): ip of datasource (ip or hostname required)<br>
+- <code>hostname</code> (<code>str</code>): hostname of datasource <br>
+- <code>type_id</code> (<code>str</code>): type of datasource (req)<br>
+- <code>enabled</code> (<code>bool</code>): enabled or not (default: True)<br>
+- <code>tz_id</code> (<code>str</code>): timezone of datasource (default UTC: 8)<br>
+- <code>zone_id</code> (<code>str</code>): numberic ESM id for zone (default: 0)<br>
+Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32 <br>
+- <code>require_tls</code> (<code>bool</code>): datasource uses syslog tls
+</p>
+<p>Returns: result id (<code>str</code>): id of the result. Not the ds_id as of 11.2.1 or <code>None</code> on Error</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add(self, kwargs):
-        &#34;&#34;&#34;
-        Adds a datasource. 
+<pre><code class="python">def add(self, attr):
+    &#34;&#34;&#34;
+    Adds a datasource. 
 
-        Args:
-            **kwargs: datasource attributes
-        
-        Attributes:
-            client (bool): designate a client datasource (not child)
-            name (str): name of datasource (req)
-            parent_id (str): id of parent device (req)
-            ds_ip (str): ip of datasource (ip or hostname required)
-            hostname (str): hostname of datasource 
-            type_id (str): type of datasource (req)
-            enabled (bool): enabled or not (default: True)
-            tz_id (str): timezone of datasource (default UTC: 8)
-            zone_id (str): numberic ESM id for zone (default: 0)
-                Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 
-            require_tls (bool): datasource uses syslog tls
-        
-        Returns:
-            result id (str): id of the result. Not the ds_id as of 11.2.1
-                or None on Error            
-        &#34;&#34;&#34;
-        p = self._validate_ds_params(kwargs)
-        dd = self.duplicate_datasource(p)
-        if dd:
-            print(&#39;Error: Cannot add Datasource. Duplicate name: {} or IP Address: {}&#39;
-                .format(dd[&#39;name&#39;], dd[&#39;ds_ip&#39;]))
-            return
+    Argumentss:
+    - `attr` (`dict`): datasource attributes
+    
+    Attributes keys:  
+    - `client` (`bool`): designate a client datasource (not child)  
+    - `name` (`str`): name of datasource (req)  
+    - `parent_id` (`str`): id of parent device (req)  
+    - `ds_ip` (`str`): ip of datasource (ip or hostname required)  
+    - `hostname` (`str`): hostname of datasource   
+    - `type_id` (`str`): type of datasource (req)  
+    - `enabled` (`bool`): enabled or not (default: True)  
+    - `tz_id` (`str`): timezone of datasource (default UTC: 8)  
+    - `zone_id` (`str`): numberic ESM id for zone (default: 0)  
+    Examples (`tz_id` only): PST: 27, MST: 12, CST: 11, EST: 32   
+    - `require_tls` (`bool`): datasource uses syslog tls  
+    
+    Returns: result id (`str`): id of the result. Not the ds_id as of 11.2.1 or `None` on Error            
+    &#34;&#34;&#34;
+    p = self._validate_ds_params(attr)
+    dd = self.duplicate_datasource(p)
+    if dd:
+        print(&#39;Error: Cannot add Datasource. Duplicate name: {} or IP Address: {}&#39;
+            .format(dd[&#39;name&#39;], dd[&#39;ds_ip&#39;]))
+        return
 
-        if p.get(&#39;client&#39;):
-            self.add_client(p)
-            return
+    if p.get(&#39;client&#39;):
+        self.add_client(p)
+        return
 
-        if self.nitro.api_v == 1:
-            result_id = self.nitro.request(&#39;add_ds_11_1_3&#39;, 
-                                            parent_id=p[&#39;parent_id&#39;],
-                                            name=p[&#39;name&#39;],
-                                            ds_ip=p[&#39;ds_ip&#39;],
-                                            type_id=p[&#39;type_id&#39;],
-                                            zone_id=p[&#39;zone_id&#39;],
-                                            enabled=p[&#39;enabled&#39;],
-                                            url=p[&#39;url&#39;],
-                                            ds_id=0,
-                                            child_enabled=&#39;false&#39;,
-                                            child_count=0,
-                                            child_type=0,
-                                            idm_id=0,
-                                            parameters=p[&#39;parameters&#39;])
-        else:
-            result_id = self.nitro.request(&#39;add_ds_11_2_1&#39;, 
-                                           parent_id=p[&#39;parent_id&#39;],
-                                            name=p[&#39;name&#39;],
-                                            ds_ip=p[&#39;ds_ip&#39;],
-                                            type_id=p[&#39;type_id&#39;],
-                                            zone_id=p[&#39;zone_id&#39;],
-                                            enabled=p[&#39;enabled&#39;],
-                                            url=p[&#39;url&#39;],
-                                            parameters=p[&#39;parameters&#39;])
-        self.data.append(p)
-        return result_id</code></pre>
+    if self.nitro.api_v == 1:
+        result_id = self.nitro.request(&#39;add_ds_11_1_3&#39;, 
+                                        parent_id=p[&#39;parent_id&#39;],
+                                        name=p[&#39;name&#39;],
+                                        ds_ip=p[&#39;ds_ip&#39;],
+                                        type_id=p[&#39;type_id&#39;],
+                                        zone_id=p[&#39;zone_id&#39;],
+                                        enabled=p[&#39;enabled&#39;],
+                                        url=p[&#39;url&#39;],
+                                        ds_id=0,
+                                        child_enabled=&#39;false&#39;,
+                                        child_count=0,
+                                        child_type=0,
+                                        idm_id=0,
+                                        parameters=p[&#39;parameters&#39;])
+    else:
+        result_id = self.nitro.request(&#39;add_ds_11_2_1&#39;, 
+                                        parent_id=p[&#39;parent_id&#39;],
+                                        name=p[&#39;name&#39;],
+                                        ds_ip=p[&#39;ds_ip&#39;],
+                                        type_id=p[&#39;type_id&#39;],
+                                        zone_id=p[&#39;zone_id&#39;],
+                                        enabled=p[&#39;enabled&#39;],
+                                        url=p[&#39;url&#39;],
+                                        parameters=p[&#39;parameters&#39;])
+    self.data.append(p)
+    return result_id</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.DevTree.add_client"><code class="name flex">
-<span>def <span class="ident">add_client</span></span>(<span>self, p)</span>
+<span>def <span class="ident">add_client</span></span>(<span>self, attr)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Add a datasource client</p>
-<h2 id="arguments">Arguments</h2>
-<p>p (dict)) &ndash; datasource parameters</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>parent_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>datasource id of the client group datasource</dd>
-<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
-<dd>name of the client</dd>
-<dt><strong><code>enabled</code></strong> :&ensp;<code>bool</code></dt>
-<dd>enabled or not (default: True</dd>
-<dt><strong><code>ds_ip</code></strong> :&ensp;<code>str</code></dt>
-<dd>IP address for client </dd>
-<dt><strong><code>hostname</code></strong> :&ensp;<code>str</code></dt>
-<dd>hostname for client</dd>
-<dt><strong><code>type_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>numeric ESM type-id</dd>
-<dt><strong><code>tz_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>numeric ESM timezone id or GMT</dd>
-<dt><strong><code>dorder</code></strong> :&ensp;<code>str</code></dt>
-<dd>Date order</dd>
-<dt><strong><code>maskflag</code></strong> :&ensp;<code>str</code></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>port</code></strong> :&ensp;<code>str</code></dt>
-<dd>IP port to use</dd>
-<dt><strong><code>require_tls</code></strong> :&ensp;<code>bool</code></dt>
-<dd>use syslog-TLS (default: False)</dd>
-</dl></section>
+<p>Arguments:<br>
+- <code>attr</code> (<code>dict</code>) : datasource attributes
+</p>
+<p>Attributes keys:<br>
+- <code>parent_id</code> (<code>str</code>): datasource id of the client group datasource<br>
+- <code>name</code> (<code>str</code>): name of the client<br>
+- <code>enabled</code> (<code>bool</code>): enabled or not (default: <code>True</code>)<br>
+- <code>ds_ip</code> (<code>str</code>): IP address for client<br>
+- <code>hostname</code> (<code>str</code>): hostname for client<br>
+- <code>type_id</code> (<code>str</code>): numeric ESM type-id<br>
+- <code>tz_id</code> (<code>str</code>): numeric ESM timezone id or GMT<br>
+- <code>dorder</code> (<code>str</code>): Date order<br>
+- <code>maskflag</code> (<code>str</code>): <br>
+- <code>port</code> (<code>str</code>): IP port to use<br>
+- <code>require_tls</code> (<code>bool</code>): use syslog-TLS (default: <code>False</code>)
+</p>
+<p>Returns: result id (<code>str</code>) or <code>None</code> on Error</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add_client(self, p):
+<pre><code class="python">def add_client(self, attr):
     &#34;&#34;&#34;Add a datasource client
     
-    Arguments:
-        p (dict)) -- datasource parameters
+    Arguments:  
+    - `attr` (`dict`) : datasource attributes  
     
-    Parameters:
-        parent_id (str): datasource id of the client group datasource
-        name (str): name of the client
-        enabled (bool): enabled or not (default: True
-        ds_ip (str): IP address for client 
-        hostname (str): hostname for client
-        type_id (str): numeric ESM type-id
-        tz_id (str): numeric ESM timezone id or GMT
-        dorder (str): Date order
-        maskflag (str): 
-        port (str): IP port to use
-        require_tls (bool): use syslog-TLS (default: False)
+    Attributes keys:  
+    - `parent_id` (`str`): datasource id of the client group datasource  
+    - `name` (`str`): name of the client  
+    - `enabled` (`bool`): enabled or not (default: `True`)  
+    - `ds_ip` (`str`): IP address for client  
+    - `hostname` (`str`): hostname for client  
+    - `type_id` (`str`): numeric ESM type-id  
+    - `tz_id` (`str`): numeric ESM timezone id or GMT  
+    - `dorder` (`str`): Date order  
+    - `maskflag` (`str`):   
+    - `port` (`str`): IP port to use  
+    - `require_tls` (`bool`): use syslog-TLS (default: `False`)  
+
+    Returns: result id (`str`) or `None` on Error   
     &#34;&#34;&#34;
+    p=attr
     for ds in self.data:
         if ds[&#39;ds_id&#39;] == p[&#39;parent_id&#39;]:
             if ds[&#39;desc_id&#39;] != &#39;3&#39;:
@@ -3577,7 +2995,7 @@ Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 </dd>
                         maskflag=p[&#39;maskflag&#39;],
                         port=p[&#39;port&#39;],
                         require_tls=[&#39;require_tls&#39;])
-    return</code></pre>
+    return result_id</code></pre>
 </details>
 </dd>
 </dl>
@@ -3597,67 +3015,45 @@ Examples (tz_id only): PST: 27, MST: 12, CST: 11, EST: 32 </dd>
 </dd>
 <dt id="msiempy.device.DataSource"><code class="flex name class">
 <span>class <span class="ident">DataSource</span></span>
-<span>(</span><span>*args, **kwargs)</span>
+<span>(</span><span>adict=None, id=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>DataSource class</p>
-<h2 id="arguments">Arguments</h2>
-<dl>
-<dt><strong><code>adict</code></strong> :&ensp;<code>dict</code></dt>
-<dd>datasource parameters</dd>
-</dl>
+<section class="desc"><p>DataSource class
+</p>
+<p>Arguments:<br>
+- <code>adict</code> (<code>dict</code>): datasource parameters</p>
 <p>Best instantiated from DevTree():
 &gt;&gt;&gt; dt = DevTree()
 &gt;&gt;&gt; ds = dt[25]
 or
 &gt;&gt;&gt; ds = dt.search('10.10.1.1')</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
-<dd>name of the datasource</dd>
-<dt><strong><code>ds_ip</code></strong> :&ensp;<code>str</code></dt>
-<dd>IP of the datasource</dd>
-<dt><strong><code>hostname</code></strong> :&ensp;<code>str</code></dt>
-<dd>hostname for the datasource</dd>
-<dt><strong><code>ds_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>internal datasource ID (e.g 144234544545444)</dd>
-<dt><strong><code>type_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>numeric internal datasource type id</dd>
-<dt><strong><code>desc_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>always '3' a datasource or '254' for a client</dd>
-<dt><strong><code>parent_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>internal ds_id for the parent device</dd>
-<dt><strong><code>parent_name</code></strong> :&ensp;<code>str</code></dt>
-<dd>name of the parent device</dd>
-<dt><strong><code>enabled</code></strong> :&ensp;<code>str</code></dt>
-<dd>'T' or 'F'</dd>
-<dt><strong><code>client</code></strong> :&ensp;<code>bool</code></dt>
-<dd>Client datasource or not</dd>
-<dt><strong><code>zone_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>numeric zone_id</dd>
-<dt><strong><code>zone_name</code></strong> :&ensp;<code>str</code></dt>
-<dd>name of the zone</dd>
-<dt><strong><code>tz_id</code></strong> :&ensp;<code>str</code></dt>
-<dd>internal numeric timezone ID</dd>
-<dt><strong><code>vendor</code></strong> :&ensp;<code>str</code></dt>
-<dd>vendor of datasource (e.g. Microsoft)</dd>
-<dt><strong><code>model</code></strong> :&ensp;<code>str</code></dt>
-<dd>model of datasource (e.g. Windows)</dd>
-<dt><strong><code>require_tls</code></strong> :&ensp;<code>str</code></dt>
-<dd>Use syslog over TLS</dd>
-<dt><strong><code>url</code></strong> :&ensp;<code>str</code></dt>
-<dd>URL of the datasource</dd>
-</dl>
-<p>Initalize the DataSource object</p></section>
+<p>Dict keys:<br>
+- <code>name</code> (<code>str</code>): name of the datasource<br>
+- <code>ds_ip</code> (<code>str</code>): IP of the datasource<br>
+- <code>hostname</code> (<code>str</code>): hostname for the datasource<br>
+- <code>ds_id</code> (<code>str</code>): internal datasource ID (e.g <code>144234544545444</code>)<br>
+- <code>type_id</code> (<code>str</code>): numeric internal datasource type id<br>
+- <code>desc_id</code> (<code>str</code>): always '3' a datasource or '254' for a client<br>
+- <code>parent_id</code> (<code>str</code>): internal ds_id for the parent device<br>
+- <code>parent_name</code> (<code>str</code>): name of the parent device<br>
+- <code>enabled</code> (<code>str</code>): 'T' or 'F'<br>
+- <code>client</code> (<code>bool</code>): Client datasource or not<br>
+- <code>zone_id</code> (<code>str</code>): numeric zone_id<br>
+- <code>zone_name</code> (<code>str</code>): name of the zone<br>
+- <code>tz_id</code> (<code>str</code>): internal numeric timezone ID<br>
+- <code>vendor</code> (<code>str</code>): vendor of datasource (e.g. Microsoft) <br>
+- <code>model</code> (<code>str</code>): model of datasource (e.g. Windows)<br>
+- <code>require_tls</code> (<code>str</code>): Use syslog over TLS<br>
+- <code>url</code> (<code>str</code>): URL of the datasource</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DataSource(NitroDict):
-    &#34;&#34;&#34;DataSource class
+    &#34;&#34;&#34;DataSource class  
     
-    Arguments:
-        adict (dict): datasource parameters
+    Arguments:  
+    - `adict` (`dict`): datasource parameters
         
     Best instantiated from DevTree():
         &gt;&gt;&gt; dt = DevTree()
@@ -3665,34 +3061,30 @@ or
         or
         &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)
 
-    Parameters:
-        name (str): name of the datasource
-        ds_ip (str): IP of the datasource
-        hostname (str): hostname for the datasource
-        ds_id (str): internal datasource ID (e.g 144234544545444)
-        type_id (str): numeric internal datasource type id
-        desc_id (str): always &#39;3&#39; a datasource or &#39;254&#39; for a client
-        parent_id (str): internal ds_id for the parent device
-        parent_name (str): name of the parent device
-        enabled (str): &#39;T&#39; or &#39;F&#39;
-        client (bool): Client datasource or not
-        zone_id (str): numeric zone_id
-        zone_name (str): name of the zone
-        tz_id (str): internal numeric timezone ID
-        vendor (str): vendor of datasource (e.g. Microsoft)
-        model (str): model of datasource (e.g. Windows)
-        require_tls (str): Use syslog over TLS
-        url (str): URL of the datasource
+    Dict keys:  
+    - `name` (`str`): name of the datasource  
+    - `ds_ip` (`str`): IP of the datasource  
+    - `hostname` (`str`): hostname for the datasource  
+    - `ds_id` (`str`): internal datasource ID (e.g `144234544545444`)  
+    - `type_id` (`str`): numeric internal datasource type id  
+    - `desc_id` (`str`): always &#39;3&#39; a datasource or &#39;254&#39; for a client  
+    - `parent_id` (`str`): internal ds_id for the parent device  
+    - `parent_name` (`str`): name of the parent device  
+    - `enabled` (`str`): &#39;T&#39; or &#39;F&#39;  
+    - `client` (`bool`): Client datasource or not  
+    - `zone_id` (`str`): numeric zone_id  
+    - `zone_name` (`str`): name of the zone  
+    - `tz_id` (`str`): internal numeric timezone ID  
+    - `vendor` (`str`): vendor of datasource (e.g. Microsoft)   
+    - `model` (`str`): model of datasource (e.g. Windows)  
+    - `require_tls` (`str`): Use syslog over TLS  
+    - `url` (`str`): URL of the datasource  
 
     &#34;&#34;&#34;
-    def __init__(self, *args, **kwargs):
-        &#34;&#34;&#34;
-        Initalize the DataSource object
-        &#34;&#34;&#34;
-        super().__init__(*args, **kwargs)
 
-    def data_from_id(self):
-        pass
+    def data_from_id(self, id):
+        &#34;&#34;&#34;NotImplementedError&#34;&#34;&#34;
+        raise NotImplementedError()
 
     def load_details(self):
         &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
@@ -3740,6 +3132,7 @@ or
         if self.nitro.api_v == 1:
             self.data[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;)
             self.data[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;id&#39;)
+
         elif self.nitro.api_v == 2:
             self.data[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;).get(&#39;value&#39;)
             self.data[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;value&#39;)
@@ -3752,6 +3145,7 @@ or
             self.data[&#39;child_count&#39;] = p.get(&#39;childCount&#39;)
             self.data[&#39;child_type&#39;] = p.get(&#39;childType&#39;)
             self.data[&#39;type_id&#39;] = p.get(&#39;typeId&#39;).get(&#39;id&#39;)
+
             if p.get(&#39;parameters&#39;):
                 for d in p[&#39;parameters&#39;]:
                     # The key is called &#34;key&#34; and the value is the key. 
@@ -3773,6 +3167,20 @@ or
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="msiempy.device.DataSource.data_from_id"><code class="name flex">
+<span>def <span class="ident">data_from_id</span></span>(<span>self, id)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>NotImplementedError</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def data_from_id(self, id):
+    &#34;&#34;&#34;NotImplementedError&#34;&#34;&#34;
+    raise NotImplementedError()</code></pre>
+</details>
+</dd>
 <dt id="msiempy.device.DataSource.load_details"><code class="name flex">
 <span>def <span class="ident">load_details</span></span>(<span>self)</span>
 </code></dt>
@@ -3840,7 +3248,6 @@ or
 <li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
 <ul class="hlist">
 <li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroDict.data_from_id" href="index.html#msiempy.NitroDict.data_from_id">data_from_id</a></code></li>
 <li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
 <li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
@@ -3865,19 +3272,12 @@ or
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="msiempy.device.Device" href="#msiempy.device.Device">Device</a></code></h4>
-</li>
-<li>
-<h4><code><a title="msiempy.device.ERC" href="#msiempy.device.ERC">ERC</a></code></h4>
-</li>
-<li>
 <h4><code><a title="msiempy.device.ESM" href="#msiempy.device.ESM">ESM</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="msiempy.device.ESM.time" href="#msiempy.device.ESM.time">time</a></code></li>
 <li><code><a title="msiempy.device.ESM.buildstamp" href="#msiempy.device.ESM.buildstamp">buildstamp</a></code></li>
 <li><code><a title="msiempy.device.ESM.version" href="#msiempy.device.ESM.version">version</a></code></li>
 <li><code><a title="msiempy.device.ESM.status" href="#msiempy.device.ESM.status">status</a></code></li>
-<li><code><a title="msiempy.device.ESM.map_status_int_fields" href="#msiempy.device.ESM.map_status_int_fields">map_status_int_fields</a></code></li>
 <li><code><a title="msiempy.device.ESM.disks" href="#msiempy.device.ESM.disks">disks</a></code></li>
 <li><code><a title="msiempy.device.ESM.ram" href="#msiempy.device.ESM.ram">ram</a></code></li>
 <li><code><a title="msiempy.device.ESM.backup_status" href="#msiempy.device.ESM.backup_status">backup_status</a></code></li>
@@ -3910,6 +3310,7 @@ or
 <li>
 <h4><code><a title="msiempy.device.DataSource" href="#msiempy.device.DataSource">DataSource</a></code></h4>
 <ul class="">
+<li><code><a title="msiempy.device.DataSource.data_from_id" href="#msiempy.device.DataSource.data_from_id">data_from_id</a></code></li>
 <li><code><a title="msiempy.device.DataSource.load_details" href="#msiempy.device.DataSource.load_details">load_details</a></code></li>
 <li><code><a title="msiempy.device.DataSource.delete" href="#msiempy.device.DataSource.delete">delete</a></code></li>
 <li><code><a title="msiempy.device.DataSource.delete_client" href="#msiempy.device.DataSource.delete_client">delete_client</a></code></li>

@@ -658,7 +658,7 @@ class NitroSession():
     ```
     %(content)s
     ```
-        &#34;&#34;&#34; % dict(content=pprint.pformat(PARAMS)[:1000])+&#34;&#34;&#34; [...] and more...&#34;&#34;&#34;
+        &#34;&#34;&#34; % dict(content=pprint.pformat(PARAMS)[:2000]) + &#34;&#34;&#34;[...] and more...&#34;&#34;&#34;
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -2538,7 +2538,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
     ```
     %(content)s
     ```
-        &#34;&#34;&#34; % dict(content=pprint.pformat(PARAMS)[:1000])+&#34;&#34;&#34; [...] and more...&#34;&#34;&#34;
+        &#34;&#34;&#34; % dict(content=pprint.pformat(PARAMS)[:2000]) + &#34;&#34;&#34;[...] and more...&#34;&#34;&#34;
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -2930,32 +2930,68 @@ Use normal dict access, PARAMS["method"], or PARAMS.get("method")</p>
 the URI or passed to the ESM. The second string is the params
 required for that method. Some params require variables be
 interpolated as documented in the Attributes.</p>
-<h2 id="example">Example</h2>
-<p><code>method, params = PARAMS.get("login").format(username, password)</code>. See : <a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"><code>NitroSession.request()</code></a><br>
-Important note :
+<p>Example:
+<code>method, params = PARAMS.get("login").format(username, password)</code>. See : <a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"><code>NitroSession.request()</code></a>
+</p>
+<p>Important note :
 Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
-<p>Data structure (please consult source code for full content):</p>
-<pre><code>{'_dev_types': ('dev_type_map',
-            '{&quot;1&quot;: &quot;zone&quot;,\n'
-            '                                &quot;2&quot;: &quot;ERC&quot;,\n'
-            '                                &quot;3&quot;: &quot;datasource&quot;,\n'
-            '                                &quot;4&quot;: &quot;Database Event Monitor '
-            '(DBM)&quot;,\n'
-            '                                &quot;5&quot;: &quot;DBM Database&quot;,\n'
-            '                                &quot;7&quot;: &quot;Policy Auditor&quot;,\n'
-            '                                &quot;10&quot;: &quot;Application Data '
-            'Monitor (ADM)&quot;,\n'
-            '                                &quot;12&quot;: &quot;ELM&quot;,\n'
-            '                                &quot;14&quot;: &quot;Local ESM&quot;,\n'
-            '                                &quot;15&quot;: &quot;Advanced Correlation '
-            'Engine (ACE)&quot;,\n'
-            '                                &quot;16&quot;: &quot;Asset datasource&quot;,\n'
-            '                                &quot;17&quot;: &quot;Score-based '
-            'Correlation&quot;,\n'
-
-</code></pre>
-<pre><code> [...] and more...
-</code></pre></section>
+<p>Data structure (please consult source code for full content):
+<code>{'_dev_types': ('dev_type_map',
+'{"1": "zone",\n'
+'
+"2": "ERC",\n'
+'
+"3": "datasource",\n'
+'
+"4": "Database Event Monitor '
+'(DBM)",\n'
+'
+"5": "DBM Database",\n'
+'
+"7": "Policy Auditor",\n'
+'
+"10": "Application Data '
+'Monitor (ADM)",\n'
+'
+"12": "ELM",\n'
+'
+"14": "Local ESM",\n'
+'
+"15": "Advanced Correlation '
+'Engine (ACE)",\n'
+'
+"16": "Asset datasource",\n'
+'
+"17": "Score-based '
+'Correlation",\n'
+'
+"19": "McAfee ePolicy '
+'Orchestrator (ePO)",\n'
+'
+"20": "EPO",\n'
+'
+"21": "McAfee Network '
+'Security Manager (NSM)",\n'
+'
+"22": "McAfee Network '
+'Security Platform (NSP)",\n'
+'
+"23": "NSP Port",\n'
+'
+"24": "McAfee Vulnerability '
+'Manager (MVM)",\n'
+'
+"25": "Enterprise Log Search '
+'(ELS)",\n'
+'
+"254": "client_group",\n'
+'
+"256": "client"}\n'
+'
+'),
+'ack_alarms': ('alarmAcknowledgeTriggeredAlarm',
+'{"triggeredIds":[{"value":%(ids</code>
+[&hellip;] and more&hellip;</p></section>
 </dd>
 </dl>
 <h3>Static methods</h3>

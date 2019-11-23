@@ -133,11 +133,12 @@ class ESM(NitroObject):
         &#34;&#34;&#34;
         Returns: Backup status and timestamps.  
         Example :  
+        ```
             {&#39;autoBackupEnabled&#39;: True,  
             &#39;autoBackupDay&#39;: 7,  
             &#39;autoBackupHour&#39;: 0,  
             &#39;backupLastTime&#39;: &#39;07/03/2017 08:59:36&#39;,  
-            &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}  
+            &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}  ```
         &#34;&#34;&#34;
         fields = [&#39;autoBackupEnabled&#39;,
                    &#39;autoBackupDay&#39;,
@@ -159,9 +160,10 @@ class ESM(NitroObject):
         &#34;&#34;&#34;
         Returns: Rules autocheck status and timestamps.  
         Example:  
+        ```
             { &#39;rulesAndSoftwareCheckEnabled&#39;: True
             &#39;rulesAndSoftLastCheck&#39;: &#39;07/06/2017 10:28:43&#39;,
-            &#39;rulesAndSoftNextCheck&#39;: &#39;07/06/2017 22:28:43&#39;,}
+            &#39;rulesAndSoftNextCheck&#39;: &#39;07/06/2017 22:28:43&#39;,} ```
 
         &#34;&#34;&#34;
         self._fields = [&#39;rulesAndSoftwareCheckEnabled&#39;,
@@ -355,9 +357,9 @@ class DevTree(NitroList):
    
     def search(self, term, zone_id=&#39;0&#39;):
         &#34;&#34;&#34;
-        Arguments:
-        - `term` (`str`): Datasource name, IP, hostname or ds_id. Matching the `name`, `IPv4/IPv6 address`, `hostname` or `device ID`.  
-        - `zone_id` (`int`): Provide zone_id to limit search to a specific zone  
+        Arguments:  
+        - `term` (`str`): Datasource name, IP, hostname or ds_id. Matching the `name`, `IPv4/IPv6 address`, `hostname` or `device ID`.   
+        - `zone_id` (`int`): Provide zone_id to limit search to a specific zone   
 
         Returns: `Datasource` object that matches the provided search term or None.
         &#34;&#34;&#34;
@@ -373,7 +375,7 @@ class DevTree(NitroList):
 
     def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
         &#34;&#34;&#34;
-        Arguments:
+        Arguments:  
         - `field` (`str`): Valid DS config field to search  
         - `term` (`str`): Data to search for in specified field  
 
@@ -414,7 +416,7 @@ class DevTree(NitroList):
         Returns: `list` of Receiver `dict`
         &#34;&#34;&#34;
         return [self._rec for self._rec in self.data
-                    if self._rec[&#39;desc_id&#39;] == &#39;2&#39;]
+                    if self._rec[&#39;desc_id&#39;] in [&#39;2&#39;,&#39;13&#39;]]
     
     def build_devtree(self):
         &#34;&#34;&#34;Coordinates assembly of the devtree object&#34;&#34;&#34;
@@ -705,7 +707,6 @@ class DevTree(NitroList):
         
     #     Returns:
     #         List of datasource dicts - devtree
-        
     #     &#34;&#34;&#34;
     #     self._type_map = {&#39;1&#39;: &#39;zone&#39;,
     #                     &#39;2&#39;: &#39;ERC&#39;,
@@ -1054,10 +1055,11 @@ class DataSource(NitroDict):
     - `adict` (`dict`): datasource parameters
         
     Best instantiated from DevTree():
+    ```
         &gt;&gt;&gt; dt = DevTree()
         &gt;&gt;&gt; ds = dt[25]
         or
-        &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)
+        &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)```
 
     Dict keys:  
     - `name` (`str`): name of the datasource  
@@ -1108,6 +1110,7 @@ class DataSource(NitroDict):
                 self.nitro.request(&#39;del_ds2&#39;, parent_id=self.data[&#39;parent_id&#39;], ds_id=self.data[&#39;ds_id&#39;])
     
     def delete_client(self):
+        &#34;&#34;&#34;This deletes the datasource&#39;s clients and all the data. Be careful.&#34;&#34;&#34;
         file = self.nitro.request(&#39;get_wfile&#39;, ds_id=self.data[&#39;ds_id&#39;])[&#39;TK&#39;]
         job_id = self.nitro.request(&#39;del_client&#39;, 
                                         parent_id=self.data[&#39;parent_id&#39;], ftoken=file)[&#39;JID&#39;]
@@ -1164,8 +1167,7 @@ class DataSource(NitroDict):
 <span>class <span class="ident">ESM</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>Enterprise Security Manager interface</p>
-<p>Creates the object session.</p></section>
+<section class="desc"><p>Enterprise Security Manager interface</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1258,11 +1260,12 @@ class DataSource(NitroDict):
         &#34;&#34;&#34;
         Returns: Backup status and timestamps.  
         Example :  
+        ```
             {&#39;autoBackupEnabled&#39;: True,  
             &#39;autoBackupDay&#39;: 7,  
             &#39;autoBackupHour&#39;: 0,  
             &#39;backupLastTime&#39;: &#39;07/03/2017 08:59:36&#39;,  
-            &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}  
+            &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}  ```
         &#34;&#34;&#34;
         fields = [&#39;autoBackupEnabled&#39;,
                    &#39;autoBackupDay&#39;,
@@ -1284,9 +1287,10 @@ class DataSource(NitroDict):
         &#34;&#34;&#34;
         Returns: Rules autocheck status and timestamps.  
         Example:  
+        ```
             { &#39;rulesAndSoftwareCheckEnabled&#39;: True
             &#39;rulesAndSoftLastCheck&#39;: &#39;07/06/2017 10:28:43&#39;,
-            &#39;rulesAndSoftNextCheck&#39;: &#39;07/06/2017 22:28:43&#39;,}
+            &#39;rulesAndSoftNextCheck&#39;: &#39;07/06/2017 22:28:43&#39;,} ```
 
         &#34;&#34;&#34;
         self._fields = [&#39;rulesAndSoftwareCheckEnabled&#39;,
@@ -1583,11 +1587,11 @@ Other functions exist to return subsets of this data also.</p></section>
 <dd>
 <section class="desc"><p>Returns: Backup status and timestamps.<br>
 Example :<br>
-{'autoBackupEnabled': True,<br>
-'autoBackupDay': 7,<br>
-'autoBackupHour': 0,<br>
-'backupLastTime': '07/03/2017 08:59:36',<br>
-'backupNextTime': '07/10/2017 08:59'}</p></section>
+<code>{'autoBackupEnabled': True,
+'autoBackupDay': 7,
+'autoBackupHour': 0,
+'backupLastTime': '07/03/2017 08:59:36',
+'backupNextTime': '07/10/2017 08:59'}</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1596,11 +1600,12 @@ Example :<br>
     &#34;&#34;&#34;
     Returns: Backup status and timestamps.  
     Example :  
+    ```
         {&#39;autoBackupEnabled&#39;: True,  
         &#39;autoBackupDay&#39;: 7,  
         &#39;autoBackupHour&#39;: 0,  
         &#39;backupLastTime&#39;: &#39;07/03/2017 08:59:36&#39;,  
-        &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}  
+        &#39;backupNextTime&#39;: &#39;07/10/2017 08:59&#39;}  ```
     &#34;&#34;&#34;
     fields = [&#39;autoBackupEnabled&#39;,
                &#39;autoBackupDay&#39;,
@@ -1635,9 +1640,9 @@ Example :<br>
 <dd>
 <section class="desc"><p>Returns: Rules autocheck status and timestamps.<br>
 Example:<br>
-{ 'rulesAndSoftwareCheckEnabled': True
+<code>{ 'rulesAndSoftwareCheckEnabled': True
 'rulesAndSoftLastCheck': '07/06/2017 10:28:43',
-'rulesAndSoftNextCheck': '07/06/2017 22:28:43',}</p></section>
+'rulesAndSoftNextCheck': '07/06/2017 22:28:43',}</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1646,9 +1651,10 @@ Example:<br>
     &#34;&#34;&#34;
     Returns: Rules autocheck status and timestamps.  
     Example:  
+    ```
         { &#39;rulesAndSoftwareCheckEnabled&#39;: True
         &#39;rulesAndSoftLastCheck&#39;: &#39;07/06/2017 10:28:43&#39;,
-        &#39;rulesAndSoftNextCheck&#39;: &#39;07/06/2017 22:28:43&#39;,}
+        &#39;rulesAndSoftNextCheck&#39;: &#39;07/06/2017 22:28:43&#39;,} ```
 
     &#34;&#34;&#34;
     self._fields = [&#39;rulesAndSoftwareCheckEnabled&#39;,
@@ -1944,9 +1950,9 @@ def recs(self):
    
     def search(self, term, zone_id=&#39;0&#39;):
         &#34;&#34;&#34;
-        Arguments:
-        - `term` (`str`): Datasource name, IP, hostname or ds_id. Matching the `name`, `IPv4/IPv6 address`, `hostname` or `device ID`.  
-        - `zone_id` (`int`): Provide zone_id to limit search to a specific zone  
+        Arguments:  
+        - `term` (`str`): Datasource name, IP, hostname or ds_id. Matching the `name`, `IPv4/IPv6 address`, `hostname` or `device ID`.   
+        - `zone_id` (`int`): Provide zone_id to limit search to a specific zone   
 
         Returns: `Datasource` object that matches the provided search term or None.
         &#34;&#34;&#34;
@@ -1962,7 +1968,7 @@ def recs(self):
 
     def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
         &#34;&#34;&#34;
-        Arguments:
+        Arguments:  
         - `field` (`str`): Valid DS config field to search  
         - `term` (`str`): Data to search for in specified field  
 
@@ -2003,7 +2009,7 @@ def recs(self):
         Returns: `list` of Receiver `dict`
         &#34;&#34;&#34;
         return [self._rec for self._rec in self.data
-                    if self._rec[&#39;desc_id&#39;] == &#39;2&#39;]
+                    if self._rec[&#39;desc_id&#39;] in [&#39;2&#39;,&#39;13&#39;]]
     
     def build_devtree(self):
         &#34;&#34;&#34;Coordinates assembly of the devtree object&#34;&#34;&#34;
@@ -2294,7 +2300,6 @@ def recs(self):
         
     #     Returns:
     #         List of datasource dicts - devtree
-        
     #     &#34;&#34;&#34;
     #     self._type_map = {&#39;1&#39;: &#39;zone&#39;,
     #                     &#39;2&#39;: &#39;ERC&#39;,
@@ -2656,8 +2661,8 @@ def recs(self):
 <span>def <span class="ident">search</span></span>(<span>self, term, zone_id='0')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Arguments:
-- <code>term</code> (<code>str</code>): Datasource name, IP, hostname or ds_id. Matching the <code>name</code>, <code>IPv4/IPv6 address</code>, <code>hostname</code> or <code>device ID</code>.<br>
+<section class="desc"><p>Arguments:<br>
+- <code>term</code> (<code>str</code>): Datasource name, IP, hostname or ds_id. Matching the <code>name</code>, <code>IPv4/IPv6 address</code>, <code>hostname</code> or <code>device ID</code>. <br>
 - <code>zone_id</code> (<code>int</code>): Provide zone_id to limit search to a specific zone
 </p>
 <p>Returns: <code>Datasource</code> object that matches the provided search term or None.</p></section>
@@ -2667,9 +2672,9 @@ def recs(self):
 </summary>
 <pre><code class="python">def search(self, term, zone_id=&#39;0&#39;):
     &#34;&#34;&#34;
-    Arguments:
-    - `term` (`str`): Datasource name, IP, hostname or ds_id. Matching the `name`, `IPv4/IPv6 address`, `hostname` or `device ID`.  
-    - `zone_id` (`int`): Provide zone_id to limit search to a specific zone  
+    Arguments:  
+    - `term` (`str`): Datasource name, IP, hostname or ds_id. Matching the `name`, `IPv4/IPv6 address`, `hostname` or `device ID`.   
+    - `zone_id` (`int`): Provide zone_id to limit search to a specific zone   
 
     Returns: `Datasource` object that matches the provided search term or None.
     &#34;&#34;&#34;
@@ -2688,7 +2693,7 @@ def recs(self):
 <span>def <span class="ident">search_ds_group</span></span>(<span>self, field, term, zone_id='0')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Arguments:
+<section class="desc"><p>Arguments:<br>
 - <code>field</code> (<code>str</code>): Valid DS config field to search<br>
 - <code>term</code> (<code>str</code>): Data to search for in specified field
 </p>
@@ -2713,7 +2718,7 @@ Result must be iterated through.</p>
 </summary>
 <pre><code class="python">def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
     &#34;&#34;&#34;
-    Arguments:
+    Arguments:  
     - `field` (`str`): Valid DS config field to search  
     - `term` (`str`): Data to search for in specified field  
 
@@ -2766,7 +2771,7 @@ Result must be iterated through.</p>
     Returns: `list` of Receiver `dict`
     &#34;&#34;&#34;
     return [self._rec for self._rec in self.data
-                if self._rec[&#39;desc_id&#39;] == &#39;2&#39;]</code></pre>
+                if self._rec[&#39;desc_id&#39;] in [&#39;2&#39;,&#39;13&#39;]]</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.DevTree.build_devtree"><code class="name flex">
@@ -3023,10 +3028,10 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32 <br>
 <p>Arguments:<br>
 - <code>adict</code> (<code>dict</code>): datasource parameters</p>
 <p>Best instantiated from DevTree():
-&gt;&gt;&gt; dt = DevTree()
+<code>&gt;&gt;&gt; dt = DevTree()
 &gt;&gt;&gt; ds = dt[25]
 or
-&gt;&gt;&gt; ds = dt.search('10.10.1.1')</p>
+&gt;&gt;&gt; ds = dt.search('10.10.1.1')</code></p>
 <p>Dict keys:<br>
 - <code>name</code> (<code>str</code>): name of the datasource<br>
 - <code>ds_ip</code> (<code>str</code>): IP of the datasource<br>
@@ -3056,10 +3061,11 @@ or
     - `adict` (`dict`): datasource parameters
         
     Best instantiated from DevTree():
+    ```
         &gt;&gt;&gt; dt = DevTree()
         &gt;&gt;&gt; ds = dt[25]
         or
-        &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)
+        &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)```
 
     Dict keys:  
     - `name` (`str`): name of the datasource  
@@ -3110,6 +3116,7 @@ or
                 self.nitro.request(&#39;del_ds2&#39;, parent_id=self.data[&#39;parent_id&#39;], ds_id=self.data[&#39;ds_id&#39;])
     
     def delete_client(self):
+        &#34;&#34;&#34;This deletes the datasource&#39;s clients and all the data. Be careful.&#34;&#34;&#34;
         file = self.nitro.request(&#39;get_wfile&#39;, ds_id=self.data[&#39;ds_id&#39;])[&#39;TK&#39;]
         job_id = self.nitro.request(&#39;del_client&#39;, 
                                         parent_id=self.data[&#39;parent_id&#39;], ftoken=file)[&#39;JID&#39;]
@@ -3228,12 +3235,13 @@ or
 <span>def <span class="ident">delete_client</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>This deletes the datasource's clients and all the data. Be careful.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def delete_client(self):
+    &#34;&#34;&#34;This deletes the datasource&#39;s clients and all the data. Be careful.&#34;&#34;&#34;
     file = self.nitro.request(&#39;get_wfile&#39;, ds_id=self.data[&#39;ds_id&#39;])[&#39;TK&#39;]
     job_id = self.nitro.request(&#39;del_client&#39;, 
                                     parent_id=self.data[&#39;parent_id&#39;], ftoken=file)[&#39;JID&#39;]

@@ -93,16 +93,15 @@ class NitroConfig(configparser.ConfigParser):
     If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values. 
     Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:  
 
-    For Windows: `%APPDATA%\.msiem\conf.ini`
-    For Mac : `$HOME/.msiem/conf.ini`
-    For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`
-    If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`
+    For Windows: `%APPDATA%\.msiem\conf.ini`  
+    For Mac : `$HOME/.msiem/conf.ini`  
+    For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`  
+    If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`  
 
     Parameters:  
-
-        - `path`: Config file special path, if path is left None, will automatically look for it.  
-        - `config`: Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`.
-        - `*args, **kwargs` : Passed to `configparser.ConfigParser.__init__()` method.
+    - `path`: Config file special path, if path is left None, will automatically look for it.  
+    - `config`: Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`.
+    - `*args, **kwargs` : Passed to `configparser.ConfigParser.__init__()` method.
 
     &#34;&#34;&#34;
     def __init__(self, path=None, config=None, *arg, **kwarg):
@@ -239,9 +238,9 @@ class NitroConfig(configparser.ConfigParser):
     def find_ini_location():
         &#39;&#39;&#39;
         Returns the location of a supposed conf.ini file the `conf.ini` file.  
-        If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.
-        If the file doesn&#39;t exist, will still return the location.
-        Do not create a file nor directory, you must call `msiempy.NitroConfig.write`.
+        If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.  
+        If the file doesn&#39;t exist, will still return the location.  
+        Do not create a file nor directory, you must call `msiempy.NitroConfig.write`.  
         &#39;&#39;&#39;
         conf_path_dir=None
 
@@ -272,14 +271,13 @@ class NitroSession():
     Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once.  
     It uses `msiempy.NitroConfig` to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
 
-    The init method is called every time you call NitroSession() constructor.
-        But the properties are actually initiated only once.
-        Use logout() to reinstanciate NitroSession.  
+    The init method is called every time you call NitroSession() constructor. But the properties are actually initiated only once.  
+    Use `logout()` to reinstanciate NitroSession.  
 
-        Parameters:  
+    Parameters:  
 
-        - `conf_path` : Configuration file path.  
-        - `conf_dict` : Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`. See `msiempy.NitroConfig` class to have full details.
+    - `conf_path` : Configuration file path.  
+    - `conf_dict` : Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`. See `msiempy.NitroConfig` class to have full details.
     &#34;&#34;&#34;
     def __init__(self, conf_path=None, conf_dict=None):
         global log
@@ -305,10 +303,10 @@ class NitroSession():
             log.info(&#39;New ESM session instance is created with : &#39;+str(self.config.host))
 
     BASE_URL = &#39;https://{}/rs/esm/&#39;
-    __pdoc__[&#39;NitroSession.BASE_URL&#39;]=&#34;&#34;&#34;API v2 base url: `%(url)s`&#34;&#34;&#34; % dict(url=BASE_URL)
+    &#34;&#34;&#34;API v2 base url: `&#39;https://{}/rs/esm/&#39;`&#34;&#34;&#34;
 
     BASE_URL_PRIV = &#39;https://{}/ess/&#39;
-    __pdoc__[&#39;NitroSession.BASE_URL_PRIV&#39;]=&#34;&#34;&#34;Private API base URL: `%(url)s`&#34;&#34;&#34; % dict(url=BASE_URL_PRIV)
+    &#34;&#34;&#34;Private API base URL: `https://{}/ess/`&#34;&#34;&#34;
 
     __initiated__ = False
     &#34;&#34;&#34;
@@ -655,13 +653,12 @@ class NitroSession():
     Important note : 
         Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
-    Content :
+    Content (please consult source code for full data structure) :
+        ```
         %(content)s
+        ```
         &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=4).replace(&#39;\n&#39;,&#34;&#34;&#34;  
-    &#34;&#34;&#34;)[:500]+&#34;&#34;&#34; [...] and more...
-
-    See : https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266
-    &#34;&#34;&#34;)
+    &#34;&#34;&#34;)[:500]+&#34;&#34;&#34; [...] and more...&#34;&#34;&#34;)
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -1028,7 +1025,8 @@ class NitroSession():
 
 class NitroObject(abc.ABC):
     &#34;&#34;&#34;
-    Base class for all nitro objects. All objects have a reference to the single `msiempy.NitroSession` object that handle the esm requests.
+    Base class for all nitro objects. All objects have a reference to the single `msiempy.NitroSession` object that handle the esm requests.  
+    Creates the object session.
     &#34;&#34;&#34;
 
     class NitroJSONEncoder(json.JSONEncoder):
@@ -1045,8 +1043,6 @@ class NitroObject(abc.ABC):
 
     @abc.abstractmethod
     def __init__(self):
-        &#34;&#34;&#34;Creates the object session.
-        &#34;&#34;&#34;
         self.nitro=NitroSession()
 
     @abc.abstractproperty
@@ -1696,16 +1692,15 @@ class FilteredQueryList(NitroList):
 If a <code>.msiem/</code> directory exists in your current directory, the program will assume the <code>conf.ini</code> file is there, if not, it will create it with default values.
 Secondly, if no <code>.msiem/</code> directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:
 </p>
-<p>For Windows: <code>%APPDATA%\.msiem\conf.ini</code>
-For Mac : <code>$HOME/.msiem/conf.ini</code>
-For Linux : <code>$XDG_CONFIG_HOME/.msiem/conf.ini</code> or : <code>$HOME/.msiem/conf.ini</code>
-If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/conf.ini</code></p>
-<p>Parameters:
+<p>For Windows: <code>%APPDATA%\.msiem\conf.ini</code><br>
+For Mac : <code>$HOME/.msiem/conf.ini</code><br>
+For Linux : <code>$XDG_CONFIG_HOME/.msiem/conf.ini</code> or : <code>$HOME/.msiem/conf.ini</code><br>
+If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/conf.ini</code>
 </p>
-<pre><code>- `path`: Config file special path, if path is left None, will automatically look for it.  
-- `config`: Manual config dict. ex: `{'general':{'verbose':True}}`.
-- `*args, **kwargs` : Passed to `configparser.ConfigParser.__init__()` method.
-</code></pre></section>
+<p>Parameters:<br>
+- <code>path</code>: Config file special path, if path is left None, will automatically look for it.<br>
+- <code>config</code>: Manual config dict. ex: <code>{'general':{'verbose':True}}</code>.
+- <code>*args, **kwargs</code> : Passed to <code>configparser.ConfigParser.__init__()</code> method.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1715,16 +1710,15 @@ If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/con
     If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values. 
     Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:  
 
-    For Windows: `%APPDATA%\.msiem\conf.ini`
-    For Mac : `$HOME/.msiem/conf.ini`
-    For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`
-    If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`
+    For Windows: `%APPDATA%\.msiem\conf.ini`  
+    For Mac : `$HOME/.msiem/conf.ini`  
+    For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`  
+    If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`  
 
     Parameters:  
-
-        - `path`: Config file special path, if path is left None, will automatically look for it.  
-        - `config`: Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`.
-        - `*args, **kwargs` : Passed to `configparser.ConfigParser.__init__()` method.
+    - `path`: Config file special path, if path is left None, will automatically look for it.  
+    - `config`: Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`.
+    - `*args, **kwargs` : Passed to `configparser.ConfigParser.__init__()` method.
 
     &#34;&#34;&#34;
     def __init__(self, path=None, config=None, *arg, **kwarg):
@@ -1861,9 +1855,9 @@ If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/con
     def find_ini_location():
         &#39;&#39;&#39;
         Returns the location of a supposed conf.ini file the `conf.ini` file.  
-        If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.
-        If the file doesn&#39;t exist, will still return the location.
-        Do not create a file nor directory, you must call `msiempy.NitroConfig.write`.
+        If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.  
+        If the file doesn&#39;t exist, will still return the location.  
+        Do not create a file nor directory, you must call `msiempy.NitroConfig.write`.  
         &#39;&#39;&#39;
         conf_path_dir=None
 
@@ -1933,8 +1927,8 @@ output = text #Not used yet
 </code></dt>
 <dd>
 <section class="desc"><p>Returns the location of a supposed conf.ini file the <code>conf.ini</code> file.<br>
-If <code>.msiem</code> folder exists in you local directory, assume the <code>conf.ini</code> file is in there.
-If the file doesn't exist, will still return the location.
+If <code>.msiem</code> folder exists in you local directory, assume the <code>conf.ini</code> file is in there.<br>
+If the file doesn't exist, will still return the location.<br>
 Do not create a file nor directory, you must call <a title="msiempy.NitroConfig.write" href="#msiempy.NitroConfig.write"><code>NitroConfig.write()</code></a>.</p></section>
 <details class="source">
 <summary>
@@ -1944,9 +1938,9 @@ Do not create a file nor directory, you must call <a title="msiempy.NitroConfig.
 def find_ini_location():
     &#39;&#39;&#39;
     Returns the location of a supposed conf.ini file the `conf.ini` file.  
-    If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.
-    If the file doesn&#39;t exist, will still return the location.
-    Do not create a file nor directory, you must call `msiempy.NitroConfig.write`.
+    If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.  
+    If the file doesn&#39;t exist, will still return the location.  
+    Do not create a file nor directory, you must call `msiempy.NitroConfig.write`.  
     &#39;&#39;&#39;
     conf_path_dir=None
 
@@ -2137,15 +2131,16 @@ Parameters:
 It provides standard dialogue with the ESM by doing agument interpolation with <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a>.<br>
 Internal <code>__dict__</code> refers to a unique instance of dict and thus, properties can be instanciated only once.<br>
 It uses <a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroConfig</code></a> to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.</p>
-<p>The init method is called every time you call NitroSession() constructor.
-But the properties are actually initiated only once.
-Use logout() to reinstanciate NitroSession.
+<p>The init method is called every time you call NitroSession() constructor. But the properties are actually initiated only once.<br>
+Use <code>logout()</code> to reinstanciate NitroSession.
 </p>
-<pre><code>Parameters:
-
-- `conf_path` : Configuration file path.  
-- `conf_dict` : Manual config dict. ex: `{'general':{'verbose':True}}`. See &lt;a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"&gt;`NitroConfig`&lt;/a&gt; class to have full details.
-</code></pre></section>
+<p>Parameters:
+</p>
+<ul>
+<li><code>conf_path</code> : Configuration file path.
+</li>
+<li><code>conf_dict</code> : Manual config dict. ex: <code>{'general':{'verbose':True}}</code>. See <a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroConfig</code></a> class to have full details.</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2157,14 +2152,13 @@ Use logout() to reinstanciate NitroSession.
     Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once.  
     It uses `msiempy.NitroConfig` to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
 
-    The init method is called every time you call NitroSession() constructor.
-        But the properties are actually initiated only once.
-        Use logout() to reinstanciate NitroSession.  
+    The init method is called every time you call NitroSession() constructor. But the properties are actually initiated only once.  
+    Use `logout()` to reinstanciate NitroSession.  
 
-        Parameters:  
+    Parameters:  
 
-        - `conf_path` : Configuration file path.  
-        - `conf_dict` : Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`. See `msiempy.NitroConfig` class to have full details.
+    - `conf_path` : Configuration file path.  
+    - `conf_dict` : Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`. See `msiempy.NitroConfig` class to have full details.
     &#34;&#34;&#34;
     def __init__(self, conf_path=None, conf_dict=None):
         global log
@@ -2190,10 +2184,10 @@ Use logout() to reinstanciate NitroSession.
             log.info(&#39;New ESM session instance is created with : &#39;+str(self.config.host))
 
     BASE_URL = &#39;https://{}/rs/esm/&#39;
-    __pdoc__[&#39;NitroSession.BASE_URL&#39;]=&#34;&#34;&#34;API v2 base url: `%(url)s`&#34;&#34;&#34; % dict(url=BASE_URL)
+    &#34;&#34;&#34;API v2 base url: `&#39;https://{}/rs/esm/&#39;`&#34;&#34;&#34;
 
     BASE_URL_PRIV = &#39;https://{}/ess/&#39;
-    __pdoc__[&#39;NitroSession.BASE_URL_PRIV&#39;]=&#34;&#34;&#34;Private API base URL: `%(url)s`&#34;&#34;&#34; % dict(url=BASE_URL_PRIV)
+    &#34;&#34;&#34;Private API base URL: `https://{}/ess/`&#34;&#34;&#34;
 
     __initiated__ = False
     &#34;&#34;&#34;
@@ -2540,13 +2534,12 @@ Use logout() to reinstanciate NitroSession.
     Important note : 
         Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
-    Content :
+    Content (please consult source code for full data structure) :
+        ```
         %(content)s
+        ```
         &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=4).replace(&#39;\n&#39;,&#34;&#34;&#34;  
-    &#34;&#34;&#34;)[:500]+&#34;&#34;&#34; [...] and more...
-
-    See : https://github.com/mfesiem/msiempy/blob/master/msiempy/__init__.py#L266
-    &#34;&#34;&#34;)
+    &#34;&#34;&#34;)[:500]+&#34;&#34;&#34; [...] and more...&#34;&#34;&#34;)
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -2915,7 +2908,7 @@ Use logout() to reinstanciate NitroSession.
 <dl>
 <dt id="msiempy.NitroSession.BASE_URL"><code class="name">var <span class="ident">BASE_URL</span></code></dt>
 <dd>
-<section class="desc"><p>API v2 base url: <code>&lt;https://{}/rs/esm/</code>&gt;</p></section>
+<section class="desc"><p>API v2 base url: <code>'https://{}/rs/esm/'</code></p></section>
 </dd>
 <dt id="msiempy.NitroSession.BASE_URL_PRIV"><code class="name">var <span class="ident">BASE_URL_PRIV</span></code></dt>
 <dd>
@@ -2942,26 +2935,22 @@ interpolated as documented in the Attributes.</p>
 <p><code>method, params = PARAMS.get("login").format(username, password)</code>. See : <a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"><code>NitroSession.request()</code></a><br>
 Important note :
 Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
-<p>Content :
-{<br>
-"login": [<br>
-"login",<br>
-"{"username": "%(username)s",\n
-"password" : "%(password)s",\n
-"locale": "en_US",\n
-"os": "Win32"}\n
-"<br>
-],<br>
-"get_devtree": [<br>
-"GRP_GETVIRTUALGROUPIPSLISTDATA",<br>
-"{"ITEMS": "#{DC1 + DC2}",\n
-"DID": "1",\n
-"HD": "F",\n
-[&hellip;] and more&hellip;</p>
-<dl>
-<dt><strong><code>See</code></strong> :&ensp;&lt;<code>https</code>://<code>github.com</code>/<code>mfesiem</code>/<a title="msiempy" href="#msiempy"><code>msiempy</code></a>/<code>blob</code>/<code>master</code>/<a title="msiempy" href="#msiempy"><code>msiempy</code></a>/<code>__init__.py</code>#<code>L266</code>&gt;</dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<p>Content (please consult source code for full data structure) :
+<code>{
+"login": [
+"login",
+"{\"username\": \"%(username)s\",\n
+\"password\" : \"%(password)s\",\n
+\"locale\": \"en_US\",\n
+\"os\": \"Win32\"}\n
+"
+],
+"get_devtree": [
+"GRP_GETVIRTUALGROUPIPSLISTDATA",
+"{\"ITEMS\": \"#{DC1 + DC2}\",\n
+\"DID\": \"1\",\n
+\"HD\": \"F\",\n
+[...] and more...</code></p></section>
 </dd>
 </dl>
 <h3>Static methods</h3>
@@ -3451,15 +3440,16 @@ a new session will be instanciated next time.</p></section>
 <span>class <span class="ident">NitroObject</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for all nitro objects. All objects have a reference to the single <a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> object that handle the esm requests.</p>
-<p>Creates the object session.</p></section>
+<section class="desc"><p>Base class for all nitro objects. All objects have a reference to the single <a title="msiempy.NitroSession" href="#msiempy.NitroSession"><code>NitroSession</code></a> object that handle the esm requests.<br>
+Creates the object session.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class NitroObject(abc.ABC):
     &#34;&#34;&#34;
-    Base class for all nitro objects. All objects have a reference to the single `msiempy.NitroSession` object that handle the esm requests.
+    Base class for all nitro objects. All objects have a reference to the single `msiempy.NitroSession` object that handle the esm requests.  
+    Creates the object session.
     &#34;&#34;&#34;
 
     class NitroJSONEncoder(json.JSONEncoder):
@@ -3476,8 +3466,6 @@ a new session will be instanciated next time.</p></section>
 
     @abc.abstractmethod
     def __init__(self):
-        &#34;&#34;&#34;Creates the object session.
-        &#34;&#34;&#34;
         self.nitro=NitroSession()
 
     @abc.abstractproperty

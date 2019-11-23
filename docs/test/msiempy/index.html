@@ -646,19 +646,21 @@ class NitroSession():
         - `tuple `: (string, string) : The first string is the method name that is actually used as
         the URI or passed to the ESM. The second string is the params
         required for that method. Some params require variables be
-        interpolated as documented in the Attributes.
+        interpolated as documented in the data structure.
+    
+    Exemple:  
+    
 
-    Example:
-        `method, params = PARAMS.get(&#34;login&#34;).format(username, password)`. See : `msiempy.NitroSession.request`  
+    See : `msiempy.NitroSession.request`  
 
     Important note : 
         Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
-    Data structure (please consult source code for full content):
-    ```
+    Data structure :
+    ```  
     %(content)s
-    ```
-        &#34;&#34;&#34; % dict(content=pprint.pformat(PARAMS)[:2000]) + &#34;&#34;&#34;[...] and more...&#34;&#34;&#34;
+    ```  
+    &#34;&#34;&#34; % dict(content=pprint.pformat(PARAMS)[:3000]) + &#34;&#34;&#34; [...] and more, please consult source code.&#34;&#34;&#34;
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -2526,19 +2528,21 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         - `tuple `: (string, string) : The first string is the method name that is actually used as
         the URI or passed to the ESM. The second string is the params
         required for that method. Some params require variables be
-        interpolated as documented in the Attributes.
+        interpolated as documented in the data structure.
+    
+    Exemple:  
+    
 
-    Example:
-        `method, params = PARAMS.get(&#34;login&#34;).format(username, password)`. See : `msiempy.NitroSession.request`  
+    See : `msiempy.NitroSession.request`  
 
     Important note : 
         Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
-    Data structure (please consult source code for full content):
-    ```
+    Data structure :
+    ```  
     %(content)s
-    ```
-        &#34;&#34;&#34; % dict(content=pprint.pformat(PARAMS)[:2000]) + &#34;&#34;&#34;[...] and more...&#34;&#34;&#34;
+    ```  
+    &#34;&#34;&#34; % dict(content=pprint.pformat(PARAMS)[:3000]) + &#34;&#34;&#34; [...] and more, please consult source code.&#34;&#34;&#34;
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -2929,14 +2933,16 @@ Use normal dict access, PARAMS["method"], or PARAMS.get("method")</p>
 - <code>tuple</code>: (string, string) : The first string is the method name that is actually used as
 the URI or passed to the ESM. The second string is the params
 required for that method. Some params require variables be
-interpolated as documented in the Attributes.</p>
-<p>Example:
-<code>method, params = PARAMS.get("login").format(username, password)</code>. See : <a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"><code>NitroSession.request()</code></a>
+interpolated as documented in the data structure.</p>
+<p>Exemple:
+</p>
+<p>See : <a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"><code>NitroSession.request()</code></a>
 </p>
 <p>Important note :
 Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
-<p>Data structure (please consult source code for full content):
-<code>{'_dev_types': ('dev_type_map',
+<p>Data structure :
+```<br>
+{'_dev_types': ('dev_type_map',
 '{"1": "zone",\n'
 '
 "2": "ERC",\n'
@@ -2990,8 +2996,36 @@ Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 '
 '),
 'ack_alarms': ('alarmAcknowledgeTriggeredAlarm',
-'{"triggeredIds":[{"value":%(ids</code>
-[&hellip;] and more&hellip;</p></section>
+'{"triggeredIds":[{"value":%(ids)s}]}'),
+'ack_alarms_11_2_1': ('alarmAcknowledgeTriggeredAlarm',
+'{"triggeredIds":{"alarmIdList":[%(ids)s]}}'),
+'add_client1': ('DS_ADDDSCLIENT',
+'{"PID": "%(parent_id)s",\n'
+'
+"NAME": "%(name)s",\n'
+'
+"ENABLED": "%(enabled)s",\n'
+'
+"IP": "%(ds_ip)s",\n'
+'
+"HOST": "%(hostname)s",\n'
+'
+"TYPE": "%(type_id)s",\n'
+'
+"TZID": "%(tz_id)s",\n'
+'
+"DORDER": "%(dorder)s",\n'
+'
+"MASKFLAG": "%(maskflag)s",\n'
+'
+"PORT": "%(port)s",\n'
+'
+"USETLS": "%(require_tls)s"\n'
+'
+}'),
+'add_ds_11_1_3': ('dsAddDataSource',</p>
+<p>```<br>
+[&hellip;] and more, please consult source code.</p></section>
 </dd>
 </dl>
 <h3>Static methods</h3>

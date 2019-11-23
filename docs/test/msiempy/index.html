@@ -67,6 +67,7 @@ import functools
 import textwrap
 import inspect
 import time
+import pprint
 
 from io import StringIO
 from .__utils__ import regex_match, tob64, format_esm_time, convert_to_time_obj, timerange_gettimes, parse_timedelta, divide_times
@@ -657,7 +658,7 @@ class NitroSession():
     ```
     %(content)s
     ```
-        &#34;&#34;&#34; % dict(content=str(PARAMS)[:1000])+&#34;&#34;&#34; [...] and more...&#34;&#34;&#34;
+        &#34;&#34;&#34; % dict(content=pprint.pformat(PARAMS)[:1000])+&#34;&#34;&#34; [...] and more...&#34;&#34;&#34;
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -1578,7 +1579,7 @@ class FilteredQueryList(NitroList):
     def filters(self):
         &#34;&#34;&#34; 
         Filter property : Returns a list of filters.
-        Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
+        Can be set with list of tuple(field, [values]) or `msiempy.event._QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
         `None` value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
         Raises : `AttributeError` if type not supported.
         Abstract declaration.
@@ -2537,7 +2538,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
     ```
     %(content)s
     ```
-        &#34;&#34;&#34; % dict(content=str(PARAMS)[:1000])+&#34;&#34;&#34; [...] and more...&#34;&#34;&#34;
+        &#34;&#34;&#34; % dict(content=pprint.pformat(PARAMS)[:1000])+&#34;&#34;&#34; [...] and more...&#34;&#34;&#34;
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -2934,7 +2935,24 @@ interpolated as documented in the Attributes.</p>
 Important note :
 Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
 <p>Data structure (please consult source code for full content):</p>
-<pre><code>{'login': ('login', '{&quot;username&quot;: &quot;%(username)s&quot;,\n                    &quot;password&quot; : &quot;%(password)s&quot;,\n                    &quot;locale&quot;: &quot;en_US&quot;,\n                    &quot;os&quot;: &quot;Win32&quot;}\n                    '), 'get_devtree': ('GRP_GETVIRTUALGROUPIPSLISTDATA', '{&quot;ITEMS&quot;: &quot;#{DC1 + DC2}&quot;,\n                            &quot;DID&quot;: &quot;1&quot;,\n                            &quot;HD&quot;: &quot;F&quot;,\n                            &quot;NS&quot;: &quot;0&quot;}\n                        '), 'get_zones_devtree': ('GRP_GETVIRTUALGROUPIPSLISTDATA', '{&quot;ITEMS&quot;: &quot;#{DC1 + DC2}&quot;,\n                            &quot;DID&quot;: &quot;3&quot;,\n                            &quot;HD&quot;: &quot;F&quot;,\n                            &quot;NS&quot;: &quot;0&quot;}\n                        '), 'req_client_str': ('DS_GETDSCLIENTLIST', '{&quot;DSID&quot;: &quot;%(ds_id)s&quot;,\n                                &quot;SEARCH&quot;: &quot;&quot;}\n                            '), 'get_rfile': ('MISC_READFILE', '{&quot;FNAME&quot;: &quot;%(ftoken)s&quot;,\n                    &quot;SPOS&quot;: &quot;0&quot;,\n                    &quot;NBYTES&quot;: &quot;0&quot;}\n                    '), 'del_rfile': ('ESSMGT_DELETEFILE', '{&quot;FN&quot;: &quot;
+<pre><code>{'_dev_types': ('dev_type_map',
+            '{&quot;1&quot;: &quot;zone&quot;,\n'
+            '                                &quot;2&quot;: &quot;ERC&quot;,\n'
+            '                                &quot;3&quot;: &quot;datasource&quot;,\n'
+            '                                &quot;4&quot;: &quot;Database Event Monitor '
+            '(DBM)&quot;,\n'
+            '                                &quot;5&quot;: &quot;DBM Database&quot;,\n'
+            '                                &quot;7&quot;: &quot;Policy Auditor&quot;,\n'
+            '                                &quot;10&quot;: &quot;Application Data '
+            'Monitor (ADM)&quot;,\n'
+            '                                &quot;12&quot;: &quot;ELM&quot;,\n'
+            '                                &quot;14&quot;: &quot;Local ESM&quot;,\n'
+            '                                &quot;15&quot;: &quot;Advanced Correlation '
+            'Engine (ACE)&quot;,\n'
+            '                                &quot;16&quot;: &quot;Asset datasource&quot;,\n'
+            '                                &quot;17&quot;: &quot;Score-based '
+            'Correlation&quot;,\n'
+
 </code></pre>
 <pre><code> [...] and more...
 </code></pre></section>
@@ -4622,7 +4640,7 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.Filt
     def filters(self):
         &#34;&#34;&#34; 
         Filter property : Returns a list of filters.
-        Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
+        Can be set with list of tuple(field, [values]) or `msiempy.event._QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
         `None` value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
         Raises : `AttributeError` if type not supported.
         Abstract declaration.
@@ -4773,7 +4791,7 @@ def end_time(self):
 <dt id="msiempy.FilteredQueryList.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
 <section class="desc"><p>Filter property : Returns a list of filters.
-Can be set with list of tuple(field, [values]) or <code>msiempy.event.QueryFilter</code> in the case of a <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a> query. A single tuple is also accepted.<br>
+Can be set with list of tuple(field, [values]) or <code>msiempy.event._QueryFilter</code> in the case of a <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a> query. A single tuple is also accepted.<br>
 <code>None</code> value will call <code>msiempy.query.FilteredQueryList.clear_filters()</code>.<br>
 Raises : <code>AttributeError</code> if type not supported.
 Abstract declaration.
@@ -4786,7 +4804,7 @@ TODO find a better solution to integrate the filter propertie</p></section>
 def filters(self):
     &#34;&#34;&#34; 
     Filter property : Returns a list of filters.
-    Can be set with list of tuple(field, [values]) or `msiempy.event.QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
+    Can be set with list of tuple(field, [values]) or `msiempy.event._QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
     `None` value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
     Raises : `AttributeError` if type not supported.
     Abstract declaration.

@@ -303,10 +303,10 @@ class NitroSession():
             log.info(&#39;New ESM session instance is created with : &#39;+str(self.config.host))
 
     BASE_URL = &#39;https://{}/rs/esm/&#39;
-    &#34;&#34;&#34;API v2 base url: `&#39;https://{}/rs/esm/&#39;`&#34;&#34;&#34;
+    &#34;&#34;&#34;API v2 base url: &#39;https://{}/rs/esm/&#39;&#34;&#34;&#34;
 
     BASE_URL_PRIV = &#39;https://{}/ess/&#39;
-    &#34;&#34;&#34;Private API base URL: `https://{}/ess/`&#34;&#34;&#34;
+    &#34;&#34;&#34;Private API base URL: &#39;https://{}/ess/&#39;&#34;&#34;&#34;
 
     __initiated__ = False
     &#34;&#34;&#34;
@@ -653,12 +653,12 @@ class NitroSession():
     Important note : 
         Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
-    Content (please consult source code for full data structure) :
-        ```
-        %(content)s
-        ```
-        &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=4).replace(&#39;\n&#39;,&#34;&#34;&#34;  
-    &#34;&#34;&#34;)[:500]+&#34;&#34;&#34; [...] and more...&#34;&#34;&#34;)
+    Data structure (please consult source code for full content):
+    ```
+    %(content)s
+    ```
+        &#34;&#34;&#34; % dict(content=str(PARAMS).replace(&#39;\n&#39;,&#34;&#34;&#34;  
+    &#34;&#34;&#34;)[:1000])+&#34;&#34;&#34; [...] and more...&#34;&#34;&#34;
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -2184,10 +2184,10 @@ Use <code>logout()</code> to reinstanciate NitroSession.
             log.info(&#39;New ESM session instance is created with : &#39;+str(self.config.host))
 
     BASE_URL = &#39;https://{}/rs/esm/&#39;
-    &#34;&#34;&#34;API v2 base url: `&#39;https://{}/rs/esm/&#39;`&#34;&#34;&#34;
+    &#34;&#34;&#34;API v2 base url: &#39;https://{}/rs/esm/&#39;&#34;&#34;&#34;
 
     BASE_URL_PRIV = &#39;https://{}/ess/&#39;
-    &#34;&#34;&#34;Private API base URL: `https://{}/ess/`&#34;&#34;&#34;
+    &#34;&#34;&#34;Private API base URL: &#39;https://{}/ess/&#39;&#34;&#34;&#34;
 
     __initiated__ = False
     &#34;&#34;&#34;
@@ -2534,12 +2534,12 @@ Use <code>logout()</code> to reinstanciate NitroSession.
     Important note : 
         Do not use sigle quotes (&#39;) to delimit data into the interpolated strings !
 
-    Content (please consult source code for full data structure) :
-        ```
-        %(content)s
-        ```
-        &#34;&#34;&#34; % dict(content=json.dumps(PARAMS, indent=4).replace(&#39;\n&#39;,&#34;&#34;&#34;  
-    &#34;&#34;&#34;)[:500]+&#34;&#34;&#34; [...] and more...&#34;&#34;&#34;)
+    Data structure (please consult source code for full content):
+    ```
+    %(content)s
+    ```
+        &#34;&#34;&#34; % dict(content=str(PARAMS).replace(&#39;\n&#39;,&#34;&#34;&#34;  
+    &#34;&#34;&#34;)[:1000])+&#34;&#34;&#34; [...] and more...&#34;&#34;&#34;
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -2908,11 +2908,11 @@ Use <code>logout()</code> to reinstanciate NitroSession.
 <dl>
 <dt id="msiempy.NitroSession.BASE_URL"><code class="name">var <span class="ident">BASE_URL</span></code></dt>
 <dd>
-<section class="desc"><p>API v2 base url: <code>'https://{}/rs/esm/'</code></p></section>
+<section class="desc"><p>API v2 base url: 'https://{}/rs/esm/'</p></section>
 </dd>
 <dt id="msiempy.NitroSession.BASE_URL_PRIV"><code class="name">var <span class="ident">BASE_URL_PRIV</span></code></dt>
 <dd>
-<section class="desc"><p>Private API base URL: <code>&lt;https://{}/ess/</code>&gt;</p></section>
+<section class="desc"><p>Private API base URL: 'https://{}/ess/'</p></section>
 </dd>
 <dt id="msiempy.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>
@@ -2935,22 +2935,11 @@ interpolated as documented in the Attributes.</p>
 <p><code>method, params = PARAMS.get("login").format(username, password)</code>. See : <a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request"><code>NitroSession.request()</code></a><br>
 Important note :
 Do not use sigle quotes (') to delimit data into the interpolated strings !</p>
-<p>Content (please consult source code for full data structure) :
-<code>{
-"login": [
-"login",
-"{\"username\": \"%(username)s\",\n
-\"password\" : \"%(password)s\",\n
-\"locale\": \"en_US\",\n
-\"os\": \"Win32\"}\n
-"
-],
-"get_devtree": [
-"GRP_GETVIRTUALGROUPIPSLISTDATA",
-"{\"ITEMS\": \"#{DC1 + DC2}\",\n
-\"DID\": \"1\",\n
-\"HD\": \"F\",\n
-[...] and more...</code></p></section>
+<p>Data structure (please consult source code for full content):</p>
+<pre><code>{'login': ('login', '{&quot;username&quot;: &quot;%(username)s&quot;,\n                    &quot;password&quot; : &quot;%(password)s&quot;,\n                    &quot;locale&quot;: &quot;en_US&quot;,\n                    &quot;os&quot;: &quot;Win32&quot;}\n                    '), 'get_devtree': ('GRP_GETVIRTUALGROUPIPSLISTDATA', '{&quot;ITEMS&quot;: &quot;#{DC1 + DC2}&quot;,\n                            &quot;DID&quot;: &quot;1&quot;,\n                            &quot;HD&quot;: &quot;F&quot;,\n                            &quot;NS&quot;: &quot;0&quot;}\n                        '), 'get_zones_devtree': ('GRP_GETVIRTUALGROUPIPSLISTDATA', '{&quot;ITEMS&quot;: &quot;#{DC1 + DC2}&quot;,\n                            &quot;DID&quot;: &quot;3&quot;,\n                            &quot;HD&quot;: &quot;F&quot;,\n                            &quot;NS&quot;: &quot;0&quot;}\n                        '), 'req_client_str': ('DS_GETDSCLIENTLIST', '{&quot;DSID&quot;: &quot;%(ds_id)s&quot;,\n                                &quot;SEARCH&quot;: &quot;&quot;}\n                            '), 'get_rfile': ('MISC_READFILE', '{&quot;FNAME&quot;: &quot;%(ftoken)s&quot;,\n                    &quot;SPOS&quot;: &quot;0&quot;,\n                    &quot;NBYTES&quot;: &quot;0&quot;}\n                    '), 'del_rfile': ('ESSMGT_DELETEFILE', '{&quot;FN&quot;: &quot;
+</code></pre>
+<pre><code> [...] and more...
+</code></pre></section>
 </dd>
 </dl>
 <h3>Static methods</h3>

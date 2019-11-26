@@ -80,6 +80,7 @@ class ESM(NitroObject):
         &#34;&#34;&#34;
         Returns: `dict`  
         ESM statuses including :  
+        
         - `cpu`, example: `Avail: 7977MB, Used: 7857MB, Free: 119MB`  
         - `hdd`, example: `sda3     Size:  491GB, Used:   55GB(12%), Available:  413GB, Mount: /`  
         - `ram`  
@@ -176,6 +177,7 @@ class ESM(NitroObject):
         &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.  
         
         Arguments:  
+
         - `ds_id`: (`str`) `IPSID` for the device, e.g. `144116287587483648`  
         - `flows`: (`bool`) Also get flows from the device (default: False)  
         
@@ -228,6 +230,7 @@ class ESM(NitroObject):
     def tz_name_to_id(self, tz_name):
         &#34;&#34;&#34;
         Arguments:  
+
         - `tz_name`: (`str`) Case sensitive, exact match timezone name  
         
         Returns: `str`, Timezone id or `None` if there is no match
@@ -242,6 +245,7 @@ class ESM(NitroObject):
     def tz_id_to_name(self, tz_id):
         &#34;&#34;&#34;
         Arguments:  
+
         - `td_id`: (`str`) Numerical string (Currently `1` to `74`)  
         
         Returns: `str` Timezone name or `None` if there is no match
@@ -254,6 +258,7 @@ class ESM(NitroObject):
     def type_id_to_venmod(self, type_id):
         &#34;&#34;&#34;
         Arguments:  
+
         - `type_id`: (`str`) Numerical string   
         
         Returns: `tuple(vendor, model)` or `None` if there is no match
@@ -267,6 +272,7 @@ class ESM(NitroObject):
     def venmod_to_type_id(self, vendor, model):
         &#34;&#34;&#34;
         Arguments:  
+
         - `vendor`: (`str`) Exact vendor string including puncuation  
         - `model`: (`str`) Exact model string including puncuation  
         
@@ -297,21 +303,18 @@ class ESM(NitroObject):
         &#34;&#34;&#34;
         Callback to create type_id/vendor/model table  
         
-        Args:  
-            venmods (obj): request object from _get_ds_types  
+        Arguments:  
+
+        - `venmods` (`obj`): request object from _get_ds_types  
         
-        Returns:
-            list. of tuples 
-                
-           [(542, &#39;McAfee&#39;, &#39;SaaS Email Protection&#39;)
+        Returns: `list of tuples`:  
+            [(542, &#39;McAfee&#39;, &#39;SaaS Email Protection&#39;)
             (326, &#39;McAfee&#39;, &#39;Web Gateway&#39;)
             (406, &#39;Microsoft&#39;, &#39;ACS - SQL Pull&#39;)
             (491, &#39;Microsoft&#39;, &#39;Endpoint Protection - SQL Pull&#39;)
             (348, &#39;Microsoft&#39;, &#39;Exchange&#39;)]
 
-        Note: 
-            This is a callback for _get_ds_types.
-
+        Note: This is a callback for _get_ds_types.
         &#34;&#34;&#34;
         return [(mod[&#39;id&#39;][&#39;id&#39;], ven[&#39;name&#39;], mod[&#39;name&#39;],)
                     for ven in venmods[&#39;vendors&#39;]
@@ -1207,6 +1210,7 @@ class DataSource(NitroDict):
         &#34;&#34;&#34;
         Returns: `dict`  
         ESM statuses including :  
+        
         - `cpu`, example: `Avail: 7977MB, Used: 7857MB, Free: 119MB`  
         - `hdd`, example: `sda3     Size:  491GB, Used:   55GB(12%), Available:  413GB, Mount: /`  
         - `ram`  
@@ -1303,6 +1307,7 @@ class DataSource(NitroDict):
         &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.  
         
         Arguments:  
+
         - `ds_id`: (`str`) `IPSID` for the device, e.g. `144116287587483648`  
         - `flows`: (`bool`) Also get flows from the device (default: False)  
         
@@ -1355,6 +1360,7 @@ class DataSource(NitroDict):
     def tz_name_to_id(self, tz_name):
         &#34;&#34;&#34;
         Arguments:  
+
         - `tz_name`: (`str`) Case sensitive, exact match timezone name  
         
         Returns: `str`, Timezone id or `None` if there is no match
@@ -1369,6 +1375,7 @@ class DataSource(NitroDict):
     def tz_id_to_name(self, tz_id):
         &#34;&#34;&#34;
         Arguments:  
+
         - `td_id`: (`str`) Numerical string (Currently `1` to `74`)  
         
         Returns: `str` Timezone name or `None` if there is no match
@@ -1381,6 +1388,7 @@ class DataSource(NitroDict):
     def type_id_to_venmod(self, type_id):
         &#34;&#34;&#34;
         Arguments:  
+
         - `type_id`: (`str`) Numerical string   
         
         Returns: `tuple(vendor, model)` or `None` if there is no match
@@ -1394,6 +1402,7 @@ class DataSource(NitroDict):
     def venmod_to_type_id(self, vendor, model):
         &#34;&#34;&#34;
         Arguments:  
+
         - `vendor`: (`str`) Exact vendor string including puncuation  
         - `model`: (`str`) Exact model string including puncuation  
         
@@ -1424,21 +1433,18 @@ class DataSource(NitroDict):
         &#34;&#34;&#34;
         Callback to create type_id/vendor/model table  
         
-        Args:  
-            venmods (obj): request object from _get_ds_types  
+        Arguments:  
+
+        - `venmods` (`obj`): request object from _get_ds_types  
         
-        Returns:
-            list. of tuples 
-                
-           [(542, &#39;McAfee&#39;, &#39;SaaS Email Protection&#39;)
+        Returns: `list of tuples`:  
+            [(542, &#39;McAfee&#39;, &#39;SaaS Email Protection&#39;)
             (326, &#39;McAfee&#39;, &#39;Web Gateway&#39;)
             (406, &#39;Microsoft&#39;, &#39;ACS - SQL Pull&#39;)
             (491, &#39;Microsoft&#39;, &#39;Endpoint Protection - SQL Pull&#39;)
             (348, &#39;Microsoft&#39;, &#39;Exchange&#39;)]
 
-        Note: 
-            This is a callback for _get_ds_types.
-
+        Note: This is a callback for _get_ds_types.
         &#34;&#34;&#34;
         return [(mod[&#39;id&#39;][&#39;id&#39;], ven[&#39;name&#39;], mod[&#39;name&#39;],)
                     for ven in venmods[&#39;vendors&#39;]
@@ -1508,24 +1514,38 @@ Example: <code>10.1.0</code></p></section>
 </code></dt>
 <dd>
 <section class="desc"><p>Returns: <code>dict</code><br>
-ESM statuses including :<br>
-- <code>cpu</code>, example: <code>Avail: 7977MB, Used: 7857MB, Free: 119MB</code><br>
-- <code>hdd</code>, example: <code>sda3
+ESM statuses including :
+</p>
+<ul>
+<li><code>cpu</code>, example: <code>Avail: 7977MB, Used: 7857MB, Free: 119MB</code>
+</li>
+<li><code>hdd</code>, example: <code>sda3
 Size:
 491GB, Used:
 55GB(12%), Available:
-413GB, Mount: /</code><br>
-- <code>ram</code><br>
-- <code>callHomeIp</code><br>
-- <code>autoBackupEnabled</code><br>
-- <code>autoBackupHour</code><br>
-- <code>autoBackupDay</code><br>
-- <code>backupNextTime</code><br>
-- <code>backupLastTime</code><br>
-- <code>rulesAndSoftwareCheckEnabled</code><br>
-- <code>rulesAndSoftNextCheck</code><br>
-- <code>rulesAndSoftLastCheck</code><br>
-Other functions exist to return subsets of this data also.</p></section>
+413GB, Mount: /</code>
+</li>
+<li><code>ram</code>
+</li>
+<li><code>callHomeIp</code>
+</li>
+<li><code>autoBackupEnabled</code>
+</li>
+<li><code>autoBackupHour</code>
+</li>
+<li><code>autoBackupDay</code>
+</li>
+<li><code>backupNextTime</code>
+</li>
+<li><code>backupLastTime</code>
+</li>
+<li><code>rulesAndSoftwareCheckEnabled</code>
+</li>
+<li><code>rulesAndSoftNextCheck</code>
+</li>
+<li><code>rulesAndSoftLastCheck</code><br>
+Other functions exist to return subsets of this data also.</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1534,6 +1554,7 @@ Other functions exist to return subsets of this data also.</p></section>
     &#34;&#34;&#34;
     Returns: `dict`  
     ESM statuses including :  
+    
     - `cpu`, example: `Avail: 7977MB, Used: 7857MB, Free: 119MB`  
     - `hdd`, example: `sda3     Size:  491GB, Used:   55GB(12%), Available:  413GB, Mount: /`  
     - `ram`  
@@ -1670,10 +1691,14 @@ Example:<br>
 <dd>
 <section class="desc"><p>Tells the ESM to retrieve alerts from the provided device ID.
 </p>
-<p>Arguments:<br>
-- <code>ds_id</code>: (<code>str</code>) <code>IPSID</code> for the device, e.g. <code>144116287587483648</code><br>
-- <code>flows</code>: (<code>bool</code>) Also get flows from the device (default: False)
+<p>Arguments:
 </p>
+<ul>
+<li><code>ds_id</code>: (<code>str</code>) <code>IPSID</code> for the device, e.g. <code>144116287587483648</code>
+</li>
+<li><code>flows</code>: (<code>bool</code>) Also get flows from the device (default: False)
+</li>
+</ul>
 <p>Returns: <code>None</code></p></section>
 <details class="source">
 <summary>
@@ -1683,6 +1708,7 @@ Example:<br>
     &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.  
     
     Arguments:  
+
     - `ds_id`: (`str`) `IPSID` for the device, e.g. `144116287587483648`  
     - `flows`: (`bool`) Also get flows from the device (default: False)  
     
@@ -1769,9 +1795,12 @@ def recs(self):
 <span>def <span class="ident">tz_name_to_id</span></span>(<span>self, tz_name)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Arguments:<br>
-- <code>tz_name</code>: (<code>str</code>) Case sensitive, exact match timezone name
+<section class="desc"><p>Arguments:
 </p>
+<ul>
+<li><code>tz_name</code>: (<code>str</code>) Case sensitive, exact match timezone name
+</li>
+</ul>
 <p>Returns: <code>str</code>, Timezone id or <code>None</code> if there is no match</p></section>
 <details class="source">
 <summary>
@@ -1780,6 +1809,7 @@ def recs(self):
 <pre><code class="python">def tz_name_to_id(self, tz_name):
     &#34;&#34;&#34;
     Arguments:  
+
     - `tz_name`: (`str`) Case sensitive, exact match timezone name  
     
     Returns: `str`, Timezone id or `None` if there is no match
@@ -1796,9 +1826,12 @@ def recs(self):
 <span>def <span class="ident">tz_id_to_name</span></span>(<span>self, tz_id)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Arguments:<br>
-- <code>td_id</code>: (<code>str</code>) Numerical string (Currently <code>1</code> to <code>74</code>)
+<section class="desc"><p>Arguments:
 </p>
+<ul>
+<li><code>td_id</code>: (<code>str</code>) Numerical string (Currently <code>1</code> to <code>74</code>)
+</li>
+</ul>
 <p>Returns: <code>str</code> Timezone name or <code>None</code> if there is no match</p></section>
 <details class="source">
 <summary>
@@ -1807,6 +1840,7 @@ def recs(self):
 <pre><code class="python">def tz_id_to_name(self, tz_id):
     &#34;&#34;&#34;
     Arguments:  
+
     - `td_id`: (`str`) Numerical string (Currently `1` to `74`)  
     
     Returns: `str` Timezone name or `None` if there is no match
@@ -1821,9 +1855,12 @@ def recs(self):
 <span>def <span class="ident">type_id_to_venmod</span></span>(<span>self, type_id)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Arguments:<br>
-- <code>type_id</code>: (<code>str</code>) Numerical string
+<section class="desc"><p>Arguments:
 </p>
+<ul>
+<li><code>type_id</code>: (<code>str</code>) Numerical string
+</li>
+</ul>
 <p>Returns: <code>tuple(vendor, model)</code> or <code>None</code> if there is no match</p></section>
 <details class="source">
 <summary>
@@ -1832,6 +1869,7 @@ def recs(self):
 <pre><code class="python">def type_id_to_venmod(self, type_id):
     &#34;&#34;&#34;
     Arguments:  
+
     - `type_id`: (`str`) Numerical string   
     
     Returns: `tuple(vendor, model)` or `None` if there is no match
@@ -1847,10 +1885,14 @@ def recs(self):
 <span>def <span class="ident">venmod_to_type_id</span></span>(<span>self, vendor, model)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Arguments:<br>
-- <code>vendor</code>: (<code>str</code>) Exact vendor string including puncuation<br>
-- <code>model</code>: (<code>str</code>) Exact model string including puncuation
+<section class="desc"><p>Arguments:
 </p>
+<ul>
+<li><code>vendor</code>: (<code>str</code>) Exact vendor string including puncuation
+</li>
+<li><code>model</code>: (<code>str</code>) Exact model string including puncuation
+</li>
+</ul>
 <p>Returns: <code>str</code> Matching type_id or None if there is no match</p></section>
 <details class="source">
 <summary>
@@ -1859,6 +1901,7 @@ def recs(self):
 <pre><code class="python">def venmod_to_type_id(self, vendor, model):
     &#34;&#34;&#34;
     Arguments:  
+
     - `vendor`: (`str`) Exact vendor string including puncuation  
     - `model`: (`str`) Exact model string including puncuation  
     

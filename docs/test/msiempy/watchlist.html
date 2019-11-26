@@ -77,24 +77,26 @@ class WatchlistManager(NitroList):
     def add(self, name, wl_type):
         &#34;&#34;&#34;
         Create a static watchlist.
-        Args:
-            name (str): Name of the watchlist.
-            wl_type (str): Watchlist data type.
-                Get the list of types with: &#39;get_wl_types&#39;
-                Most common types are: IPAddress,
-                                       Hash,
-                                       SHA1,
-                                       DSIDSigID,
-                                       Port,
-                                       MacAddress,
-                                       NormID,
-                                       AppID,
-                                       CommandID,
-                                       DomainID,
-                                       HostID,
-                                       ObjectID,
-                                       Filename,
-                                       File_Hash
+
+        Arguments:  
+
+        - `name` (`str`): Name of the watchlist.
+        - `wl_type` (`str`): Watchlist data type.
+        Get the list of types with: `msiempy.watchlist.WatchlistManager.get_wl_types`.  
+        Most common types are: IPAddress,
+                                Hash,
+                                SHA1,
+                                DSIDSigID,
+                                Port,
+                                MacAddress,
+                                NormID,
+                                AppID,
+                                CommandID,
+                                DomainID,
+                                HostID,
+                                ObjectID,
+                                Filename,
+                                File_Hash
         &#34;&#34;&#34;
         for wl in self.data:
             if wl.get(&#39;name&#39;) == name:
@@ -105,22 +107,18 @@ class WatchlistManager(NitroList):
 
     def remove(self, wl_id_list):
         &#34;&#34;&#34;
-        Remove watchlist(s).
+        Remove watchlist(s).  
 
-        Args:
-            wl_ids (list): list of watchlist IDs
+        Arguments:  
 
-        Example:
-            1, 2, 3
+        - `wl_ids` (`list`): list of watchlist IDs. Example: `[1, 2, 3]`.   
         &#34;&#34;&#34;
         self.nitro.request(&#39;remove_watchlists&#39;, wl_id_list=wl_id_list)
 
     def get_wl_types(self):
         &#34;&#34;&#34;
         Get a list of watchlist types.
-
-        Returns:
-            list of watchlist types.
+        Returns: `list` of watchlist types.
         &#34;&#34;&#34;
         return self.nitro.request(&#39;get_wl_types&#39;)
 
@@ -149,26 +147,32 @@ class Watchlist(NitroDict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def __repr__(self):
-        return self.data.__repr__()
+    # this should not be necessary neitehr
+    # def __repr__(self):
+    #     return self.data.__repr__()
     
-    def __iter__(self):
-        for data in self.data:
-            yield data
+    # This should not be necessary
+    # def __iter__(self):
+    #     for data in self.data:
+    #         yield data
 
     def add_values(self, values):
         &#34;&#34;&#34;
         Add values to static watchlist.
-        Args:
-            values (list): list of values
+
+        Arguments:  
+
+        - `values` (`list`): list of values
         &#34;&#34;&#34;
         self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)
 
     def data_from_id(self, id):
         &#34;&#34;&#34;
         Retrieve watchlist details for ID.
-        Args:
-            id (str): watchlist ID
+        
+        Arguments:  
+
+        - `id` (`str`): watchlist ID
         &#34;&#34;&#34;
         info=self.nitro.request(&#39;get_watchlist_details&#39;, id=id)
         return info
@@ -181,14 +185,16 @@ class Watchlist(NitroDict):
 
     def load_values(self):
         &#34;&#34;&#34;
-        Load Watchlist values.
+        Load Watchlist values.  
+        Raises: `KeyError` if watchlist invalid.
         &#34;&#34;&#34;
         wl_details = self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;])
 
         try:
             file = wl_details[&#39;WLVFILE&#39;]
         except KeyError:
-            print(&#39;ESM Error: Is watchlist valid?&#39;)
+            log.error(&#39;Is watchlist valid? ({})&#39;.format(str(self)))
+            raise
         data = self.nitro.get_internal_file(file)
         self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)</code></pre>
 </details>
@@ -261,24 +267,26 @@ Initialize the watchlist manager.</p></section>
     def add(self, name, wl_type):
         &#34;&#34;&#34;
         Create a static watchlist.
-        Args:
-            name (str): Name of the watchlist.
-            wl_type (str): Watchlist data type.
-                Get the list of types with: &#39;get_wl_types&#39;
-                Most common types are: IPAddress,
-                                       Hash,
-                                       SHA1,
-                                       DSIDSigID,
-                                       Port,
-                                       MacAddress,
-                                       NormID,
-                                       AppID,
-                                       CommandID,
-                                       DomainID,
-                                       HostID,
-                                       ObjectID,
-                                       Filename,
-                                       File_Hash
+
+        Arguments:  
+
+        - `name` (`str`): Name of the watchlist.
+        - `wl_type` (`str`): Watchlist data type.
+        Get the list of types with: `msiempy.watchlist.WatchlistManager.get_wl_types`.  
+        Most common types are: IPAddress,
+                                Hash,
+                                SHA1,
+                                DSIDSigID,
+                                Port,
+                                MacAddress,
+                                NormID,
+                                AppID,
+                                CommandID,
+                                DomainID,
+                                HostID,
+                                ObjectID,
+                                Filename,
+                                File_Hash
         &#34;&#34;&#34;
         for wl in self.data:
             if wl.get(&#39;name&#39;) == name:
@@ -289,22 +297,18 @@ Initialize the watchlist manager.</p></section>
 
     def remove(self, wl_id_list):
         &#34;&#34;&#34;
-        Remove watchlist(s).
+        Remove watchlist(s).  
 
-        Args:
-            wl_ids (list): list of watchlist IDs
+        Arguments:  
 
-        Example:
-            1, 2, 3
+        - `wl_ids` (`list`): list of watchlist IDs. Example: `[1, 2, 3]`.   
         &#34;&#34;&#34;
         self.nitro.request(&#39;remove_watchlists&#39;, wl_id_list=wl_id_list)
 
     def get_wl_types(self):
         &#34;&#34;&#34;
         Get a list of watchlist types.
-
-        Returns:
-            list of watchlist types.
+        Returns: `list` of watchlist types.
         &#34;&#34;&#34;
         return self.nitro.request(&#39;get_wl_types&#39;)</code></pre>
 </details>
@@ -380,13 +384,12 @@ Initialize the watchlist manager.</p></section>
 </code></dt>
 <dd>
 <section class="desc"><p>Create a static watchlist.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
-<dd>Name of the watchlist.</dd>
-<dt><strong><code>wl_type</code></strong> :&ensp;<code>str</code></dt>
-<dd>Watchlist data type.
-Get the list of types with: 'get_wl_types'
+<p>Arguments:
+</p>
+<ul>
+<li><code>name</code> (<code>str</code>): Name of the watchlist.</li>
+<li><code>wl_type</code> (<code>str</code>): Watchlist data type.
+Get the list of types with: <a title="msiempy.watchlist.WatchlistManager.get_wl_types" href="#msiempy.watchlist.WatchlistManager.get_wl_types"><code>WatchlistManager.get_wl_types()</code></a>.<br>
 Most common types are: IPAddress,
 Hash,
 SHA1,
@@ -400,8 +403,8 @@ DomainID,
 HostID,
 ObjectID,
 Filename,
-File_Hash</dd>
-</dl></section>
+File_Hash</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -409,24 +412,26 @@ File_Hash</dd>
 <pre><code class="python">def add(self, name, wl_type):
     &#34;&#34;&#34;
     Create a static watchlist.
-    Args:
-        name (str): Name of the watchlist.
-        wl_type (str): Watchlist data type.
-            Get the list of types with: &#39;get_wl_types&#39;
-            Most common types are: IPAddress,
-                                   Hash,
-                                   SHA1,
-                                   DSIDSigID,
-                                   Port,
-                                   MacAddress,
-                                   NormID,
-                                   AppID,
-                                   CommandID,
-                                   DomainID,
-                                   HostID,
-                                   ObjectID,
-                                   Filename,
-                                   File_Hash
+
+    Arguments:  
+
+    - `name` (`str`): Name of the watchlist.
+    - `wl_type` (`str`): Watchlist data type.
+    Get the list of types with: `msiempy.watchlist.WatchlistManager.get_wl_types`.  
+    Most common types are: IPAddress,
+                            Hash,
+                            SHA1,
+                            DSIDSigID,
+                            Port,
+                            MacAddress,
+                            NormID,
+                            AppID,
+                            CommandID,
+                            DomainID,
+                            HostID,
+                            ObjectID,
+                            Filename,
+                            File_Hash
     &#34;&#34;&#34;
     for wl in self.data:
         if wl.get(&#39;name&#39;) == name:
@@ -440,30 +445,24 @@ File_Hash</dd>
 <span>def <span class="ident">remove</span></span>(<span>self, wl_id_list)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Remove watchlist(s).</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>wl_ids</code></strong> :&ensp;<code>list</code></dt>
-<dd>list of watchlist IDs</dd>
-</dl>
-<h2 id="example">Example</h2>
-<dl>
-<dt><strong><code>1</code></strong>, <strong><code>2</code></strong>, <strong><code>3</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl></section>
+<section class="desc"><p>Remove watchlist(s).
+</p>
+<p>Arguments:
+</p>
+<ul>
+<li><code>wl_ids</code> (<code>list</code>): list of watchlist IDs. Example: <code>[1, 2, 3]</code>.</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def remove(self, wl_id_list):
     &#34;&#34;&#34;
-    Remove watchlist(s).
+    Remove watchlist(s).  
 
-    Args:
-        wl_ids (list): list of watchlist IDs
+    Arguments:  
 
-    Example:
-        1, 2, 3
+    - `wl_ids` (`list`): list of watchlist IDs. Example: `[1, 2, 3]`.   
     &#34;&#34;&#34;
     self.nitro.request(&#39;remove_watchlists&#39;, wl_id_list=wl_id_list)</code></pre>
 </details>
@@ -472,9 +471,8 @@ File_Hash</dd>
 <span>def <span class="ident">get_wl_types</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Get a list of watchlist types.</p>
-<h2 id="returns">Returns</h2>
-<p>list of watchlist types.</p></section>
+<section class="desc"><p>Get a list of watchlist types.
+Returns: <code>list</code> of watchlist types.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -482,9 +480,7 @@ File_Hash</dd>
 <pre><code class="python">def get_wl_types(self):
     &#34;&#34;&#34;
     Get a list of watchlist types.
-
-    Returns:
-        list of watchlist types.
+    Returns: `list` of watchlist types.
     &#34;&#34;&#34;
     return self.nitro.request(&#39;get_wl_types&#39;)</code></pre>
 </details>
@@ -557,26 +553,32 @@ Whether this watchlist is hidden</li>
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def __repr__(self):
-        return self.data.__repr__()
+    # this should not be necessary neitehr
+    # def __repr__(self):
+    #     return self.data.__repr__()
     
-    def __iter__(self):
-        for data in self.data:
-            yield data
+    # This should not be necessary
+    # def __iter__(self):
+    #     for data in self.data:
+    #         yield data
 
     def add_values(self, values):
         &#34;&#34;&#34;
         Add values to static watchlist.
-        Args:
-            values (list): list of values
+
+        Arguments:  
+
+        - `values` (`list`): list of values
         &#34;&#34;&#34;
         self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)
 
     def data_from_id(self, id):
         &#34;&#34;&#34;
         Retrieve watchlist details for ID.
-        Args:
-            id (str): watchlist ID
+        
+        Arguments:  
+
+        - `id` (`str`): watchlist ID
         &#34;&#34;&#34;
         info=self.nitro.request(&#39;get_watchlist_details&#39;, id=id)
         return info
@@ -589,14 +591,16 @@ Whether this watchlist is hidden</li>
 
     def load_values(self):
         &#34;&#34;&#34;
-        Load Watchlist values.
+        Load Watchlist values.  
+        Raises: `KeyError` if watchlist invalid.
         &#34;&#34;&#34;
         wl_details = self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;])
 
         try:
             file = wl_details[&#39;WLVFILE&#39;]
         except KeyError:
-            print(&#39;ESM Error: Is watchlist valid?&#39;)
+            log.error(&#39;Is watchlist valid? ({})&#39;.format(str(self)))
+            raise
         data = self.nitro.get_internal_file(file)
         self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)</code></pre>
 </details>
@@ -620,11 +624,11 @@ Whether this watchlist is hidden</li>
 </code></dt>
 <dd>
 <section class="desc"><p>Add values to static watchlist.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>values</code></strong> :&ensp;<code>list</code></dt>
-<dd>list of values</dd>
-</dl></section>
+<p>Arguments:
+</p>
+<ul>
+<li><code>values</code> (<code>list</code>): list of values</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -632,8 +636,10 @@ Whether this watchlist is hidden</li>
 <pre><code class="python">def add_values(self, values):
     &#34;&#34;&#34;
     Add values to static watchlist.
-    Args:
-        values (list): list of values
+
+    Arguments:  
+
+    - `values` (`list`): list of values
     &#34;&#34;&#34;
     self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)</code></pre>
 </details>
@@ -643,11 +649,11 @@ Whether this watchlist is hidden</li>
 </code></dt>
 <dd>
 <section class="desc"><p>Retrieve watchlist details for ID.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>id</code></strong> :&ensp;<code>str</code></dt>
-<dd>watchlist ID</dd>
-</dl></section>
+<p>Arguments:
+</p>
+<ul>
+<li><code>id</code> (<code>str</code>): watchlist ID</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -655,8 +661,10 @@ Whether this watchlist is hidden</li>
 <pre><code class="python">def data_from_id(self, id):
     &#34;&#34;&#34;
     Retrieve watchlist details for ID.
-    Args:
-        id (str): watchlist ID
+    
+    Arguments:  
+
+    - `id` (`str`): watchlist ID
     &#34;&#34;&#34;
     info=self.nitro.request(&#39;get_watchlist_details&#39;, id=id)
     return info</code></pre>
@@ -682,21 +690,24 @@ Whether this watchlist is hidden</li>
 <span>def <span class="ident">load_values</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Load Watchlist values.</p></section>
+<section class="desc"><p>Load Watchlist values.<br>
+Raises: <code>KeyError</code> if watchlist invalid.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def load_values(self):
     &#34;&#34;&#34;
-    Load Watchlist values.
+    Load Watchlist values.  
+    Raises: `KeyError` if watchlist invalid.
     &#34;&#34;&#34;
     wl_details = self.nitro.request(&#39;get_watchlist_values&#39;, id=self.data[&#39;id&#39;])
 
     try:
         file = wl_details[&#39;WLVFILE&#39;]
     except KeyError:
-        print(&#39;ESM Error: Is watchlist valid?&#39;)
+        log.error(&#39;Is watchlist valid? ({})&#39;.format(str(self)))
+        raise
     data = self.nitro.get_internal_file(file)
     self.data[&#39;values&#39;] = &#39;&#39;.join(data).split(&#39;\n&#39;)</code></pre>
 </details>

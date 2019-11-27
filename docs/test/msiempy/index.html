@@ -23,12 +23,9 @@ Classes listed here are mostly abstract basis of …" />
 <section id="section-intro">
 <p>Welcome to the <strong>msiempy</strong> module documentation. The pythonic way to deal with McAfee SIEM API.<br>
 Classes listed here are mostly abstract basis of sub-modules that offers concrete objects and functions.<br>
-&ndash;<br>
 <img alt="" src="https://avatars0.githubusercontent.com/u/50667087?s=200&amp;v=4"></p>
-<p>&ndash;<br>
-GitHub : <a href="https://github.com/mfesiem/msiempy">https://github.com/mfesiem/msiempy</a><br>
+<p>GitHub : <a href="https://github.com/mfesiem/msiempy">https://github.com/mfesiem/msiempy</a><br>
 PyPI : <a href="https://pypi.org/project/msiempy/">https://pypi.org/project/msiempy/</a><br>
-&ndash;<br>
 Class diagram : <a href="https://mfesiem.github.io/docs/msiempy/classes.png">https://mfesiem.github.io/docs/msiempy/classes.png</a><br>
 Packages diagram : <a href="https://mfesiem.github.io/docs/msiempy/packages.png">https://mfesiem.github.io/docs/msiempy/packages.png</a></p>
 <details class="source">
@@ -38,12 +35,9 @@ Packages diagram : <a href="https://mfesiem.github.io/docs/msiempy/packages.png"
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;Welcome to the **msiempy** module documentation. The pythonic way to deal with McAfee SIEM API.  
 Classes listed here are mostly abstract basis of sub-modules that offers concrete objects and functions.  
---  
 .. image:: https://avatars0.githubusercontent.com/u/50667087?s=200&amp;v=4  
---  
 GitHub : https://github.com/mfesiem/msiempy  
 PyPI : https://pypi.org/project/msiempy/  
---  
 Class diagram : https://mfesiem.github.io/docs/msiempy/classes.png  
 Packages diagram : https://mfesiem.github.io/docs/msiempy/packages.png  
 &#34;&#34;&#34;
@@ -87,11 +81,6 @@ log = logging.getLogger(&#39;msiempy&#39;)
 
 __pdoc__={} #Init pdoc overwrite engine to document stuff dynamically
 
-class NitroError(Exception):
-    &#34;&#34;&#34;
-    Base internal exception. It&#39;s used when the user/passwd is incorrect, or other specific ESM related errors.
-    &#34;&#34;&#34;
-    pass
 
 class NitroConfig(configparser.ConfigParser):
     &#34;&#34;&#34;Class that handles the configuration. Reads the config file where ever it is and make accessible it&#39;s values throught object properties. 
@@ -103,7 +92,8 @@ class NitroConfig(configparser.ConfigParser):
     For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`  
     If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`  
 
-    Arguments:  
+    Arguments: 
+
     - `path`: Config file special path, if path is left None, will automatically look for it.  
     - `config`: Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`.  
     - `*args, **kwargs` : Passed to `configparser.ConfigParser.__init__()` method.
@@ -892,29 +882,31 @@ class NitroSession():
 
     def request(self, request, **kwargs):
         &#34;&#34;&#34;
-            This method is the centralized interface of all requests going to the SIEM.  
-            It interpolates `**params` with `msiempy.NitroSession.PARAMS` docstrings and build a valid datastructure with `ast`.  
-            Wrapper around the `msiempy.NitroSession.esm_request` method.  
+        This method is the centralized interface of all requests going to the SIEM.  
+        It interpolates `**params` with `msiempy.NitroSession.PARAMS` docstrings and build a valid datastructure with `ast`.  
+        Wrapper around the `msiempy.NitroSession.esm_request` method.  
 
-            Arguments:  
+        Arguments:  
 
-            - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
+        - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
 
-            Arguments to `msiempy.NitroSession.esm_request` :  
+        Arguments to `msiempy.NitroSession.esm_request` :  
 
-            - `http`: HTTP method.  
-            - `callback` : function to apply afterwards  
-            - `raw` : If true will return the Response object from requests module.   
-            - `secure` : If true will not log the content of the request.   
-            
-            Interpolation parameters :  
-            - `**kwargs` : Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
+        - `http`: HTTP method.  
+        - `callback` : function to apply afterwards  
+        - `raw` : If true will return the Response object from requests module.   
+        - `secure` : If true will not log the content of the request.   
+        
+        Interpolation parameters :  
+        
+        - `**kwargs` : Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
 
-            Returns : 
-            - a `dict`, `list` or `str` object  
-            - the `resquest.Response` object if raw=True  
-            - `result.text` if `requests.HTTPError`,   
-            - `None` if Timeout or TooManyRedirects if raw=False  
+        Returns :  
+
+        - a `dict`, `list` or `str` object  
+        - the `resquest.Response` object if raw=True  
+        - `result.text` if `requests.HTTPError`,   
+        - `None` if Timeout or TooManyRedirects if raw=False  
         &#34;&#34;&#34;
         log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
             str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
@@ -1620,7 +1612,7 @@ class FilteredQueryList(NitroList):
     def filters(self):
         &#34;&#34;&#34; 
         Filter property : Returns a list of filters.
-        Can be set with list of tuple(field, [values]) or `msiempy.event._QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
+        Can be set with list of tuple(field, [values]), a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
         `None` value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
         Raises : `AttributeError` if type not supported.
         Abstract declaration.
@@ -1671,7 +1663,14 @@ class FilteredQueryList(NitroList):
     def load_data(self, *args, **kwargs):
         &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
         Abstract declaration.&#34;&#34;&#34;
-        pass</code></pre>
+        pass
+
+class NitroError(Exception):
+    &#34;&#34;&#34;
+    Base internal exception.  
+    It&#39;s used when the user/passwd is incorrect, or other specific ESM related errors.
+    &#34;&#34;&#34;
+    pass</code></pre>
 </details>
 </section>
 <section>
@@ -1702,28 +1701,6 @@ class FilteredQueryList(NitroList):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="msiempy.NitroError"><code class="flex name class">
-<span>class <span class="ident">NitroError</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Base internal exception. It's used when the user/passwd is incorrect, or other specific ESM related errors.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class NitroError(Exception):
-    &#34;&#34;&#34;
-    Base internal exception. It&#39;s used when the user/passwd is incorrect, or other specific ESM related errors.
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>builtins.Exception</li>
-<li>builtins.BaseException</li>
-</ul>
-</dd>
 <dt id="msiempy.NitroConfig"><code class="flex name class">
 <span>class <span class="ident">NitroConfig</span></span>
 <span>(</span><span>path=None, config=None, *arg, **kwarg)</span>
@@ -1738,10 +1715,14 @@ For Mac : <code>$HOME/.msiem/conf.ini</code><br>
 For Linux : <code>$XDG_CONFIG_HOME/.msiem/conf.ini</code> or : <code>$HOME/.msiem/conf.ini</code><br>
 If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/conf.ini</code>
 </p>
-<p>Arguments:<br>
-- <code>path</code>: Config file special path, if path is left None, will automatically look for it.<br>
-- <code>config</code>: Manual config dict. ex: <code>{'general':{'verbose':True}}</code>.<br>
-- <code>*args, **kwargs</code> : Passed to <code>configparser.ConfigParser.__init__()</code> method.</p></section>
+<p>Arguments: </p>
+<ul>
+<li><code>path</code>: Config file special path, if path is left None, will automatically look for it.
+</li>
+<li><code>config</code>: Manual config dict. ex: <code>{'general':{'verbose':True}}</code>.
+</li>
+<li><code>*args, **kwargs</code> : Passed to <code>configparser.ConfigParser.__init__()</code> method.</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1756,7 +1737,8 @@ If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/con
     For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`  
     If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`  
 
-    Arguments:  
+    Arguments: 
+
     - `path`: Config file special path, if path is left None, will automatically look for it.  
     - `config`: Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`.  
     - `*args, **kwargs` : Passed to `configparser.ConfigParser.__init__()` method.
@@ -2809,29 +2791,31 @@ Use <code>logout()</code> to reinstanciate NitroSession.
 
     def request(self, request, **kwargs):
         &#34;&#34;&#34;
-            This method is the centralized interface of all requests going to the SIEM.  
-            It interpolates `**params` with `msiempy.NitroSession.PARAMS` docstrings and build a valid datastructure with `ast`.  
-            Wrapper around the `msiempy.NitroSession.esm_request` method.  
+        This method is the centralized interface of all requests going to the SIEM.  
+        It interpolates `**params` with `msiempy.NitroSession.PARAMS` docstrings and build a valid datastructure with `ast`.  
+        Wrapper around the `msiempy.NitroSession.esm_request` method.  
 
-            Arguments:  
+        Arguments:  
 
-            - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
+        - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
 
-            Arguments to `msiempy.NitroSession.esm_request` :  
+        Arguments to `msiempy.NitroSession.esm_request` :  
 
-            - `http`: HTTP method.  
-            - `callback` : function to apply afterwards  
-            - `raw` : If true will return the Response object from requests module.   
-            - `secure` : If true will not log the content of the request.   
-            
-            Interpolation parameters :  
-            - `**kwargs` : Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
+        - `http`: HTTP method.  
+        - `callback` : function to apply afterwards  
+        - `raw` : If true will return the Response object from requests module.   
+        - `secure` : If true will not log the content of the request.   
+        
+        Interpolation parameters :  
+        
+        - `**kwargs` : Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
 
-            Returns : 
-            - a `dict`, `list` or `str` object  
-            - the `resquest.Response` object if raw=True  
-            - `result.text` if `requests.HTTPError`,   
-            - `None` if Timeout or TooManyRedirects if raw=False  
+        Returns :  
+
+        - a `dict`, `list` or `str` object  
+        - the `resquest.Response` object if raw=True  
+        - `result.text` if `requests.HTTPError`,   
+        - `None` if Timeout or TooManyRedirects if raw=False  
         &#34;&#34;&#34;
         log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
             str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
@@ -3448,43 +3432,54 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
 <li><code>secure</code> : If true will not log the content of the request.
 </li>
 </ul>
-<p>Interpolation parameters :<br>
-- <code>**kwargs</code> : Interpolation parameters that will be match to <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a> templates. Dynamic keyword arguments.
+<p>Interpolation parameters :
 </p>
+<ul>
+<li><code>**kwargs</code> : Interpolation parameters that will be match to <a title="msiempy.NitroSession.PARAMS" href="#msiempy.NitroSession.PARAMS"><code>NitroSession.PARAMS</code></a> templates. Dynamic keyword arguments.
+</li>
+</ul>
 <p>Returns :
-- a <code>dict</code>, <code>list</code> or <code>str</code> object<br>
-- the <code>resquest.Response</code> object if raw=True<br>
-- <code>result.text</code> if <code>requests.HTTPError</code>, <br>
-- <code>None</code> if Timeout or TooManyRedirects if raw=False</p></section>
+</p>
+<ul>
+<li>a <code>dict</code>, <code>list</code> or <code>str</code> object
+</li>
+<li>the <code>resquest.Response</code> object if raw=True
+</li>
+<li><code>result.text</code> if <code>requests.HTTPError</code>,
+</li>
+<li><code>None</code> if Timeout or TooManyRedirects if raw=False</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def request(self, request, **kwargs):
     &#34;&#34;&#34;
-        This method is the centralized interface of all requests going to the SIEM.  
-        It interpolates `**params` with `msiempy.NitroSession.PARAMS` docstrings and build a valid datastructure with `ast`.  
-        Wrapper around the `msiempy.NitroSession.esm_request` method.  
+    This method is the centralized interface of all requests going to the SIEM.  
+    It interpolates `**params` with `msiempy.NitroSession.PARAMS` docstrings and build a valid datastructure with `ast`.  
+    Wrapper around the `msiempy.NitroSession.esm_request` method.  
 
-        Arguments:  
+    Arguments:  
 
-        - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
+    - `request`: Keyword corresponding to the request name in `msiempy.NitroSession.PARAMS` mapping.  
 
-        Arguments to `msiempy.NitroSession.esm_request` :  
+    Arguments to `msiempy.NitroSession.esm_request` :  
 
-        - `http`: HTTP method.  
-        - `callback` : function to apply afterwards  
-        - `raw` : If true will return the Response object from requests module.   
-        - `secure` : If true will not log the content of the request.   
-        
-        Interpolation parameters :  
-        - `**kwargs` : Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
+    - `http`: HTTP method.  
+    - `callback` : function to apply afterwards  
+    - `raw` : If true will return the Response object from requests module.   
+    - `secure` : If true will not log the content of the request.   
+    
+    Interpolation parameters :  
+    
+    - `**kwargs` : Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
 
-        Returns : 
-        - a `dict`, `list` or `str` object  
-        - the `resquest.Response` object if raw=True  
-        - `result.text` if `requests.HTTPError`,   
-        - `None` if Timeout or TooManyRedirects if raw=False  
+    Returns :  
+
+    - a `dict`, `list` or `str` object  
+    - the `resquest.Response` object if raw=True  
+    - `result.text` if `requests.HTTPError`,   
+    - `None` if Timeout or TooManyRedirects if raw=False  
     &#34;&#34;&#34;
     log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
         str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
@@ -4762,7 +4757,7 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.Filt
     def filters(self):
         &#34;&#34;&#34; 
         Filter property : Returns a list of filters.
-        Can be set with list of tuple(field, [values]) or `msiempy.event._QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
+        Can be set with list of tuple(field, [values]), a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
         `None` value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
         Raises : `AttributeError` if type not supported.
         Abstract declaration.
@@ -4913,7 +4908,7 @@ def end_time(self):
 <dt id="msiempy.FilteredQueryList.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
 <section class="desc"><p>Filter property : Returns a list of filters.
-Can be set with list of tuple(field, [values]) or <code>msiempy.event._QueryFilter</code> in the case of a <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a> query. A single tuple is also accepted.<br>
+Can be set with list of tuple(field, [values]), a <a title="msiempy.event.FieldFilter" href="event.html#msiempy.event.FieldFilter"><code>FieldFilter</code></a> or <a title="msiempy.event.GroupFilter" href="event.html#msiempy.event.GroupFilter"><code>GroupFilter</code></a> in the case of a <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a> query. A single tuple is also accepted.<br>
 <code>None</code> value will call <code>msiempy.query.FilteredQueryList.clear_filters()</code>.<br>
 Raises : <code>AttributeError</code> if type not supported.
 Abstract declaration.
@@ -4926,7 +4921,7 @@ TODO find a better solution to integrate the filter propertie</p></section>
 def filters(self):
     &#34;&#34;&#34; 
     Filter property : Returns a list of filters.
-    Can be set with list of tuple(field, [values]) or `msiempy.event._QueryFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
+    Can be set with list of tuple(field, [values]), a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
     `None` value will call `msiempy.query.FilteredQueryList.clear_filters()`.  
     Raises : `AttributeError` if type not supported.
     Abstract declaration.
@@ -5029,6 +5024,30 @@ def load_data(self, *args, **kwargs):
 </li>
 </ul>
 </dd>
+<dt id="msiempy.NitroError"><code class="flex name class">
+<span>class <span class="ident">NitroError</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base internal exception.<br>
+It's used when the user/passwd is incorrect, or other specific ESM related errors.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NitroError(Exception):
+    &#34;&#34;&#34;
+    Base internal exception.  
+    It&#39;s used when the user/passwd is incorrect, or other specific ESM related errors.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
 </dl>
 </section>
 </article>
@@ -5048,9 +5067,6 @@ def load_data(self, *args, **kwargs):
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
-<li>
-<h4><code><a title="msiempy.NitroError" href="#msiempy.NitroError">NitroError</a></code></h4>
-</li>
 <li>
 <h4><code><a title="msiempy.NitroConfig" href="#msiempy.NitroConfig">NitroConfig</a></code></h4>
 <ul class="two-column">
@@ -5134,6 +5150,9 @@ def load_data(self, *args, **kwargs):
 <li><code><a title="msiempy.FilteredQueryList.DEFAULT_TIME_RANGE" href="#msiempy.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="msiempy.NitroError" href="#msiempy.NitroError">NitroError</a></code></h4>
 </li>
 </ul>
 </li>

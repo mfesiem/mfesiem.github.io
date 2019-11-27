@@ -346,21 +346,19 @@ class DevTree(NitroList):
     #     return json.dumps(self.data)
     # def __getitem__(self, key):
     #     return self.data[key]
-
+    def contains(self, term):
+        &#34;&#34;&#34; Returns: (`bool`) `True/None` the name or IP matches the provided search term.  &#34;&#34;&#34;
+        return self.__contains__(term)
 
     def __contains__(self, term):
-        &#34;&#34;&#34;
-        Returns: (`bool`) `True/False` the name or IP matches the provided search term.
-        &#34;&#34;&#34;
-        if self.search(term):
-            return True
-        else:
-            return None
+        if self.search(term): return True
+        else: return None
 
    
     def search(self, term, zone_id=&#39;0&#39;):
         &#34;&#34;&#34;
         Arguments:  
+
         - `term` (`str`): Datasource name, IP, hostname or ds_id. Matching the `name`, `IPv4/IPv6 address`, `hostname` or `device ID`.   
         - `zone_id` (`int`): Provide zone_id to limit search to a specific zone   
 
@@ -378,11 +376,13 @@ class DevTree(NitroList):
 
     def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
         &#34;&#34;&#34;
-        Arguments:  
+        Arguments:   
+
         - `field` (`str`): Valid DS config field to search  
         - `term` (`str`): Data to search for in specified field  
 
-        Valid field options include:    
+        Valid field options include:  
+
         - `parent_id` = &#39;144119615532826624&#39;  
         - `type_id` = &#39;65&#39;  
         - `vendor` = &#39;Intersect Alliance&#39;  
@@ -393,7 +393,7 @@ class DevTree(NitroList):
         - `tz_name` = &#39;Darwin&#39;  
         - `zone_id` = &#39;7&#39;  
 
-        Returns: `Generator` containing any matching DataSource objects or `None`  
+        Returns: `Generator` (`list()`) containing any matching `DataSource` objects or `None`  
         Result must be iterated through.
             
         Raises: `ValueError`: if field or term are None
@@ -594,7 +594,7 @@ class DevTree(NitroList):
         &#34;&#34;&#34;
         Get list of raw client strings.  
 
-        Args:
+        Args:  
         - `ds_id` (str): Parent ds_id(s) are collected on init  
         - `ftoken` (str): Set and used after requesting clients for ds_id  
 
@@ -801,9 +801,11 @@ class DevTree(NitroList):
         &#34;&#34;&#34;Check for duplicate dataname name or IP address.
         
         Arguments:  
+
         - `ds_params` (dict) : datasource params  
         
-        `ds_params` should contain :  
+        `ds_params` should contain followinf keys :  
+
         - `name` (str): datasource name  
         - `ds_ip` (str): datasource IP  
         - `zone_id` (str): optional zone_id  
@@ -823,10 +825,12 @@ class DevTree(NitroList):
         &#34;&#34;&#34;
         Adds a datasource. 
 
-        Argumentss:
+        Arguments: 
+
         - `attr` (`dict`): datasource attributes
         
-        Attributes keys:  
+        `attr` should contain followinf keys :   
+
         - `client` (`bool`): designate a client datasource (not child)  
         - `name` (`str`): name of datasource (req)  
         - `parent_id` (`str`): id of parent device (req)  
@@ -884,9 +888,11 @@ class DevTree(NitroList):
         &#34;&#34;&#34;Add a datasource client
         
         Arguments:  
+
         - `attr` (`dict`) : datasource attributes  
         
-        Attributes keys:  
+        `attr` should contain followinf keys :   
+
         - `parent_id` (`str`): datasource id of the client group datasource  
         - `name` (`str`): name of the client  
         - `enabled` (`bool`): enabled or not (default: `True`)  
@@ -929,6 +935,7 @@ class DevTree(NitroList):
         &#34;&#34;&#34;Validate parameters for new datasource.
         
         Arguments:  
+
         - `p` (`dict`) : datasource parameters  
         
         Returns: datasource dict with normalized values or `False` if something is invalid.
@@ -1013,6 +1020,7 @@ class DevTree(NitroList):
         &#34;&#34;&#34;Validates datasource time zone id.
         
         Arguments:  
+
         - `p` (`dict`): datasource param
         
         Returns: `dict` of datasource params or None if invalid
@@ -1036,6 +1044,7 @@ class DevTree(NitroList):
         &#34;&#34;&#34;Recursively changes strings &#39;T&#39;, &#39;F&#39; to `bool`  
         
         Arguments:  
+
         - `d` (`dict`) : nested dicts and lists okay  
         &#34;&#34;&#34;
         for k, v in d.items():
@@ -1055,6 +1064,7 @@ class DataSource(NitroDict):
     &#34;&#34;&#34;DataSource class  
     
     Arguments:  
+
     - `adict` (`dict`): datasource parameters
         
     Best instantiated from DevTree():
@@ -1065,6 +1075,7 @@ class DataSource(NitroDict):
         &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)```
 
     Dict keys:  
+
     - `name` (`str`): name of the datasource  
     - `ds_ip` (`str`): IP of the datasource  
     - `hostname` (`str`): hostname for the datasource  
@@ -1124,8 +1135,9 @@ class DataSource(NitroDict):
     def _map_parameters(self, p):
         &#34;&#34;&#34;Map the internal ESM field names to msiempy style
         
-        Arguments:
-            p (dict): datasource parameters
+        Arguments:  
+
+        - `p` (`dict`): datasource parameters
         &#34;&#34;&#34;
         p = DevTree._normalize_bool_vals(p)
         self.data[&#39;name&#39;] = p.get(&#39;name&#39;)
@@ -1979,21 +1991,19 @@ def recs(self):
     #     return json.dumps(self.data)
     # def __getitem__(self, key):
     #     return self.data[key]
-
+    def contains(self, term):
+        &#34;&#34;&#34; Returns: (`bool`) `True/None` the name or IP matches the provided search term.  &#34;&#34;&#34;
+        return self.__contains__(term)
 
     def __contains__(self, term):
-        &#34;&#34;&#34;
-        Returns: (`bool`) `True/False` the name or IP matches the provided search term.
-        &#34;&#34;&#34;
-        if self.search(term):
-            return True
-        else:
-            return None
+        if self.search(term): return True
+        else: return None
 
    
     def search(self, term, zone_id=&#39;0&#39;):
         &#34;&#34;&#34;
         Arguments:  
+
         - `term` (`str`): Datasource name, IP, hostname or ds_id. Matching the `name`, `IPv4/IPv6 address`, `hostname` or `device ID`.   
         - `zone_id` (`int`): Provide zone_id to limit search to a specific zone   
 
@@ -2011,11 +2021,13 @@ def recs(self):
 
     def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
         &#34;&#34;&#34;
-        Arguments:  
+        Arguments:   
+
         - `field` (`str`): Valid DS config field to search  
         - `term` (`str`): Data to search for in specified field  
 
-        Valid field options include:    
+        Valid field options include:  
+
         - `parent_id` = &#39;144119615532826624&#39;  
         - `type_id` = &#39;65&#39;  
         - `vendor` = &#39;Intersect Alliance&#39;  
@@ -2026,7 +2038,7 @@ def recs(self):
         - `tz_name` = &#39;Darwin&#39;  
         - `zone_id` = &#39;7&#39;  
 
-        Returns: `Generator` containing any matching DataSource objects or `None`  
+        Returns: `Generator` (`list()`) containing any matching `DataSource` objects or `None`  
         Result must be iterated through.
             
         Raises: `ValueError`: if field or term are None
@@ -2227,7 +2239,7 @@ def recs(self):
         &#34;&#34;&#34;
         Get list of raw client strings.  
 
-        Args:
+        Args:  
         - `ds_id` (str): Parent ds_id(s) are collected on init  
         - `ftoken` (str): Set and used after requesting clients for ds_id  
 
@@ -2434,9 +2446,11 @@ def recs(self):
         &#34;&#34;&#34;Check for duplicate dataname name or IP address.
         
         Arguments:  
+
         - `ds_params` (dict) : datasource params  
         
-        `ds_params` should contain :  
+        `ds_params` should contain followinf keys :  
+
         - `name` (str): datasource name  
         - `ds_ip` (str): datasource IP  
         - `zone_id` (str): optional zone_id  
@@ -2456,10 +2470,12 @@ def recs(self):
         &#34;&#34;&#34;
         Adds a datasource. 
 
-        Argumentss:
+        Arguments: 
+
         - `attr` (`dict`): datasource attributes
         
-        Attributes keys:  
+        `attr` should contain followinf keys :   
+
         - `client` (`bool`): designate a client datasource (not child)  
         - `name` (`str`): name of datasource (req)  
         - `parent_id` (`str`): id of parent device (req)  
@@ -2517,9 +2533,11 @@ def recs(self):
         &#34;&#34;&#34;Add a datasource client
         
         Arguments:  
+
         - `attr` (`dict`) : datasource attributes  
         
-        Attributes keys:  
+        `attr` should contain followinf keys :   
+
         - `parent_id` (`str`): datasource id of the client group datasource  
         - `name` (`str`): name of the client  
         - `enabled` (`bool`): enabled or not (default: `True`)  
@@ -2562,6 +2580,7 @@ def recs(self):
         &#34;&#34;&#34;Validate parameters for new datasource.
         
         Arguments:  
+
         - `p` (`dict`) : datasource parameters  
         
         Returns: datasource dict with normalized values or `False` if something is invalid.
@@ -2646,6 +2665,7 @@ def recs(self):
         &#34;&#34;&#34;Validates datasource time zone id.
         
         Arguments:  
+
         - `p` (`dict`): datasource param
         
         Returns: `dict` of datasource params or None if invalid
@@ -2669,6 +2689,7 @@ def recs(self):
         &#34;&#34;&#34;Recursively changes strings &#39;T&#39;, &#39;F&#39; to `bool`  
         
         Arguments:  
+
         - `d` (`dict`) : nested dicts and lists okay  
         &#34;&#34;&#34;
         for k, v in d.items():
@@ -2700,14 +2721,32 @@ def recs(self):
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="msiempy.device.DevTree.contains"><code class="name flex">
+<span>def <span class="ident">contains</span></span>(<span>self, term)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns: (<code>bool</code>) <code>True/None</code> the name or IP matches the provided search term.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def contains(self, term):
+    &#34;&#34;&#34; Returns: (`bool`) `True/None` the name or IP matches the provided search term.  &#34;&#34;&#34;
+    return self.__contains__(term)</code></pre>
+</details>
+</dd>
 <dt id="msiempy.device.DevTree.search"><code class="name flex">
 <span>def <span class="ident">search</span></span>(<span>self, term, zone_id='0')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Arguments:<br>
-- <code>term</code> (<code>str</code>): Datasource name, IP, hostname or ds_id. Matching the <code>name</code>, <code>IPv4/IPv6 address</code>, <code>hostname</code> or <code>device ID</code>. <br>
-- <code>zone_id</code> (<code>int</code>): Provide zone_id to limit search to a specific zone
+<section class="desc"><p>Arguments:
 </p>
+<ul>
+<li><code>term</code> (<code>str</code>): Datasource name, IP, hostname or ds_id. Matching the <code>name</code>, <code>IPv4/IPv6 address</code>, <code>hostname</code> or <code>device ID</code>.
+</li>
+<li><code>zone_id</code> (<code>int</code>): Provide zone_id to limit search to a specific zone
+</li>
+</ul>
 <p>Returns: <code>Datasource</code> object that matches the provided search term or None.</p></section>
 <details class="source">
 <summary>
@@ -2716,6 +2755,7 @@ def recs(self):
 <pre><code class="python">def search(self, term, zone_id=&#39;0&#39;):
     &#34;&#34;&#34;
     Arguments:  
+
     - `term` (`str`): Datasource name, IP, hostname or ds_id. Matching the `name`, `IPv4/IPv6 address`, `hostname` or `device ID`.   
     - `zone_id` (`int`): Provide zone_id to limit search to a specific zone   
 
@@ -2736,23 +2776,37 @@ def recs(self):
 <span>def <span class="ident">search_ds_group</span></span>(<span>self, field, term, zone_id='0')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Arguments:<br>
-- <code>field</code> (<code>str</code>): Valid DS config field to search<br>
-- <code>term</code> (<code>str</code>): Data to search for in specified field
+<section class="desc"><p>Arguments:
 </p>
+<ul>
+<li><code>field</code> (<code>str</code>): Valid DS config field to search
+</li>
+<li><code>term</code> (<code>str</code>): Data to search for in specified field
+</li>
+</ul>
 <p>Valid field options include:
-<br>
-- <code>parent_id</code> = '144119615532826624'<br>
-- <code>type_id</code> = '65'<br>
-- <code>vendor</code> = 'Intersect Alliance'<br>
-- <code>model</code> = 'Snare for Windows'<br>
-- <code>require_tls</code> = 'T'<br>
-- <code>port</code> = '514'<br>
-- <code>tz_id</code> = '51'<br>
-- <code>tz_name</code> = 'Darwin'<br>
-- <code>zone_id</code> = '7'
 </p>
-<p>Returns: <code>Generator</code> containing any matching DataSource objects or <code>None</code><br>
+<ul>
+<li><code>parent_id</code> = '144119615532826624'
+</li>
+<li><code>type_id</code> = '65'
+</li>
+<li><code>vendor</code> = 'Intersect Alliance'
+</li>
+<li><code>model</code> = 'Snare for Windows'
+</li>
+<li><code>require_tls</code> = 'T'
+</li>
+<li><code>port</code> = '514'
+</li>
+<li><code>tz_id</code> = '51'
+</li>
+<li><code>tz_name</code> = 'Darwin'
+</li>
+<li><code>zone_id</code> = '7'
+</li>
+</ul>
+<p>Returns: <code>Generator</code> (<code>list()</code>) containing any matching <a title="msiempy.device.DataSource" href="#msiempy.device.DataSource"><code>DataSource</code></a> objects or <code>None</code><br>
 Result must be iterated through.</p>
 <p>Raises: <code>ValueError</code>: if field or term are None</p></section>
 <details class="source">
@@ -2761,11 +2815,13 @@ Result must be iterated through.</p>
 </summary>
 <pre><code class="python">def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
     &#34;&#34;&#34;
-    Arguments:  
+    Arguments:   
+
     - `field` (`str`): Valid DS config field to search  
     - `term` (`str`): Data to search for in specified field  
 
-    Valid field options include:    
+    Valid field options include:  
+
     - `parent_id` = &#39;144119615532826624&#39;  
     - `type_id` = &#39;65&#39;  
     - `vendor` = &#39;Intersect Alliance&#39;  
@@ -2776,7 +2832,7 @@ Result must be iterated through.</p>
     - `tz_name` = &#39;Darwin&#39;  
     - `zone_id` = &#39;7&#39;  
 
-    Returns: `Generator` containing any matching DataSource objects or `None`  
+    Returns: `Generator` (`list()`) containing any matching `DataSource` objects or `None`  
     Result must be iterated through.
         
     Raises: `ValueError`: if field or term are None
@@ -2854,13 +2910,21 @@ Result must be iterated through.</p>
 </code></dt>
 <dd>
 <section class="desc"><p>Check for duplicate dataname name or IP address.</p>
-<p>Arguments:<br>
-- <code>ds_params</code> (dict) : datasource params
+<p>Arguments:
 </p>
-<p><code>ds_params</code> should contain :<br>
-- <code>name</code> (str): datasource name<br>
-- <code>ds_ip</code> (str): datasource IP<br>
-- <code>zone_id</code> (str): optional zone_id</p></section>
+<ul>
+<li><code>ds_params</code> (dict) : datasource params
+</li>
+</ul>
+<p><code>ds_params</code> should contain followinf keys :
+</p>
+<ul>
+<li><code>name</code> (str): datasource name
+</li>
+<li><code>ds_ip</code> (str): datasource IP
+</li>
+<li><code>zone_id</code> (str): optional zone_id</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2869,9 +2933,11 @@ Result must be iterated through.</p>
     &#34;&#34;&#34;Check for duplicate dataname name or IP address.
     
     Arguments:  
+
     - `ds_params` (dict) : datasource params  
     
-    `ds_params` should contain :  
+    `ds_params` should contain followinf keys :  
+
     - `name` (str): datasource name  
     - `ds_ip` (str): datasource IP  
     - `zone_id` (str): optional zone_id  
@@ -2893,21 +2959,35 @@ Result must be iterated through.</p>
 </code></dt>
 <dd>
 <section class="desc"><p>Adds a datasource. </p>
-<p>Argumentss:
-- <code>attr</code> (<code>dict</code>): datasource attributes</p>
-<p>Attributes keys:<br>
-- <code>client</code> (<code>bool</code>): designate a client datasource (not child)<br>
-- <code>name</code> (<code>str</code>): name of datasource (req)<br>
-- <code>parent_id</code> (<code>str</code>): id of parent device (req)<br>
-- <code>ds_ip</code> (<code>str</code>): ip of datasource (ip or hostname required)<br>
-- <code>hostname</code> (<code>str</code>): hostname of datasource <br>
-- <code>type_id</code> (<code>str</code>): type of datasource (req)<br>
-- <code>enabled</code> (<code>bool</code>): enabled or not (default: True)<br>
-- <code>tz_id</code> (<code>str</code>): timezone of datasource (default UTC: 8)<br>
-- <code>zone_id</code> (<code>str</code>): numberic ESM id for zone (default: 0)<br>
-Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32 <br>
-- <code>require_tls</code> (<code>bool</code>): datasource uses syslog tls
+<p>Arguments: </p>
+<ul>
+<li><code>attr</code> (<code>dict</code>): datasource attributes</li>
+</ul>
+<p><code>attr</code> should contain followinf keys :
 </p>
+<ul>
+<li><code>client</code> (<code>bool</code>): designate a client datasource (not child)
+</li>
+<li><code>name</code> (<code>str</code>): name of datasource (req)
+</li>
+<li><code>parent_id</code> (<code>str</code>): id of parent device (req)
+</li>
+<li><code>ds_ip</code> (<code>str</code>): ip of datasource (ip or hostname required)
+</li>
+<li><code>hostname</code> (<code>str</code>): hostname of datasource
+</li>
+<li><code>type_id</code> (<code>str</code>): type of datasource (req)
+</li>
+<li><code>enabled</code> (<code>bool</code>): enabled or not (default: True)
+</li>
+<li><code>tz_id</code> (<code>str</code>): timezone of datasource (default UTC: 8)
+</li>
+<li><code>zone_id</code> (<code>str</code>): numberic ESM id for zone (default: 0)<br>
+Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32
+</li>
+<li><code>require_tls</code> (<code>bool</code>): datasource uses syslog tls
+</li>
+</ul>
 <p>Returns: result id (<code>str</code>): id of the result. Not the ds_id as of 11.2.1 or <code>None</code> on Error</p></section>
 <details class="source">
 <summary>
@@ -2917,10 +2997,12 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32 <br>
     &#34;&#34;&#34;
     Adds a datasource. 
 
-    Argumentss:
+    Arguments: 
+
     - `attr` (`dict`): datasource attributes
     
-    Attributes keys:  
+    `attr` should contain followinf keys :   
+
     - `client` (`bool`): designate a client datasource (not child)  
     - `name` (`str`): name of datasource (req)  
     - `parent_id` (`str`): id of parent device (req)  
@@ -2980,22 +3062,38 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32 <br>
 </code></dt>
 <dd>
 <section class="desc"><p>Add a datasource client</p>
-<p>Arguments:<br>
-- <code>attr</code> (<code>dict</code>) : datasource attributes
+<p>Arguments:
 </p>
-<p>Attributes keys:<br>
-- <code>parent_id</code> (<code>str</code>): datasource id of the client group datasource<br>
-- <code>name</code> (<code>str</code>): name of the client<br>
-- <code>enabled</code> (<code>bool</code>): enabled or not (default: <code>True</code>)<br>
-- <code>ds_ip</code> (<code>str</code>): IP address for client<br>
-- <code>hostname</code> (<code>str</code>): hostname for client<br>
-- <code>type_id</code> (<code>str</code>): numeric ESM type-id<br>
-- <code>tz_id</code> (<code>str</code>): numeric ESM timezone id or GMT<br>
-- <code>dorder</code> (<code>str</code>): Date order<br>
-- <code>maskflag</code> (<code>str</code>): <br>
-- <code>port</code> (<code>str</code>): IP port to use<br>
-- <code>require_tls</code> (<code>bool</code>): use syslog-TLS (default: <code>False</code>)
+<ul>
+<li><code>attr</code> (<code>dict</code>) : datasource attributes
+</li>
+</ul>
+<p><code>attr</code> should contain followinf keys :
 </p>
+<ul>
+<li><code>parent_id</code> (<code>str</code>): datasource id of the client group datasource
+</li>
+<li><code>name</code> (<code>str</code>): name of the client
+</li>
+<li><code>enabled</code> (<code>bool</code>): enabled or not (default: <code>True</code>)
+</li>
+<li><code>ds_ip</code> (<code>str</code>): IP address for client
+</li>
+<li><code>hostname</code> (<code>str</code>): hostname for client
+</li>
+<li><code>type_id</code> (<code>str</code>): numeric ESM type-id
+</li>
+<li><code>tz_id</code> (<code>str</code>): numeric ESM timezone id or GMT
+</li>
+<li><code>dorder</code> (<code>str</code>): Date order
+</li>
+<li><code>maskflag</code> (<code>str</code>):
+</li>
+<li><code>port</code> (<code>str</code>): IP port to use
+</li>
+<li><code>require_tls</code> (<code>bool</code>): use syslog-TLS (default: <code>False</code>)
+</li>
+</ul>
 <p>Returns: result id (<code>str</code>) or <code>None</code> on Error</p></section>
 <details class="source">
 <summary>
@@ -3005,9 +3103,11 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32 <br>
     &#34;&#34;&#34;Add a datasource client
     
     Arguments:  
+
     - `attr` (`dict`) : datasource attributes  
     
-    Attributes keys:  
+    `attr` should contain followinf keys :   
+
     - `parent_id` (`str`): datasource id of the client group datasource  
     - `name` (`str`): name of the client  
     - `enabled` (`bool`): enabled or not (default: `True`)  
@@ -3068,31 +3168,53 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32 <br>
 <dd>
 <section class="desc"><p>DataSource class
 </p>
-<p>Arguments:<br>
-- <code>adict</code> (<code>dict</code>): datasource parameters</p>
+<p>Arguments:
+</p>
+<ul>
+<li><code>adict</code> (<code>dict</code>): datasource parameters</li>
+</ul>
 <p>Best instantiated from DevTree():
 <code>&gt;&gt;&gt; dt = DevTree()
 &gt;&gt;&gt; ds = dt[25]
 or
 &gt;&gt;&gt; ds = dt.search('10.10.1.1')</code></p>
-<p>Dict keys:<br>
-- <code>name</code> (<code>str</code>): name of the datasource<br>
-- <code>ds_ip</code> (<code>str</code>): IP of the datasource<br>
-- <code>hostname</code> (<code>str</code>): hostname for the datasource<br>
-- <code>ds_id</code> (<code>str</code>): internal datasource ID (e.g <code>144234544545444</code>)<br>
-- <code>type_id</code> (<code>str</code>): numeric internal datasource type id<br>
-- <code>desc_id</code> (<code>str</code>): always '3' a datasource or '254' for a client<br>
-- <code>parent_id</code> (<code>str</code>): internal ds_id for the parent device<br>
-- <code>parent_name</code> (<code>str</code>): name of the parent device<br>
-- <code>enabled</code> (<code>str</code>): 'T' or 'F'<br>
-- <code>client</code> (<code>bool</code>): Client datasource or not<br>
-- <code>zone_id</code> (<code>str</code>): numeric zone_id<br>
-- <code>zone_name</code> (<code>str</code>): name of the zone<br>
-- <code>tz_id</code> (<code>str</code>): internal numeric timezone ID<br>
-- <code>vendor</code> (<code>str</code>): vendor of datasource (e.g. Microsoft) <br>
-- <code>model</code> (<code>str</code>): model of datasource (e.g. Windows)<br>
-- <code>require_tls</code> (<code>str</code>): Use syslog over TLS<br>
-- <code>url</code> (<code>str</code>): URL of the datasource</p></section>
+<p>Dict keys:
+</p>
+<ul>
+<li><code>name</code> (<code>str</code>): name of the datasource
+</li>
+<li><code>ds_ip</code> (<code>str</code>): IP of the datasource
+</li>
+<li><code>hostname</code> (<code>str</code>): hostname for the datasource
+</li>
+<li><code>ds_id</code> (<code>str</code>): internal datasource ID (e.g <code>144234544545444</code>)
+</li>
+<li><code>type_id</code> (<code>str</code>): numeric internal datasource type id
+</li>
+<li><code>desc_id</code> (<code>str</code>): always '3' a datasource or '254' for a client
+</li>
+<li><code>parent_id</code> (<code>str</code>): internal ds_id for the parent device
+</li>
+<li><code>parent_name</code> (<code>str</code>): name of the parent device
+</li>
+<li><code>enabled</code> (<code>str</code>): 'T' or 'F'
+</li>
+<li><code>client</code> (<code>bool</code>): Client datasource or not
+</li>
+<li><code>zone_id</code> (<code>str</code>): numeric zone_id
+</li>
+<li><code>zone_name</code> (<code>str</code>): name of the zone
+</li>
+<li><code>tz_id</code> (<code>str</code>): internal numeric timezone ID
+</li>
+<li><code>vendor</code> (<code>str</code>): vendor of datasource (e.g. Microsoft)
+</li>
+<li><code>model</code> (<code>str</code>): model of datasource (e.g. Windows)
+</li>
+<li><code>require_tls</code> (<code>str</code>): Use syslog over TLS
+</li>
+<li><code>url</code> (<code>str</code>): URL of the datasource</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3101,6 +3223,7 @@ or
     &#34;&#34;&#34;DataSource class  
     
     Arguments:  
+
     - `adict` (`dict`): datasource parameters
         
     Best instantiated from DevTree():
@@ -3111,6 +3234,7 @@ or
         &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)```
 
     Dict keys:  
+
     - `name` (`str`): name of the datasource  
     - `ds_ip` (`str`): IP of the datasource  
     - `hostname` (`str`): hostname for the datasource  
@@ -3170,8 +3294,9 @@ or
     def _map_parameters(self, p):
         &#34;&#34;&#34;Map the internal ESM field names to msiempy style
         
-        Arguments:
-            p (dict): datasource parameters
+        Arguments:  
+
+        - `p` (`dict`): datasource parameters
         &#34;&#34;&#34;
         p = DevTree._normalize_bool_vals(p)
         self.data[&#39;name&#39;] = p.get(&#39;name&#39;)
@@ -3348,6 +3473,7 @@ or
 <li>
 <h4><code><a title="msiempy.device.DevTree" href="#msiempy.device.DevTree">DevTree</a></code></h4>
 <ul class="">
+<li><code><a title="msiempy.device.DevTree.contains" href="#msiempy.device.DevTree.contains">contains</a></code></li>
 <li><code><a title="msiempy.device.DevTree.search" href="#msiempy.device.DevTree.search">search</a></code></li>
 <li><code><a title="msiempy.device.DevTree.search_ds_group" href="#msiempy.device.DevTree.search_ds_group">search_ds_group</a></code></li>
 <li><code><a title="msiempy.device.DevTree.refresh" href="#msiempy.device.DevTree.refresh">refresh</a></code></li>

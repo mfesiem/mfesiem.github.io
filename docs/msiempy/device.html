@@ -48,14 +48,17 @@ from .__utils__ import dehexify
 class ESM(NitroObject):
     &#34;&#34;&#34;Enterprise Security Manager interface&#34;&#34;&#34;
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     @property
     def text(self):
         return str(&#39;ESM object&#39;)
 
     @property
-    def json(self):
-        raise NotImplementedError()
-        #return (dict(self))
+    def json(self): raise NotImplementedError()
+
+    def refresh(self): raise NotImplementedError()
 
     def time(self):
         &#34;&#34;&#34;Returns: string of ESM time (GMT)  
@@ -1182,6 +1185,7 @@ class DataSource(NitroDict):
 <dl>
 <dt id="msiempy.device.ESM"><code class="flex name class">
 <span>class <span class="ident">ESM</span></span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enterprise Security Manager interface</p></section>
@@ -1192,14 +1196,17 @@ class DataSource(NitroDict):
 <pre><code class="python">class ESM(NitroObject):
     &#34;&#34;&#34;Enterprise Security Manager interface&#34;&#34;&#34;
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     @property
     def text(self):
         return str(&#39;ESM object&#39;)
 
     @property
-    def json(self):
-        raise NotImplementedError()
-        #return (dict(self))
+    def json(self): raise NotImplementedError()
+
+    def refresh(self): raise NotImplementedError()
 
     def time(self):
         &#34;&#34;&#34;Returns: string of ESM time (GMT)  

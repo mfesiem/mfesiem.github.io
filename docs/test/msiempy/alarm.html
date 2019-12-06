@@ -42,8 +42,8 @@ __pdoc__={}
 
 class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
-    AlarmManager class.
-    Interface to query and manage Alarms.
+    Interface to query and manage Alarms.  
+    Inherits from `msiempy.FilteredQueryList`.
 
     Arguments:  
 
@@ -54,9 +54,6 @@ class AlarmManager(FilteredQueryList):
     - `page_number` : defaulted to 1.
     - `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted.  
     - `event_filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.event.Event` objects. A single `tuple` is also accepted.  
-    
-    Arguments to `msiempy.FilteredQueryList.__init__()` :  
-
     - `time_range` : Query time range. String representation of a time range.  
     - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
@@ -363,9 +360,10 @@ class Alarm(NitroDict):
     - `events` : The events for this user  
     - And others...  
     
-    Arguments :
+    Arguments:
 
-    - `id` : `Alarm` object ID.  
+    - `adict`: Alarm parameters  
+    - `id`: The alarm ID to instanciate. Will load informations
     &#34;&#34;&#34;
 
     def __init__(self, *arg, **kwargs):
@@ -526,23 +524,12 @@ class Alarm(NitroDict):
                                                                                        
     def data_from_id(self, id):
         &#34;&#34;&#34;
-
+        Gets the alarm parameters based on an ID
         &#34;&#34;&#34;
         alarms = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
         alarms = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarms.items()} #this line is skechy
         alarms = self.map_alarm_int_fields(alarms)        
-        return alarms
-
-    &#34;&#34;&#34;
-    def _hasID(self):
-        try :
-            if self.data[&#39;id&#39;][&#39;value&#39;] == 0 :
-                return False
-            else :
-                return True
-        
-        except KeyError :
-            return False&#34;&#34;&#34;</code></pre>
+        return alarms</code></pre>
 </details>
 </section>
 <section>
@@ -559,8 +546,8 @@ class Alarm(NitroDict):
 <span>(</span><span>*args, status_filter='all', page_size=200, filters=None, event_filters=None, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>AlarmManager class.
-Interface to query and manage Alarms.</p>
+<section class="desc"><p>Interface to query and manage Alarms.<br>
+Inherits from <a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a>.</p>
 <p>Arguments:
 </p>
 <ul>
@@ -575,10 +562,6 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 </li>
 <li><code>event_filters</code> : <code>[(field, [values]), (field, [values])]</code> Filters applied to <code>msiempy.event.Event</code> objects. A single <code>tuple</code> is also accepted.
 </li>
-</ul>
-<p>Arguments to <code>msiempy.FilteredQueryList.__init__()</code> :
-</p>
-<ul>
 <li><code>time_range</code> : Query time range. String representation of a time range.
 </li>
 <li><code>start_time</code> : Query starting time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
@@ -593,8 +576,8 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 </summary>
 <pre><code class="python">class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
-    AlarmManager class.
-    Interface to query and manage Alarms.
+    Interface to query and manage Alarms.  
+    Inherits from `msiempy.FilteredQueryList`.
 
     Arguments:  
 
@@ -605,9 +588,6 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
     - `page_number` : defaulted to 1.
     - `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted.  
     - `event_filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.event.Event` objects. A single `tuple` is also accepted.  
-    
-    Arguments to `msiempy.FilteredQueryList.__init__()` :  
-
     - `time_range` : Query time range. String representation of a time range.  
     - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
@@ -1293,10 +1273,11 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <li>And others&hellip;
 </li>
 </ul>
-<p>Arguments :</p>
+<p>Arguments:</p>
 <ul>
-<li><code>id</code> : <a title="msiempy.alarm.Alarm" href="#msiempy.alarm.Alarm"><code>Alarm</code></a> object ID.
+<li><code>adict</code>: Alarm parameters
 </li>
+<li><code>id</code>: The alarm ID to instanciate. Will load informations</li>
 </ul>
 <p>Creates a empty Alarm.</p></section>
 <details class="source">
@@ -1318,9 +1299,10 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
     - `events` : The events for this user  
     - And others...  
     
-    Arguments :
+    Arguments:
 
-    - `id` : `Alarm` object ID.  
+    - `adict`: Alarm parameters  
+    - `id`: The alarm ID to instanciate. Will load informations
     &#34;&#34;&#34;
 
     def __init__(self, *arg, **kwargs):
@@ -1481,23 +1463,12 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
                                                                                        
     def data_from_id(self, id):
         &#34;&#34;&#34;
-
+        Gets the alarm parameters based on an ID
         &#34;&#34;&#34;
         alarms = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
         alarms = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarms.items()} #this line is skechy
         alarms = self.map_alarm_int_fields(alarms)        
-        return alarms
-
-    &#34;&#34;&#34;
-    def _hasID(self):
-        try :
-            if self.data[&#39;id&#39;][&#39;value&#39;] == 0 :
-                return False
-            else :
-                return True
-        
-        except KeyError :
-            return False&#34;&#34;&#34;</code></pre>
+        return alarms</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1730,13 +1701,31 @@ Warning : This method will only load the details of the first triggering event.
     return new_alarm</code></pre>
 </details>
 </dd>
+<dt id="msiempy.alarm.Alarm.data_from_id"><code class="name flex">
+<span>def <span class="ident">data_from_id</span></span>(<span>self, id)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Gets the alarm parameters based on an ID</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def data_from_id(self, id):
+    &#34;&#34;&#34;
+    Gets the alarm parameters based on an ID
+    &#34;&#34;&#34;
+    alarms = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
+    alarms = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarms.items()} #this line is skechy
+    alarms = self.map_alarm_int_fields(alarms)        
+    return alarms</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
 <ul class="hlist">
 <li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroDict.data_from_id" href="index.html#msiempy.NitroDict.data_from_id">data_from_id</a></code></li>
 <li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
 <li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
 </ul>
@@ -1783,6 +1772,7 @@ Warning : This method will only load the details of the first triggering event.
 <li><code><a title="msiempy.alarm.Alarm.refresh" href="#msiempy.alarm.Alarm.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.load_events" href="#msiempy.alarm.Alarm.load_events">load_events</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.map_alarm_int_fields" href="#msiempy.alarm.Alarm.map_alarm_int_fields">map_alarm_int_fields</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.data_from_id" href="#msiempy.alarm.Alarm.data_from_id">data_from_id</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS" href="#msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS">POSSIBLE_ALARM_STATUS</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS">ALARM_EVENT_FILTER_FIELDS</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS" href="#msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS">ALARM_DEFAULT_FIELDS</a></code></li>

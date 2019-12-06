@@ -48,14 +48,17 @@ from .__utils__ import dehexify
 class ESM(NitroObject):
     &#34;&#34;&#34;Enterprise Security Manager interface&#34;&#34;&#34;
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     @property
     def text(self):
         return str(&#39;ESM object&#39;)
 
     @property
-    def json(self):
-        raise NotImplementedError()
-        #return (dict(self))
+    def json(self): raise NotImplementedError()
+
+    def refresh(self): raise NotImplementedError()
 
     def time(self):
         &#34;&#34;&#34;Returns: string of ESM time (GMT)  
@@ -321,7 +324,11 @@ class ESM(NitroObject):
                     for mod in ven[&#39;models&#39;]]
 
 class DevTree(NitroList):
-    &#34;&#34;&#34;ESM device tree interface&#34;&#34;&#34;
+    &#34;&#34;&#34;ESM device tree interface.  
+    
+    - `__contains__` method returns:  (`bool`) `True/None` the name or IP matches the provided search term.
+
+    &#34;&#34;&#34;
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data = self.build_devtree()
@@ -346,11 +353,9 @@ class DevTree(NitroList):
     #     return json.dumps(self.data)
     # def __getitem__(self, key):
     #     return self.data[key]
-    def contains(self, term):
-        &#34;&#34;&#34; Returns: (`bool`) `True/None` the name or IP matches the provided search term.  &#34;&#34;&#34;
-        return self.__contains__(term)
 
     def __contains__(self, term):
+        &#34;&#34;&#34; Returns: (`bool`) `True/None` the name or IP matches the provided search term.  &#34;&#34;&#34;
         if self.search(term): return True
         else: return None
 
@@ -1062,17 +1067,14 @@ class DevTree(NitroList):
 
 class DataSource(NitroDict):
     &#34;&#34;&#34;DataSource class  
-    
-    Arguments:  
-
-    - `adict` (`dict`): datasource parameters
         
     Best instantiated from DevTree():
     ```
-        &gt;&gt;&gt; dt = DevTree()
-        &gt;&gt;&gt; ds = dt[25]
-        or
-        &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)```
+    &gt;&gt;&gt; dt = DevTree()
+    &gt;&gt;&gt; ds = dt[25]
+    or
+    &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)
+    ```
 
     Dict keys:  
 
@@ -1094,19 +1096,24 @@ class DataSource(NitroDict):
     - `require_tls` (`str`): Use syslog over TLS  
     - `url` (`str`): URL of the datasource  
 
+    Arguments:  
+
+    - `adict`: Datasource parameters  
+    - `id`: The datasource ID to instanciate. Will load informations
+
     &#34;&#34;&#34;
 
     def data_from_id(self, id):
-        &#34;&#34;&#34;NotImplementedError&#34;&#34;&#34;
-        raise NotImplementedError()
+        &#34;&#34;&#34;Gets full of the DataSource parameters&#34;&#34;&#34;
+        if self.nitro.api_v == 1:
+            details = self.nitro.request(&#39;ds_details1&#39;, ds_id=id)
+        else:
+            details = self.nitro.request(&#39;ds_details2&#39;, ds_id=id)
+        return self._map_parameters(details)
 
     def load_details(self):
         &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
-        if self.nitro.api_v == 1:
-            details = self.nitro.request(&#39;ds_details1&#39;, ds_id=self.data[&#39;ds_id&#39;])
-        else:
-            details = self.nitro.request(&#39;ds_details2&#39;, ds_id=self.data[&#39;ds_id&#39;])
-        self._map_parameters(details)
+        self.data = self.data_from_id(self.data[&#39;ds_id&#39;])
 
     def delete(self):
         &#34;&#34;&#34;This deletes the datasource and all the data. Be careful.
@@ -1132,7 +1139,7 @@ class DataSource(NitroDict):
         while status == 0:
             status = self.nitro.request(&#39;get_job_status&#39;, job_id=job_id)[&#39;JS&#39;]
 
-    def _map_parameters(self, p):
+    def _map_parameters(self,p):
         &#34;&#34;&#34;Map the internal ESM field names to msiempy style
         
         Arguments:  
@@ -1140,33 +1147,35 @@ class DataSource(NitroDict):
         - `p` (`dict`): datasource parameters
         &#34;&#34;&#34;
         p = DevTree._normalize_bool_vals(p)
-        self.data[&#39;name&#39;] = p.get(&#39;name&#39;)
-        self.data[&#39;ds_ip&#39;] = p.get(&#39;ipAddress&#39;)
-        self.data[&#39;zone_id&#39;] = p.get(&#39;zoneId&#39;)
-        self.data[&#39;enabled&#39;] = p.get(&#39;enabled&#39;)
+        new_dev=dict()
+        new_dev[&#39;name&#39;] = p.get(&#39;name&#39;)
+        new_dev[&#39;ds_ip&#39;] = p.get(&#39;ipAddress&#39;)
+        new_dev[&#39;zone_id&#39;] = p.get(&#39;zoneId&#39;)
+        new_dev[&#39;enabled&#39;] = p.get(&#39;enabled&#39;)
 
         if self.nitro.api_v == 1:
-            self.data[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;)
-            self.data[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;id&#39;)
+            new_dev[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;)
+            new_dev[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;id&#39;)
 
         elif self.nitro.api_v == 2:
-            self.data[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;).get(&#39;value&#39;)
-            self.data[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;value&#39;)
+            new_dev[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;).get(&#39;value&#39;)
+            new_dev[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;value&#39;)
 
-        if self.data[&#39;desc_id&#39;] == &#39;256&#39;:
-           self.data[&#39;tz_id&#39;] = p.get(&#39;tz_id&#39;)
+        if new_dev[&#39;desc_id&#39;] == &#39;256&#39;:
+           new_dev[&#39;tz_id&#39;] = p.get(&#39;tz_id&#39;)
         else:
-            self.data[&#39;child_enabled&#39;] = p.get(&#39;childEnabled&#39;)
-            self.data[&#39;idm_id&#39;] = p.get(&#39;idmId&#39;)
-            self.data[&#39;child_count&#39;] = p.get(&#39;childCount&#39;)
-            self.data[&#39;child_type&#39;] = p.get(&#39;childType&#39;)
-            self.data[&#39;type_id&#39;] = p.get(&#39;typeId&#39;).get(&#39;id&#39;)
+            new_dev[&#39;child_enabled&#39;] = p.get(&#39;childEnabled&#39;)
+            new_dev[&#39;idm_id&#39;] = p.get(&#39;idmId&#39;)
+            new_dev[&#39;child_count&#39;] = p.get(&#39;childCount&#39;)
+            new_dev[&#39;child_type&#39;] = p.get(&#39;childType&#39;)
+            new_dev[&#39;type_id&#39;] = p.get(&#39;typeId&#39;).get(&#39;id&#39;)
 
             if p.get(&#39;parameters&#39;):
                 for d in p[&#39;parameters&#39;]:
                     # The key is called &#34;key&#34; and the value is the key. 
                     # The value is called value and the value is the value.
-                    self.data[d.get(&#39;key&#39;)] = d.get(&#39;value&#39;)</code></pre>
+                    new_dev[d.get(&#39;key&#39;)] = d.get(&#39;value&#39;)
+        return new_dev</code></pre>
 </details>
 </section>
 <section>
@@ -1180,6 +1189,7 @@ class DataSource(NitroDict):
 <dl>
 <dt id="msiempy.device.ESM"><code class="flex name class">
 <span>class <span class="ident">ESM</span></span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enterprise Security Manager interface</p></section>
@@ -1190,14 +1200,17 @@ class DataSource(NitroDict):
 <pre><code class="python">class ESM(NitroObject):
     &#34;&#34;&#34;Enterprise Security Manager interface&#34;&#34;&#34;
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     @property
     def text(self):
         return str(&#39;ESM object&#39;)
 
     @property
-    def json(self):
-        raise NotImplementedError()
-        #return (dict(self))
+    def json(self): raise NotImplementedError()
+
+    def refresh(self): raise NotImplementedError()
 
     def time(self):
         &#34;&#34;&#34;Returns: string of ESM time (GMT)  
@@ -1960,13 +1973,22 @@ def recs(self):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>ESM device tree interface</p></section>
+<section class="desc"><p>ESM device tree interface.
+</p>
+<ul>
+<li><code>__contains__</code> method returns:
+(<code>bool</code>) <code>True/None</code> the name or IP matches the provided search term.</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DevTree(NitroList):
-    &#34;&#34;&#34;ESM device tree interface&#34;&#34;&#34;
+    &#34;&#34;&#34;ESM device tree interface.  
+    
+    - `__contains__` method returns:  (`bool`) `True/None` the name or IP matches the provided search term.
+
+    &#34;&#34;&#34;
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data = self.build_devtree()
@@ -1991,11 +2013,9 @@ def recs(self):
     #     return json.dumps(self.data)
     # def __getitem__(self, key):
     #     return self.data[key]
-    def contains(self, term):
-        &#34;&#34;&#34; Returns: (`bool`) `True/None` the name or IP matches the provided search term.  &#34;&#34;&#34;
-        return self.__contains__(term)
 
     def __contains__(self, term):
+        &#34;&#34;&#34; Returns: (`bool`) `True/None` the name or IP matches the provided search term.  &#34;&#34;&#34;
         if self.search(term): return True
         else: return None
 
@@ -2721,20 +2741,6 @@ def recs(self):
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="msiempy.device.DevTree.contains"><code class="name flex">
-<span>def <span class="ident">contains</span></span>(<span>self, term)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Returns: (<code>bool</code>) <code>True/None</code> the name or IP matches the provided search term.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def contains(self, term):
-    &#34;&#34;&#34; Returns: (`bool`) `True/None` the name or IP matches the provided search term.  &#34;&#34;&#34;
-    return self.__contains__(term)</code></pre>
-</details>
-</dd>
 <dt id="msiempy.device.DevTree.search"><code class="name flex">
 <span>def <span class="ident">search</span></span>(<span>self, term, zone_id='0')</span>
 </code></dt>
@@ -3168,16 +3174,12 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32
 <dd>
 <section class="desc"><p>DataSource class
 </p>
-<p>Arguments:
-</p>
-<ul>
-<li><code>adict</code> (<code>dict</code>): datasource parameters</li>
-</ul>
-<p>Best instantiated from DevTree():
-<code>&gt;&gt;&gt; dt = DevTree()
+<p>Best instantiated from DevTree():</p>
+<pre><code>&gt;&gt;&gt; dt = DevTree()
 &gt;&gt;&gt; ds = dt[25]
 or
-&gt;&gt;&gt; ds = dt.search('10.10.1.1')</code></p>
+&gt;&gt;&gt; ds = dt.search('10.10.1.1')
+</code></pre>
 <p>Dict keys:
 </p>
 <ul>
@@ -3213,7 +3215,15 @@ or
 </li>
 <li><code>require_tls</code> (<code>str</code>): Use syslog over TLS
 </li>
-<li><code>url</code> (<code>str</code>): URL of the datasource</li>
+<li><code>url</code> (<code>str</code>): URL of the datasource
+</li>
+</ul>
+<p>Arguments:
+</p>
+<ul>
+<li><code>adict</code>: Datasource parameters
+</li>
+<li><code>id</code>: The datasource ID to instanciate. Will load informations</li>
 </ul></section>
 <details class="source">
 <summary>
@@ -3221,17 +3231,14 @@ or
 </summary>
 <pre><code class="python">class DataSource(NitroDict):
     &#34;&#34;&#34;DataSource class  
-    
-    Arguments:  
-
-    - `adict` (`dict`): datasource parameters
         
     Best instantiated from DevTree():
     ```
-        &gt;&gt;&gt; dt = DevTree()
-        &gt;&gt;&gt; ds = dt[25]
-        or
-        &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)```
+    &gt;&gt;&gt; dt = DevTree()
+    &gt;&gt;&gt; ds = dt[25]
+    or
+    &gt;&gt;&gt; ds = dt.search(&#39;10.10.1.1&#39;)
+    ```
 
     Dict keys:  
 
@@ -3253,19 +3260,24 @@ or
     - `require_tls` (`str`): Use syslog over TLS  
     - `url` (`str`): URL of the datasource  
 
+    Arguments:  
+
+    - `adict`: Datasource parameters  
+    - `id`: The datasource ID to instanciate. Will load informations
+
     &#34;&#34;&#34;
 
     def data_from_id(self, id):
-        &#34;&#34;&#34;NotImplementedError&#34;&#34;&#34;
-        raise NotImplementedError()
+        &#34;&#34;&#34;Gets full of the DataSource parameters&#34;&#34;&#34;
+        if self.nitro.api_v == 1:
+            details = self.nitro.request(&#39;ds_details1&#39;, ds_id=id)
+        else:
+            details = self.nitro.request(&#39;ds_details2&#39;, ds_id=id)
+        return self._map_parameters(details)
 
     def load_details(self):
         &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
-        if self.nitro.api_v == 1:
-            details = self.nitro.request(&#39;ds_details1&#39;, ds_id=self.data[&#39;ds_id&#39;])
-        else:
-            details = self.nitro.request(&#39;ds_details2&#39;, ds_id=self.data[&#39;ds_id&#39;])
-        self._map_parameters(details)
+        self.data = self.data_from_id(self.data[&#39;ds_id&#39;])
 
     def delete(self):
         &#34;&#34;&#34;This deletes the datasource and all the data. Be careful.
@@ -3291,7 +3303,7 @@ or
         while status == 0:
             status = self.nitro.request(&#39;get_job_status&#39;, job_id=job_id)[&#39;JS&#39;]
 
-    def _map_parameters(self, p):
+    def _map_parameters(self,p):
         &#34;&#34;&#34;Map the internal ESM field names to msiempy style
         
         Arguments:  
@@ -3299,33 +3311,35 @@ or
         - `p` (`dict`): datasource parameters
         &#34;&#34;&#34;
         p = DevTree._normalize_bool_vals(p)
-        self.data[&#39;name&#39;] = p.get(&#39;name&#39;)
-        self.data[&#39;ds_ip&#39;] = p.get(&#39;ipAddress&#39;)
-        self.data[&#39;zone_id&#39;] = p.get(&#39;zoneId&#39;)
-        self.data[&#39;enabled&#39;] = p.get(&#39;enabled&#39;)
+        new_dev=dict()
+        new_dev[&#39;name&#39;] = p.get(&#39;name&#39;)
+        new_dev[&#39;ds_ip&#39;] = p.get(&#39;ipAddress&#39;)
+        new_dev[&#39;zone_id&#39;] = p.get(&#39;zoneId&#39;)
+        new_dev[&#39;enabled&#39;] = p.get(&#39;enabled&#39;)
 
         if self.nitro.api_v == 1:
-            self.data[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;)
-            self.data[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;id&#39;)
+            new_dev[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;)
+            new_dev[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;id&#39;)
 
         elif self.nitro.api_v == 2:
-            self.data[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;).get(&#39;value&#39;)
-            self.data[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;value&#39;)
+            new_dev[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;).get(&#39;value&#39;)
+            new_dev[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;value&#39;)
 
-        if self.data[&#39;desc_id&#39;] == &#39;256&#39;:
-           self.data[&#39;tz_id&#39;] = p.get(&#39;tz_id&#39;)
+        if new_dev[&#39;desc_id&#39;] == &#39;256&#39;:
+           new_dev[&#39;tz_id&#39;] = p.get(&#39;tz_id&#39;)
         else:
-            self.data[&#39;child_enabled&#39;] = p.get(&#39;childEnabled&#39;)
-            self.data[&#39;idm_id&#39;] = p.get(&#39;idmId&#39;)
-            self.data[&#39;child_count&#39;] = p.get(&#39;childCount&#39;)
-            self.data[&#39;child_type&#39;] = p.get(&#39;childType&#39;)
-            self.data[&#39;type_id&#39;] = p.get(&#39;typeId&#39;).get(&#39;id&#39;)
+            new_dev[&#39;child_enabled&#39;] = p.get(&#39;childEnabled&#39;)
+            new_dev[&#39;idm_id&#39;] = p.get(&#39;idmId&#39;)
+            new_dev[&#39;child_count&#39;] = p.get(&#39;childCount&#39;)
+            new_dev[&#39;child_type&#39;] = p.get(&#39;childType&#39;)
+            new_dev[&#39;type_id&#39;] = p.get(&#39;typeId&#39;).get(&#39;id&#39;)
 
             if p.get(&#39;parameters&#39;):
                 for d in p[&#39;parameters&#39;]:
                     # The key is called &#34;key&#34; and the value is the key. 
                     # The value is called value and the value is the value.
-                    self.data[d.get(&#39;key&#39;)] = d.get(&#39;value&#39;)</code></pre>
+                    new_dev[d.get(&#39;key&#39;)] = d.get(&#39;value&#39;)
+        return new_dev</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -3346,14 +3360,18 @@ or
 <span>def <span class="ident">data_from_id</span></span>(<span>self, id)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>NotImplementedError</p></section>
+<section class="desc"><p>Gets full of the DataSource parameters</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def data_from_id(self, id):
-    &#34;&#34;&#34;NotImplementedError&#34;&#34;&#34;
-    raise NotImplementedError()</code></pre>
+    &#34;&#34;&#34;Gets full of the DataSource parameters&#34;&#34;&#34;
+    if self.nitro.api_v == 1:
+        details = self.nitro.request(&#39;ds_details1&#39;, ds_id=id)
+    else:
+        details = self.nitro.request(&#39;ds_details2&#39;, ds_id=id)
+    return self._map_parameters(details)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.DataSource.load_details"><code class="name flex">
@@ -3367,11 +3385,7 @@ or
 </summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
-    if self.nitro.api_v == 1:
-        details = self.nitro.request(&#39;ds_details1&#39;, ds_id=self.data[&#39;ds_id&#39;])
-    else:
-        details = self.nitro.request(&#39;ds_details2&#39;, ds_id=self.data[&#39;ds_id&#39;])
-    self._map_parameters(details)</code></pre>
+    self.data = self.data_from_id(self.data[&#39;ds_id&#39;])</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.DataSource.delete"><code class="name flex">
@@ -3473,7 +3487,6 @@ or
 <li>
 <h4><code><a title="msiempy.device.DevTree" href="#msiempy.device.DevTree">DevTree</a></code></h4>
 <ul class="">
-<li><code><a title="msiempy.device.DevTree.contains" href="#msiempy.device.DevTree.contains">contains</a></code></li>
 <li><code><a title="msiempy.device.DevTree.search" href="#msiempy.device.DevTree.search">search</a></code></li>
 <li><code><a title="msiempy.device.DevTree.search_ds_group" href="#msiempy.device.DevTree.search_ds_group">search_ds_group</a></code></li>
 <li><code><a title="msiempy.device.DevTree.refresh" href="#msiempy.device.DevTree.refresh">refresh</a></code></li>

@@ -39,10 +39,12 @@ class WatchlistManager(NitroList):
     Summary of ESM watchlists.
 
     Example:
-        wlman = WatchlistManager()
-        for wl in wlman:
-            if wl[&#39;name&#39;] == &#39;IPs-To-Block-On-IPS-24hrs&#39;: break
-        wl.add_values([&#39;1.1.1.2&#39;, &#39;2.2.2.1&#39;, &#39;3.3.3.1&#39;])
+    ```
+    wlman = WatchlistManager()
+    for wl in wlman:
+        if wl[&#39;name&#39;] == &#39;IPs-To-Block-On-IPS-24hrs&#39;: break
+    wl.add_values([&#39;1.1.1.2&#39;, &#39;2.2.2.1&#39;, &#39;3.3.3.1&#39;])
+    ```
 
     &#34;&#34;&#34;
 
@@ -54,6 +56,9 @@ class WatchlistManager(NitroList):
         self.get_watchlist_summary()
 
     def get_watchlist_summary(self):
+        &#34;&#34;&#34;
+        Loads the watchlist summary.
+        &#34;&#34;&#34;
         self.data = self.nitro.request(&#39;get_watchlists_no_filters&#39;,
             hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
 
@@ -64,7 +69,7 @@ class WatchlistManager(NitroList):
 
     def load_details(self):
         &#34;&#34;&#34;
-        Load a summary of existing watchlists.
+        Load the details of existing watchlists.
         &#34;&#34;&#34;
         self.perform(Watchlist.load_details, asynch=False, progress=True)
 
@@ -83,20 +88,20 @@ class WatchlistManager(NitroList):
         - `name` (`str`): Name of the watchlist.
         - `wl_type` (`str`): Watchlist data type.
         Get the list of types with: `msiempy.watchlist.WatchlistManager.get_wl_types`.  
-        Most common types are: IPAddress,
-                                Hash,
-                                SHA1,
-                                DSIDSigID,
-                                Port,
-                                MacAddress,
-                                NormID,
-                                AppID,
-                                CommandID,
-                                DomainID,
-                                HostID,
-                                ObjectID,
-                                Filename,
-                                File_Hash
+        Most common types are: `IPAddress`,
+                                `Hash`,
+                                `SHA1`,
+                                `DSIDSigID`,
+                                `Port`,
+                                `MacAddress`,
+                                `NormID`,
+                                `AppID`,
+                                `CommandID`,
+                                `DomainID`,
+                                `HostID`,
+                                `ObjectID`,
+                                `Filename`,
+                                `File_Hash`
         &#34;&#34;&#34;
         for wl in self.data:
             if wl.get(&#39;name&#39;) == name:
@@ -142,6 +147,12 @@ class Watchlist(NitroDict):
     - `id`: The id of the watchlist
     - `values`: values
     - And others...
+
+    Arguments:
+
+    - `adict`: Watchlist parameters
+    - `id`: The watchlist ID to instanciate. Will load informations
+    
 
     &#34;&#34;&#34;
     def __init__(self, *args, **kwargs):
@@ -214,12 +225,13 @@ class Watchlist(NitroDict):
 </code></dt>
 <dd>
 <section class="desc"><p>Summary of ESM watchlists.</p>
-<h2 id="example">Example</h2>
-<p>wlman = WatchlistManager()
+<p>Example:</p>
+<pre><code>wlman = WatchlistManager()
 for wl in wlman:
-if wl['name'] == 'IPs-To-Block-On-IPS-24hrs': break
+    if wl['name'] == 'IPs-To-Block-On-IPS-24hrs': break
 wl.add_values(['1.1.1.2', '2.2.2.1', '3.3.3.1'])
-Initialize the watchlist manager.</p></section>
+</code></pre>
+<p>Initialize the watchlist manager.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -229,10 +241,12 @@ Initialize the watchlist manager.</p></section>
     Summary of ESM watchlists.
 
     Example:
-        wlman = WatchlistManager()
-        for wl in wlman:
-            if wl[&#39;name&#39;] == &#39;IPs-To-Block-On-IPS-24hrs&#39;: break
-        wl.add_values([&#39;1.1.1.2&#39;, &#39;2.2.2.1&#39;, &#39;3.3.3.1&#39;])
+    ```
+    wlman = WatchlistManager()
+    for wl in wlman:
+        if wl[&#39;name&#39;] == &#39;IPs-To-Block-On-IPS-24hrs&#39;: break
+    wl.add_values([&#39;1.1.1.2&#39;, &#39;2.2.2.1&#39;, &#39;3.3.3.1&#39;])
+    ```
 
     &#34;&#34;&#34;
 
@@ -244,6 +258,9 @@ Initialize the watchlist manager.</p></section>
         self.get_watchlist_summary()
 
     def get_watchlist_summary(self):
+        &#34;&#34;&#34;
+        Loads the watchlist summary.
+        &#34;&#34;&#34;
         self.data = self.nitro.request(&#39;get_watchlists_no_filters&#39;,
             hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
 
@@ -254,7 +271,7 @@ Initialize the watchlist manager.</p></section>
 
     def load_details(self):
         &#34;&#34;&#34;
-        Load a summary of existing watchlists.
+        Load the details of existing watchlists.
         &#34;&#34;&#34;
         self.perform(Watchlist.load_details, asynch=False, progress=True)
 
@@ -273,20 +290,20 @@ Initialize the watchlist manager.</p></section>
         - `name` (`str`): Name of the watchlist.
         - `wl_type` (`str`): Watchlist data type.
         Get the list of types with: `msiempy.watchlist.WatchlistManager.get_wl_types`.  
-        Most common types are: IPAddress,
-                                Hash,
-                                SHA1,
-                                DSIDSigID,
-                                Port,
-                                MacAddress,
-                                NormID,
-                                AppID,
-                                CommandID,
-                                DomainID,
-                                HostID,
-                                ObjectID,
-                                Filename,
-                                File_Hash
+        Most common types are: `IPAddress`,
+                                `Hash`,
+                                `SHA1`,
+                                `DSIDSigID`,
+                                `Port`,
+                                `MacAddress`,
+                                `NormID`,
+                                `AppID`,
+                                `CommandID`,
+                                `DomainID`,
+                                `HostID`,
+                                `ObjectID`,
+                                `Filename`,
+                                `File_Hash`
         &#34;&#34;&#34;
         for wl in self.data:
             if wl.get(&#39;name&#39;) == name:
@@ -332,12 +349,15 @@ Initialize the watchlist manager.</p></section>
 <span>def <span class="ident">get_watchlist_summary</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Loads the watchlist summary.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_watchlist_summary(self):
+    &#34;&#34;&#34;
+    Loads the watchlist summary.
+    &#34;&#34;&#34;
     self.data = self.nitro.request(&#39;get_watchlists_no_filters&#39;,
         hidden=False, dynamic=False, writeOnly=False, indexedOnly=False)
 
@@ -351,14 +371,14 @@ Initialize the watchlist manager.</p></section>
 <span>def <span class="ident">load_details</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Load a summary of existing watchlists.</p></section>
+<section class="desc"><p>Load the details of existing watchlists.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;
-    Load a summary of existing watchlists.
+    Load the details of existing watchlists.
     &#34;&#34;&#34;
     self.perform(Watchlist.load_details, asynch=False, progress=True)</code></pre>
 </details>
@@ -390,20 +410,20 @@ Initialize the watchlist manager.</p></section>
 <li><code>name</code> (<code>str</code>): Name of the watchlist.</li>
 <li><code>wl_type</code> (<code>str</code>): Watchlist data type.
 Get the list of types with: <a title="msiempy.watchlist.WatchlistManager.get_wl_types" href="#msiempy.watchlist.WatchlistManager.get_wl_types"><code>WatchlistManager.get_wl_types()</code></a>.<br>
-Most common types are: IPAddress,
-Hash,
-SHA1,
-DSIDSigID,
-Port,
-MacAddress,
-NormID,
-AppID,
-CommandID,
-DomainID,
-HostID,
-ObjectID,
-Filename,
-File_Hash</li>
+Most common types are: <code>IPAddress</code>,
+<code>Hash</code>,
+<code>SHA1</code>,
+<code>DSIDSigID</code>,
+<code>Port</code>,
+<code>MacAddress</code>,
+<code>NormID</code>,
+<code>AppID</code>,
+<code>CommandID</code>,
+<code>DomainID</code>,
+<code>HostID</code>,
+<code>ObjectID</code>,
+<code>Filename</code>,
+<code>File_Hash</code></li>
 </ul></section>
 <details class="source">
 <summary>
@@ -418,20 +438,20 @@ File_Hash</li>
     - `name` (`str`): Name of the watchlist.
     - `wl_type` (`str`): Watchlist data type.
     Get the list of types with: `msiempy.watchlist.WatchlistManager.get_wl_types`.  
-    Most common types are: IPAddress,
-                            Hash,
-                            SHA1,
-                            DSIDSigID,
-                            Port,
-                            MacAddress,
-                            NormID,
-                            AppID,
-                            CommandID,
-                            DomainID,
-                            HostID,
-                            ObjectID,
-                            Filename,
-                            File_Hash
+    Most common types are: `IPAddress`,
+                            `Hash`,
+                            `SHA1`,
+                            `DSIDSigID`,
+                            `Port`,
+                            `MacAddress`,
+                            `NormID`,
+                            `AppID`,
+                            `CommandID`,
+                            `DomainID`,
+                            `HostID`,
+                            `ObjectID`,
+                            `Filename`,
+                            `File_Hash`
     &#34;&#34;&#34;
     for wl in self.data:
         if wl.get(&#39;name&#39;) == name:
@@ -523,6 +543,11 @@ Whether this watchlist is hidden</li>
 <li><code>id</code>: The id of the watchlist</li>
 <li><code>values</code>: values</li>
 <li>And others&hellip;</li>
+</ul>
+<p>Arguments:</p>
+<ul>
+<li><code>adict</code>: Watchlist parameters</li>
+<li><code>id</code>: The watchlist ID to instanciate. Will load informations</li>
 </ul></section>
 <details class="source">
 <summary>
@@ -548,6 +573,12 @@ Whether this watchlist is hidden</li>
     - `id`: The id of the watchlist
     - `values`: values
     - And others...
+
+    Arguments:
+
+    - `adict`: Watchlist parameters
+    - `id`: The watchlist ID to instanciate. Will load informations
+    
 
     &#34;&#34;&#34;
     def __init__(self, *args, **kwargs):

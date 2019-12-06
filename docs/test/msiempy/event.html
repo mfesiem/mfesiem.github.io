@@ -37,7 +37,7 @@ import copy
 from datetime import datetime, timedelta
 log = logging.getLogger(&#39;msiempy&#39;)
 
-from . import NitroObject, NitroDict, NitroError, FilteredQueryList
+from . import NitroDict, NitroError, FilteredQueryList
 from .__utils__ import timerange_gettimes, parse_query_result, format_fields_for_query, divide_times, parse_timedelta
 
 class EventManager(FilteredQueryList):
@@ -852,6 +852,15 @@ class Event(NitroDict):
 
         elif use_query == False :
             return self.nitro.request(&#39;get_alert_data&#39;, id=id)
+
+    def refresh(self): 
+        &#34;&#34;&#34;Re-load event&#39;s data&#34;&#34;&#34;
+        if &#39;Alert.IPSIDAlertID&#39; in self.data.keys() :
+            self.data.update(self.data_from_id(self.data[&#39;Alert.IPSIDAlertID&#39;], 
+                use_query=True, extra_fields=self.data.keys()))
+        else :
+            id = &#39;|&#39;.join([str(self.data[&#39;ipsId&#39;][&#39;id&#39;]), str(self.data[&#39;alertId&#39;])])
+            self.data.update(self.data_from_id(id))
    
 class _QueryFilter(collections.UserDict):
     &#34;&#34;&#34;Base class for all SIEM query objects in order to dump the filter as dict.
@@ -1756,6 +1765,7 @@ with dateutil.
 <li><code><a title="msiempy.FilteredQueryList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.FilteredQueryList.nitro" href="index.html#msiempy.NitroObject.nitro">nitro</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
@@ -2292,7 +2302,16 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
                 raise NitroError(&#39;Could not load event : &#39;+str(id)+&#39; from query :&#39;+str(e.__dict__)+&#39;. Try with use_query=False.&#39;)
 
         elif use_query == False :
-            return self.nitro.request(&#39;get_alert_data&#39;, id=id)</code></pre>
+            return self.nitro.request(&#39;get_alert_data&#39;, id=id)
+
+    def refresh(self): 
+        &#34;&#34;&#34;Re-load event&#39;s data&#34;&#34;&#34;
+        if &#39;Alert.IPSIDAlertID&#39; in self.data.keys() :
+            self.data.update(self.data_from_id(self.data[&#39;Alert.IPSIDAlertID&#39;], 
+                use_query=True, extra_fields=self.data.keys()))
+        else :
+            id = &#39;|&#39;.join([str(self.data[&#39;ipsId&#39;][&#39;id&#39;]), str(self.data[&#39;alertId&#39;])])
+            self.data.update(self.data_from_id(id))</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -2443,6 +2462,25 @@ Todo : Reverse mapping when creating object</p></section>
         return self.nitro.request(&#39;get_alert_data&#39;, id=id)</code></pre>
 </details>
 </dd>
+<dt id="msiempy.event.Event.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Re-load event's data</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def refresh(self): 
+    &#34;&#34;&#34;Re-load event&#39;s data&#34;&#34;&#34;
+    if &#39;Alert.IPSIDAlertID&#39; in self.data.keys() :
+        self.data.update(self.data_from_id(self.data[&#39;Alert.IPSIDAlertID&#39;], 
+            use_query=True, extra_fields=self.data.keys()))
+    else :
+        id = &#39;|&#39;.join([str(self.data[&#39;ipsId&#39;][&#39;id&#39;]), str(self.data[&#39;alertId&#39;])])
+        self.data.update(self.data_from_id(id))</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -2450,7 +2488,7 @@ Todo : Reverse mapping when creating object</p></section>
 <ul class="hlist">
 <li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 <li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
-<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroDict.nitro" href="index.html#msiempy.NitroObject.nitro">nitro</a></code></li>
 <li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
 </ul>
 </li>
@@ -2943,6 +2981,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <li><code><a title="msiempy.event.Event.clear_notes" href="#msiempy.event.Event.clear_notes">clear_notes</a></code></li>
 <li><code><a title="msiempy.event.Event.set_note" href="#msiempy.event.Event.set_note">set_note</a></code></li>
 <li><code><a title="msiempy.event.Event.data_from_id" href="#msiempy.event.Event.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.event.Event.refresh" href="#msiempy.event.Event.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.event.Event.FIELDS_TABLES" href="#msiempy.event.Event.FIELDS_TABLES">FIELDS_TABLES</a></code></li>
 <li><code><a title="msiempy.event.Event.DEFAULTS_EVENT_FIELDS" href="#msiempy.event.Event.DEFAULTS_EVENT_FIELDS">DEFAULTS_EVENT_FIELDS</a></code></li>
 <li><code><a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS">REGULAR_EVENT_FIELDS</a></code></li>

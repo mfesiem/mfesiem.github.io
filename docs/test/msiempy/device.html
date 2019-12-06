@@ -1113,7 +1113,11 @@ class DataSource(NitroDict):
 
     def load_details(self):
         &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
-        self.data = self.data_from_id(self.data[&#39;ds_id&#39;])
+        self.data.update(self.data_from_id(self.data[&#39;ds_id&#39;]))
+
+    def refresh(self) : 
+        &#34;&#34;&#34;Gets the detailed parameters.&#34;&#34;&#34;
+        self.load_details()
 
     def delete(self):
         &#34;&#34;&#34;This deletes the datasource and all the data. Be careful.
@@ -1161,7 +1165,7 @@ class DataSource(NitroDict):
             new_dev[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;).get(&#39;value&#39;)
             new_dev[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;value&#39;)
 
-        if new_dev[&#39;desc_id&#39;] == &#39;256&#39;:
+        if self.data[&#39;desc_id&#39;] == &#39;256&#39;:
            new_dev[&#39;tz_id&#39;] = p.get(&#39;tz_id&#39;)
         else:
             new_dev[&#39;child_enabled&#39;] = p.get(&#39;childEnabled&#39;)
@@ -1962,6 +1966,7 @@ def recs(self):
 <ul class="hlist">
 <li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 <li><code><a title="msiempy.NitroObject.json" href="index.html#msiempy.NitroObject.json">json</a></code></li>
+<li><code><a title="msiempy.NitroObject.nitro" href="index.html#msiempy.NitroObject.nitro">nitro</a></code></li>
 <li><code><a title="msiempy.NitroObject.refresh" href="index.html#msiempy.NitroObject.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.NitroObject.text" href="index.html#msiempy.NitroObject.text">text</a></code></li>
 </ul>
@@ -3161,6 +3166,7 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32
 <li><code><a title="msiempy.NitroList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
 <li><code><a title="msiempy.NitroList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
 <li><code><a title="msiempy.NitroList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.NitroList.nitro" href="index.html#msiempy.NitroObject.nitro">nitro</a></code></li>
 <li><code><a title="msiempy.NitroList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
 <li><code><a title="msiempy.NitroList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
 </ul>
@@ -3277,7 +3283,11 @@ or
 
     def load_details(self):
         &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
-        self.data = self.data_from_id(self.data[&#39;ds_id&#39;])
+        self.data.update(self.data_from_id(self.data[&#39;ds_id&#39;]))
+
+    def refresh(self) : 
+        &#34;&#34;&#34;Gets the detailed parameters.&#34;&#34;&#34;
+        self.load_details()
 
     def delete(self):
         &#34;&#34;&#34;This deletes the datasource and all the data. Be careful.
@@ -3325,7 +3335,7 @@ or
             new_dev[&#39;ds_id&#39;] = p.get(&#39;pdsId&#39;).get(&#39;value&#39;)
             new_dev[&#39;parent_id&#39;] = p.get(&#39;parentId&#39;).get(&#39;value&#39;)
 
-        if new_dev[&#39;desc_id&#39;] == &#39;256&#39;:
+        if self.data[&#39;desc_id&#39;] == &#39;256&#39;:
            new_dev[&#39;tz_id&#39;] = p.get(&#39;tz_id&#39;)
         else:
             new_dev[&#39;child_enabled&#39;] = p.get(&#39;childEnabled&#39;)
@@ -3385,7 +3395,21 @@ or
 </summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
-    self.data = self.data_from_id(self.data[&#39;ds_id&#39;])</code></pre>
+    self.data.update(self.data_from_id(self.data[&#39;ds_id&#39;]))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DataSource.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Gets the detailed parameters.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def refresh(self) : 
+    &#34;&#34;&#34;Gets the detailed parameters.&#34;&#34;&#34;
+    self.load_details()</code></pre>
 </details>
 </dd>
 <dt id="msiempy.device.DataSource.delete"><code class="name flex">
@@ -3439,7 +3463,7 @@ or
 <ul class="hlist">
 <li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 <li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
-<li><code><a title="msiempy.NitroDict.refresh" href="index.html#msiempy.NitroDict.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.NitroDict.nitro" href="index.html#msiempy.NitroObject.nitro">nitro</a></code></li>
 <li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
 </ul>
 </li>
@@ -3502,6 +3526,7 @@ or
 <ul class="">
 <li><code><a title="msiempy.device.DataSource.data_from_id" href="#msiempy.device.DataSource.data_from_id">data_from_id</a></code></li>
 <li><code><a title="msiempy.device.DataSource.load_details" href="#msiempy.device.DataSource.load_details">load_details</a></code></li>
+<li><code><a title="msiempy.device.DataSource.refresh" href="#msiempy.device.DataSource.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.device.DataSource.delete" href="#msiempy.device.DataSource.delete">delete</a></code></li>
 <li><code><a title="msiempy.device.DataSource.delete_client" href="#msiempy.device.DataSource.delete_client">delete_client</a></code></li>
 </ul>

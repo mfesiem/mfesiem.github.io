@@ -71,7 +71,6 @@ import time
 from io import StringIO
 from .__utils__ import regex_match, tob64, format_esm_time, convert_to_time_obj, timerange_gettimes, parse_timedelta, divide_times
 
-
 try :
     requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -84,6 +83,34 @@ __pdoc__={} #Init pdoc overwrite engine to document stuff dynamically
 
 class NitroConfig(configparser.ConfigParser):
     &#34;&#34;&#34;
+
+    Handles the configuration. Reads the config file `.msiem/conf.ini` where ever it is and make accessible it&#39;s values throught object properties. 
+    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values. 
+    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:  
+
+    Default configuration file should look like this. Authentication is left empty.
+    ```
+    [esm]
+    host = 
+    user = 
+    passwd = 
+
+    [general]
+    verbose = False
+    quiet = False
+    logfile = 
+    timeout = 60
+    ssl_verify = False
+    ```
+
+    For Windows: `%APPDATA%\.msiem\conf.ini`  
+    For Mac : `$HOME/.msiem/conf.ini`  
+    For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`  
+    If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`  
+
+    You can setup the configuration by command line with `msiempy_setup.py` script at https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py.  
+    
+
     Arguments: 
 
     - `path`: Config file special path, if path is left None, will automatically look for it.  
@@ -93,17 +120,17 @@ class NitroConfig(configparser.ConfigParser):
     &#34;&#34;&#34;
     def __init__(self, path=None, config=None, *arg, **kwarg):
         super().__init__(*arg, **kwarg)
-        self.read_dict(self.DEFAULT_CONF_DICT)
         if not path : self._path = self.find_ini_location()
         else : self._path = path
-        try :
-            files=self.read(self._path)
-            if len(files) == 0: raise FileNotFoundError
-        except :
+        files=self.read(self._path)
+        if len(files) == 0:
             log.info(&#34;Config file inexistant or currupted, applying defaults&#34;)
+            self.read_dict(self.DEFAULT_CONF_DICT)
             if not os.path.exists(os.path.dirname(self._path)):
                 os.makedirs(os.path.dirname(self._path))
             self.write()
+        else:
+            log.info(&#34;Successfuly read config file {}&#34;.format(files[0]))
         if config != None :
             log.info(&#34;Reading config_dict : &#34;+str(self))
             self.read_dict(config)
@@ -122,23 +149,10 @@ class NitroConfig(configparser.ConfigParser):
             &#39;quiet&#39;:False,
             &#39;logfile&#39;:&#39;&#39;,
             &#39;timeout&#39;:60,
-            &#39;ssl_verify&#39;:False,
-            &#39;output&#39;:&#39;text&#39;}
+            &#39;ssl_verify&#39;:False}
     }
     &#34;&#34;&#34;
-    ```
-    {
-        &#39;esm&#39;:{&#39;host&#39;:&#39;&#39;, 
-            &#39;user&#39;:&#39;&#39;,
-            &#39;passwd&#39;:&#39;&#39;},
-        &#39;general&#39;:{&#39;verbose&#39;:False,
-            &#39;quiet&#39;:False,
-            &#39;logfile&#39;:&#39;&#39;,
-            &#39;timeout&#39;:60,
-            &#39;ssl_verify&#39;:False,
-            &#39;output&#39;:&#39;text&#39;}
-    }
-    ```
+    Default configuration values.
     &#34;&#34;&#34;
 
     def __str__(self):
@@ -150,9 +164,9 @@ class NitroConfig(configparser.ConfigParser):
     def write(self):
         &#34;&#34;&#34;Write the config file to the predetermined path.
         &#34;&#34;&#34;
-        log.info(&#34;Write config file at &#34;+self._path)
         with open(self._path, &#39;w&#39;) as conf:
             super().write(conf)
+            log.info(&#34;Config file has been written at &#34;+self._path)
 
     def _iset(self, section, option, secure=False):
         &#34;&#34;&#34;Internal method to interactively set  a option in a section.
@@ -163,8 +177,7 @@ class NitroConfig(configparser.ConfigParser):
         if option==&#39;passwd&#39;: secure=True
         if secure : newvalue = tob64(getpass.getpass(msg.format(section, option)+&#39;. Press &lt;Enter&gt; to skip: &#39;))
         else: newvalue = input(msg.format(section, option)+ &#39;. Press &lt;Enter&gt; to keep &#39;+ (value if (str(value) != &#39;&#39;) else &#39;empty&#39;) + &#39;: &#39;)
-        if newvalue != &#39;&#39; :
-            super().set(section, option, newvalue)
+        if newvalue != &#39;&#39; : super().set(section, option, newvalue)
 
     def iset(self, section, option=None, secure=False):
         &#34;&#34;&#34;Interactively set the specified section/option by asking the user the input.  
@@ -177,36 +190,24 @@ class NitroConfig(configparser.ConfigParser):
         if option is None :
             for key in self.options(section):
                 self._iset(section, key, secure)
-        else :
-            self._iset(section, option, secure)
+        else : self._iset(section, option, secure)
 
     @property
     def user(self): return self.get(&#39;esm&#39;, &#39;user&#39;)
-
     @property
     def host(self): return self.get(&#39;esm&#39;, &#39;host&#39;)
-
     @property
     def passwd(self): return self.get(&#39;esm&#39;, &#39;passwd&#39;)
-
     @property
     def verbose(self): return self.getboolean(&#39;general&#39;, &#39;verbose&#39;)
-
     @property
     def quiet(self): return self.getboolean(&#39;general&#39;, &#39;quiet&#39;)
-
     @property
     def logfile(self): return self.get(&#39;general&#39;, &#39;logfile&#39;)
-
     @property
     def timeout(self): return self.getint(&#39;general&#39;, &#39;timeout&#39;)
-
     @property
     def ssl_verify(self): return self.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)
-
-    @property
-    def output(self): return self.get(&#39;general&#39;, &#39;output&#39;)
-
 
     @staticmethod
     def find_ini_location():
@@ -290,33 +291,6 @@ class NitroSession():
     config = None
     &#34;&#34;&#34;
     `msiempy.NitroConfig` object.  
-
-    Handles the configuration. Reads the config file `.msiem/conf.ini` where ever it is and make accessible it&#39;s values throught object properties. 
-    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values. 
-    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:  
-
-    Default configuration file should look like this. Authentication is left empty.
-    ```
-    [esm]
-    host = 
-    user = 
-    passwd = 
-
-    [general]
-    verbose = False
-    quiet = False
-    logfile = 
-    timeout = 60
-    ssl_verify = False
-    output = text #Not used yet
-    ```
-
-    For Windows: `%APPDATA%\.msiem\conf.ini`  
-    For Mac : `$HOME/.msiem/conf.ini`  
-    For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`  
-    If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`  
-
-    You can setup the configuration by command line with `msiempy_setup.py` script at https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py.  
     &#34;&#34;&#34;
     
     PARAMS = {
@@ -736,11 +710,14 @@ class NitroSession():
         &#34;&#34;&#34; 
         This method will logout the session.
         &#34;&#34;&#34;
+        self.api_v = 0
         self.request(&#39;logout&#39;, http=&#39;delete&#39;)
         self.logged_in=False
         self.login_info=dict()
+        self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
+        self.user_tz_id = None
 
-    def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=True):
+    def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=5):
         &#34;&#34;&#34;
         Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
         If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
@@ -755,6 +732,7 @@ class NitroSession():
         - `callback` : function to apply afterwards  
         - `raw` : If true will return the Response object from requests module.   
         - `secure` : If true will not log the content of the request.   
+        - `retry` : Numbre of time the request can be retried
 
         Returns : 
 
@@ -808,7 +786,7 @@ class NitroSession():
             )
 
             if raw :
-                log.debug(&#39;Returning raw requests Response object : &#39;+str(result)+ &#39; &#39; + str(result.text))
+                log.debug(&#39;Returning raw requests Response object : &#39;+str(result))
                 return result
 
             else:
@@ -817,41 +795,46 @@ class NitroSession():
 
                 except requests.HTTPError as e :
                     error=None
-                    # Invalif session handler -&gt; re-login
-                    if any([match in result.text for match in [&#39;ERROR_InvalidSession&#39;, 
+
+                    if retry&gt;0 :
+                        # Invalif session handler -&gt; re-login
+                        if any([match in result.text for match in [&#39;ERROR_InvalidSession&#39;, 
                             &#39;Not Authorized User&#39;, &#39;Invalid Session&#39;, &#39;Username and password cannot be null&#39;]]):
                             error = NitroError(&#39;Authentication error with method ({}) and data : {} logging in and retrying. From requests.HTTPError {} {}&#39;.format(
                                 method, data, e, result.text))
                             log.warning(error)
                             self.logged_in=False
                             self.login()
-                    # Data unavailable error handler -&gt; return []
-                    elif any([match in result.text for match in [&#39;ERROR_IndexNotTurnedOn&#39;,
-                        &#39;ERROR_NoData&#39;,&#39;ERROR_UnknownList&#39;,&#39;ERROR_JobEngine_GetQueryStatus_StatusNotFound&#39;]]):
-                            error = NitroError(&#39;Data unavailable error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
-                                method, data, e, result.text))
-                            log.warning(error)
-                            return []
-
-                    if retry == True :
+                        
+                        else: log.warning(&#39;An HTTP error occured ({} {}), retrying request&#39;.format(e, result.text))
+                        
                         # Retry request
-                        log.warning(&#39;An HTTP error occured ({} {}), retrying request&#39;.format(e, result.text))
                         time.sleep(0.2)
-                        return self.esm_request(method, data, http, callback, raw, secure, retry=False)
+                        return self.esm_request(method, data, http, callback, raw, secure, retry=retry-1)
+                    
+                    else :
+                        # # Data unavailable error -&gt; raise
+                        # if any([match in result.text for match in [&#39;ERROR_IndexNotTurnedOn&#39;,
+                        #     &#39;ERROR_NoData&#39;,&#39;ERROR_UnknownList&#39;,&#39;ERROR_JobEngine_GetQueryStatus_StatusNotFound&#39;]]):
+                        #     error = NitroError(&#39;Data unavailable error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
+                        #         method, data, e, result.text))
+                        #     log.error(error)
+                        #     raise
+                        # else :
+                        #     # Other handlers
+                        #     # if True : # Other HTTP errors... TODO
+                        #         # _InvalidFilter (228)
+                        #         # Status Code 500: Error processing request, see server logs for more details 
+                        #         # Input Validation Error
 
-                    # Other handlers
-                    # if True : # Other HTTP errors... TODO
-                        # _InvalidFilter (228)
-                        # Status Code 500: Error processing request, see server logs for more details 
-                        # Input Validation Error
+                        # Raise error in the worst case
+                        error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
+                            method, data, e, result.text))
+                        log.error(error)
+                        raise error
 
-                    # Raise error in the worst case
-                    error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
-                        method, data, e, result.text))
-                    log.error(error)
-                    raise error
-
-                else: #
+                else: # The result is not an HTTP Error
+                    response = result
                     result = self.unpack_resp(result)
 
                     if privateApiCall :
@@ -860,17 +843,21 @@ class NitroSession():
                     if callback:
                         result = callback(result)
 
-                    log.debug(&#39;Result &#39;+str(result)[:100]+&#39;[...]&#39;)
+                    log.debug(&#39;{} -&gt; Result ({}): {}&#39;.format(
+                        str(response),
+                        type(result),
+                        str(result)[:100] + &#39;[...]&#39; if len(str(result))&gt;100 else &#39;&#39;
+                    ))
 
                     return result
 
-        #Soft errors
+        #Hard errors, could retry
         except requests.exceptions.Timeout as e:
             log.error(e)
-            return None
+            raise
         except requests.exceptions.TooManyRedirects as e :
             log.error(e)
-            return None
+            raise
         
     def _request_http_error_handler(self, error, method, data, http, callback, raw, secure, retry):
         pass
@@ -920,7 +907,6 @@ class NitroSession():
         resp = self.request(&#39;del_rfile&#39;, ftoken=file_token)
         return &#39;&#39;.join(data)
 
-
     def request(self, request, **kwargs):
         &#34;&#34;&#34;
         This method is the centralized interface of all requests going to the SIEM.  
@@ -934,6 +920,7 @@ class NitroSession():
         - `callback` : function to apply afterwards  
         - `raw` : If true will return the Response object from requests module.   
         - `secure` : If true will not log the content of the request.   
+        - `retry` : Numbre of time the request can be retried
         
         Interpolation parameters :  
         
@@ -1107,18 +1094,24 @@ class NitroObject(abc.ABC):
 
     @abc.abstractproperty
     def text(self):
-        &#34;&#34;&#34;Returns printable string.
+        &#34;&#34;&#34;
+        Returns printable string.  
+        Abstract declaration.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractproperty
     def json(self):
-        &#34;&#34;&#34;Returns json string representation.
+        &#34;&#34;&#34;
+        Returns json string representation.  
+        Abstract declaration.
         &#34;&#34;&#34;
     
     @abc.abstractmethod
     def refresh(self):
-        &#34;&#34;&#34;Re-load the object.
+        &#34;&#34;&#34;
+        Re-load the object.  
+        Abstract declaration.
         &#34;&#34;&#34;
         pass
 
@@ -1247,7 +1240,7 @@ class NitroList(collections.UserList, NitroObject):
 
 
     def get_text(self, format=&#39;prettytable&#39;, fields=None, 
-                        max_column_width=80, get_text_nest_attr={}, retry=True):
+                        max_column_width=80, get_text_nest_attr={} ):
         &#34;&#34;&#34;
         Return a csv or table string representation of the list
 
@@ -1499,20 +1492,18 @@ class FilteredQueryList(NitroList):
     - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `filters` : List of filters applied to the query.  
-    - `load_async` : Load asynchonously the sub-queries. Defaulted to `True`.  
     &#34;&#34;&#34;
-    def __init__(self, *arg, time_range=None, start_time=None, end_time=None, filters=None, 
-        load_async=True, **kwargs):
+    def __init__(self, *arg, time_range=None, start_time=None, end_time=None, filters=None, **kwargs):
 
-        #handled eventual deprecated arguments
+        # Handled eventual deprecated arguments
         if &#39;max_query_depth&#39; in kwargs :
-            log.warning(&#39;Deprecated : `max_query_depth` argument has been removed from FilteredQueryList, it\&#39;s now a specilized EventManager argument only. You can remove this argument.&#39;)
+            log.warning(&#39;Deprecated : `max_query_depth` argument has been removed from the object declaration for more clarty, it\&#39;s now a specilized EventManager.load_data() argument only. This argument will be ignored.&#39;)
             del kwargs[&#39;max_query_depth&#39;]
         if &#39;requests_size&#39; in kwargs :
-            log.warning(&#39;Deprecated : `requests_size` argument has been removed from FilteredQueryList, use `page_size` (Alarms) or `limit` (Events) arguments.&#39;)
+            log.warning(&#39;Deprecated : `requests_size` argument has been removed from FilteredQueryList, use `page_size` for AlarmManager or `limit` for EventManager arguments.&#39;)
             del kwargs[&#39;requests_size&#39;]
         if &#39;load_async&#39; in kwargs :
-            log.warning(&#39;Deprecated : `load_async` argument has been removed from FilteredQueryList. Queries are now always loaded asynchronously...&#39;)
+            log.warning(&#39;Deprecated : `load_async` argument has been removed from FilteredQueryList. Queries are now always loaded asynchronously.&#39;)
             del kwargs[&#39;load_async&#39;]
 
         super().__init__(*arg, **kwargs)
@@ -1537,8 +1528,6 @@ class FilteredQueryList(NitroList):
             self.time_range=&#39;CUSTOM&#39;
         else :
             self.time_range=time_range
-
-        self.load_async=load_async
     
     DEFAULT_TIME_RANGE=&#34;CURRENT_DAY&#34;
     __pdoc__[&#39;FilteredQueryList.DEFAULT_TIME_RANGE&#39;]=&#34;&#34;&#34;Default time range : %(default)s&#34;&#34;&#34; % dict(default=DEFAULT_TIME_RANGE)
@@ -1692,8 +1681,6 @@ class FilteredQueryList(NitroList):
         Abstract declaration.&#34;&#34;&#34;
         pass
 
-
-
 class NitroError(Exception):
     &#34;&#34;&#34;
     Base internal exception.  
@@ -1735,7 +1722,31 @@ class NitroError(Exception):
 <span>(</span><span>path=None, config=None, *arg, **kwarg)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Arguments: </p>
+<section class="desc"><p>Handles the configuration. Reads the config file <code>.msiem/conf.ini</code> where ever it is and make accessible it's values throught object properties.
+If a <code>.msiem/</code> directory exists in your current directory, the program will assume the <code>conf.ini</code> file is there, if not, it will create it with default values.
+Secondly, if no <code>.msiem/</code> directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:
+</p>
+<p>Default configuration file should look like this. Authentication is left empty.</p>
+<pre><code>[esm]
+host = 
+user = 
+passwd = 
+
+[general]
+verbose = False
+quiet = False
+logfile = 
+timeout = 60
+ssl_verify = False
+</code></pre>
+<p>For Windows: <code>%APPDATA%\.msiem\conf.ini</code><br>
+For Mac : <code>$HOME/.msiem/conf.ini</code><br>
+For Linux : <code>$XDG_CONFIG_HOME/.msiem/conf.ini</code> or : <code>$HOME/.msiem/conf.ini</code><br>
+If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/conf.ini</code>
+</p>
+<p>You can setup the configuration by command line with <code>msiempy_setup.py</code> script at <a href="https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py.">https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py.</a>
+</p>
+<p>Arguments: </p>
 <ul>
 <li><code>path</code>: Config file special path, if path is left None, will automatically look for it.
 </li>
@@ -1749,6 +1760,34 @@ class NitroError(Exception):
 </summary>
 <pre><code class="python">class NitroConfig(configparser.ConfigParser):
     &#34;&#34;&#34;
+
+    Handles the configuration. Reads the config file `.msiem/conf.ini` where ever it is and make accessible it&#39;s values throught object properties. 
+    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values. 
+    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:  
+
+    Default configuration file should look like this. Authentication is left empty.
+    ```
+    [esm]
+    host = 
+    user = 
+    passwd = 
+
+    [general]
+    verbose = False
+    quiet = False
+    logfile = 
+    timeout = 60
+    ssl_verify = False
+    ```
+
+    For Windows: `%APPDATA%\.msiem\conf.ini`  
+    For Mac : `$HOME/.msiem/conf.ini`  
+    For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`  
+    If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`  
+
+    You can setup the configuration by command line with `msiempy_setup.py` script at https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py.  
+    
+
     Arguments: 
 
     - `path`: Config file special path, if path is left None, will automatically look for it.  
@@ -1758,17 +1797,17 @@ class NitroError(Exception):
     &#34;&#34;&#34;
     def __init__(self, path=None, config=None, *arg, **kwarg):
         super().__init__(*arg, **kwarg)
-        self.read_dict(self.DEFAULT_CONF_DICT)
         if not path : self._path = self.find_ini_location()
         else : self._path = path
-        try :
-            files=self.read(self._path)
-            if len(files) == 0: raise FileNotFoundError
-        except :
+        files=self.read(self._path)
+        if len(files) == 0:
             log.info(&#34;Config file inexistant or currupted, applying defaults&#34;)
+            self.read_dict(self.DEFAULT_CONF_DICT)
             if not os.path.exists(os.path.dirname(self._path)):
                 os.makedirs(os.path.dirname(self._path))
             self.write()
+        else:
+            log.info(&#34;Successfuly read config file {}&#34;.format(files[0]))
         if config != None :
             log.info(&#34;Reading config_dict : &#34;+str(self))
             self.read_dict(config)
@@ -1787,23 +1826,10 @@ class NitroError(Exception):
             &#39;quiet&#39;:False,
             &#39;logfile&#39;:&#39;&#39;,
             &#39;timeout&#39;:60,
-            &#39;ssl_verify&#39;:False,
-            &#39;output&#39;:&#39;text&#39;}
+            &#39;ssl_verify&#39;:False}
     }
     &#34;&#34;&#34;
-    ```
-    {
-        &#39;esm&#39;:{&#39;host&#39;:&#39;&#39;, 
-            &#39;user&#39;:&#39;&#39;,
-            &#39;passwd&#39;:&#39;&#39;},
-        &#39;general&#39;:{&#39;verbose&#39;:False,
-            &#39;quiet&#39;:False,
-            &#39;logfile&#39;:&#39;&#39;,
-            &#39;timeout&#39;:60,
-            &#39;ssl_verify&#39;:False,
-            &#39;output&#39;:&#39;text&#39;}
-    }
-    ```
+    Default configuration values.
     &#34;&#34;&#34;
 
     def __str__(self):
@@ -1815,9 +1841,9 @@ class NitroError(Exception):
     def write(self):
         &#34;&#34;&#34;Write the config file to the predetermined path.
         &#34;&#34;&#34;
-        log.info(&#34;Write config file at &#34;+self._path)
         with open(self._path, &#39;w&#39;) as conf:
             super().write(conf)
+            log.info(&#34;Config file has been written at &#34;+self._path)
 
     def _iset(self, section, option, secure=False):
         &#34;&#34;&#34;Internal method to interactively set  a option in a section.
@@ -1828,8 +1854,7 @@ class NitroError(Exception):
         if option==&#39;passwd&#39;: secure=True
         if secure : newvalue = tob64(getpass.getpass(msg.format(section, option)+&#39;. Press &lt;Enter&gt; to skip: &#39;))
         else: newvalue = input(msg.format(section, option)+ &#39;. Press &lt;Enter&gt; to keep &#39;+ (value if (str(value) != &#39;&#39;) else &#39;empty&#39;) + &#39;: &#39;)
-        if newvalue != &#39;&#39; :
-            super().set(section, option, newvalue)
+        if newvalue != &#39;&#39; : super().set(section, option, newvalue)
 
     def iset(self, section, option=None, secure=False):
         &#34;&#34;&#34;Interactively set the specified section/option by asking the user the input.  
@@ -1842,36 +1867,24 @@ class NitroError(Exception):
         if option is None :
             for key in self.options(section):
                 self._iset(section, key, secure)
-        else :
-            self._iset(section, option, secure)
+        else : self._iset(section, option, secure)
 
     @property
     def user(self): return self.get(&#39;esm&#39;, &#39;user&#39;)
-
     @property
     def host(self): return self.get(&#39;esm&#39;, &#39;host&#39;)
-
     @property
     def passwd(self): return self.get(&#39;esm&#39;, &#39;passwd&#39;)
-
     @property
     def verbose(self): return self.getboolean(&#39;general&#39;, &#39;verbose&#39;)
-
     @property
     def quiet(self): return self.getboolean(&#39;general&#39;, &#39;quiet&#39;)
-
     @property
     def logfile(self): return self.get(&#39;general&#39;, &#39;logfile&#39;)
-
     @property
     def timeout(self): return self.getint(&#39;general&#39;, &#39;timeout&#39;)
-
     @property
     def ssl_verify(self): return self.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)
-
-    @property
-    def output(self): return self.get(&#39;general&#39;, &#39;output&#39;)
-
 
     @staticmethod
     def find_ini_location():
@@ -1914,18 +1927,7 @@ class NitroError(Exception):
 </dd>
 <dt id="msiempy.NitroConfig.DEFAULT_CONF_DICT"><code class="name">var <span class="ident">DEFAULT_CONF_DICT</span></code></dt>
 <dd>
-<section class="desc"><pre><code>{
-    'esm':{'host':'', 
-        'user':'',
-        'passwd':''},
-    'general':{'verbose':False,
-        'quiet':False,
-        'logfile':'',
-        'timeout':60,
-        'ssl_verify':False,
-        'output':'text'}
-}
-</code></pre></section>
+<section class="desc"><p>Default configuration values.</p></section>
 </dd>
 </dl>
 <h3>Static methods</h3>
@@ -2052,17 +2054,6 @@ def timeout(self): return self.getint(&#39;general&#39;, &#39;timeout&#39;)</cod
 def ssl_verify(self): return self.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)</code></pre>
 </details>
 </dd>
-<dt id="msiempy.NitroConfig.output"><code class="name">var <span class="ident">output</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def output(self): return self.get(&#39;general&#39;, &#39;output&#39;)</code></pre>
-</details>
-</dd>
 </dl>
 <h3>Methods</h3>
 <dl>
@@ -2078,9 +2069,9 @@ def output(self): return self.get(&#39;general&#39;, &#39;output&#39;)</code></p
 <pre><code class="python">def write(self):
     &#34;&#34;&#34;Write the config file to the predetermined path.
     &#34;&#34;&#34;
-    log.info(&#34;Write config file at &#34;+self._path)
     with open(self._path, &#39;w&#39;) as conf:
-        super().write(conf)</code></pre>
+        super().write(conf)
+        log.info(&#34;Config file has been written at &#34;+self._path)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.NitroConfig.iset"><code class="name flex">
@@ -2112,8 +2103,7 @@ Arguments:
     if option is None :
         for key in self.options(section):
             self._iset(section, key, secure)
-    else :
-        self._iset(section, option, secure)</code></pre>
+    else : self._iset(section, option, secure)</code></pre>
 </details>
 </dd>
 </dl>
@@ -2208,33 +2198,6 @@ Use <code>logout()</code> to reinstanciate NitroSession.
     config = None
     &#34;&#34;&#34;
     `msiempy.NitroConfig` object.  
-
-    Handles the configuration. Reads the config file `.msiem/conf.ini` where ever it is and make accessible it&#39;s values throught object properties. 
-    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values. 
-    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:  
-
-    Default configuration file should look like this. Authentication is left empty.
-    ```
-    [esm]
-    host = 
-    user = 
-    passwd = 
-
-    [general]
-    verbose = False
-    quiet = False
-    logfile = 
-    timeout = 60
-    ssl_verify = False
-    output = text #Not used yet
-    ```
-
-    For Windows: `%APPDATA%\.msiem\conf.ini`  
-    For Mac : `$HOME/.msiem/conf.ini`  
-    For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`  
-    If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`  
-
-    You can setup the configuration by command line with `msiempy_setup.py` script at https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py.  
     &#34;&#34;&#34;
     
     PARAMS = {
@@ -2654,11 +2617,14 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         &#34;&#34;&#34; 
         This method will logout the session.
         &#34;&#34;&#34;
+        self.api_v = 0
         self.request(&#39;logout&#39;, http=&#39;delete&#39;)
         self.logged_in=False
         self.login_info=dict()
+        self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
+        self.user_tz_id = None
 
-    def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=True):
+    def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=5):
         &#34;&#34;&#34;
         Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
         If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
@@ -2673,6 +2639,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         - `callback` : function to apply afterwards  
         - `raw` : If true will return the Response object from requests module.   
         - `secure` : If true will not log the content of the request.   
+        - `retry` : Numbre of time the request can be retried
 
         Returns : 
 
@@ -2726,7 +2693,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
             )
 
             if raw :
-                log.debug(&#39;Returning raw requests Response object : &#39;+str(result)+ &#39; &#39; + str(result.text))
+                log.debug(&#39;Returning raw requests Response object : &#39;+str(result))
                 return result
 
             else:
@@ -2735,41 +2702,46 @@ Use <code>logout()</code> to reinstanciate NitroSession.
 
                 except requests.HTTPError as e :
                     error=None
-                    # Invalif session handler -&gt; re-login
-                    if any([match in result.text for match in [&#39;ERROR_InvalidSession&#39;, 
+
+                    if retry&gt;0 :
+                        # Invalif session handler -&gt; re-login
+                        if any([match in result.text for match in [&#39;ERROR_InvalidSession&#39;, 
                             &#39;Not Authorized User&#39;, &#39;Invalid Session&#39;, &#39;Username and password cannot be null&#39;]]):
                             error = NitroError(&#39;Authentication error with method ({}) and data : {} logging in and retrying. From requests.HTTPError {} {}&#39;.format(
                                 method, data, e, result.text))
                             log.warning(error)
                             self.logged_in=False
                             self.login()
-                    # Data unavailable error handler -&gt; return []
-                    elif any([match in result.text for match in [&#39;ERROR_IndexNotTurnedOn&#39;,
-                        &#39;ERROR_NoData&#39;,&#39;ERROR_UnknownList&#39;,&#39;ERROR_JobEngine_GetQueryStatus_StatusNotFound&#39;]]):
-                            error = NitroError(&#39;Data unavailable error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
-                                method, data, e, result.text))
-                            log.warning(error)
-                            return []
-
-                    if retry == True :
+                        
+                        else: log.warning(&#39;An HTTP error occured ({} {}), retrying request&#39;.format(e, result.text))
+                        
                         # Retry request
-                        log.warning(&#39;An HTTP error occured ({} {}), retrying request&#39;.format(e, result.text))
                         time.sleep(0.2)
-                        return self.esm_request(method, data, http, callback, raw, secure, retry=False)
+                        return self.esm_request(method, data, http, callback, raw, secure, retry=retry-1)
+                    
+                    else :
+                        # # Data unavailable error -&gt; raise
+                        # if any([match in result.text for match in [&#39;ERROR_IndexNotTurnedOn&#39;,
+                        #     &#39;ERROR_NoData&#39;,&#39;ERROR_UnknownList&#39;,&#39;ERROR_JobEngine_GetQueryStatus_StatusNotFound&#39;]]):
+                        #     error = NitroError(&#39;Data unavailable error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
+                        #         method, data, e, result.text))
+                        #     log.error(error)
+                        #     raise
+                        # else :
+                        #     # Other handlers
+                        #     # if True : # Other HTTP errors... TODO
+                        #         # _InvalidFilter (228)
+                        #         # Status Code 500: Error processing request, see server logs for more details 
+                        #         # Input Validation Error
 
-                    # Other handlers
-                    # if True : # Other HTTP errors... TODO
-                        # _InvalidFilter (228)
-                        # Status Code 500: Error processing request, see server logs for more details 
-                        # Input Validation Error
+                        # Raise error in the worst case
+                        error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
+                            method, data, e, result.text))
+                        log.error(error)
+                        raise error
 
-                    # Raise error in the worst case
-                    error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
-                        method, data, e, result.text))
-                    log.error(error)
-                    raise error
-
-                else: #
+                else: # The result is not an HTTP Error
+                    response = result
                     result = self.unpack_resp(result)
 
                     if privateApiCall :
@@ -2778,17 +2750,21 @@ Use <code>logout()</code> to reinstanciate NitroSession.
                     if callback:
                         result = callback(result)
 
-                    log.debug(&#39;Result &#39;+str(result)[:100]+&#39;[...]&#39;)
+                    log.debug(&#39;{} -&gt; Result ({}): {}&#39;.format(
+                        str(response),
+                        type(result),
+                        str(result)[:100] + &#39;[...]&#39; if len(str(result))&gt;100 else &#39;&#39;
+                    ))
 
                     return result
 
-        #Soft errors
+        #Hard errors, could retry
         except requests.exceptions.Timeout as e:
             log.error(e)
-            return None
+            raise
         except requests.exceptions.TooManyRedirects as e :
             log.error(e)
-            return None
+            raise
         
     def _request_http_error_handler(self, error, method, data, http, callback, raw, secure, retry):
         pass
@@ -2838,7 +2814,6 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         resp = self.request(&#39;del_rfile&#39;, ftoken=file_token)
         return &#39;&#39;.join(data)
 
-
     def request(self, request, **kwargs):
         &#34;&#34;&#34;
         This method is the centralized interface of all requests going to the SIEM.  
@@ -2852,6 +2827,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         - `callback` : function to apply afterwards  
         - `raw` : If true will return the Response object from requests module.   
         - `secure` : If true will not log the content of the request.   
+        - `retry` : Numbre of time the request can be retried
         
         Interpolation parameters :  
         
@@ -3011,32 +2987,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
 </dd>
 <dt id="msiempy.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>
-<section class="desc"><p><a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroConfig</code></a> object.
-</p>
-<p>Handles the configuration. Reads the config file <code>.msiem/conf.ini</code> where ever it is and make accessible it's values throught object properties.
-If a <code>.msiem/</code> directory exists in your current directory, the program will assume the <code>conf.ini</code> file is there, if not, it will create it with default values.
-Secondly, if no <code>.msiem/</code> directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:
-</p>
-<p>Default configuration file should look like this. Authentication is left empty.</p>
-<pre><code>[esm]
-host = 
-user = 
-passwd = 
-
-[general]
-verbose = False
-quiet = False
-logfile = 
-timeout = 60
-ssl_verify = False
-output = text #Not used yet
-</code></pre>
-<p>For Windows: <code>%APPDATA%\.msiem\conf.ini</code><br>
-For Mac : <code>$HOME/.msiem/conf.ini</code><br>
-For Linux : <code>$XDG_CONFIG_HOME/.msiem/conf.ini</code> or : <code>$HOME/.msiem/conf.ini</code><br>
-If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/conf.ini</code>
-</p>
-<p>You can setup the configuration by command line with <code>msiempy_setup.py</code> script at <a href="https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py.">https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py.</a></p></section>
+<section class="desc"><p><a title="msiempy.NitroConfig" href="#msiempy.NitroConfig"><code>NitroConfig</code></a> object.</p></section>
 </dd>
 <dt id="msiempy.NitroSession.PARAMS"><code class="name">var <span class="ident">PARAMS</span></code></dt>
 <dd>
@@ -3256,13 +3207,16 @@ Throws <a title="msiempy.NitroError" href="#msiempy.NitroError"><code>NitroError
     &#34;&#34;&#34; 
     This method will logout the session.
     &#34;&#34;&#34;
+    self.api_v = 0
     self.request(&#39;logout&#39;, http=&#39;delete&#39;)
     self.logged_in=False
-    self.login_info=dict()</code></pre>
+    self.login_info=dict()
+    self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
+    self.user_tz_id = None</code></pre>
 </details>
 </dd>
 <dt id="msiempy.NitroSession.esm_request"><code class="name flex">
-<span>def <span class="ident">esm_request</span></span>(<span>self, method, data, http='post', callback=None, raw=False, secure=False, retry=True)</span>
+<span>def <span class="ident">esm_request</span></span>(<span>self, method, data, http='post', callback=None, raw=False, secure=False, retry=5)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.
@@ -3285,6 +3239,7 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
 </li>
 <li><code>secure</code> : If true will not log the content of the request.
 </li>
+<li><code>retry</code> : Numbre of time the request can be retried</li>
 </ul>
 <p>Returns : </p>
 <ul>
@@ -3306,7 +3261,7 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=True):
+<pre><code class="python">def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=5):
     &#34;&#34;&#34;
     Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
     If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
@@ -3321,6 +3276,7 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
     - `callback` : function to apply afterwards  
     - `raw` : If true will return the Response object from requests module.   
     - `secure` : If true will not log the content of the request.   
+    - `retry` : Numbre of time the request can be retried
 
     Returns : 
 
@@ -3374,7 +3330,7 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
         )
 
         if raw :
-            log.debug(&#39;Returning raw requests Response object : &#39;+str(result)+ &#39; &#39; + str(result.text))
+            log.debug(&#39;Returning raw requests Response object : &#39;+str(result))
             return result
 
         else:
@@ -3383,41 +3339,46 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
 
             except requests.HTTPError as e :
                 error=None
-                # Invalif session handler -&gt; re-login
-                if any([match in result.text for match in [&#39;ERROR_InvalidSession&#39;, 
+
+                if retry&gt;0 :
+                    # Invalif session handler -&gt; re-login
+                    if any([match in result.text for match in [&#39;ERROR_InvalidSession&#39;, 
                         &#39;Not Authorized User&#39;, &#39;Invalid Session&#39;, &#39;Username and password cannot be null&#39;]]):
                         error = NitroError(&#39;Authentication error with method ({}) and data : {} logging in and retrying. From requests.HTTPError {} {}&#39;.format(
                             method, data, e, result.text))
                         log.warning(error)
                         self.logged_in=False
                         self.login()
-                # Data unavailable error handler -&gt; return []
-                elif any([match in result.text for match in [&#39;ERROR_IndexNotTurnedOn&#39;,
-                    &#39;ERROR_NoData&#39;,&#39;ERROR_UnknownList&#39;,&#39;ERROR_JobEngine_GetQueryStatus_StatusNotFound&#39;]]):
-                        error = NitroError(&#39;Data unavailable error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
-                            method, data, e, result.text))
-                        log.warning(error)
-                        return []
-
-                if retry == True :
+                    
+                    else: log.warning(&#39;An HTTP error occured ({} {}), retrying request&#39;.format(e, result.text))
+                    
                     # Retry request
-                    log.warning(&#39;An HTTP error occured ({} {}), retrying request&#39;.format(e, result.text))
                     time.sleep(0.2)
-                    return self.esm_request(method, data, http, callback, raw, secure, retry=False)
+                    return self.esm_request(method, data, http, callback, raw, secure, retry=retry-1)
+                
+                else :
+                    # # Data unavailable error -&gt; raise
+                    # if any([match in result.text for match in [&#39;ERROR_IndexNotTurnedOn&#39;,
+                    #     &#39;ERROR_NoData&#39;,&#39;ERROR_UnknownList&#39;,&#39;ERROR_JobEngine_GetQueryStatus_StatusNotFound&#39;]]):
+                    #     error = NitroError(&#39;Data unavailable error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
+                    #         method, data, e, result.text))
+                    #     log.error(error)
+                    #     raise
+                    # else :
+                    #     # Other handlers
+                    #     # if True : # Other HTTP errors... TODO
+                    #         # _InvalidFilter (228)
+                    #         # Status Code 500: Error processing request, see server logs for more details 
+                    #         # Input Validation Error
 
-                # Other handlers
-                # if True : # Other HTTP errors... TODO
-                    # _InvalidFilter (228)
-                    # Status Code 500: Error processing request, see server logs for more details 
-                    # Input Validation Error
+                    # Raise error in the worst case
+                    error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
+                        method, data, e, result.text))
+                    log.error(error)
+                    raise error
 
-                # Raise error in the worst case
-                error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
-                    method, data, e, result.text))
-                log.error(error)
-                raise error
-
-            else: #
+            else: # The result is not an HTTP Error
+                response = result
                 result = self.unpack_resp(result)
 
                 if privateApiCall :
@@ -3426,17 +3387,21 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
                 if callback:
                     result = callback(result)
 
-                log.debug(&#39;Result &#39;+str(result)[:100]+&#39;[...]&#39;)
+                log.debug(&#39;{} -&gt; Result ({}): {}&#39;.format(
+                    str(response),
+                    type(result),
+                    str(result)[:100] + &#39;[...]&#39; if len(str(result))&gt;100 else &#39;&#39;
+                ))
 
                 return result
 
-    #Soft errors
+    #Hard errors, could retry
     except requests.exceptions.Timeout as e:
         log.error(e)
-        return None
+        raise
     except requests.exceptions.TooManyRedirects as e :
         log.error(e)
-        return None</code></pre>
+        raise</code></pre>
 </details>
 </dd>
 <dt id="msiempy.NitroSession.version"><code class="name flex">
@@ -3542,6 +3507,7 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
 </li>
 <li><code>secure</code> : If true will not log the content of the request.
 </li>
+<li><code>retry</code> : Numbre of time the request can be retried</li>
 </ul>
 <p>Interpolation parameters :
 </p>
@@ -3577,6 +3543,7 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
     - `callback` : function to apply afterwards  
     - `raw` : If true will return the Response object from requests module.   
     - `secure` : If true will not log the content of the request.   
+    - `retry` : Numbre of time the request can be retried
     
     Interpolation parameters :  
     
@@ -3669,18 +3636,24 @@ Creates the object session.</p></section>
 
     @abc.abstractproperty
     def text(self):
-        &#34;&#34;&#34;Returns printable string.
+        &#34;&#34;&#34;
+        Returns printable string.  
+        Abstract declaration.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractproperty
     def json(self):
-        &#34;&#34;&#34;Returns json string representation.
+        &#34;&#34;&#34;
+        Returns json string representation.  
+        Abstract declaration.
         &#34;&#34;&#34;
     
     @abc.abstractmethod
     def refresh(self):
-        &#34;&#34;&#34;Re-load the object.
+        &#34;&#34;&#34;
+        Re-load the object.  
+        Abstract declaration.
         &#34;&#34;&#34;
         pass</code></pre>
 </details>
@@ -3727,28 +3700,34 @@ TODO support json json dumping of QueryFilers, may be by making them inherits fr
 <dl>
 <dt id="msiempy.NitroObject.text"><code class="name">var <span class="ident">text</span></code></dt>
 <dd>
-<section class="desc"><p>Returns printable string.</p></section>
+<section class="desc"><p>Returns printable string.<br>
+Abstract declaration.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abc.abstractproperty
 def text(self):
-    &#34;&#34;&#34;Returns printable string.
+    &#34;&#34;&#34;
+    Returns printable string.  
+    Abstract declaration.
     &#34;&#34;&#34;
     pass</code></pre>
 </details>
 </dd>
 <dt id="msiempy.NitroObject.json"><code class="name">var <span class="ident">json</span></code></dt>
 <dd>
-<section class="desc"><p>Returns json string representation.</p></section>
+<section class="desc"><p>Returns json string representation.<br>
+Abstract declaration.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abc.abstractproperty
 def json(self):
-    &#34;&#34;&#34;Returns json string representation.
+    &#34;&#34;&#34;
+    Returns json string representation.  
+    Abstract declaration.
     &#34;&#34;&#34;</code></pre>
 </details>
 </dd>
@@ -3759,14 +3738,17 @@ def json(self):
 <span>def <span class="ident">refresh</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Re-load the object.</p></section>
+<section class="desc"><p>Re-load the object.<br>
+Abstract declaration.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def refresh(self):
-    &#34;&#34;&#34;Re-load the object.
+    &#34;&#34;&#34;
+    Re-load the object.  
+    Abstract declaration.
     &#34;&#34;&#34;
     pass</code></pre>
 </details>
@@ -4023,7 +4005,7 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
 
 
     def get_text(self, format=&#39;prettytable&#39;, fields=None, 
-                        max_column_width=80, get_text_nest_attr={}, retry=True):
+                        max_column_width=80, get_text_nest_attr={} ):
         &#34;&#34;&#34;
         Return a csv or table string representation of the list
 
@@ -4336,7 +4318,7 @@ def json(self):
 <h3>Methods</h3>
 <dl>
 <dt id="msiempy.NitroList.get_text"><code class="name flex">
-<span>def <span class="ident">get_text</span></span>(<span>self, format='prettytable', fields=None, max_column_width=80, get_text_nest_attr={}, retry=True)</span>
+<span>def <span class="ident">get_text</span></span>(<span>self, format='prettytable', fields=None, max_column_width=80, get_text_nest_attr={})</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Return a csv or table string representation of the list</p>
@@ -4356,7 +4338,7 @@ csv: Returns data with header and comma separated values. </li>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_text(self, format=&#39;prettytable&#39;, fields=None, 
-                    max_column_width=80, get_text_nest_attr={}, retry=True):
+                    max_column_width=80, get_text_nest_attr={} ):
     &#34;&#34;&#34;
     Return a csv or table string representation of the list
 
@@ -4661,7 +4643,7 @@ returned.append(func(index_or_item))</p>
 </dd>
 <dt id="msiempy.FilteredQueryList"><code class="flex name class">
 <span>class <span class="ident">FilteredQueryList</span></span>
-<span>(</span><span>*arg, time_range=None, start_time=None, end_time=None, filters=None, load_async=True, **kwargs)</span>
+<span>(</span><span>*arg, time_range=None, start_time=None, end_time=None, filters=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Base class for query based managers : <a title="msiempy.alarm.AlarmManager" href="alarm.html#msiempy.alarm.AlarmManager"><code>AlarmManager</code></a>, <a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager"><code>EventManager</code></a>.<br>
@@ -4678,9 +4660,7 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.Filt
 </li>
 <li><code>end_time</code> : Query endding time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
 </li>
-<li><code>filters</code> : List of filters applied to the query.
-</li>
-<li><code>load_async</code> : Load asynchonously the sub-queries. Defaulted to <code>True</code>.</li>
+<li><code>filters</code> : List of filters applied to the query.</li>
 </ul></section>
 <details class="source">
 <summary>
@@ -4699,20 +4679,18 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.Filt
     - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `filters` : List of filters applied to the query.  
-    - `load_async` : Load asynchonously the sub-queries. Defaulted to `True`.  
     &#34;&#34;&#34;
-    def __init__(self, *arg, time_range=None, start_time=None, end_time=None, filters=None, 
-        load_async=True, **kwargs):
+    def __init__(self, *arg, time_range=None, start_time=None, end_time=None, filters=None, **kwargs):
 
-        #handled eventual deprecated arguments
+        # Handled eventual deprecated arguments
         if &#39;max_query_depth&#39; in kwargs :
-            log.warning(&#39;Deprecated : `max_query_depth` argument has been removed from FilteredQueryList, it\&#39;s now a specilized EventManager argument only. You can remove this argument.&#39;)
+            log.warning(&#39;Deprecated : `max_query_depth` argument has been removed from the object declaration for more clarty, it\&#39;s now a specilized EventManager.load_data() argument only. This argument will be ignored.&#39;)
             del kwargs[&#39;max_query_depth&#39;]
         if &#39;requests_size&#39; in kwargs :
-            log.warning(&#39;Deprecated : `requests_size` argument has been removed from FilteredQueryList, use `page_size` (Alarms) or `limit` (Events) arguments.&#39;)
+            log.warning(&#39;Deprecated : `requests_size` argument has been removed from FilteredQueryList, use `page_size` for AlarmManager or `limit` for EventManager arguments.&#39;)
             del kwargs[&#39;requests_size&#39;]
         if &#39;load_async&#39; in kwargs :
-            log.warning(&#39;Deprecated : `load_async` argument has been removed from FilteredQueryList. Queries are now always loaded asynchronously...&#39;)
+            log.warning(&#39;Deprecated : `load_async` argument has been removed from FilteredQueryList. Queries are now always loaded asynchronously.&#39;)
             del kwargs[&#39;load_async&#39;]
 
         super().__init__(*arg, **kwargs)
@@ -4737,8 +4715,6 @@ See <a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.Filt
             self.time_range=&#39;CUSTOM&#39;
         else :
             self.time_range=time_range
-
-        self.load_async=load_async
     
     DEFAULT_TIME_RANGE=&#34;CURRENT_DAY&#34;
     __pdoc__[&#39;FilteredQueryList.DEFAULT_TIME_RANGE&#39;]=&#34;&#34;&#34;Default time range : %(default)s&#34;&#34;&#34; % dict(default=DEFAULT_TIME_RANGE)
@@ -5164,7 +5140,6 @@ It's used when the user/passwd is incorrect, or other specific ESM related error
 <li><code><a title="msiempy.NitroConfig.logfile" href="#msiempy.NitroConfig.logfile">logfile</a></code></li>
 <li><code><a title="msiempy.NitroConfig.timeout" href="#msiempy.NitroConfig.timeout">timeout</a></code></li>
 <li><code><a title="msiempy.NitroConfig.ssl_verify" href="#msiempy.NitroConfig.ssl_verify">ssl_verify</a></code></li>
-<li><code><a title="msiempy.NitroConfig.output" href="#msiempy.NitroConfig.output">output</a></code></li>
 <li><code><a title="msiempy.NitroConfig.CONFIG_FILE_NAME" href="#msiempy.NitroConfig.CONFIG_FILE_NAME">CONFIG_FILE_NAME</a></code></li>
 <li><code><a title="msiempy.NitroConfig.CONF_DIR" href="#msiempy.NitroConfig.CONF_DIR">CONF_DIR</a></code></li>
 <li><code><a title="msiempy.NitroConfig.DEFAULT_CONF_DICT" href="#msiempy.NitroConfig.DEFAULT_CONF_DICT">DEFAULT_CONF_DICT</a></code></li>

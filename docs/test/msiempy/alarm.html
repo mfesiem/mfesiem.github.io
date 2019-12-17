@@ -57,7 +57,6 @@ class AlarmManager(FilteredQueryList):
     - `time_range` : Query time range. String representation of a time range.  
     - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
-    - `load_async` : Load asynchonously the sub-queries. Defaulted to `True`.  
     
     &#34;&#34;&#34;
     def __init__(self, *args, status_filter=&#39;all&#39;, page_size=200, filters=None, event_filters=None, **kwargs):
@@ -107,11 +106,6 @@ class AlarmManager(FilteredQueryList):
                 if status_filter in synonims:
                     self._status_filter=synonims[0]
                     status_found=True
-
-        #Patch weird bug regarding paging : 
-        if isinstance(status_filter, list) : #this is the patch
-            self._status_filter=&#39;all&#39;
-            status_found=True 
 
         if not status_found:
             raise AttributeError(&#34;Illegal value of status filter. The status must be in &#34;+str(Alarm.POSSIBLE_ALARM_STATUS)+&#39; not :&#39;+str(status_filter))
@@ -358,7 +352,7 @@ class Alarm(NitroDict):
     - `acknowledgedUsername` : The user that acknowledged this triggered alarm  
     - `alarmName` : The name of the alarm that was triggered  
     - `events` : The events for this user  
-    - And others...  
+    - And others... see `msiempy.alarm.Alarm.ALARM_FIELDS_MAP`  
     
     Arguments:
 
@@ -485,6 +479,78 @@ class Alarm(NitroDict):
 
         return self
 
+    ALARM_FIELDS_MAP={&#39;EC&#39;: None,
+                &#39;SMRY&#39;: &#39;summary&#39;,
+                &#39;NAME&#39;: &#39;alarmName&#39;,
+                &#39;FILTERS&#39;: &#39;filters&#39;,
+                &#39;CTYPE&#39;: None,
+                &#39;QID&#39;: &#39;queryId&#39;,
+                &#39;ARM&#39;: &#39;alretRateMin&#39;,
+                &#39;ARC&#39;: &#39;alertRateCount&#39;,
+                &#39;PCTA&#39;: &#39;percentAbove&#39;,
+                &#39;PCTB&#39;: &#39;percentBelow&#39;,
+                &#39;OFFSETMIN&#39;: &#39;offsetMinutes&#39;,
+                &#39;TIMEF&#39;: &#39;maximumConditionTriggerFrequency&#39;,
+                &#39;XMIN&#39;: None,
+                &#39;USEW&#39;: &#39;useWatchlist&#39;,
+                &#39;MFLD&#39;: &#39;matchField&#39;,
+                &#39;MVAL&#39;: &#39;matchValue&#39;,
+                &#39;SVRTY&#39;: &#39;severity&#39;,
+                &#39;ASNID&#39;: &#39;assigneeId&#39;,
+                &#39;ASNNAME&#39;: &#39;assignee&#39;,
+                &#39;TRGDATE&#39;: &#39;triggeredDate&#39;,
+                &#39;ACKDATE&#39;: &#39;acknowledgedDate&#39;,
+                &#39;ESCDATE&#39;: &#39;escalatedDate&#39;,
+                &#39;CASEID&#39;: &#39;caseId&#39;,
+                &#39;CASENAME&#39;: &#39;caseName&#39;,
+                &#39;IOCNAME&#39;: &#39;iocName&#39;,
+                &#39;IOCID&#39;: &#39;iocId&#39;,
+                &#39;DESC&#39;: &#39;description&#39;,
+                &#39;NID&#39;: None,
+                &#39;ACTIONS&#39;: &#39;actions&#39;,
+                &#39;NE&#39;: None,
+                &#39;EVENTS&#39;: &#39;events&#39;,
+                &#39;DCHNG&#39;: None}
+    &#34;&#34;&#34;
+    List of all `Alarm` possible fields.  
+    This mapping is used to create new alarms and change genuine (UPPERCASE) key names to explicit ones.  
+    If the value is None, the original key name is kept, otherwise the UPPERCASE key won&#39;t work. 
+    ```
+    {&#39;EC&#39;: None,
+    &#39;SMRY&#39;: &#39;summary&#39;,
+    &#39;NAME&#39;: &#39;alarmName&#39;,
+    &#39;FILTERS&#39;: &#39;filters&#39;,
+    &#39;CTYPE&#39;: None,
+    &#39;QID&#39;: &#39;queryId&#39;,
+    &#39;ARM&#39;: &#39;alretRateMin&#39;,
+    &#39;ARC&#39;: &#39;alertRateCount&#39;,
+    &#39;PCTA&#39;: &#39;percentAbove&#39;,
+    &#39;PCTB&#39;: &#39;percentBelow&#39;,
+    &#39;OFFSETMIN&#39;: &#39;offsetMinutes&#39;,
+    &#39;TIMEF&#39;: &#39;maximumConditionTriggerFrequency&#39;,
+    &#39;XMIN&#39;: None,
+    &#39;USEW&#39;: &#39;useWatchlist&#39;,
+    &#39;MFLD&#39;: &#39;matchField&#39;,
+    &#39;MVAL&#39;: &#39;matchValue&#39;,
+    &#39;SVRTY&#39;: &#39;severity&#39;,
+    &#39;ASNID&#39;: &#39;assigneeId&#39;,
+    &#39;ASNNAME&#39;: &#39;assignee&#39;,
+    &#39;TRGDATE&#39;: &#39;triggeredDate&#39;,
+    &#39;ACKDATE&#39;: &#39;acknowledgedDate&#39;,
+    &#39;ESCDATE&#39;: &#39;escalatedDate&#39;,
+    &#39;CASEID&#39;: &#39;caseId&#39;,
+    &#39;CASENAME&#39;: &#39;caseName&#39;,
+    &#39;IOCNAME&#39;: &#39;iocName&#39;,
+    &#39;IOCID&#39;: &#39;iocId&#39;,
+    &#39;DESC&#39;: &#39;description&#39;,
+    &#39;NID&#39;: None,
+    &#39;ACTIONS&#39;: &#39;actions&#39;,
+    &#39;NE&#39;: None,
+    &#39;EVENTS&#39;: &#39;events&#39;,
+    &#39;DCHNG&#39;: None}
+    ```
+    &#34;&#34;&#34; 
+
     def map_alarm_int_fields(self, alarm_details):
         &#34;&#34;&#34;Map the internal ESM field names to msiempy style&#34;&#34;&#34;
 
@@ -499,27 +565,12 @@ class Alarm(NitroDict):
                 alarm_details[key] = val
 
         new_alarm = {}
-        new_alarm[&#39;filters&#39;] = alarm_details.get(&#39;FILTERS&#39;) or None
-        new_alarm[&#39;queryId&#39;] = alarm_details.get(&#39;QID&#39;) or None
-        new_alarm[&#39;alretRateMin&#39;] = alarm_details.get(&#39;ARM&#39;) or None
-        new_alarm[&#39;alertRateCount&#39;] = alarm_details.get(&#39;ARC&#39;) or None
-        new_alarm[&#39;percentAbove&#39;] = alarm_details.get(&#39;PCTA&#39;) or None
-        new_alarm[&#39;percentBelow&#39;] = alarm_details.get(&#39;PCTB&#39;) or None
-        new_alarm[&#39;offsetMinutes&#39;] = alarm_details.get(&#39;OFFSETMIN&#39;) or None
-        new_alarm[&#39;maximumConditionTriggerFrequency&#39;] = alarm_details.get(&#39;TIMEF&#39;) or None
-        new_alarm[&#39;useWatchlist&#39;] = alarm_details.get(&#39;USEW&#39;) or None
-        new_alarm[&#39;matchField&#39;] = alarm_details.get(&#39;MFLD&#39;) or None
-        new_alarm[&#39;matchValue&#39;] = alarm_details.get(&#39;MWAL&#39;) or None
-        #new_alarm[&#39;healthMonalarm_details&#39;] = alarm_details.get(&#39;HMS&#39;) or None
-        new_alarm[&#39;assigneeId&#39;] = alarm_details.get(&#39;ASNID&#39;) or None
-        new_alarm[&#39;escalatedDate&#39;] = alarm_details.get(&#39;ESCDATE&#39;) or None
-        new_alarm[&#39;caseId&#39;] = alarm_details.get(&#39;CASEID&#39;) or None
-        new_alarm[&#39;caseName&#39;] = alarm_details.get(&#39;CASENAME&#39;) or None
-        new_alarm[&#39;iocName&#39;] = alarm_details.get(&#39;IOCNAME&#39;) or None
-        new_alarm[&#39;iocId&#39;] = alarm_details.get(&#39;IOCID&#39;) or None
-        new_alarm[&#39;description&#39;] = alarm_details.get(&#39;DESC&#39;) or None
-        new_alarm[&#39;actions&#39;] = alarm_details.get(&#39;ACTIONS&#39;) or None
-        new_alarm[&#39;events&#39;] = alarm_details.get(&#39;EVENTS&#39;) or None
+
+        for priv_key in self.ALARM_FIELDS_MAP: new_alarm.__setitem__(
+            self.ALARM_FIELDS_MAP[priv_key] or priv_key, alarm_details.get(priv_key) or None )
+
+        log.debug(&#39;NEW FULL alarm_details: &#39;+str(new_alarm))
+
         return new_alarm
                                                                                        
     def data_from_id(self, id):
@@ -566,9 +617,7 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 </li>
 <li><code>start_time</code> : Query starting time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
 </li>
-<li><code>end_time</code> : Query endding time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
-</li>
-<li><code>load_async</code> : Load asynchonously the sub-queries. Defaulted to <code>True</code>.</li>
+<li><code>end_time</code> : Query endding time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.</li>
 </ul></section>
 <details class="source">
 <summary>
@@ -591,7 +640,6 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
     - `time_range` : Query time range. String representation of a time range.  
     - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
-    - `load_async` : Load asynchonously the sub-queries. Defaulted to `True`.  
     
     &#34;&#34;&#34;
     def __init__(self, *args, status_filter=&#39;all&#39;, page_size=200, filters=None, event_filters=None, **kwargs):
@@ -641,11 +689,6 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
                 if status_filter in synonims:
                     self._status_filter=synonims[0]
                     status_found=True
-
-        #Patch weird bug regarding paging : 
-        if isinstance(status_filter, list) : #this is the patch
-            self._status_filter=&#39;all&#39;
-            status_found=True 
 
         if not status_found:
             raise AttributeError(&#34;Illegal value of status filter. The status must be in &#34;+str(Alarm.POSSIBLE_ALARM_STATUS)+&#39; not :&#39;+str(status_filter))
@@ -1271,7 +1314,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 </li>
 <li><code>events</code> : The events for this user
 </li>
-<li>And others&hellip;
+<li>And others&hellip; see <a title="msiempy.alarm.Alarm.ALARM_FIELDS_MAP" href="#msiempy.alarm.Alarm.ALARM_FIELDS_MAP"><code>Alarm.ALARM_FIELDS_MAP</code></a>
 </li>
 </ul>
 <p>Arguments:</p>
@@ -1298,7 +1341,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
     - `acknowledgedUsername` : The user that acknowledged this triggered alarm  
     - `alarmName` : The name of the alarm that was triggered  
     - `events` : The events for this user  
-    - And others...  
+    - And others... see `msiempy.alarm.Alarm.ALARM_FIELDS_MAP`  
     
     Arguments:
 
@@ -1425,6 +1468,78 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 
         return self
 
+    ALARM_FIELDS_MAP={&#39;EC&#39;: None,
+                &#39;SMRY&#39;: &#39;summary&#39;,
+                &#39;NAME&#39;: &#39;alarmName&#39;,
+                &#39;FILTERS&#39;: &#39;filters&#39;,
+                &#39;CTYPE&#39;: None,
+                &#39;QID&#39;: &#39;queryId&#39;,
+                &#39;ARM&#39;: &#39;alretRateMin&#39;,
+                &#39;ARC&#39;: &#39;alertRateCount&#39;,
+                &#39;PCTA&#39;: &#39;percentAbove&#39;,
+                &#39;PCTB&#39;: &#39;percentBelow&#39;,
+                &#39;OFFSETMIN&#39;: &#39;offsetMinutes&#39;,
+                &#39;TIMEF&#39;: &#39;maximumConditionTriggerFrequency&#39;,
+                &#39;XMIN&#39;: None,
+                &#39;USEW&#39;: &#39;useWatchlist&#39;,
+                &#39;MFLD&#39;: &#39;matchField&#39;,
+                &#39;MVAL&#39;: &#39;matchValue&#39;,
+                &#39;SVRTY&#39;: &#39;severity&#39;,
+                &#39;ASNID&#39;: &#39;assigneeId&#39;,
+                &#39;ASNNAME&#39;: &#39;assignee&#39;,
+                &#39;TRGDATE&#39;: &#39;triggeredDate&#39;,
+                &#39;ACKDATE&#39;: &#39;acknowledgedDate&#39;,
+                &#39;ESCDATE&#39;: &#39;escalatedDate&#39;,
+                &#39;CASEID&#39;: &#39;caseId&#39;,
+                &#39;CASENAME&#39;: &#39;caseName&#39;,
+                &#39;IOCNAME&#39;: &#39;iocName&#39;,
+                &#39;IOCID&#39;: &#39;iocId&#39;,
+                &#39;DESC&#39;: &#39;description&#39;,
+                &#39;NID&#39;: None,
+                &#39;ACTIONS&#39;: &#39;actions&#39;,
+                &#39;NE&#39;: None,
+                &#39;EVENTS&#39;: &#39;events&#39;,
+                &#39;DCHNG&#39;: None}
+    &#34;&#34;&#34;
+    List of all `Alarm` possible fields.  
+    This mapping is used to create new alarms and change genuine (UPPERCASE) key names to explicit ones.  
+    If the value is None, the original key name is kept, otherwise the UPPERCASE key won&#39;t work. 
+    ```
+    {&#39;EC&#39;: None,
+    &#39;SMRY&#39;: &#39;summary&#39;,
+    &#39;NAME&#39;: &#39;alarmName&#39;,
+    &#39;FILTERS&#39;: &#39;filters&#39;,
+    &#39;CTYPE&#39;: None,
+    &#39;QID&#39;: &#39;queryId&#39;,
+    &#39;ARM&#39;: &#39;alretRateMin&#39;,
+    &#39;ARC&#39;: &#39;alertRateCount&#39;,
+    &#39;PCTA&#39;: &#39;percentAbove&#39;,
+    &#39;PCTB&#39;: &#39;percentBelow&#39;,
+    &#39;OFFSETMIN&#39;: &#39;offsetMinutes&#39;,
+    &#39;TIMEF&#39;: &#39;maximumConditionTriggerFrequency&#39;,
+    &#39;XMIN&#39;: None,
+    &#39;USEW&#39;: &#39;useWatchlist&#39;,
+    &#39;MFLD&#39;: &#39;matchField&#39;,
+    &#39;MVAL&#39;: &#39;matchValue&#39;,
+    &#39;SVRTY&#39;: &#39;severity&#39;,
+    &#39;ASNID&#39;: &#39;assigneeId&#39;,
+    &#39;ASNNAME&#39;: &#39;assignee&#39;,
+    &#39;TRGDATE&#39;: &#39;triggeredDate&#39;,
+    &#39;ACKDATE&#39;: &#39;acknowledgedDate&#39;,
+    &#39;ESCDATE&#39;: &#39;escalatedDate&#39;,
+    &#39;CASEID&#39;: &#39;caseId&#39;,
+    &#39;CASENAME&#39;: &#39;caseName&#39;,
+    &#39;IOCNAME&#39;: &#39;iocName&#39;,
+    &#39;IOCID&#39;: &#39;iocId&#39;,
+    &#39;DESC&#39;: &#39;description&#39;,
+    &#39;NID&#39;: None,
+    &#39;ACTIONS&#39;: &#39;actions&#39;,
+    &#39;NE&#39;: None,
+    &#39;EVENTS&#39;: &#39;events&#39;,
+    &#39;DCHNG&#39;: None}
+    ```
+    &#34;&#34;&#34; 
+
     def map_alarm_int_fields(self, alarm_details):
         &#34;&#34;&#34;Map the internal ESM field names to msiempy style&#34;&#34;&#34;
 
@@ -1439,27 +1554,12 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
                 alarm_details[key] = val
 
         new_alarm = {}
-        new_alarm[&#39;filters&#39;] = alarm_details.get(&#39;FILTERS&#39;) or None
-        new_alarm[&#39;queryId&#39;] = alarm_details.get(&#39;QID&#39;) or None
-        new_alarm[&#39;alretRateMin&#39;] = alarm_details.get(&#39;ARM&#39;) or None
-        new_alarm[&#39;alertRateCount&#39;] = alarm_details.get(&#39;ARC&#39;) or None
-        new_alarm[&#39;percentAbove&#39;] = alarm_details.get(&#39;PCTA&#39;) or None
-        new_alarm[&#39;percentBelow&#39;] = alarm_details.get(&#39;PCTB&#39;) or None
-        new_alarm[&#39;offsetMinutes&#39;] = alarm_details.get(&#39;OFFSETMIN&#39;) or None
-        new_alarm[&#39;maximumConditionTriggerFrequency&#39;] = alarm_details.get(&#39;TIMEF&#39;) or None
-        new_alarm[&#39;useWatchlist&#39;] = alarm_details.get(&#39;USEW&#39;) or None
-        new_alarm[&#39;matchField&#39;] = alarm_details.get(&#39;MFLD&#39;) or None
-        new_alarm[&#39;matchValue&#39;] = alarm_details.get(&#39;MWAL&#39;) or None
-        #new_alarm[&#39;healthMonalarm_details&#39;] = alarm_details.get(&#39;HMS&#39;) or None
-        new_alarm[&#39;assigneeId&#39;] = alarm_details.get(&#39;ASNID&#39;) or None
-        new_alarm[&#39;escalatedDate&#39;] = alarm_details.get(&#39;ESCDATE&#39;) or None
-        new_alarm[&#39;caseId&#39;] = alarm_details.get(&#39;CASEID&#39;) or None
-        new_alarm[&#39;caseName&#39;] = alarm_details.get(&#39;CASENAME&#39;) or None
-        new_alarm[&#39;iocName&#39;] = alarm_details.get(&#39;IOCNAME&#39;) or None
-        new_alarm[&#39;iocId&#39;] = alarm_details.get(&#39;IOCID&#39;) or None
-        new_alarm[&#39;description&#39;] = alarm_details.get(&#39;DESC&#39;) or None
-        new_alarm[&#39;actions&#39;] = alarm_details.get(&#39;ACTIONS&#39;) or None
-        new_alarm[&#39;events&#39;] = alarm_details.get(&#39;EVENTS&#39;) or None
+
+        for priv_key in self.ALARM_FIELDS_MAP: new_alarm.__setitem__(
+            self.ALARM_FIELDS_MAP[priv_key] or priv_key, alarm_details.get(priv_key) or None )
+
+        log.debug(&#39;NEW FULL alarm_details: &#39;+str(new_alarm))
+
         return new_alarm
                                                                                        
     def data_from_id(self, id):
@@ -1498,6 +1598,45 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <dd>
 <section class="desc"><p>Defaulfs fields : <code>id, alarmName, summary, triggeredDate, acknowledgedUsername</code>
 (not used , may be for printing with <code>msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)</code>)</p></section>
+</dd>
+<dt id="msiempy.alarm.Alarm.ALARM_FIELDS_MAP"><code class="name">var <span class="ident">ALARM_FIELDS_MAP</span></code></dt>
+<dd>
+<section class="desc"><p>List of all <a title="msiempy.alarm.Alarm" href="#msiempy.alarm.Alarm"><code>Alarm</code></a> possible fields.<br>
+This mapping is used to create new alarms and change genuine (UPPERCASE) key names to explicit ones.<br>
+If the value is None, the original key name is kept, otherwise the UPPERCASE key won't work. </p>
+<pre><code>{'EC': None,
+'SMRY': 'summary',
+'NAME': 'alarmName',
+'FILTERS': 'filters',
+'CTYPE': None,
+'QID': 'queryId',
+'ARM': 'alretRateMin',
+'ARC': 'alertRateCount',
+'PCTA': 'percentAbove',
+'PCTB': 'percentBelow',
+'OFFSETMIN': 'offsetMinutes',
+'TIMEF': 'maximumConditionTriggerFrequency',
+'XMIN': None,
+'USEW': 'useWatchlist',
+'MFLD': 'matchField',
+'MVAL': 'matchValue',
+'SVRTY': 'severity',
+'ASNID': 'assigneeId',
+'ASNNAME': 'assignee',
+'TRGDATE': 'triggeredDate',
+'ACKDATE': 'acknowledgedDate',
+'ESCDATE': 'escalatedDate',
+'CASEID': 'caseId',
+'CASENAME': 'caseName',
+'IOCNAME': 'iocName',
+'IOCID': 'iocId',
+'DESC': 'description',
+'NID': None,
+'ACTIONS': 'actions',
+'NE': None,
+'EVENTS': 'events',
+'DCHNG': None}
+</code></pre></section>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -1678,27 +1817,12 @@ Warning : This method will only load the details of the first triggering event.
             alarm_details[key] = val
 
     new_alarm = {}
-    new_alarm[&#39;filters&#39;] = alarm_details.get(&#39;FILTERS&#39;) or None
-    new_alarm[&#39;queryId&#39;] = alarm_details.get(&#39;QID&#39;) or None
-    new_alarm[&#39;alretRateMin&#39;] = alarm_details.get(&#39;ARM&#39;) or None
-    new_alarm[&#39;alertRateCount&#39;] = alarm_details.get(&#39;ARC&#39;) or None
-    new_alarm[&#39;percentAbove&#39;] = alarm_details.get(&#39;PCTA&#39;) or None
-    new_alarm[&#39;percentBelow&#39;] = alarm_details.get(&#39;PCTB&#39;) or None
-    new_alarm[&#39;offsetMinutes&#39;] = alarm_details.get(&#39;OFFSETMIN&#39;) or None
-    new_alarm[&#39;maximumConditionTriggerFrequency&#39;] = alarm_details.get(&#39;TIMEF&#39;) or None
-    new_alarm[&#39;useWatchlist&#39;] = alarm_details.get(&#39;USEW&#39;) or None
-    new_alarm[&#39;matchField&#39;] = alarm_details.get(&#39;MFLD&#39;) or None
-    new_alarm[&#39;matchValue&#39;] = alarm_details.get(&#39;MWAL&#39;) or None
-    #new_alarm[&#39;healthMonalarm_details&#39;] = alarm_details.get(&#39;HMS&#39;) or None
-    new_alarm[&#39;assigneeId&#39;] = alarm_details.get(&#39;ASNID&#39;) or None
-    new_alarm[&#39;escalatedDate&#39;] = alarm_details.get(&#39;ESCDATE&#39;) or None
-    new_alarm[&#39;caseId&#39;] = alarm_details.get(&#39;CASEID&#39;) or None
-    new_alarm[&#39;caseName&#39;] = alarm_details.get(&#39;CASENAME&#39;) or None
-    new_alarm[&#39;iocName&#39;] = alarm_details.get(&#39;IOCNAME&#39;) or None
-    new_alarm[&#39;iocId&#39;] = alarm_details.get(&#39;IOCID&#39;) or None
-    new_alarm[&#39;description&#39;] = alarm_details.get(&#39;DESC&#39;) or None
-    new_alarm[&#39;actions&#39;] = alarm_details.get(&#39;ACTIONS&#39;) or None
-    new_alarm[&#39;events&#39;] = alarm_details.get(&#39;EVENTS&#39;) or None
+
+    for priv_key in self.ALARM_FIELDS_MAP: new_alarm.__setitem__(
+        self.ALARM_FIELDS_MAP[priv_key] or priv_key, alarm_details.get(priv_key) or None )
+
+    log.debug(&#39;NEW FULL alarm_details: &#39;+str(new_alarm))
+
     return new_alarm</code></pre>
 </details>
 </dd>
@@ -1778,6 +1902,7 @@ Warning : This method will only load the details of the first triggering event.
 <li><code><a title="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS" href="#msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS">POSSIBLE_ALARM_STATUS</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS">ALARM_EVENT_FILTER_FIELDS</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS" href="#msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS">ALARM_DEFAULT_FIELDS</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.ALARM_FIELDS_MAP" href="#msiempy.alarm.Alarm.ALARM_FIELDS_MAP">ALARM_FIELDS_MAP</a></code></li>
 </ul>
 </li>
 </ul>

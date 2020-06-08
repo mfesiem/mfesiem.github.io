@@ -87,9 +87,14 @@ class EventManager(FilteredQueryList):
         
         #Setting the default fields Adds the specified fields, make sure there is no duplicates and delete TABLE identifiers
         if fields and len(fields)&gt;0: 
-            self.fields=set(Event.DEFAULTS_EVENT_FIELDS+[f.split(&#39;.&#39;)[1] if &#39;.&#39; in f else f for f in list(fields)])
-        else:
-            self.fields=Event.DEFAULTS_EVENT_FIELDS
+            all_keys=Event.DEFAULTS_EVENT_FIELDS+list(fields)
+            uniquekeys=set()
+            for k in all_keys:
+                if k in Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME:
+                    uniquekeys.add(Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME[k])
+                else: uniquekeys.add(k)
+            self.fields=list(uniquekeys)
+        else: self.fields=Event.DEFAULTS_EVENT_FIELDS
         #log.debug(&#39;{}\nFIELDS : {}&#39;.format(locals(), self.fields))
 
         #Setting limit according to config or limit argument
@@ -165,7 +170,7 @@ class EventManager(FilteredQueryList):
         &#34;&#34;&#34;
         return self.nitro.request(&#39;get_possible_fields&#39;, type=self.TYPE, groupType=self.GROUPTYPE)
 
-    def qry_load_data(self, retry=2, wait_timeout_sec=120):
+    def qry_load_data(self, retry=1, wait_timeout_sec=120):
         &#34;&#34;&#34;
         Concrete helper method to execute the query and load the data :  
             -&gt; Submit the query  
@@ -174,53 +179,60 @@ class EventManager(FilteredQueryList):
 
         Arguments:
 
-        - `retry` (`int`): number of time the query can be failed and retied
+        - `retry` (`int`): number of time the query can be failed and retried.
+            Retries only when &#39;ResultUnavailable&#39;,&#39;UnknownList&#39; or &#39;JobEngine_GetQueryResults_QueryNotFound_Unrecoverable&#39; errors.  
         - `wait_timeout_sec` (`int`): wait timeout in seconds
 
         Returns : `tuple` : (( `msiempy.event.EventManager`, Status of the query (completed?) `True/False` ))
 
-        Can raise `msiempy.NitroError`: 
-
-            - Query wait timeout -&gt; You might want to change the value of `wait_timeout_sec` argument !
-            - Other errors
+        Raises `msiempy.NitroError` if any unhandled errors  
+        Raises `TimeoutError` if wait_timeout_sec counter gets to 0
         &#34;&#34;&#34;
-        query_infos=dict()
-
-        #Queries api calls are very different if the time range is custom.
-        if self.time_range == &#39;CUSTOM&#39; :
-            query_infos=self.nitro.request(
-                &#39;event_query_custom_time&#39;,
-                time_range=self.time_range,
-                start_time=self.start_time,
-                end_time=self.end_time,
-                order_direction=self._order_direction,
-                order_field=self._order_field,
-                fields=format_fields_for_query(self.fields),
-                filters=self.filters,
-                limit=self.limit,
-                offset=0,
-                includeTotal=False
-                )
-
-        else :
-            query_infos=self.nitro.request(
-                &#39;event_query&#39;,
-                time_range=self.time_range,
-                order_direction=self._order_direction,
-                order_field=self._order_field,
-                fields=format_fields_for_query(self.fields),
-                filters=self.filters,
-                limit=self.limit,
-                offset=0,
-                includeTotal=False
-                )
-        
-        log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
         try:
+            query_infos=dict()
+
+            #Queries api calls are very different if the time range is custom.
+            if self.time_range == &#39;CUSTOM&#39; :
+                query_infos=self.nitro.request(
+                    &#39;event_query_custom_time&#39;,
+                    time_range=self.time_range,
+                    start_time=self.start_time,
+                    end_time=self.end_time,
+                    order_direction=self._order_direction,
+                    order_field=self._order_field,
+                    fields=format_fields_for_query(self.fields),
+                    filters=self.filters,
+                    limit=self.limit,
+                    offset=0,
+                    includeTotal=False
+                    )
+
+            else :
+                query_infos=self.nitro.request(
+                    &#39;event_query&#39;,
+                    time_range=self.time_range,
+                    order_direction=self._order_direction,
+                    order_field=self._order_field,
+                    fields=format_fields_for_query(self.fields),
+                    filters=self.filters,
+                    limit=self.limit,
+                    offset=0,
+                    includeTotal=False
+                    )
+            
+            log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
+        
             self._wait_for(query_infos[&#39;resultID&#39;], wait_timeout_sec)
             events_raw=self._get_events(query_infos[&#39;resultID&#39;])
-        except NitroError as error :
-            if retry &gt;0 and any(match in str(error) for match in [&#39;ResultUnavailable&#39;,&#39;UnknownList&#39;, &#39;Query wait timeout&#39;]):
+
+        except (NitroError, TimeoutError) as error :
+            if (retry &gt;0 and ( any(match in str(error) for match in [
+                    &#39;ResultUnavailable&#39;,
+                    &#39;ERROR_JEC_ResponseNotAvailable&#39;,
+                    &#39;UnknownList&#39;,
+                    &#39;JobEngine_GetQueryResults_QueryNotFound_Unrecoverable&#39;]) 
+                or isinstance(error, TimeoutError)) ):
+                
                 log.warning(&#39;Retring after: &#39;+str(error))
                 return self.qry_load_data(retry=retry-1)
             else: raise
@@ -340,7 +352,7 @@ class EventManager(FilteredQueryList):
             else :
                 time.sleep(sleep_time)
             # retry=retry-1
-        raise NitroError(&#34;Query wait timeout. resultID={}, sleep_time={}, wait_timeout_sec={}&#34;.format(
+        raise TimeoutError(&#34;Query wait timeout. resultID={}, sleep_time={}, wait_timeout_sec={}&#34;.format(
             resultID, sleep_time, wait_timeout_sec))
 
     def _get_events(self, resultID, startPos=0, numRows=None):
@@ -445,7 +457,7 @@ class Event(NitroDict):
     &#34;&#34;&#34;
 
     # Minimal default query fields
-    DEFAULTS_EVENT_FIELDS=[&#34;msg&#34;, &#34;LastTime&#34;,&#34;IPSIDAlertID&#34;]
+    DEFAULTS_EVENT_FIELDS=[&#34;Rule.msg&#34;, &#34;LastTime&#34;,&#34;IPSIDAlertID&#34;]
     &#34;&#34;&#34;Always present when using `msiempy.event.EventManager` querying :  
         `Rule.msg`  
         `Alert.LastTime`  
@@ -482,14 +494,7 @@ class Event(NitroDict):
         `Alert.IPSIDAlertID` 
     &#34;&#34;&#34;
     
-    SIEM_FIELDS_MAP = {&#39;ASNGeoDst&#39;: &#39;Alert.ASNGeoDst&#39;,
-    &#39;ASNGeoSrc&#39;: &#39;Alert.ASNGeoSrc&#39;,
-    &#39;Access_Mask&#39;: &#39;Alert.65622&#39;,
-    &#39;Access_Privileges&#39;: &#39;Alert.4259883&#39;,
-    &#39;Access_Resource&#39;: &#39;Alert.65555&#39;,
-    &#39;Action&#39;: &#39;Alert.Action&#39;,
-    &#39;Action.Name&#39;: &#39;Action.Name&#39;,
-    &#39;Agent_GUID&#39;: &#39;Alert.262162&#39;,
+    SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME = {
     &#39;Alert.105250817&#39;: &#39;DNS - Response_Code_Name&#39;,
     &#39;Alert.122028033&#39;: &#39;DNS - Query&#39;,
     &#39;Alert.196609&#39;: &#39;Queue_ID&#39;,
@@ -766,7 +771,17 @@ class Event(NitroDict):
     &#39;Alert.VLan&#39;: &#39;VLan&#39;,
     &#39;Alert.WriteTime&#39;: &#39;WriteTime&#39;,
     &#39;Alert.ZoneDst&#39;: &#39;ZoneDst&#39;,
-    &#39;Alert.ZoneSrc&#39;: &#39;ZoneSrc&#39;,
+    &#39;Alert.ZoneSrc&#39;: &#39;ZoneSrc&#39;}
+
+    # NICKNAME TO INTERNAL NAMES
+    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME={&#39;ASNGeoDst&#39;: &#39;Alert.ASNGeoDst&#39;,
+    &#39;ASNGeoSrc&#39;: &#39;Alert.ASNGeoSrc&#39;,
+    &#39;Access_Mask&#39;: &#39;Alert.65622&#39;,
+    &#39;Access_Privileges&#39;: &#39;Alert.4259883&#39;,
+    &#39;Access_Resource&#39;: &#39;Alert.65555&#39;,
+    &#39;Action&#39;: &#39;Alert.Action&#39;,
+    &#39;Action.Name&#39;: &#39;Action.Name&#39;,
+    &#39;Agent_GUID&#39;: &#39;Alert.262162&#39;,
     &#39;AlertID&#39;: &#39;Alert.AlertID&#39;,
     &#39;Analyzer_DAT_Version&#39;: &#39;Alert.262170&#39;,
     &#39;AppID&#39;: &#39;Alert.BIN(1)&#39;,
@@ -866,16 +881,16 @@ class Event(NitroDict):
     &#39;From_Address&#39;: &#39;Alert.4259875&#39;,
     &#39;GUIDDst&#39;: &#39;Alert.GUIDDst&#39;,
     &#39;GUIDSrc&#39;: &#39;Alert.GUIDSrc&#39;,
-    &#39;GeoLoc_ASNGeoDst.Latitude&#39;: &#39;GeoLoc_ASNGeoDst.Latitude&#39;,
-    &#39;GeoLoc_ASNGeoDst.Longitude&#39;: &#39;GeoLoc_ASNGeoDst.Longitude&#39;,
-    &#39;GeoLoc_ASNGeoDst.Msg&#39;: &#39;GeoLoc_ASNGeoDst.Msg&#39;,
-    &#39;GeoLoc_ASNGeoDst.XCoord&#39;: &#39;GeoLoc_ASNGeoDst.XCoord&#39;,
-    &#39;GeoLoc_ASNGeoDst.YCoord&#39;: &#39;GeoLoc_ASNGeoDst.YCoord&#39;,
-    &#39;GeoLoc_ASNGeoSrc.Latitude&#39;: &#39;GeoLoc_ASNGeoSrc.Latitude&#39;,
-    &#39;GeoLoc_ASNGeoSrc.Longitude&#39;: &#39;GeoLoc_ASNGeoSrc.Longitude&#39;,
-    &#39;GeoLoc_ASNGeoSrc.Msg&#39;: &#39;GeoLoc_ASNGeoSrc.Msg&#39;,
-    &#39;GeoLoc_ASNGeoSrc.XCoord&#39;: &#39;GeoLoc_ASNGeoSrc.XCoord&#39;,
-    &#39;GeoLoc_ASNGeoSrc.YCoord&#39;: &#39;GeoLoc_ASNGeoSrc.YCoord&#39;,
+    &#39;GeoLoc_ASNGeoDst.Latitude&#39;: &#39;GeoLoc_ASNGeoDst.Latitude&#39;, # This is useless
+    &#39;GeoLoc_ASNGeoDst.Longitude&#39;: &#39;GeoLoc_ASNGeoDst.Longitude&#39;, # This is useless
+    &#39;GeoLoc_ASNGeoDst.Msg&#39;: &#39;GeoLoc_ASNGeoDst.Msg&#39;, # This is useless
+    &#39;GeoLoc_ASNGeoDst.XCoord&#39;: &#39;GeoLoc_ASNGeoDst.XCoord&#39;, # This is useless
+    &#39;GeoLoc_ASNGeoDst.YCoord&#39;: &#39;GeoLoc_ASNGeoDst.YCoord&#39;, # This is useless
+    &#39;GeoLoc_ASNGeoSrc.Latitude&#39;: &#39;GeoLoc_ASNGeoSrc.Latitude&#39;,  # This is useless
+    &#39;GeoLoc_ASNGeoSrc.Longitude&#39;: &#39;GeoLoc_ASNGeoSrc.Longitude&#39;,  # This is useless
+    &#39;GeoLoc_ASNGeoSrc.Msg&#39;: &#39;GeoLoc_ASNGeoSrc.Msg&#39;,  # This is useless
+    &#39;GeoLoc_ASNGeoSrc.XCoord&#39;: &#39;GeoLoc_ASNGeoSrc.XCoord&#39;,  # This is useless
+    &#39;GeoLoc_ASNGeoSrc.YCoord&#39;: &#39;GeoLoc_ASNGeoSrc.YCoord&#39;,  # This is useless
     &#39;Grid_Master_IP&#39;: &#39;Alert.262153&#39;,
     &#39;Group_Name&#39;: &#39;Alert.65614&#39;,
     &#39;Handheld_ID&#39;: &#39;Alert.262168&#39;,
@@ -1017,7 +1032,7 @@ class Event(NitroDict):
     &#39;Target_Class&#39;: &#39;Alert.65543&#39;,
     &#39;Target_Context&#39;: &#39;Alert.4259872&#39;,
     &#39;Target_Process_Name&#39;: &#39;Alert.4259878&#39;,
-    &#39;ThirdPartyType.Name&#39;: &#39;ThirdPartyType.Name&#39;,
+    &#39;ThirdPartyType.Name&#39;: &#39;ThirdPartyType.Name&#39;, # This is useless
     &#39;Threat_Category&#39;: &#39;Alert.65595&#39;,
     &#39;Threat_Handled&#39;: &#39;Alert.65596&#39;,
     &#39;Threat_Name&#39;: &#39;Alert.65538&#39;,
@@ -1043,7 +1058,7 @@ class Event(NitroDict):
     &#39;UserIDSrcCat&#39;: &#39;Alert.UserIDSrcCat&#39;,
     &#39;User_Agent&#39;: &#39;Alert.4259849&#39;,
     &#39;User_Nickname&#39;: &#39;Alert.BIN(14)&#39;,
-    &#39;Users.Name&#39;: &#39;Users.Name&#39;,
+    &#39;Users.Name&#39;: &#39;Users.Name&#39;,  # This is useless
     &#39;VLan&#39;: &#39;Alert.VLan&#39;,
     &#39;VPN_Feature_Name&#39;: &#39;Alert.65623&#39;,
     &#39;Version&#39;: &#39;Alert.4259859&#39;,
@@ -1056,60 +1071,39 @@ class Event(NitroDict):
     &#39;WriteTime&#39;: &#39;Alert.WriteTime&#39;,
     &#39;ZoneDst&#39;: &#39;Alert.ZoneDst&#39;,
     &#39;ZoneSrc&#39;: &#39;Alert.ZoneSrc&#39;,
-    &#39;Zone_ZoneDst.Name&#39;: &#39;Zone_ZoneDst.Name&#39;,
-    &#39;Zone_ZoneSrc.Name&#39;: &#39;Zone_ZoneSrc.Name&#39;}
+    &#39;Zone_ZoneDst.Name&#39;: &#39;Zone_ZoneDst.Name&#39;,  # This is useless
+    &#39;Zone_ZoneSrc.Name&#39;: &#39;Zone_ZoneSrc.Name&#39;}  # This is useless
     &#34;&#34;&#34;
     Best effort to match SIEM returned fields with initial.
     __getitem__, __contains__, __setitem__ and __delitem__ method have been rewrote in order to offer more comprehensive dict usage.
     For exemple, the SIEM will return dicts with keys like  `Alert.65613`, `Alert.BIN(7)` or `Alert.SrcIP`, you&#39;ll be able to use `Event` dictionnary object with your initial queried fields like `Web_Doamin`, `UserIDSrc` or `SrcIP`. 
     &#34;&#34;&#34;
+    def _find_key(self, key):
+        if collections.UserDict.__contains__(self, key): 
+            return key
+        if key in self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME.keys() and collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[key]): 
+            return self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[key]
+
+        # Loop thought FIELDS_TABLES and try with table prefix
+        # Old behaviour
+        for table in self.FIELDS_TABLES :
+            if collections.UserDict.__contains__(self, table+&#39;.&#39;+key): 
+                return table+&#39;.&#39;+key
+
+        raise KeyError(&#39;Dictionnary key not found : {}&#39;.format(key))
+
     def __getitem__(self, key):
-        &#34;&#34;&#34;
-        Best effort to match or autocomplete the field name.
-        &#34;&#34;&#34;
-        if collections.UserDict.__contains__(self, key): 
-            return collections.UserDict.__getitem__(self, key)
-        elif key in self.SIEM_FIELDS_MAP.keys():
-            if collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP[key]): 
-                return collections.UserDict.__getitem__(self, self.SIEM_FIELDS_MAP[key])
-        else :
-            for table in self.FIELDS_TABLES :
-                if collections.UserDict.__contains__(self, table+&#39;.&#39;+key): 
-                    return collections.UserDict.__getitem__(self, table+&#39;.&#39;+key)
-            raise KeyError(&#39;Dictionnary key not found : {}&#39;.format(key))
-    def __contains__(self, key):
-        if collections.UserDict.__contains__(self, key): 
-            return True
-        elif key in self.SIEM_FIELDS_MAP.keys():
-            if collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP[key]): 
-                return True
-        else:
-            for table in self.FIELDS_TABLES:
-                if collections.UserDict.__contains__(self, table+&#39;.&#39;+key): 
-                    return True
-            return False
-    def __setitem__(self, key, value):
-        if collections.UserDict.__contains__(self, key): 
-            collections.UserDict.__setitem__(self, key, value)
-        elif key in self.SIEM_FIELDS_MAP.keys():
-            if collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP[key]): 
-                collections.UserDict.__setitem__(self, self.SIEM_FIELDS_MAP[key], value)
-        else:
-            for table in self.FIELDS_TABLES:
-                if collections.UserDict.__contains__(self, table+&#39;.&#39;+key): 
-                    collections.UserDict.__setitem__(self, table+&#39;.&#39;+key, value)
-            raise KeyError(&#39;Dictionnary key not found : {}&#39;.format(key))
+        return collections.UserDict.__getitem__(self, self._find_key(key))
     def __delitem__(self, key):
-        if collections.UserDict.__contains__(self, key): 
-            collections.UserDict.__delitem__(self, key)
-        elif key in self.SIEM_FIELDS_MAP.keys():
-            if collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP[key]): 
-                collections.UserDict.__delitem__(self, self.SIEM_FIELDS_MAP[key])
-        else:
-            for table in self.FIELDS_TABLES:
-                if collections.UserDict.__contains__(self, table+&#39;.&#39;+key): 
-                    collections.UserDict.__delitem__(self, table+&#39;.&#39;+key)
-            raise KeyError(&#39;Dictionnary key not found : {}&#39;.format(key))
+        return collections.UserDict.__delitem__(self, self._find_key(key))
+    def __contains__(self, key):
+        try: return self._find_key(key)!=None
+        except KeyError: return False
+    def __setitem__(self, key, value):
+        try: return collections.UserDict.__setitem__(self, self._find_key(key), value)
+        except KeyError: return collections.UserDict.__setitem__(self, key, value)
+    
+
 
     def clear_notes(self):
         &#34;&#34;&#34;
@@ -1462,9 +1456,14 @@ Some default fields will be present. </li>
         
         #Setting the default fields Adds the specified fields, make sure there is no duplicates and delete TABLE identifiers
         if fields and len(fields)&gt;0: 
-            self.fields=set(Event.DEFAULTS_EVENT_FIELDS+[f.split(&#39;.&#39;)[1] if &#39;.&#39; in f else f for f in list(fields)])
-        else:
-            self.fields=Event.DEFAULTS_EVENT_FIELDS
+            all_keys=Event.DEFAULTS_EVENT_FIELDS+list(fields)
+            uniquekeys=set()
+            for k in all_keys:
+                if k in Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME:
+                    uniquekeys.add(Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME[k])
+                else: uniquekeys.add(k)
+            self.fields=list(uniquekeys)
+        else: self.fields=Event.DEFAULTS_EVENT_FIELDS
         #log.debug(&#39;{}\nFIELDS : {}&#39;.format(locals(), self.fields))
 
         #Setting limit according to config or limit argument
@@ -1540,7 +1539,7 @@ Some default fields will be present. </li>
         &#34;&#34;&#34;
         return self.nitro.request(&#39;get_possible_fields&#39;, type=self.TYPE, groupType=self.GROUPTYPE)
 
-    def qry_load_data(self, retry=2, wait_timeout_sec=120):
+    def qry_load_data(self, retry=1, wait_timeout_sec=120):
         &#34;&#34;&#34;
         Concrete helper method to execute the query and load the data :  
             -&gt; Submit the query  
@@ -1549,53 +1548,60 @@ Some default fields will be present. </li>
 
         Arguments:
 
-        - `retry` (`int`): number of time the query can be failed and retied
+        - `retry` (`int`): number of time the query can be failed and retried.
+            Retries only when &#39;ResultUnavailable&#39;,&#39;UnknownList&#39; or &#39;JobEngine_GetQueryResults_QueryNotFound_Unrecoverable&#39; errors.  
         - `wait_timeout_sec` (`int`): wait timeout in seconds
 
         Returns : `tuple` : (( `msiempy.event.EventManager`, Status of the query (completed?) `True/False` ))
 
-        Can raise `msiempy.NitroError`: 
-
-            - Query wait timeout -&gt; You might want to change the value of `wait_timeout_sec` argument !
-            - Other errors
+        Raises `msiempy.NitroError` if any unhandled errors  
+        Raises `TimeoutError` if wait_timeout_sec counter gets to 0
         &#34;&#34;&#34;
-        query_infos=dict()
-
-        #Queries api calls are very different if the time range is custom.
-        if self.time_range == &#39;CUSTOM&#39; :
-            query_infos=self.nitro.request(
-                &#39;event_query_custom_time&#39;,
-                time_range=self.time_range,
-                start_time=self.start_time,
-                end_time=self.end_time,
-                order_direction=self._order_direction,
-                order_field=self._order_field,
-                fields=format_fields_for_query(self.fields),
-                filters=self.filters,
-                limit=self.limit,
-                offset=0,
-                includeTotal=False
-                )
-
-        else :
-            query_infos=self.nitro.request(
-                &#39;event_query&#39;,
-                time_range=self.time_range,
-                order_direction=self._order_direction,
-                order_field=self._order_field,
-                fields=format_fields_for_query(self.fields),
-                filters=self.filters,
-                limit=self.limit,
-                offset=0,
-                includeTotal=False
-                )
-        
-        log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
         try:
+            query_infos=dict()
+
+            #Queries api calls are very different if the time range is custom.
+            if self.time_range == &#39;CUSTOM&#39; :
+                query_infos=self.nitro.request(
+                    &#39;event_query_custom_time&#39;,
+                    time_range=self.time_range,
+                    start_time=self.start_time,
+                    end_time=self.end_time,
+                    order_direction=self._order_direction,
+                    order_field=self._order_field,
+                    fields=format_fields_for_query(self.fields),
+                    filters=self.filters,
+                    limit=self.limit,
+                    offset=0,
+                    includeTotal=False
+                    )
+
+            else :
+                query_infos=self.nitro.request(
+                    &#39;event_query&#39;,
+                    time_range=self.time_range,
+                    order_direction=self._order_direction,
+                    order_field=self._order_field,
+                    fields=format_fields_for_query(self.fields),
+                    filters=self.filters,
+                    limit=self.limit,
+                    offset=0,
+                    includeTotal=False
+                    )
+            
+            log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
+        
             self._wait_for(query_infos[&#39;resultID&#39;], wait_timeout_sec)
             events_raw=self._get_events(query_infos[&#39;resultID&#39;])
-        except NitroError as error :
-            if retry &gt;0 and any(match in str(error) for match in [&#39;ResultUnavailable&#39;,&#39;UnknownList&#39;, &#39;Query wait timeout&#39;]):
+
+        except (NitroError, TimeoutError) as error :
+            if (retry &gt;0 and ( any(match in str(error) for match in [
+                    &#39;ResultUnavailable&#39;,
+                    &#39;ERROR_JEC_ResponseNotAvailable&#39;,
+                    &#39;UnknownList&#39;,
+                    &#39;JobEngine_GetQueryResults_QueryNotFound_Unrecoverable&#39;]) 
+                or isinstance(error, TimeoutError)) ):
+                
                 log.warning(&#39;Retring after: &#39;+str(error))
                 return self.qry_load_data(retry=retry-1)
             else: raise
@@ -1715,7 +1721,7 @@ Some default fields will be present. </li>
             else :
                 time.sleep(sleep_time)
             # retry=retry-1
-        raise NitroError(&#34;Query wait timeout. resultID={}, sleep_time={}, wait_timeout_sec={}&#34;.format(
+        raise TimeoutError(&#34;Query wait timeout. resultID={}, sleep_time={}, wait_timeout_sec={}&#34;.format(
             resultID, sleep_time, wait_timeout_sec))
 
     def _get_events(self, resultID, startPos=0, numRows=None):
@@ -1890,7 +1896,7 @@ The list is loaded from the SIEM.</p></section>
 </details>
 </dd>
 <dt id="msiempy.event.EventManager.qry_load_data"><code class="name flex">
-<span>def <span class="ident">qry_load_data</span></span>(<span>self, retry=2, wait_timeout_sec=120)</span>
+<span>def <span class="ident">qry_load_data</span></span>(<span>self, retry=1, wait_timeout_sec=120)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Concrete helper method to execute the query and load the data :<br>
@@ -1900,19 +1906,19 @@ The list is loaded from the SIEM.</p></section>
 </p>
 <p>Arguments:</p>
 <ul>
-<li><code>retry</code> (<code>int</code>): number of time the query can be failed and retied</li>
+<li><code>retry</code> (<code>int</code>): number of time the query can be failed and retried.
+Retries only when 'ResultUnavailable','UnknownList' or 'JobEngine_GetQueryResults_QueryNotFound_Unrecoverable' errors.
+</li>
 <li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds</li>
 </ul>
 <p>Returns : <code>tuple</code> : (( <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a>, Status of the query (completed?) <code>True/False</code> ))</p>
-<p>Can raise <a title="msiempy.NitroError" href="index.html#msiempy.NitroError"><code>NitroError</code></a>: </p>
-<pre><code>- Query wait timeout -&gt; You might want to change the value of `wait_timeout_sec` argument !
-- Other errors
-</code></pre></section>
+<p>Raises <a title="msiempy.NitroError" href="index.html#msiempy.NitroError"><code>NitroError</code></a> if any unhandled errors<br>
+Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def qry_load_data(self, retry=2, wait_timeout_sec=120):
+<pre><code class="python">def qry_load_data(self, retry=1, wait_timeout_sec=120):
     &#34;&#34;&#34;
     Concrete helper method to execute the query and load the data :  
         -&gt; Submit the query  
@@ -1921,53 +1927,60 @@ The list is loaded from the SIEM.</p></section>
 
     Arguments:
 
-    - `retry` (`int`): number of time the query can be failed and retied
+    - `retry` (`int`): number of time the query can be failed and retried.
+        Retries only when &#39;ResultUnavailable&#39;,&#39;UnknownList&#39; or &#39;JobEngine_GetQueryResults_QueryNotFound_Unrecoverable&#39; errors.  
     - `wait_timeout_sec` (`int`): wait timeout in seconds
 
     Returns : `tuple` : (( `msiempy.event.EventManager`, Status of the query (completed?) `True/False` ))
 
-    Can raise `msiempy.NitroError`: 
-
-        - Query wait timeout -&gt; You might want to change the value of `wait_timeout_sec` argument !
-        - Other errors
+    Raises `msiempy.NitroError` if any unhandled errors  
+    Raises `TimeoutError` if wait_timeout_sec counter gets to 0
     &#34;&#34;&#34;
-    query_infos=dict()
-
-    #Queries api calls are very different if the time range is custom.
-    if self.time_range == &#39;CUSTOM&#39; :
-        query_infos=self.nitro.request(
-            &#39;event_query_custom_time&#39;,
-            time_range=self.time_range,
-            start_time=self.start_time,
-            end_time=self.end_time,
-            order_direction=self._order_direction,
-            order_field=self._order_field,
-            fields=format_fields_for_query(self.fields),
-            filters=self.filters,
-            limit=self.limit,
-            offset=0,
-            includeTotal=False
-            )
-
-    else :
-        query_infos=self.nitro.request(
-            &#39;event_query&#39;,
-            time_range=self.time_range,
-            order_direction=self._order_direction,
-            order_field=self._order_field,
-            fields=format_fields_for_query(self.fields),
-            filters=self.filters,
-            limit=self.limit,
-            offset=0,
-            includeTotal=False
-            )
-    
-    log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
     try:
+        query_infos=dict()
+
+        #Queries api calls are very different if the time range is custom.
+        if self.time_range == &#39;CUSTOM&#39; :
+            query_infos=self.nitro.request(
+                &#39;event_query_custom_time&#39;,
+                time_range=self.time_range,
+                start_time=self.start_time,
+                end_time=self.end_time,
+                order_direction=self._order_direction,
+                order_field=self._order_field,
+                fields=format_fields_for_query(self.fields),
+                filters=self.filters,
+                limit=self.limit,
+                offset=0,
+                includeTotal=False
+                )
+
+        else :
+            query_infos=self.nitro.request(
+                &#39;event_query&#39;,
+                time_range=self.time_range,
+                order_direction=self._order_direction,
+                order_field=self._order_field,
+                fields=format_fields_for_query(self.fields),
+                filters=self.filters,
+                limit=self.limit,
+                offset=0,
+                includeTotal=False
+                )
+        
+        log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
+    
         self._wait_for(query_infos[&#39;resultID&#39;], wait_timeout_sec)
         events_raw=self._get_events(query_infos[&#39;resultID&#39;])
-    except NitroError as error :
-        if retry &gt;0 and any(match in str(error) for match in [&#39;ResultUnavailable&#39;,&#39;UnknownList&#39;, &#39;Query wait timeout&#39;]):
+
+    except (NitroError, TimeoutError) as error :
+        if (retry &gt;0 and ( any(match in str(error) for match in [
+                &#39;ResultUnavailable&#39;,
+                &#39;ERROR_JEC_ResponseNotAvailable&#39;,
+                &#39;UnknownList&#39;,
+                &#39;JobEngine_GetQueryResults_QueryNotFound_Unrecoverable&#39;]) 
+            or isinstance(error, TimeoutError)) ):
+            
             log.warning(&#39;Retring after: &#39;+str(error))
             return self.qry_load_data(retry=retry-1)
         else: raise
@@ -2225,7 +2238,7 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
     &#34;&#34;&#34;
 
     # Minimal default query fields
-    DEFAULTS_EVENT_FIELDS=[&#34;msg&#34;, &#34;LastTime&#34;,&#34;IPSIDAlertID&#34;]
+    DEFAULTS_EVENT_FIELDS=[&#34;Rule.msg&#34;, &#34;LastTime&#34;,&#34;IPSIDAlertID&#34;]
     &#34;&#34;&#34;Always present when using `msiempy.event.EventManager` querying :  
         `Rule.msg`  
         `Alert.LastTime`  
@@ -2262,14 +2275,7 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
         `Alert.IPSIDAlertID` 
     &#34;&#34;&#34;
     
-    SIEM_FIELDS_MAP = {&#39;ASNGeoDst&#39;: &#39;Alert.ASNGeoDst&#39;,
-    &#39;ASNGeoSrc&#39;: &#39;Alert.ASNGeoSrc&#39;,
-    &#39;Access_Mask&#39;: &#39;Alert.65622&#39;,
-    &#39;Access_Privileges&#39;: &#39;Alert.4259883&#39;,
-    &#39;Access_Resource&#39;: &#39;Alert.65555&#39;,
-    &#39;Action&#39;: &#39;Alert.Action&#39;,
-    &#39;Action.Name&#39;: &#39;Action.Name&#39;,
-    &#39;Agent_GUID&#39;: &#39;Alert.262162&#39;,
+    SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME = {
     &#39;Alert.105250817&#39;: &#39;DNS - Response_Code_Name&#39;,
     &#39;Alert.122028033&#39;: &#39;DNS - Query&#39;,
     &#39;Alert.196609&#39;: &#39;Queue_ID&#39;,
@@ -2546,7 +2552,17 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
     &#39;Alert.VLan&#39;: &#39;VLan&#39;,
     &#39;Alert.WriteTime&#39;: &#39;WriteTime&#39;,
     &#39;Alert.ZoneDst&#39;: &#39;ZoneDst&#39;,
-    &#39;Alert.ZoneSrc&#39;: &#39;ZoneSrc&#39;,
+    &#39;Alert.ZoneSrc&#39;: &#39;ZoneSrc&#39;}
+
+    # NICKNAME TO INTERNAL NAMES
+    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME={&#39;ASNGeoDst&#39;: &#39;Alert.ASNGeoDst&#39;,
+    &#39;ASNGeoSrc&#39;: &#39;Alert.ASNGeoSrc&#39;,
+    &#39;Access_Mask&#39;: &#39;Alert.65622&#39;,
+    &#39;Access_Privileges&#39;: &#39;Alert.4259883&#39;,
+    &#39;Access_Resource&#39;: &#39;Alert.65555&#39;,
+    &#39;Action&#39;: &#39;Alert.Action&#39;,
+    &#39;Action.Name&#39;: &#39;Action.Name&#39;,
+    &#39;Agent_GUID&#39;: &#39;Alert.262162&#39;,
     &#39;AlertID&#39;: &#39;Alert.AlertID&#39;,
     &#39;Analyzer_DAT_Version&#39;: &#39;Alert.262170&#39;,
     &#39;AppID&#39;: &#39;Alert.BIN(1)&#39;,
@@ -2646,16 +2662,16 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
     &#39;From_Address&#39;: &#39;Alert.4259875&#39;,
     &#39;GUIDDst&#39;: &#39;Alert.GUIDDst&#39;,
     &#39;GUIDSrc&#39;: &#39;Alert.GUIDSrc&#39;,
-    &#39;GeoLoc_ASNGeoDst.Latitude&#39;: &#39;GeoLoc_ASNGeoDst.Latitude&#39;,
-    &#39;GeoLoc_ASNGeoDst.Longitude&#39;: &#39;GeoLoc_ASNGeoDst.Longitude&#39;,
-    &#39;GeoLoc_ASNGeoDst.Msg&#39;: &#39;GeoLoc_ASNGeoDst.Msg&#39;,
-    &#39;GeoLoc_ASNGeoDst.XCoord&#39;: &#39;GeoLoc_ASNGeoDst.XCoord&#39;,
-    &#39;GeoLoc_ASNGeoDst.YCoord&#39;: &#39;GeoLoc_ASNGeoDst.YCoord&#39;,
-    &#39;GeoLoc_ASNGeoSrc.Latitude&#39;: &#39;GeoLoc_ASNGeoSrc.Latitude&#39;,
-    &#39;GeoLoc_ASNGeoSrc.Longitude&#39;: &#39;GeoLoc_ASNGeoSrc.Longitude&#39;,
-    &#39;GeoLoc_ASNGeoSrc.Msg&#39;: &#39;GeoLoc_ASNGeoSrc.Msg&#39;,
-    &#39;GeoLoc_ASNGeoSrc.XCoord&#39;: &#39;GeoLoc_ASNGeoSrc.XCoord&#39;,
-    &#39;GeoLoc_ASNGeoSrc.YCoord&#39;: &#39;GeoLoc_ASNGeoSrc.YCoord&#39;,
+    &#39;GeoLoc_ASNGeoDst.Latitude&#39;: &#39;GeoLoc_ASNGeoDst.Latitude&#39;, # This is useless
+    &#39;GeoLoc_ASNGeoDst.Longitude&#39;: &#39;GeoLoc_ASNGeoDst.Longitude&#39;, # This is useless
+    &#39;GeoLoc_ASNGeoDst.Msg&#39;: &#39;GeoLoc_ASNGeoDst.Msg&#39;, # This is useless
+    &#39;GeoLoc_ASNGeoDst.XCoord&#39;: &#39;GeoLoc_ASNGeoDst.XCoord&#39;, # This is useless
+    &#39;GeoLoc_ASNGeoDst.YCoord&#39;: &#39;GeoLoc_ASNGeoDst.YCoord&#39;, # This is useless
+    &#39;GeoLoc_ASNGeoSrc.Latitude&#39;: &#39;GeoLoc_ASNGeoSrc.Latitude&#39;,  # This is useless
+    &#39;GeoLoc_ASNGeoSrc.Longitude&#39;: &#39;GeoLoc_ASNGeoSrc.Longitude&#39;,  # This is useless
+    &#39;GeoLoc_ASNGeoSrc.Msg&#39;: &#39;GeoLoc_ASNGeoSrc.Msg&#39;,  # This is useless
+    &#39;GeoLoc_ASNGeoSrc.XCoord&#39;: &#39;GeoLoc_ASNGeoSrc.XCoord&#39;,  # This is useless
+    &#39;GeoLoc_ASNGeoSrc.YCoord&#39;: &#39;GeoLoc_ASNGeoSrc.YCoord&#39;,  # This is useless
     &#39;Grid_Master_IP&#39;: &#39;Alert.262153&#39;,
     &#39;Group_Name&#39;: &#39;Alert.65614&#39;,
     &#39;Handheld_ID&#39;: &#39;Alert.262168&#39;,
@@ -2797,7 +2813,7 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
     &#39;Target_Class&#39;: &#39;Alert.65543&#39;,
     &#39;Target_Context&#39;: &#39;Alert.4259872&#39;,
     &#39;Target_Process_Name&#39;: &#39;Alert.4259878&#39;,
-    &#39;ThirdPartyType.Name&#39;: &#39;ThirdPartyType.Name&#39;,
+    &#39;ThirdPartyType.Name&#39;: &#39;ThirdPartyType.Name&#39;, # This is useless
     &#39;Threat_Category&#39;: &#39;Alert.65595&#39;,
     &#39;Threat_Handled&#39;: &#39;Alert.65596&#39;,
     &#39;Threat_Name&#39;: &#39;Alert.65538&#39;,
@@ -2823,7 +2839,7 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
     &#39;UserIDSrcCat&#39;: &#39;Alert.UserIDSrcCat&#39;,
     &#39;User_Agent&#39;: &#39;Alert.4259849&#39;,
     &#39;User_Nickname&#39;: &#39;Alert.BIN(14)&#39;,
-    &#39;Users.Name&#39;: &#39;Users.Name&#39;,
+    &#39;Users.Name&#39;: &#39;Users.Name&#39;,  # This is useless
     &#39;VLan&#39;: &#39;Alert.VLan&#39;,
     &#39;VPN_Feature_Name&#39;: &#39;Alert.65623&#39;,
     &#39;Version&#39;: &#39;Alert.4259859&#39;,
@@ -2836,60 +2852,39 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
     &#39;WriteTime&#39;: &#39;Alert.WriteTime&#39;,
     &#39;ZoneDst&#39;: &#39;Alert.ZoneDst&#39;,
     &#39;ZoneSrc&#39;: &#39;Alert.ZoneSrc&#39;,
-    &#39;Zone_ZoneDst.Name&#39;: &#39;Zone_ZoneDst.Name&#39;,
-    &#39;Zone_ZoneSrc.Name&#39;: &#39;Zone_ZoneSrc.Name&#39;}
+    &#39;Zone_ZoneDst.Name&#39;: &#39;Zone_ZoneDst.Name&#39;,  # This is useless
+    &#39;Zone_ZoneSrc.Name&#39;: &#39;Zone_ZoneSrc.Name&#39;}  # This is useless
     &#34;&#34;&#34;
     Best effort to match SIEM returned fields with initial.
     __getitem__, __contains__, __setitem__ and __delitem__ method have been rewrote in order to offer more comprehensive dict usage.
     For exemple, the SIEM will return dicts with keys like  `Alert.65613`, `Alert.BIN(7)` or `Alert.SrcIP`, you&#39;ll be able to use `Event` dictionnary object with your initial queried fields like `Web_Doamin`, `UserIDSrc` or `SrcIP`. 
     &#34;&#34;&#34;
+    def _find_key(self, key):
+        if collections.UserDict.__contains__(self, key): 
+            return key
+        if key in self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME.keys() and collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[key]): 
+            return self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[key]
+
+        # Loop thought FIELDS_TABLES and try with table prefix
+        # Old behaviour
+        for table in self.FIELDS_TABLES :
+            if collections.UserDict.__contains__(self, table+&#39;.&#39;+key): 
+                return table+&#39;.&#39;+key
+
+        raise KeyError(&#39;Dictionnary key not found : {}&#39;.format(key))
+
     def __getitem__(self, key):
-        &#34;&#34;&#34;
-        Best effort to match or autocomplete the field name.
-        &#34;&#34;&#34;
-        if collections.UserDict.__contains__(self, key): 
-            return collections.UserDict.__getitem__(self, key)
-        elif key in self.SIEM_FIELDS_MAP.keys():
-            if collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP[key]): 
-                return collections.UserDict.__getitem__(self, self.SIEM_FIELDS_MAP[key])
-        else :
-            for table in self.FIELDS_TABLES :
-                if collections.UserDict.__contains__(self, table+&#39;.&#39;+key): 
-                    return collections.UserDict.__getitem__(self, table+&#39;.&#39;+key)
-            raise KeyError(&#39;Dictionnary key not found : {}&#39;.format(key))
-    def __contains__(self, key):
-        if collections.UserDict.__contains__(self, key): 
-            return True
-        elif key in self.SIEM_FIELDS_MAP.keys():
-            if collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP[key]): 
-                return True
-        else:
-            for table in self.FIELDS_TABLES:
-                if collections.UserDict.__contains__(self, table+&#39;.&#39;+key): 
-                    return True
-            return False
-    def __setitem__(self, key, value):
-        if collections.UserDict.__contains__(self, key): 
-            collections.UserDict.__setitem__(self, key, value)
-        elif key in self.SIEM_FIELDS_MAP.keys():
-            if collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP[key]): 
-                collections.UserDict.__setitem__(self, self.SIEM_FIELDS_MAP[key], value)
-        else:
-            for table in self.FIELDS_TABLES:
-                if collections.UserDict.__contains__(self, table+&#39;.&#39;+key): 
-                    collections.UserDict.__setitem__(self, table+&#39;.&#39;+key, value)
-            raise KeyError(&#39;Dictionnary key not found : {}&#39;.format(key))
+        return collections.UserDict.__getitem__(self, self._find_key(key))
     def __delitem__(self, key):
-        if collections.UserDict.__contains__(self, key): 
-            collections.UserDict.__delitem__(self, key)
-        elif key in self.SIEM_FIELDS_MAP.keys():
-            if collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP[key]): 
-                collections.UserDict.__delitem__(self, self.SIEM_FIELDS_MAP[key])
-        else:
-            for table in self.FIELDS_TABLES:
-                if collections.UserDict.__contains__(self, table+&#39;.&#39;+key): 
-                    collections.UserDict.__delitem__(self, table+&#39;.&#39;+key)
-            raise KeyError(&#39;Dictionnary key not found : {}&#39;.format(key))
+        return collections.UserDict.__delitem__(self, self._find_key(key))
+    def __contains__(self, key):
+        try: return self._find_key(key)!=None
+        except KeyError: return False
+    def __setitem__(self, key, value):
+        try: return collections.UserDict.__setitem__(self, self._find_key(key), value)
+        except KeyError: return collections.UserDict.__setitem__(self, key, value)
+    
+
 
     def clear_notes(self):
         &#34;&#34;&#34;
@@ -3004,7 +2999,21 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
 <code>Alert.DSIDSigID</code><br>
 <code>Alert.IPSIDAlertID</code></p></section>
 </dd>
-<dt id="msiempy.event.Event.SIEM_FIELDS_MAP"><code class="name">var <span class="ident">SIEM_FIELDS_MAP</span></code></dt>
+<dt id="msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME"><code class="name">var <span class="ident">SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</span></code></dt>
+<dd>
+<section class="desc"><p>dict() -&gt; new empty dictionary
+dict(mapping) -&gt; new dictionary initialized from a mapping object's
+(key, value) pairs
+dict(iterable) -&gt; new dictionary initialized as if via:
+d = {}
+for k, v in iterable:
+d[k] = v
+dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
+in the keyword argument list.
+For example:
+dict(one=1, two=2)</p></section>
+</dd>
+<dt id="msiempy.event.Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME"><code class="name">var <span class="ident">SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME</span></code></dt>
 <dd>
 <section class="desc"><p>Best effort to match SIEM returned fields with initial.
 <strong>getitem</strong>, <strong>contains</strong>, <strong>setitem</strong> and <strong>delitem</strong> method have been rewrote in order to offer more comprehensive dict usage.
@@ -3608,7 +3617,8 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <li><code><a title="msiempy.event.Event.FIELDS_TABLES" href="#msiempy.event.Event.FIELDS_TABLES">FIELDS_TABLES</a></code></li>
 <li><code><a title="msiempy.event.Event.DEFAULTS_EVENT_FIELDS" href="#msiempy.event.Event.DEFAULTS_EVENT_FIELDS">DEFAULTS_EVENT_FIELDS</a></code></li>
 <li><code><a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS">REGULAR_EVENT_FIELDS</a></code></li>
-<li><code><a title="msiempy.event.Event.SIEM_FIELDS_MAP" href="#msiempy.event.Event.SIEM_FIELDS_MAP">SIEM_FIELDS_MAP</a></code></li>
+<li><code><a title="msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME" href="#msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME">SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</a></code></li>
+<li><code><a title="msiempy.event.Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME" href="#msiempy.event.Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME">SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME</a></code></li>
 </ul>
 </li>
 <li>

@@ -530,33 +530,36 @@ class DevTree(NitroList):
         esm_mfe_dev_id = [&#39;19&#39;, &#39;21&#39;, &#39;22&#39;, &#39;24&#39;]
         nitro_dev_id = [&#39;2&#39;, &#39;4&#39;, &#39;10&#39;, &#39;12&#39;, &#39;13&#39;, &#39;15&#39;]
         datasource_dev_id = [&#39;3&#39;, &#39;5&#39;, &#39;7&#39;, &#39;17&#39;, &#39;20&#39;, &#39;23&#39;, &#39;256&#39;]
-        
                    
         for device in devtree:
             if device[&#39;desc_id&#39;] in esm_dev_id:
                 esm_name = device[&#39;name&#39;]
                 esm_id = device[&#39;ds_id&#39;]
+
                 device[&#39;parent_name&#39;] = &#39;n/a&#39;
                 device[&#39;parent_id&#39;] = &#39;0&#39;
                 continue
 
-            if device[&#39;desc_id&#39;] in esm_mfe_dev_id:
+            elif device[&#39;desc_id&#39;] in esm_mfe_dev_id:
                 parent_name = device[&#39;name&#39;]
                 parent_id = device[&#39;ds_id&#39;]
-                device[&#39;parent_name&#39;] = &#39;n/a&#39;
-                device[&#39;parent_id&#39;] = &#39;0&#39;
-                continue
-            
-            if device[&#39;desc_id&#39;] in nitro_dev_id:
+    
                 device[&#39;parent_name&#39;] = esm_name
                 device[&#39;parent_id&#39;] = esm_id
+                continue
+            
+            elif device[&#39;desc_id&#39;] in nitro_dev_id:
                 parent_name = device[&#39;name&#39;]
-                pid = device[&#39;ds_id&#39;]
+                parent_id = device[&#39;ds_id&#39;]
+
+                device[&#39;parent_name&#39;] = esm_name
+                device[&#39;parent_id&#39;] = esm_id
                 continue
 
-            if device[&#39;desc_id&#39;] in datasource_dev_id:
+            elif device[&#39;desc_id&#39;] in datasource_dev_id:
                 device[&#39;parent_name&#39;] = parent_name
-                device[&#39;parent_id&#39;] = pid
+                device[&#39;parent_id&#39;] = parent_id
+            
             else:
                 device[&#39;parent_name&#39;] = &#39;n/a&#39;
                 device[&#39;parent_id&#39;] = &#39;n/a&#39;
@@ -2195,33 +2198,36 @@ def recs(self):
         esm_mfe_dev_id = [&#39;19&#39;, &#39;21&#39;, &#39;22&#39;, &#39;24&#39;]
         nitro_dev_id = [&#39;2&#39;, &#39;4&#39;, &#39;10&#39;, &#39;12&#39;, &#39;13&#39;, &#39;15&#39;]
         datasource_dev_id = [&#39;3&#39;, &#39;5&#39;, &#39;7&#39;, &#39;17&#39;, &#39;20&#39;, &#39;23&#39;, &#39;256&#39;]
-        
                    
         for device in devtree:
             if device[&#39;desc_id&#39;] in esm_dev_id:
                 esm_name = device[&#39;name&#39;]
                 esm_id = device[&#39;ds_id&#39;]
+
                 device[&#39;parent_name&#39;] = &#39;n/a&#39;
                 device[&#39;parent_id&#39;] = &#39;0&#39;
                 continue
 
-            if device[&#39;desc_id&#39;] in esm_mfe_dev_id:
+            elif device[&#39;desc_id&#39;] in esm_mfe_dev_id:
                 parent_name = device[&#39;name&#39;]
                 parent_id = device[&#39;ds_id&#39;]
-                device[&#39;parent_name&#39;] = &#39;n/a&#39;
-                device[&#39;parent_id&#39;] = &#39;0&#39;
-                continue
-            
-            if device[&#39;desc_id&#39;] in nitro_dev_id:
+    
                 device[&#39;parent_name&#39;] = esm_name
                 device[&#39;parent_id&#39;] = esm_id
+                continue
+            
+            elif device[&#39;desc_id&#39;] in nitro_dev_id:
                 parent_name = device[&#39;name&#39;]
-                pid = device[&#39;ds_id&#39;]
+                parent_id = device[&#39;ds_id&#39;]
+
+                device[&#39;parent_name&#39;] = esm_name
+                device[&#39;parent_id&#39;] = esm_id
                 continue
 
-            if device[&#39;desc_id&#39;] in datasource_dev_id:
+            elif device[&#39;desc_id&#39;] in datasource_dev_id:
                 device[&#39;parent_name&#39;] = parent_name
-                device[&#39;parent_id&#39;] = pid
+                device[&#39;parent_id&#39;] = parent_id
+            
             else:
                 device[&#39;parent_name&#39;] = &#39;n/a&#39;
                 device[&#39;parent_id&#39;] = &#39;n/a&#39;

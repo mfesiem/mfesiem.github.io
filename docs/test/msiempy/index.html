@@ -431,7 +431,7 @@ class NitroSession():
         &#34;get_job_status&#34;: (&#34;MISC_JOBSTATUS&#34;,
                             &#34;&#34;&#34;{&#34;JID&#34;: &#34;%(job_id)s&#34;}&#34;&#34;&#34;),
 
-        &#34;ds_last_times&#34;: (&#34;QRY%5FGETDEVICELASTALERTTIME&#34;,&#34;&#34;&#34;{}&#34;&#34;&#34;),
+        &#34;ds_last_times&#34;: (&#34;QRY_GETDEVICELASTALERTTIME&#34;,&#34;&#34;&#34;{}&#34;&#34;&#34;),
                         
         &#34;zonetree&#34;: (&#34;zoneGetZoneTree&#34;,None),
                         
@@ -717,7 +717,7 @@ class NitroSession():
         self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
         self.user_tz_id = None
 
-    def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=5):
+    def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
         &#34;&#34;&#34;
         Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
         If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
@@ -732,7 +732,7 @@ class NitroSession():
         - `callback` : function to apply afterwards  
         - `raw` : If true will return the Response object from requests module.   
         - `secure` : If true will not log the content of the request.   
-        - `retry` : Numbre of time the request can be retried
+        - `retry` : Number of time the request can be retried
 
         Returns : 
 
@@ -920,7 +920,7 @@ class NitroSession():
         - `callback` : function to apply afterwards  
         - `raw` : If true will return the Response object from requests module.   
         - `secure` : If true will not log the content of the request.   
-        - `retry` : Numbre of time the request can be retried
+        - `retry` : Number of time the request can be retried
         
         Interpolation parameters :  
         
@@ -1132,12 +1132,9 @@ class NitroDict(collections.UserDict, NitroObject):
     def __init__(self, adict=None, id=None):
         NitroObject.__init__(self)
         collections.UserDict.__init__(self, adict)
-        
-        if id != None :
-            self.data=self.data_from_id(id)
 
-        if isinstance(adict, dict):
-            self.data=adict
+        if adict : self.data=adict
+        if id : self.data=self.data_from_id(id)
 
         for key in list(self) :
             if isinstance(self[key], list):
@@ -1183,6 +1180,9 @@ class NitroList(collections.UserList, NitroObject):
     If a derived class does not wish to comply with this requirement, all of the special methods supported by this class will need to be overridden; please consult the sources for information about the methods which need to be provided in that case.
     See: https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects  
 
+    Concrete classes have to cast the items afterwards!
+    #TODO better polymorphism to cast every sub-NitroList class&#39;s item dynamcally !
+
     Arguments:  
 
     - `alist`: list object to wrap.
@@ -1190,28 +1190,13 @@ class NitroList(collections.UserList, NitroObject):
 
     def __init__(self, alist=None):
         NitroObject.__init__(self)
-        if alist is None:
-            collections.UserList.__init__(self, [])
-        
-        elif isinstance(alist , (list, NitroList)):
-            collections.UserList.__init__(
-                self, alist 
-                #[NitroDict(adict=item) for item in alist if isinstance(item, (dict, NitroDict))] 
-                #Can&#39;t instanciate NitroDict, so Concrete classes have to cast the items afterwards!
-                #TODO better polymorphism to cast every sub-NitroList class&#39;s item dynamcally !
-                )
-        else :
-            raise ValueError(&#39;NitroList can only be initiated based on a list&#39;)
+        if alist : collections.UserList.__init__(self, alist)
+        else : collections.UserList.__init__(self, [])
 
     def __str__(self):
         &#34;&#34;&#34;str(obj) -&gt; return text string.
         &#34;&#34;&#34;
-        return &#34;{} containing {} elements ; keys={}&#34;.format(str(super()), len(list(self)), self.keys)
-
-    def __repr__(self):
-        &#34;&#34;&#34;repr(obj) -&gt; return json string.
-        &#34;&#34;&#34;
-        return self.json
+        return &#34;{} containing {} elements ; keys={}&#34;.format(str(super()), len(list(self)), self.keys())
 
     # def _norm_dicts(self):
     #     &#34;&#34;&#34;
@@ -1225,19 +1210,12 @@ class NitroList(collections.UserList, NitroObject):
     #                 if key not in item :
     #                     item[key]=None
 
-    @property
     def keys(self):
-        &#34;&#34;&#34;Set of keys for all dict
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Set of keys for all dict&#34;&#34;&#34;
         #If new fields are added it won&#39;t show on text repr. Only json.
-        
         manager_keys=set()
-        for item in list(self):
-            if isinstance(item, (dict,NitroDict)):
-                manager_keys.update(item.keys())
-
+        for item in list(self): manager_keys.update(getattr(item, &#39;keys&#39;, set)())
         return manager_keys
-
 
     def get_text(self, format=&#39;prettytable&#39;, fields=None, 
                         max_column_width=80, get_text_nest_attr={} ):
@@ -1257,10 +1235,9 @@ class NitroList(collections.UserList, NitroObject):
         text=str()
         
         if not fields :
-            fields=sorted(self.keys)
+            fields=sorted(self.keys())
 
         try:
-            
             if format == &#39;csv&#39;:
                 file = StringIO()
                 dw = csv.DictWriter(file, fields, extrasaction=&#39;ignore&#39;)
@@ -2338,7 +2315,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         &#34;get_job_status&#34;: (&#34;MISC_JOBSTATUS&#34;,
                             &#34;&#34;&#34;{&#34;JID&#34;: &#34;%(job_id)s&#34;}&#34;&#34;&#34;),
 
-        &#34;ds_last_times&#34;: (&#34;QRY%5FGETDEVICELASTALERTTIME&#34;,&#34;&#34;&#34;{}&#34;&#34;&#34;),
+        &#34;ds_last_times&#34;: (&#34;QRY_GETDEVICELASTALERTTIME&#34;,&#34;&#34;&#34;{}&#34;&#34;&#34;),
                         
         &#34;zonetree&#34;: (&#34;zoneGetZoneTree&#34;,None),
                         
@@ -2624,7 +2601,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
         self.user_tz_id = None
 
-    def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=5):
+    def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
         &#34;&#34;&#34;
         Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
         If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
@@ -2639,7 +2616,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         - `callback` : function to apply afterwards  
         - `raw` : If true will return the Response object from requests module.   
         - `secure` : If true will not log the content of the request.   
-        - `retry` : Numbre of time the request can be retried
+        - `retry` : Number of time the request can be retried
 
         Returns : 
 
@@ -2827,7 +2804,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         - `callback` : function to apply afterwards  
         - `raw` : If true will return the Response object from requests module.   
         - `secure` : If true will not log the content of the request.   
-        - `retry` : Numbre of time the request can be retried
+        - `retry` : Number of time the request can be retried
         
         Interpolation parameters :  
         
@@ -3216,7 +3193,7 @@ Throws <a title="msiempy.NitroError" href="#msiempy.NitroError"><code>NitroError
 </details>
 </dd>
 <dt id="msiempy.NitroSession.esm_request"><code class="name flex">
-<span>def <span class="ident">esm_request</span></span>(<span>self, method, data, http='post', callback=None, raw=False, secure=False, retry=5)</span>
+<span>def <span class="ident">esm_request</span></span>(<span>self, method, data, http='post', callback=None, raw=False, secure=False, retry=1)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.
@@ -3239,7 +3216,7 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
 </li>
 <li><code>secure</code> : If true will not log the content of the request.
 </li>
-<li><code>retry</code> : Numbre of time the request can be retried</li>
+<li><code>retry</code> : Number of time the request can be retried</li>
 </ul>
 <p>Returns : </p>
 <ul>
@@ -3261,7 +3238,7 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=5):
+<pre><code class="python">def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
     &#34;&#34;&#34;
     Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
     If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
@@ -3276,7 +3253,7 @@ In any way, the ESM response is unpacked by <a title="msiempy.NitroSession.unpac
     - `callback` : function to apply afterwards  
     - `raw` : If true will return the Response object from requests module.   
     - `secure` : If true will not log the content of the request.   
-    - `retry` : Numbre of time the request can be retried
+    - `retry` : Number of time the request can be retried
 
     Returns : 
 
@@ -3507,7 +3484,7 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
 </li>
 <li><code>secure</code> : If true will not log the content of the request.
 </li>
-<li><code>retry</code> : Numbre of time the request can be retried</li>
+<li><code>retry</code> : Number of time the request can be retried</li>
 </ul>
 <p>Interpolation parameters :
 </p>
@@ -3543,7 +3520,7 @@ Wrapper around the <a title="msiempy.NitroSession.esm_request" href="#msiempy.Ni
     - `callback` : function to apply afterwards  
     - `raw` : If true will return the Response object from requests module.   
     - `secure` : If true will not log the content of the request.   
-    - `retry` : Numbre of time the request can be retried
+    - `retry` : Number of time the request can be retried
     
     Interpolation parameters :  
     
@@ -3793,12 +3770,9 @@ Initiate the NitroObject and UserDict objects, load the data if id is specified,
     def __init__(self, adict=None, id=None):
         NitroObject.__init__(self)
         collections.UserDict.__init__(self, adict)
-        
-        if id != None :
-            self.data=self.data_from_id(id)
 
-        if isinstance(adict, dict):
-            self.data=adict
+        if adict : self.data=adict
+        if id : self.data=self.data_from_id(id)
 
         for key in list(self) :
             if isinstance(self[key], list):
@@ -3928,6 +3902,8 @@ TODO better polymorphism to cast every sub-NitroList class's item dynamcally in 
 If a derived class does not wish to comply with this requirement, all of the special methods supported by this class will need to be overridden; please consult the sources for information about the methods which need to be provided in that case.
 See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects">https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects</a>
 </p>
+<p>Concrete classes have to cast the items afterwards!</p>
+<h1 id="todo-better-polymorphism-to-cast-every-sub-nitrolist-classs-item-dynamcally">TODO better polymorphism to cast every sub-NitroList class's item dynamcally !</h1>
 <p>Arguments:
 </p>
 <ul>
@@ -3948,6 +3924,9 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
     If a derived class does not wish to comply with this requirement, all of the special methods supported by this class will need to be overridden; please consult the sources for information about the methods which need to be provided in that case.
     See: https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects  
 
+    Concrete classes have to cast the items afterwards!
+    #TODO better polymorphism to cast every sub-NitroList class&#39;s item dynamcally !
+
     Arguments:  
 
     - `alist`: list object to wrap.
@@ -3955,28 +3934,13 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
 
     def __init__(self, alist=None):
         NitroObject.__init__(self)
-        if alist is None:
-            collections.UserList.__init__(self, [])
-        
-        elif isinstance(alist , (list, NitroList)):
-            collections.UserList.__init__(
-                self, alist 
-                #[NitroDict(adict=item) for item in alist if isinstance(item, (dict, NitroDict))] 
-                #Can&#39;t instanciate NitroDict, so Concrete classes have to cast the items afterwards!
-                #TODO better polymorphism to cast every sub-NitroList class&#39;s item dynamcally !
-                )
-        else :
-            raise ValueError(&#39;NitroList can only be initiated based on a list&#39;)
+        if alist : collections.UserList.__init__(self, alist)
+        else : collections.UserList.__init__(self, [])
 
     def __str__(self):
         &#34;&#34;&#34;str(obj) -&gt; return text string.
         &#34;&#34;&#34;
-        return &#34;{} containing {} elements ; keys={}&#34;.format(str(super()), len(list(self)), self.keys)
-
-    def __repr__(self):
-        &#34;&#34;&#34;repr(obj) -&gt; return json string.
-        &#34;&#34;&#34;
-        return self.json
+        return &#34;{} containing {} elements ; keys={}&#34;.format(str(super()), len(list(self)), self.keys())
 
     # def _norm_dicts(self):
     #     &#34;&#34;&#34;
@@ -3990,19 +3954,12 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
     #                 if key not in item :
     #                     item[key]=None
 
-    @property
     def keys(self):
-        &#34;&#34;&#34;Set of keys for all dict
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Set of keys for all dict&#34;&#34;&#34;
         #If new fields are added it won&#39;t show on text repr. Only json.
-        
         manager_keys=set()
-        for item in list(self):
-            if isinstance(item, (dict,NitroDict)):
-                manager_keys.update(item.keys())
-
+        for item in list(self): manager_keys.update(getattr(item, &#39;keys&#39;, set)())
         return manager_keys
-
 
     def get_text(self, format=&#39;prettytable&#39;, fields=None, 
                         max_column_width=80, get_text_nest_attr={} ):
@@ -4022,10 +3979,9 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
         text=str()
         
         if not fields :
-            fields=sorted(self.keys)
+            fields=sorted(self.keys())
 
         try:
-            
             if format == &#39;csv&#39;:
                 file = StringIO()
                 dw = csv.DictWriter(file, fields, extrasaction=&#39;ignore&#39;)
@@ -4265,27 +4221,6 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="msiempy.NitroList.keys"><code class="name">var <span class="ident">keys</span></code></dt>
-<dd>
-<section class="desc"><p>Set of keys for all dict</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def keys(self):
-    &#34;&#34;&#34;Set of keys for all dict
-    &#34;&#34;&#34;
-    #If new fields are added it won&#39;t show on text repr. Only json.
-    
-    manager_keys=set()
-    for item in list(self):
-        if isinstance(item, (dict,NitroDict)):
-            manager_keys.update(item.keys())
-
-    return manager_keys</code></pre>
-</details>
-</dd>
 <dt id="msiempy.NitroList.text"><code class="name">var <span class="ident">text</span></code></dt>
 <dd>
 <section class="desc"><p>Defaut table string, a shorcut to <code>get_text()</code> with no arguments.</p></section>
@@ -4317,6 +4252,23 @@ def json(self):
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="msiempy.NitroList.keys"><code class="name flex">
+<span>def <span class="ident">keys</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Set of keys for all dict</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def keys(self):
+    &#34;&#34;&#34;Set of keys for all dict&#34;&#34;&#34;
+    #If new fields are added it won&#39;t show on text repr. Only json.
+    manager_keys=set()
+    for item in list(self): manager_keys.update(getattr(item, &#39;keys&#39;, set)())
+    return manager_keys</code></pre>
+</details>
+</dd>
 <dt id="msiempy.NitroList.get_text"><code class="name flex">
 <span>def <span class="ident">get_text</span></span>(<span>self, format='prettytable', fields=None, max_column_width=80, get_text_nest_attr={})</span>
 </code></dt>
@@ -4355,10 +4307,9 @@ csv: Returns data with header and comma separated values. </li>
     text=str()
     
     if not fields :
-        fields=sorted(self.keys)
+        fields=sorted(self.keys())
 
     try:
-        
         if format == &#39;csv&#39;:
             file = StringIO()
             dw = csv.DictWriter(file, fields, extrasaction=&#39;ignore&#39;)
@@ -5185,11 +5136,11 @@ It's used when the user/passwd is incorrect, or other specific ESM related error
 <li>
 <h4><code><a title="msiempy.NitroList" href="#msiempy.NitroList">NitroList</a></code></h4>
 <ul class="two-column">
+<li><code><a title="msiempy.NitroList.keys" href="#msiempy.NitroList.keys">keys</a></code></li>
 <li><code><a title="msiempy.NitroList.get_text" href="#msiempy.NitroList.get_text">get_text</a></code></li>
 <li><code><a title="msiempy.NitroList.search" href="#msiempy.NitroList.search">search</a></code></li>
 <li><code><a title="msiempy.NitroList.refresh" href="#msiempy.NitroList.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.NitroList.perform" href="#msiempy.NitroList.perform">perform</a></code></li>
-<li><code><a title="msiempy.NitroList.keys" href="#msiempy.NitroList.keys">keys</a></code></li>
 <li><code><a title="msiempy.NitroList.text" href="#msiempy.NitroList.text">text</a></code></li>
 <li><code><a title="msiempy.NitroList.json" href="#msiempy.NitroList.json">json</a></code></li>
 </ul>

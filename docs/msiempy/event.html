@@ -1159,8 +1159,12 @@ class Event(NitroDict):
                 filters=[(&#39;IPSIDAlertID&#39;,id)],
                 fields=extra_fields,
                 limit=2)
-                
-            e.load_data()
+            try:
+                e.load_data()
+            except NitroError:
+                log.error(&#34;Query failed, can&#39;t load event&#39;s data from id with 1 year timerange, looking at the last 15 days only...&#34;)
+                e.start_time=datetime.now()-timedelta(days=15)
+                e.load_data()
 
             if len(e) == 1 :
                 return e[0]
@@ -2940,8 +2944,12 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
                 filters=[(&#39;IPSIDAlertID&#39;,id)],
                 fields=extra_fields,
                 limit=2)
-                
-            e.load_data()
+            try:
+                e.load_data()
+            except NitroError:
+                log.error(&#34;Query failed, can&#39;t load event&#39;s data from id with 1 year timerange, looking at the last 15 days only...&#34;)
+                e.start_time=datetime.now()-timedelta(days=15)
+                e.load_data()
 
             if len(e) == 1 :
                 return e[0]
@@ -3106,8 +3114,12 @@ For exemple, the SIEM will return dicts with keys like
             filters=[(&#39;IPSIDAlertID&#39;,id)],
             fields=extra_fields,
             limit=2)
-            
-        e.load_data()
+        try:
+            e.load_data()
+        except NitroError:
+            log.error(&#34;Query failed, can&#39;t load event&#39;s data from id with 1 year timerange, looking at the last 15 days only...&#34;)
+            e.start_time=datetime.now()-timedelta(days=15)
+            e.load_data()
 
         if len(e) == 1 :
             return e[0]

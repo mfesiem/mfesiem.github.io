@@ -672,7 +672,7 @@ class NitroSession():
     def __str__(self):
         return repr(self.__unique_state__) 
 
-    def login(self):
+    def login(self, retry=1):
         &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.NitroSession.request` method, but you can still do it manually by calling this method.  
         Throws `msiempy.NitroError` if login fails
         &#34;&#34;&#34;
@@ -682,10 +682,14 @@ class NitroSession():
         resp = self.request(&#39;login&#39;, username=userb64, password=passb64, raw=True, secure=True)
         
         if resp != None :
-            if resp.status_code in [400, 401]:
-                raise NitroError(&#39;Invalid username or password for the ESM&#39;)
-            elif 402 &lt;= resp.status_code &lt;= 600:
-                raise NitroError(&#39;ESM Login Error:&#39;, resp.text)
+            try:
+                resp.raise_for_status()
+            except requests.HTTPError as e :
+                if retry&gt;0:
+                    time.sleep(0.2)
+                    return self.login(retry=retry-1)
+                else:
+                    raise NitroError(&#39;ESM Login Error: &#39;, resp.text) from e
        
             self._headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
             self._headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
@@ -694,17 +698,20 @@ class NitroSession():
             self.logged_in = True
             self.login_info=self.unpack_resp(resp)
 
+            # Shorthanding the API version check 
+            # 1 for pre 11.2.1, 2 for 11.2.1 and later
+            # Not be confused with the ESM API v1 and v2 which are different.
             if str(self.version).startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
                 self.api_v = 1
             else:
                 self.api_v = 2
 
-            log.info(&#39;Login into ESM {} with username {}. Last login {}&#39;.format(
+            log.info(&#39;Logged into ESM {} with username {}. Last login {}&#39;.format(
                 str(self.config.host),
                 self.login_info[&#39;userName&#39;],
                 self.login_info[&#39;lastLoginDate&#39;]))
 
-            return
+            return True
         else:
             raise NitroError(&#39;ESM Login Error: Response empty&#39;)
 
@@ -732,7 +739,7 @@ class NitroSession():
         - `http`: HTTP method.  
         - `data` : dict data to send  
         - `callback` : function to apply afterwards  
-        - `raw` : If true will return the Response object from requests module.   
+        - `raw` : If true will return the Response object from requests module. No retry when raw=True.     
         - `secure` : If true will not log the content of the request.   
         - `retry` : Number of time the request can be retried
 
@@ -831,7 +838,7 @@ class NitroSession():
                         error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
                             method, data, e, result.text))
                         log.error(error)
-                        raise error
+                        raise error from e
 
                 else: # The result is not an HTTP Error
                     response = result
@@ -859,8 +866,8 @@ class NitroSession():
             log.error(e)
             raise
         
-    def _request_http_error_handler(self, error, method, data, http, callback, raw, secure, retry):
-        pass
+    # def _request_http_error_handler(self, error, method, data, http, callback, raw, secure, retry):
+    #     pass
 
     def version(self):
         &#34;&#34;&#34;
@@ -950,11 +957,8 @@ class NitroSession():
                     log.warning(&#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;)
 
         if not self.logged_in and method != &#39;login&#39;:
+            # Autologin
             self.login()
-            # self.version = self.version()
-            # Shorthanding the version check 
-            # 1 for pre 11.2.1, 2 for 11.2.1 and later
-            # Not be confused with the ESM API v1 and v2 which are different.
             
     
         try :
@@ -2554,7 +2558,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
     def __str__(self):
         return repr(self.__unique_state__) 
 
-    def login(self):
+    def login(self, retry=1):
         &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.NitroSession.request` method, but you can still do it manually by calling this method.  
         Throws `msiempy.NitroError` if login fails
         &#34;&#34;&#34;
@@ -2564,10 +2568,14 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         resp = self.request(&#39;login&#39;, username=userb64, password=passb64, raw=True, secure=True)
         
         if resp != None :
-            if resp.status_code in [400, 401]:
-                raise NitroError(&#39;Invalid username or password for the ESM&#39;)
-            elif 402 &lt;= resp.status_code &lt;= 600:
-                raise NitroError(&#39;ESM Login Error:&#39;, resp.text)
+            try:
+                resp.raise_for_status()
+            except requests.HTTPError as e :
+                if retry&gt;0:
+                    time.sleep(0.2)
+                    return self.login(retry=retry-1)
+                else:
+                    raise NitroError(&#39;ESM Login Error: &#39;, resp.text) from e
        
             self._headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
             self._headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
@@ -2576,17 +2584,20 @@ Use <code>logout()</code> to reinstanciate NitroSession.
             self.logged_in = True
             self.login_info=self.unpack_resp(resp)
 
+            # Shorthanding the API version check 
+            # 1 for pre 11.2.1, 2 for 11.2.1 and later
+            # Not be confused with the ESM API v1 and v2 which are different.
             if str(self.version).startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
                 self.api_v = 1
             else:
                 self.api_v = 2
 
-            log.info(&#39;Login into ESM {} with username {}. Last login {}&#39;.format(
+            log.info(&#39;Logged into ESM {} with username {}. Last login {}&#39;.format(
                 str(self.config.host),
                 self.login_info[&#39;userName&#39;],
                 self.login_info[&#39;lastLoginDate&#39;]))
 
-            return
+            return True
         else:
             raise NitroError(&#39;ESM Login Error: Response empty&#39;)
 
@@ -2614,7 +2625,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         - `http`: HTTP method.  
         - `data` : dict data to send  
         - `callback` : function to apply afterwards  
-        - `raw` : If true will return the Response object from requests module.   
+        - `raw` : If true will return the Response object from requests module. No retry when raw=True.     
         - `secure` : If true will not log the content of the request.   
         - `retry` : Number of time the request can be retried
 
@@ -2713,7 +2724,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
                         error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
                             method, data, e, result.text))
                         log.error(error)
-                        raise error
+                        raise error from e
 
                 else: # The result is not an HTTP Error
                     response = result
@@ -2741,8 +2752,8 @@ Use <code>logout()</code> to reinstanciate NitroSession.
             log.error(e)
             raise
         
-    def _request_http_error_handler(self, error, method, data, http, callback, raw, secure, retry):
-        pass
+    # def _request_http_error_handler(self, error, method, data, http, callback, raw, secure, retry):
+    #     pass
 
     def version(self):
         &#34;&#34;&#34;
@@ -2832,11 +2843,8 @@ Use <code>logout()</code> to reinstanciate NitroSession.
                     log.warning(&#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;)
 
         if not self.logged_in and method != &#39;login&#39;:
+            # Autologin
             self.login()
-            # self.version = self.version()
-            # Shorthanding the version check 
-            # 1 for pre 11.2.1, 2 for 11.2.1 and later
-            # Not be confused with the ESM API v1 and v2 which are different.
             
     
         try :
@@ -3123,7 +3131,7 @@ def unpack_resp(response) :
 <h3>Methods</h3>
 <dl>
 <dt id="msiempy.NitroSession.login"><code class="name flex">
-<span>def <span class="ident">login</span></span>(<span>self)</span>
+<span>def <span class="ident">login</span></span>(<span>self, retry=1)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Authentication is done lazily upon the first call to <code><a title="msiempy.NitroSession.request" href="#msiempy.NitroSession.request">NitroSession.request()</a></code> method, but you can still do it manually by calling this method.<br>
@@ -3132,7 +3140,7 @@ Throws <code><a title="msiempy.NitroError" href="#msiempy.NitroError">NitroError
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def login(self):
+<pre><code class="python">def login(self, retry=1):
     &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.NitroSession.request` method, but you can still do it manually by calling this method.  
     Throws `msiempy.NitroError` if login fails
     &#34;&#34;&#34;
@@ -3142,10 +3150,14 @@ Throws <code><a title="msiempy.NitroError" href="#msiempy.NitroError">NitroError
     resp = self.request(&#39;login&#39;, username=userb64, password=passb64, raw=True, secure=True)
     
     if resp != None :
-        if resp.status_code in [400, 401]:
-            raise NitroError(&#39;Invalid username or password for the ESM&#39;)
-        elif 402 &lt;= resp.status_code &lt;= 600:
-            raise NitroError(&#39;ESM Login Error:&#39;, resp.text)
+        try:
+            resp.raise_for_status()
+        except requests.HTTPError as e :
+            if retry&gt;0:
+                time.sleep(0.2)
+                return self.login(retry=retry-1)
+            else:
+                raise NitroError(&#39;ESM Login Error: &#39;, resp.text) from e
    
         self._headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
         self._headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
@@ -3154,17 +3166,20 @@ Throws <code><a title="msiempy.NitroError" href="#msiempy.NitroError">NitroError
         self.logged_in = True
         self.login_info=self.unpack_resp(resp)
 
+        # Shorthanding the API version check 
+        # 1 for pre 11.2.1, 2 for 11.2.1 and later
+        # Not be confused with the ESM API v1 and v2 which are different.
         if str(self.version).startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
             self.api_v = 1
         else:
             self.api_v = 2
 
-        log.info(&#39;Login into ESM {} with username {}. Last login {}&#39;.format(
+        log.info(&#39;Logged into ESM {} with username {}. Last login {}&#39;.format(
             str(self.config.host),
             self.login_info[&#39;userName&#39;],
             self.login_info[&#39;lastLoginDate&#39;]))
 
-        return
+        return True
     else:
         raise NitroError(&#39;ESM Login Error: Response empty&#39;)</code></pre>
 </details>
@@ -3210,7 +3225,7 @@ In any way, the ESM response is unpacked by <code><a title="msiempy.NitroSession
 </li>
 <li><code>callback</code> : function to apply afterwards
 </li>
-<li><code>raw</code> : If true will return the Response object from requests module.
+<li><code>raw</code> : If true will return the Response object from requests module. No retry when raw=True.
 </li>
 <li><code>secure</code> : If true will not log the content of the request.
 </li>
@@ -3246,7 +3261,7 @@ In any way, the ESM response is unpacked by <code><a title="msiempy.NitroSession
     - `http`: HTTP method.  
     - `data` : dict data to send  
     - `callback` : function to apply afterwards  
-    - `raw` : If true will return the Response object from requests module.   
+    - `raw` : If true will return the Response object from requests module. No retry when raw=True.     
     - `secure` : If true will not log the content of the request.   
     - `retry` : Number of time the request can be retried
 
@@ -3345,7 +3360,7 @@ In any way, the ESM response is unpacked by <code><a title="msiempy.NitroSession
                     error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
                         method, data, e, result.text))
                     log.error(error)
-                    raise error
+                    raise error from e
 
             else: # The result is not an HTTP Error
                 response = result
@@ -3543,11 +3558,8 @@ Wrapper around the <code><a title="msiempy.NitroSession.esm_request" href="#msie
                 log.warning(&#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;)
 
     if not self.logged_in and method != &#39;login&#39;:
+        # Autologin
         self.login()
-        # self.version = self.version()
-        # Shorthanding the version check 
-        # 1 for pre 11.2.1, 2 for 11.2.1 and later
-        # Not be confused with the ESM API v1 and v2 which are different.
         
 
     try :

@@ -1181,7 +1181,8 @@ class NitroDict(collections.UserDict, NitroObject):
 class NitroList(collections.UserList, NitroObject):
     &#34;&#34;&#34;
     Base class for NitroList objects. It offers callable execution management, search and other data list actions.  
-    TODO better polymorphism to cast every sub-NitroList class&#39;s item dynamcally in `__init__` method.  
+    
+    Concrete classes have to cast the items after !   
 
     This classe and subclasses fully implements `list` interface and is suitable for list operations, see: https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range
     
@@ -1189,14 +1190,12 @@ class NitroList(collections.UserList, NitroObject):
     If a derived class does not wish to comply with this requirement, all of the special methods supported by this class will need to be overridden; please consult the sources for information about the methods which need to be provided in that case.
     See: https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects  
 
-    Concrete classes have to cast the items afterwards!
-    #TODO better polymorphism to cast every sub-NitroList class&#39;s item dynamcally !
-
     Arguments:  
 
     - `alist`: list object to wrap.
     &#34;&#34;&#34;
 
+    # TODO better polymorphism to cast every sub-NitroList class&#39;s item dynamcally in `__init__` method.  
     def __init__(self, alist=None):
         NitroObject.__init__(self)
         if alist : collections.UserList.__init__(self, alist)
@@ -1206,18 +1205,6 @@ class NitroList(collections.UserList, NitroObject):
         &#34;&#34;&#34;str(obj) -&gt; return text string.
         &#34;&#34;&#34;
         return &#34;{} containing {} elements ; keys={}&#34;.format(str(super()), len(list(self)), self.keys())
-
-    # def _norm_dicts(self):
-    #     &#34;&#34;&#34;
-    #     Internal method.
-    #     All dict should have the same set of keys.
-    #     Creating keys in dicts.
-    #     &#34;&#34;&#34;
-    #     for item in list(self) :
-    #         if isinstance(item, (dict, NitroDict)):
-    #             for key in self.keys :
-    #                 if key not in item :
-    #                     item[key]=None
 
     def keys(self):
         &#34;&#34;&#34;Set of keys for all dict&#34;&#34;&#34;
@@ -1246,46 +1233,40 @@ class NitroList(collections.UserList, NitroObject):
         if not fields :
             fields=sorted(self.keys())
 
-        try:
-            if format == &#39;csv&#39;:
-                file = StringIO()
-                dw = csv.DictWriter(file, fields, extrasaction=&#39;ignore&#39;)
-                dw.writeheader()
-                dw.writerows(list(self))
-                text = file.getvalue()
+        if format == &#39;csv&#39;:
+            file = StringIO()
+            dw = csv.DictWriter(file, fields, extrasaction=&#39;ignore&#39;)
+            dw.writeheader()
+            dw.writerows(list(self))
+            text = file.getvalue()
 
-            elif format == &#39;prettytable&#39;:
-                table = prettytable.PrettyTable()
-                table.set_style(MSWORD_FRIENDLY)
+        elif format == &#39;prettytable&#39;:
+            table = prettytable.PrettyTable()
+            table.set_style(MSWORD_FRIENDLY)
 
-                #table_csv = [item for item in csv.DictReader(StringIO(initial_value=text), delimiter=&#39;,&#39;)]
+            table.field_names=fields
 
-                table.field_names=fields
+            for item in list(self):
+                if isinstance(item, (dict, NitroDict)):
+                    values=list()
+                    for field in fields:
+                        obj=None
+                        try:obj=item[field]
+                        except KeyError : pass
 
-                for item in list(self):
-                    if isinstance(item, (dict, NitroDict)):
-                        values=list()
-                        for field in fields:
-                            obj=None
-                            try:obj=item[field]
-                            except KeyError : pass
+                        if isinstance(obj, NitroList):
+                            values.append(obj.get_text(**get_text_nest_attr))
+                        else:
+                            values.append(&#39;\n&#39;.join(textwrap.wrap(str(obj), width=max_column_width)))
 
-                            if isinstance(obj, NitroList):
-                                values.append(obj.get_text(**get_text_nest_attr))
-                            else:
-                                values.append(&#39;\n&#39;.join(textwrap.wrap(str(obj), width=max_column_width)))
+                    table.add_row(values)
+                    
+                else : log.warning(&#34;Unnapropriate list element type, won&#39;t show on the prettytable : {}&#34;.format(str(item)))
 
-                        table.add_row(values)
-                        
-                    else : log.warning(&#34;Unnapropriate list element type, won&#39;t show on the prettytable : {}&#34;.format(str(item)))
-
-                text=table.get_string()
-            
-            else :
-                raise AttributeError(&#34;Unknown `NitroList.get_text` format : {}. Accepted values are &#39;prettytable&#39; or &#39;csv&#39;.&#34;.format(format))
+            text=table.get_string()
         
-        except KeyError :
-            raise
+        else :
+            raise AttributeError(&#34;Unknown `NitroList.get_text` format : {}. Accepted values are &#39;prettytable&#39; or &#39;csv&#39;.&#34;.format(format))
 
         return text
 
@@ -3887,16 +3868,15 @@ def data_from_id(self, id):
 <span>(</span><span>alist=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for NitroList objects. It offers callable execution management, search and other data list actions.<br>
-TODO better polymorphism to cast every sub-NitroList class's item dynamcally in <code>__init__</code> method.
+<div class="desc"><p>Base class for NitroList objects. It offers callable execution management, search and other data list actions.
+</p>
+<p>Concrete classes have to cast the items after !
 </p>
 <p>This classe and subclasses fully implements <code>list</code> interface and is suitable for list operations, see: <a href="https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range">https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range</a></p>
 <p>Subclassing requirements: Subclasses of UserList are expected to offer a constructor which can be called with either no arguments or one argument. List operations which return a new sequence attempt to create an instance of the actual implementation class. To do so, it assumes that the constructor can be called with a single parameter, which is a sequence object used as a data source.
 If a derived class does not wish to comply with this requirement, all of the special methods supported by this class will need to be overridden; please consult the sources for information about the methods which need to be provided in that case.
 See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects">https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects</a>
 </p>
-<p>Concrete classes have to cast the items afterwards!</p>
-<h1 id="todo-better-polymorphism-to-cast-every-sub-nitrolist-classs-item-dynamcally">TODO better polymorphism to cast every sub-NitroList class's item dynamcally !</h1>
 <p>Arguments:
 </p>
 <ul>
@@ -3909,7 +3889,8 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
 <pre><code class="python">class NitroList(collections.UserList, NitroObject):
     &#34;&#34;&#34;
     Base class for NitroList objects. It offers callable execution management, search and other data list actions.  
-    TODO better polymorphism to cast every sub-NitroList class&#39;s item dynamcally in `__init__` method.  
+    
+    Concrete classes have to cast the items after !   
 
     This classe and subclasses fully implements `list` interface and is suitable for list operations, see: https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range
     
@@ -3917,14 +3898,12 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
     If a derived class does not wish to comply with this requirement, all of the special methods supported by this class will need to be overridden; please consult the sources for information about the methods which need to be provided in that case.
     See: https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects  
 
-    Concrete classes have to cast the items afterwards!
-    #TODO better polymorphism to cast every sub-NitroList class&#39;s item dynamcally !
-
     Arguments:  
 
     - `alist`: list object to wrap.
     &#34;&#34;&#34;
 
+    # TODO better polymorphism to cast every sub-NitroList class&#39;s item dynamcally in `__init__` method.  
     def __init__(self, alist=None):
         NitroObject.__init__(self)
         if alist : collections.UserList.__init__(self, alist)
@@ -3934,18 +3913,6 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
         &#34;&#34;&#34;str(obj) -&gt; return text string.
         &#34;&#34;&#34;
         return &#34;{} containing {} elements ; keys={}&#34;.format(str(super()), len(list(self)), self.keys())
-
-    # def _norm_dicts(self):
-    #     &#34;&#34;&#34;
-    #     Internal method.
-    #     All dict should have the same set of keys.
-    #     Creating keys in dicts.
-    #     &#34;&#34;&#34;
-    #     for item in list(self) :
-    #         if isinstance(item, (dict, NitroDict)):
-    #             for key in self.keys :
-    #                 if key not in item :
-    #                     item[key]=None
 
     def keys(self):
         &#34;&#34;&#34;Set of keys for all dict&#34;&#34;&#34;
@@ -3974,46 +3941,40 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
         if not fields :
             fields=sorted(self.keys())
 
-        try:
-            if format == &#39;csv&#39;:
-                file = StringIO()
-                dw = csv.DictWriter(file, fields, extrasaction=&#39;ignore&#39;)
-                dw.writeheader()
-                dw.writerows(list(self))
-                text = file.getvalue()
+        if format == &#39;csv&#39;:
+            file = StringIO()
+            dw = csv.DictWriter(file, fields, extrasaction=&#39;ignore&#39;)
+            dw.writeheader()
+            dw.writerows(list(self))
+            text = file.getvalue()
 
-            elif format == &#39;prettytable&#39;:
-                table = prettytable.PrettyTable()
-                table.set_style(MSWORD_FRIENDLY)
+        elif format == &#39;prettytable&#39;:
+            table = prettytable.PrettyTable()
+            table.set_style(MSWORD_FRIENDLY)
 
-                #table_csv = [item for item in csv.DictReader(StringIO(initial_value=text), delimiter=&#39;,&#39;)]
+            table.field_names=fields
 
-                table.field_names=fields
+            for item in list(self):
+                if isinstance(item, (dict, NitroDict)):
+                    values=list()
+                    for field in fields:
+                        obj=None
+                        try:obj=item[field]
+                        except KeyError : pass
 
-                for item in list(self):
-                    if isinstance(item, (dict, NitroDict)):
-                        values=list()
-                        for field in fields:
-                            obj=None
-                            try:obj=item[field]
-                            except KeyError : pass
+                        if isinstance(obj, NitroList):
+                            values.append(obj.get_text(**get_text_nest_attr))
+                        else:
+                            values.append(&#39;\n&#39;.join(textwrap.wrap(str(obj), width=max_column_width)))
 
-                            if isinstance(obj, NitroList):
-                                values.append(obj.get_text(**get_text_nest_attr))
-                            else:
-                                values.append(&#39;\n&#39;.join(textwrap.wrap(str(obj), width=max_column_width)))
+                    table.add_row(values)
+                    
+                else : log.warning(&#34;Unnapropriate list element type, won&#39;t show on the prettytable : {}&#34;.format(str(item)))
 
-                        table.add_row(values)
-                        
-                    else : log.warning(&#34;Unnapropriate list element type, won&#39;t show on the prettytable : {}&#34;.format(str(item)))
-
-                text=table.get_string()
-            
-            else :
-                raise AttributeError(&#34;Unknown `NitroList.get_text` format : {}. Accepted values are &#39;prettytable&#39; or &#39;csv&#39;.&#34;.format(format))
+            text=table.get_string()
         
-        except KeyError :
-            raise
+        else :
+            raise AttributeError(&#34;Unknown `NitroList.get_text` format : {}. Accepted values are &#39;prettytable&#39; or &#39;csv&#39;.&#34;.format(format))
 
         return text
 
@@ -4302,46 +4263,40 @@ csv: Returns data with header and comma separated values. </li>
     if not fields :
         fields=sorted(self.keys())
 
-    try:
-        if format == &#39;csv&#39;:
-            file = StringIO()
-            dw = csv.DictWriter(file, fields, extrasaction=&#39;ignore&#39;)
-            dw.writeheader()
-            dw.writerows(list(self))
-            text = file.getvalue()
+    if format == &#39;csv&#39;:
+        file = StringIO()
+        dw = csv.DictWriter(file, fields, extrasaction=&#39;ignore&#39;)
+        dw.writeheader()
+        dw.writerows(list(self))
+        text = file.getvalue()
 
-        elif format == &#39;prettytable&#39;:
-            table = prettytable.PrettyTable()
-            table.set_style(MSWORD_FRIENDLY)
+    elif format == &#39;prettytable&#39;:
+        table = prettytable.PrettyTable()
+        table.set_style(MSWORD_FRIENDLY)
 
-            #table_csv = [item for item in csv.DictReader(StringIO(initial_value=text), delimiter=&#39;,&#39;)]
+        table.field_names=fields
 
-            table.field_names=fields
+        for item in list(self):
+            if isinstance(item, (dict, NitroDict)):
+                values=list()
+                for field in fields:
+                    obj=None
+                    try:obj=item[field]
+                    except KeyError : pass
 
-            for item in list(self):
-                if isinstance(item, (dict, NitroDict)):
-                    values=list()
-                    for field in fields:
-                        obj=None
-                        try:obj=item[field]
-                        except KeyError : pass
+                    if isinstance(obj, NitroList):
+                        values.append(obj.get_text(**get_text_nest_attr))
+                    else:
+                        values.append(&#39;\n&#39;.join(textwrap.wrap(str(obj), width=max_column_width)))
 
-                        if isinstance(obj, NitroList):
-                            values.append(obj.get_text(**get_text_nest_attr))
-                        else:
-                            values.append(&#39;\n&#39;.join(textwrap.wrap(str(obj), width=max_column_width)))
+                table.add_row(values)
+                
+            else : log.warning(&#34;Unnapropriate list element type, won&#39;t show on the prettytable : {}&#34;.format(str(item)))
 
-                    table.add_row(values)
-                    
-                else : log.warning(&#34;Unnapropriate list element type, won&#39;t show on the prettytable : {}&#34;.format(str(item)))
-
-            text=table.get_string()
-        
-        else :
-            raise AttributeError(&#34;Unknown `NitroList.get_text` format : {}. Accepted values are &#39;prettytable&#39; or &#39;csv&#39;.&#34;.format(format))
+        text=table.get_string()
     
-    except KeyError :
-        raise
+    else :
+        raise AttributeError(&#34;Unknown `NitroList.get_text` format : {}. Accepted values are &#39;prettytable&#39; or &#39;csv&#39;.&#34;.format(format))
 
     return text</code></pre>
 </details>

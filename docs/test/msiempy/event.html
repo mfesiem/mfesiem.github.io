@@ -133,10 +133,11 @@ class EventManager(FilteredQueryList):
         else:
             self._order_direction = &#39;DESCENDING&#39;
             self._order_field = &#39;LastTime&#39;
+
     @property
     def filters(self):
         &#34;&#34;&#34;
-        JSON SIEM formatted filters for the query by calling reccursively : `msiempy.event._QueryFilter.config_dict`.
+        Returns SIEM formatted filters for the query by calling reccursively : `msiempy.event._QueryFilter.config_dict`.
         See `msiempy.FilteredQueryList.filters`.
         &#34;&#34;&#34;
         return([dict(f) for f in self._filters])
@@ -1196,7 +1197,7 @@ class GroupFilter(_QueryFilter):
 
         Arguments :  
 
-        - `filters` : a list of filters, it can be `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter`  
+        - `filters` : a list of filters. Filters can be `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter`    
         - `logic` : &#39;AND&#39; or &#39;OR&#39;  
     &#34;&#34;&#34;
 
@@ -1536,10 +1537,11 @@ Some default fields will be present. </li>
         else:
             self._order_direction = &#39;DESCENDING&#39;
             self._order_field = &#39;LastTime&#39;
+
     @property
     def filters(self):
         &#34;&#34;&#34;
-        JSON SIEM formatted filters for the query by calling reccursively : `msiempy.event._QueryFilter.config_dict`.
+        Returns SIEM formatted filters for the query by calling reccursively : `msiempy.event._QueryFilter.config_dict`.
         See `msiempy.FilteredQueryList.filters`.
         &#34;&#34;&#34;
         return([dict(f) for f in self._filters])
@@ -1855,7 +1857,7 @@ def order(self):
 </dd>
 <dt id="msiempy.event.EventManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
-<div class="desc"><p>JSON SIEM formatted filters for the query by calling reccursively : <code>msiempy.event._QueryFilter.config_dict</code>.
+<div class="desc"><p>Returns SIEM formatted filters for the query by calling reccursively : <code>msiempy.event._QueryFilter.config_dict</code>.
 See <code><a title="msiempy.FilteredQueryList.filters" href="index.html#msiempy.FilteredQueryList.filters">FilteredQueryList.filters</a></code>.</p></div>
 <details class="source">
 <summary>
@@ -1864,7 +1866,7 @@ See <code><a title="msiempy.FilteredQueryList.filters" href="index.html#msiempy.
 <pre><code class="python">@property
 def filters(self):
     &#34;&#34;&#34;
-    JSON SIEM formatted filters for the query by calling reccursively : `msiempy.event._QueryFilter.config_dict`.
+    Returns SIEM formatted filters for the query by calling reccursively : `msiempy.event._QueryFilter.config_dict`.
     See `msiempy.FilteredQueryList.filters`.
     &#34;&#34;&#34;
     return([dict(f) for f in self._filters])</code></pre>
@@ -3211,7 +3213,7 @@ Used to dump groups of filters in the right format.</p>
 <p>Arguments :
 </p>
 <ul>
-<li><code>filters</code> : a list of filters, it can be <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code>
+<li><code>filters</code> : a list of filters. Filters can be <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code>
 </li>
 <li><code>logic</code> : 'AND' or 'OR'</li>
 </ul></div>
@@ -3226,7 +3228,7 @@ Used to dump groups of filters in the right format.</p>
 
         Arguments :  
 
-        - `filters` : a list of filters, it can be `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter`  
+        - `filters` : a list of filters. Filters can be `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter`    
         - `logic` : &#39;AND&#39; or &#39;OR&#39;  
     &#34;&#34;&#34;
 

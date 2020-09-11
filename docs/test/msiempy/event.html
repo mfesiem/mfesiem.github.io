@@ -3,15 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.1" />
+<meta name="generator" content="pdoc 0.8.4" />
 <title>msiempy.event API documentation</title>
 <meta name="description" content="Provide event management." />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 </head>
 <body>
 <main>
@@ -51,7 +53,7 @@ class EventManager(FilteredQueryList):
         Some default fields will be present. 
     - `order` : `tuple ((direction, field))`. Direction can be &#39;ASCENDING&#39; or &#39;DESCENDING&#39;.
     - `limit` : max number of rows per query.
-    - `filters` : list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.event._QueryFilter` if you wish to use advanced filtering.
+    - `filters` : list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` if you wish to use advanced filtering.
     - `time_range` : Query time range. String representation of a time range.  
     - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
@@ -68,10 +70,6 @@ class EventManager(FilteredQueryList):
             &#39;DESCENDING&#39;
     ]
     &#34;&#34;&#34;`ASCENDING` or `DESCENDING`&#34;&#34;&#34;
-
-    # Declaring static value containing all the possibles
-    # event fields, should be loaded once (when the session start ?)
-    _possible_fields = []
 
     def __init__(self, *args, fields=None, 
         order=None, limit=500, filters=None, 
@@ -102,8 +100,9 @@ class EventManager(FilteredQueryList):
         #   and compare efficiency
         self.limit=int(limit)
         
+        # Save order
         self.order=order
-
+            
         #TODO : find a solution not to use this
         #callign super().filters=filters #https://bugs.python.org/issue14965
         super(self.__class__, self.__class__).filters.__set__(self, filters)
@@ -145,23 +144,28 @@ class EventManager(FilteredQueryList):
     def add_filter(self, afilter):
         &#34;&#34;&#34;
         Concrete description of the `msiempy.FilteredQueryList` method.
-        It can take a `tuple(fiels, [values])` or a `msiempy.event._QueryFilter` subclass.
+        It can take a `tuple(fiels, [values])`,  `msiempy.event.GroupFilter` or `msiempy.event.FieldFilter` or a `dict`.  
         &#34;&#34;&#34;
         if isinstance(afilter, tuple) :
             self._filters.append(FieldFilter(afilter[0], afilter[1]))
 
-        elif isinstance(afilter, _QueryFilter) :
+        elif isinstance(afilter, (GroupFilter, FieldFilter, dict)) :
             self._filters.append(afilter)
-        
+
         else :
-            raise NitroError(&#34;Sorry the filters must be either a tuple(fiels, [values]) or a _QueryFilter sub class.&#34;)
+            raise NitroError(&#34;Sorry the filters must be either a tuple(fiels, [values]) a GroupFilter, a FieldFilter or a dict, not a {}: {}&#34;.format(type(afilter), afilter))
 
     def clear_filters(self):
         &#34;&#34;&#34;
-        Replace all filters by a non filtering rule.
-        Acts like the is not filters.
+        Replace all filters by a non filtering rule.  
+        Acts like there is not filters.  
         &#34;&#34;&#34; 
-        self._filters=[FieldFilter(&#39;SrcIP&#39;, [&#39;0.0.0.0/0&#39;,])]
+        self._filters=[{
+            &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+            &#34;field&#34;: {&#34;name&#34;: &#39;SrcIP&#39;},
+            &#34;operator&#34;: &#39;IN&#39;,
+            &#34;values&#34;: [{&#39;type&#39;:&#39;EsmBasicValue&#39;, &#39;value&#39;:&#39;0.0.0.0/0&#39;}]
+            }]
 
     def get_possible_fields(self):
         &#34;&#34;&#34;
@@ -226,14 +230,15 @@ class EventManager(FilteredQueryList):
             events_raw=self._get_events(query_infos[&#39;resultID&#39;])
 
         except (NitroError, TimeoutError) as error :
-            if (retry &gt;0 and ( any(match in str(error) for match in [
-                    &#39;ResultUnavailable&#39;,
-                    &#39;ERROR_JEC_ResponseNotAvailable&#39;,
-                    &#39;UnknownList&#39;,
-                    &#39;JobEngine_GetQueryResults_QueryNotFound_Unrecoverable&#39;]) 
-                or isinstance(error, TimeoutError)) ):
-                
-                log.warning(&#39;Retring after: &#39;+str(error))
+            # if (retry &gt;0 and ( any(match in str(error) for match in [
+            #         &#39;ResultUnavailable&#39;,
+            #         &#39;ERROR_JEC_ResponseNotAvailable&#39;,
+            #         &#39;UnknownList&#39;,
+            #         &#39;JobEngine_GetQueryResults_QueryNotFound_Unrecoverable&#39;]) 
+            #     or isinstance(error, TimeoutError)) ):
+            if retry &gt; 0:
+                log.warning(&#39;Retring qry_load_data() after error: &#39;+str(error))
+                time.sleep(0.2)
                 return self.qry_load_data(retry=retry-1)
             else: raise
 
@@ -257,7 +262,7 @@ class EventManager(FilteredQueryList):
             with dateutil.  
         - `max_query_depth` : maximum number of supplement reccursions of division of the query times
         Meaning, if EventManager query limit=500, slots=5 and max_query_depth=3, then the maximum capacity of 
-        the list is (500*5)*(500*5)*(500*5) = 15625000000
+        the list is (500*5)*(500*5)*(500*5) = 15625000000.  Only works for certain time ranges.  
         - `retry` (`int`): number of time the query can be failed and retried
         - `wait_timeout_sec` (`int`): wait timeout in seconds
 
@@ -1156,8 +1161,12 @@ class Event(NitroDict):
                 filters=[(&#39;IPSIDAlertID&#39;,id)],
                 fields=extra_fields,
                 limit=2)
-                
-            e.load_data()
+            try:
+                e.load_data()
+            except NitroError:
+                log.error(&#34;Query failed, can&#39;t load event&#39;s data from id with 1 year timerange, looking at the last 45 days only...&#34;)
+                e.start_time=datetime.now()-timedelta(days=45)
+                e.load_data()
 
             if len(e) == 1 :
                 return e[0]
@@ -1176,7 +1185,7 @@ class Event(NitroDict):
             id = &#39;|&#39;.join([str(self.data[&#39;ipsId&#39;][&#39;id&#39;]), str(self.data[&#39;alertId&#39;])])
             self.data.update(self.data_from_id(id))
    
-class _QueryFilter(collections.UserDict):
+class _QueryFilter(collections.UserDict): 
     &#34;&#34;&#34;Base class for all SIEM query objects in order to dump the filter as dict.
     &#34;&#34;&#34;
 
@@ -1203,8 +1212,24 @@ class GroupFilter(_QueryFilter):
         
 class FieldFilter(_QueryFilter):
     &#34;&#34;&#34;
-    Based on EsmFieldFilter. See SIEM api doc.
-    Used to dump a filter in the right format.
+    Based on EsmFieldFilter SIEM api doc.  
+
+    This class is automatically used when instanciating `EventManager` objects to dump filters in the right `dict` format if tuples are gave as the `filters` argument like:  
+
+    ```
+    e = EventManager(time_range=&#39;LAST_MINUTE&#39;, filters=[ (&#39;SrcIP&#39;, [&#39;10.5.0..0/16&#39;]) ])
+    ```
+
+    Default operator is `&#34;IN&#34;`.  
+    
+    To change the operator, create a `FieldFilter`:  
+    Exemple to filter by Signature ID.  
+
+    ```
+    e = EventManager(time_range=&#39;LAST_24_HOURS&#39;, filters=[ FieldFilter(&#39;DSIDSigID&#39;, [&#34;49190-4294967295&#34;], operator=&#39;EQUALS&#39;) ])
+    ```
+
+    *Make sure the filter name is valid by checking the result of `msiempy.event.EventManager.get_possible_filters` or use the provided script in the sample folder*
 
     Arguments:
 
@@ -1225,14 +1250,25 @@ class FieldFilter(_QueryFilter):
         `REGEX`.  
     &#34;&#34;&#34;
 
+    # Declaring static value containing all the possibles
+    # event fields usable in filters should be loaded once, when instanciating a FieldFilter
+    __documented_filters = []
+
     def __init__(self, name, values, operator=&#39;IN&#39;) :
         super().__init__()
+
+        #If the __documented_filters property hasn&#39;t been set yet, set it
+        # Manually app special case of &#34;IPSIDAlertID&#34;
+        if len(FieldFilter.__documented_filters)==0:
+            FieldFilter.__documented_filters = [&#34;IPSIDAlertID&#34;] + [ item.get(&#39;name&#39;) for item in EventManager().get_possible_filters() ]
+
         #Declaring attributes
         self._operator=str()
         self._values=list()
-        self.name = name
+        
         self.operator = operator
         self.values = values
+        self.name = name
 
         self.data={
             &#34;type&#34;: &#34;EsmFieldFilter&#34;,
@@ -1240,7 +1276,10 @@ class FieldFilter(_QueryFilter):
             &#34;operator&#34;: self.operator,
             &#34;values&#34;: self.values
             }
-
+        
+        # check the name against the list of possible filters and log warning if not present.  
+        if name not in FieldFilter.__documented_filters :
+            log.warning(&#34;Unknown value for the filter name: &#39;{name}&#39;. Unexpected behaviours can happen with filter: {filter}&#34;.format(name=name, filter=self.data))
     
     POSSIBLE_OPERATORS=[&#39;IN&#39;,
         &#39;NOT_IN&#39;,
@@ -1265,7 +1304,7 @@ class FieldFilter(_QueryFilter):
     &#34;&#34;&#34;
     List of possible value type. See `msiempy.event.FieldFilter.add_value`.
     &#34;&#34;&#34;
-   
+
     @property
     def operator(self):
         &#34;&#34;&#34;Field operator.  
@@ -1275,26 +1314,23 @@ class FieldFilter(_QueryFilter):
     
     @operator.setter
     def operator(self, operator):
-        try:
-            if operator in self.POSSIBLE_OPERATORS :
-                self._operator = operator
-            else:
-                raise AttributeError(&#34;Illegal value for the filter operator &#34;+operator+&#34;. The operator must be in &#34;+str(self.POSSIBLE_OPERATORS))
-        except:
-            raise
+        if operator in self.POSSIBLE_OPERATORS :
+            self._operator = operator
+        else:
+            raise AttributeError(&#34;Illegal value for the filter operator: &#34;+str(operator)+&#34;. The operator must be in &#34;+str(self.POSSIBLE_OPERATORS))
 
     @property
     def values(self):
         &#34;&#34;&#34;List of values of the filter.  
         Setter iterate trough the list and call : 
 
-        - `msiempy.FilteredQueryList.add_value()` if value is a `dict`
-        - `msiempy.FilteredQueryList.add_basic_value()` if value type is `int`, `float` or `str`.
+        - `msiempy.event.FieldFilter.add_value()` if value is a `dict`
+        - `msiempy.event.FieldFilter.add_basic_value()` if value type is `int`, `float` or `str`.
 
         Values will always be added to the filter. To remove values, handle directly the `_values` property.
 
         Example :  
-            `filter = FieldFilter(name=&#39;DstIP&#39;,values=[&#39;10.1.13.0/24&#39;, {&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}], operator=&#39;IN&#39;)`
+            `filter = FieldFilter(name=&#39;DstIP&#39;,values=[{&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}], operator=&#39;IN&#39;)`
         &#34;&#34;&#34;
         return (self._values)
 
@@ -1388,23 +1424,23 @@ class FieldFilter(_QueryFilter):
 <span>(</span><span>*args, fields=None, order=None, limit=500, filters=None, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Interface to query and manage events.<br>
-Inherits from <a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a>.</p>
+<div class="desc"><p>Interface to query and manage events.<br>
+Inherits from <code><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></code>.</p>
 <p>Arguments:
 </p>
 <ul>
 <li><code>fields</code> : list of strings representing all fields you want to apprear in the Events records.
-Get the list of possible fields by calling <a title="msiempy.event.EventManager.get_possible_fields" href="#msiempy.event.EventManager.get_possible_fields"><code>EventManager.get_possible_fields()</code></a> method or see <a title="msiempy.event.Event" href="#msiempy.event.Event"><code>Event</code></a>.
+Get the list of possible fields by calling <code><a title="msiempy.event.EventManager.get_possible_fields" href="#msiempy.event.EventManager.get_possible_fields">EventManager.get_possible_fields()</a></code> method or see <code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.
 Some default fields will be present. </li>
 <li><code>order</code> : <code>tuple ((direction, field))</code>. Direction can be 'ASCENDING' or 'DESCENDING'.</li>
 <li><code>limit</code> : max number of rows per query.</li>
-<li><code>filters</code> : list of filters. A filter can be a <code>tuple(field, [values])</code> or it can be a <code>msiempy.event._QueryFilter</code> if you wish to use advanced filtering.</li>
+<li><code>filters</code> : list of filters. A filter can be a <code>tuple(field, [values])</code> or it can be a <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> if you wish to use advanced filtering.</li>
 <li><code>time_range</code> : Query time range. String representation of a time range.
 </li>
 <li><code>start_time</code> : Query starting time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
 </li>
 <li><code>end_time</code> : Query endding time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.</li>
-</ul></section>
+</ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1420,7 +1456,7 @@ Some default fields will be present. </li>
         Some default fields will be present. 
     - `order` : `tuple ((direction, field))`. Direction can be &#39;ASCENDING&#39; or &#39;DESCENDING&#39;.
     - `limit` : max number of rows per query.
-    - `filters` : list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.event._QueryFilter` if you wish to use advanced filtering.
+    - `filters` : list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` if you wish to use advanced filtering.
     - `time_range` : Query time range. String representation of a time range.  
     - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
@@ -1437,10 +1473,6 @@ Some default fields will be present. </li>
             &#39;DESCENDING&#39;
     ]
     &#34;&#34;&#34;`ASCENDING` or `DESCENDING`&#34;&#34;&#34;
-
-    # Declaring static value containing all the possibles
-    # event fields, should be loaded once (when the session start ?)
-    _possible_fields = []
 
     def __init__(self, *args, fields=None, 
         order=None, limit=500, filters=None, 
@@ -1471,8 +1503,9 @@ Some default fields will be present. </li>
         #   and compare efficiency
         self.limit=int(limit)
         
+        # Save order
         self.order=order
-
+            
         #TODO : find a solution not to use this
         #callign super().filters=filters #https://bugs.python.org/issue14965
         super(self.__class__, self.__class__).filters.__set__(self, filters)
@@ -1514,23 +1547,28 @@ Some default fields will be present. </li>
     def add_filter(self, afilter):
         &#34;&#34;&#34;
         Concrete description of the `msiempy.FilteredQueryList` method.
-        It can take a `tuple(fiels, [values])` or a `msiempy.event._QueryFilter` subclass.
+        It can take a `tuple(fiels, [values])`,  `msiempy.event.GroupFilter` or `msiempy.event.FieldFilter` or a `dict`.  
         &#34;&#34;&#34;
         if isinstance(afilter, tuple) :
             self._filters.append(FieldFilter(afilter[0], afilter[1]))
 
-        elif isinstance(afilter, _QueryFilter) :
+        elif isinstance(afilter, (GroupFilter, FieldFilter, dict)) :
             self._filters.append(afilter)
-        
+
         else :
-            raise NitroError(&#34;Sorry the filters must be either a tuple(fiels, [values]) or a _QueryFilter sub class.&#34;)
+            raise NitroError(&#34;Sorry the filters must be either a tuple(fiels, [values]) a GroupFilter, a FieldFilter or a dict, not a {}: {}&#34;.format(type(afilter), afilter))
 
     def clear_filters(self):
         &#34;&#34;&#34;
-        Replace all filters by a non filtering rule.
-        Acts like the is not filters.
+        Replace all filters by a non filtering rule.  
+        Acts like there is not filters.  
         &#34;&#34;&#34; 
-        self._filters=[FieldFilter(&#39;SrcIP&#39;, [&#39;0.0.0.0/0&#39;,])]
+        self._filters=[{
+            &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+            &#34;field&#34;: {&#34;name&#34;: &#39;SrcIP&#39;},
+            &#34;operator&#34;: &#39;IN&#39;,
+            &#34;values&#34;: [{&#39;type&#39;:&#39;EsmBasicValue&#39;, &#39;value&#39;:&#39;0.0.0.0/0&#39;}]
+            }]
 
     def get_possible_fields(self):
         &#34;&#34;&#34;
@@ -1595,14 +1633,15 @@ Some default fields will be present. </li>
             events_raw=self._get_events(query_infos[&#39;resultID&#39;])
 
         except (NitroError, TimeoutError) as error :
-            if (retry &gt;0 and ( any(match in str(error) for match in [
-                    &#39;ResultUnavailable&#39;,
-                    &#39;ERROR_JEC_ResponseNotAvailable&#39;,
-                    &#39;UnknownList&#39;,
-                    &#39;JobEngine_GetQueryResults_QueryNotFound_Unrecoverable&#39;]) 
-                or isinstance(error, TimeoutError)) ):
-                
-                log.warning(&#39;Retring after: &#39;+str(error))
+            # if (retry &gt;0 and ( any(match in str(error) for match in [
+            #         &#39;ResultUnavailable&#39;,
+            #         &#39;ERROR_JEC_ResponseNotAvailable&#39;,
+            #         &#39;UnknownList&#39;,
+            #         &#39;JobEngine_GetQueryResults_QueryNotFound_Unrecoverable&#39;]) 
+            #     or isinstance(error, TimeoutError)) ):
+            if retry &gt; 0:
+                log.warning(&#39;Retring qry_load_data() after error: &#39;+str(error))
+                time.sleep(0.2)
                 return self.qry_load_data(retry=retry-1)
             else: raise
 
@@ -1626,7 +1665,7 @@ Some default fields will be present. </li>
             with dateutil.  
         - `max_query_depth` : maximum number of supplement reccursions of division of the query times
         Meaning, if EventManager query limit=500, slots=5 and max_query_depth=3, then the maximum capacity of 
-        the list is (500*5)*(500*5)*(500*5) = 15625000000
+        the list is (500*5)*(500*5)*(500*5) = 15625000000.  Only works for certain time ranges.  
         - `retry` (`int`): number of time the query can be failed and retried
         - `wait_timeout_sec` (`int`): wait timeout in seconds
 
@@ -1784,23 +1823,23 @@ Some default fields will be present. </li>
 <dl>
 <dt id="msiempy.event.EventManager.TYPE"><code class="name">var <span class="ident">TYPE</span></code></dt>
 <dd>
-<section class="desc"><p>EVENT: Flow query or other are not implemented</p></section>
+<div class="desc"><p>EVENT: Flow query or other are not implemented</p></div>
 </dd>
 <dt id="msiempy.event.EventManager.GROUPTYPE"><code class="name">var <span class="ident">GROUPTYPE</span></code></dt>
 <dd>
-<section class="desc"><p>NO_GROUP: Group query is not implemented</p></section>
+<div class="desc"><p>NO_GROUP: Group query is not implemented</p></div>
 </dd>
 <dt id="msiempy.event.EventManager.POSSBILE_ROW_ORDER"><code class="name">var <span class="ident">POSSBILE_ROW_ORDER</span></code></dt>
 <dd>
-<section class="desc"><p><code>ASCENDING</code> or <code>DESCENDING</code></p></section>
+<div class="desc"><p><code>ASCENDING</code> or <code>DESCENDING</code></p></div>
 </dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="msiempy.event.EventManager.order"><code class="name">var <span class="ident">order</span></code></dt>
 <dd>
-<section class="desc"><p>Orders representing the what the SIEM is expecting as the 'order'.
-The <code>order</code> must be tuple (direction, field).</p></section>
+<div class="desc"><p>Orders representing the what the SIEM is expecting as the 'order'.
+The <code>order</code> must be tuple (direction, field).</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1816,8 +1855,8 @@ def order(self):
 </dd>
 <dt id="msiempy.event.EventManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
-<section class="desc"><p>JSON SIEM formatted filters for the query by calling reccursively : <code>msiempy.event._QueryFilter.config_dict</code>.
-See <a title="msiempy.FilteredQueryList.filters" href="index.html#msiempy.FilteredQueryList.filters"><code>FilteredQueryList.filters</code></a>.</p></section>
+<div class="desc"><p>JSON SIEM formatted filters for the query by calling reccursively : <code>msiempy.event._QueryFilter.config_dict</code>.
+See <code><a title="msiempy.FilteredQueryList.filters" href="index.html#msiempy.FilteredQueryList.filters">FilteredQueryList.filters</a></code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1838,8 +1877,9 @@ def filters(self):
 <span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Concrete description of the <a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList"><code>FilteredQueryList</code></a> method.
-It can take a <code>tuple(fiels, [values])</code> or a <code>msiempy.event._QueryFilter</code> subclass.</p></section>
+<div class="desc"><p>Concrete description of the <code><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></code> method.
+It can take a <code>tuple(fiels, [values])</code>,
+<code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> or <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or a <code>dict</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1847,42 +1887,47 @@ It can take a <code>tuple(fiels, [values])</code> or a <code>msiempy.event._Quer
 <pre><code class="python">def add_filter(self, afilter):
     &#34;&#34;&#34;
     Concrete description of the `msiempy.FilteredQueryList` method.
-    It can take a `tuple(fiels, [values])` or a `msiempy.event._QueryFilter` subclass.
+    It can take a `tuple(fiels, [values])`,  `msiempy.event.GroupFilter` or `msiempy.event.FieldFilter` or a `dict`.  
     &#34;&#34;&#34;
     if isinstance(afilter, tuple) :
         self._filters.append(FieldFilter(afilter[0], afilter[1]))
 
-    elif isinstance(afilter, _QueryFilter) :
+    elif isinstance(afilter, (GroupFilter, FieldFilter, dict)) :
         self._filters.append(afilter)
-    
+
     else :
-        raise NitroError(&#34;Sorry the filters must be either a tuple(fiels, [values]) or a _QueryFilter sub class.&#34;)</code></pre>
+        raise NitroError(&#34;Sorry the filters must be either a tuple(fiels, [values]) a GroupFilter, a FieldFilter or a dict, not a {}: {}&#34;.format(type(afilter), afilter))</code></pre>
 </details>
 </dd>
 <dt id="msiempy.event.EventManager.clear_filters"><code class="name flex">
 <span>def <span class="ident">clear_filters</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Replace all filters by a non filtering rule.
-Acts like the is not filters.</p></section>
+<div class="desc"><p>Replace all filters by a non filtering rule.<br>
+Acts like there is not filters.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
-    Replace all filters by a non filtering rule.
-    Acts like the is not filters.
+    Replace all filters by a non filtering rule.  
+    Acts like there is not filters.  
     &#34;&#34;&#34; 
-    self._filters=[FieldFilter(&#39;SrcIP&#39;, [&#39;0.0.0.0/0&#39;,])]</code></pre>
+    self._filters=[{
+        &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+        &#34;field&#34;: {&#34;name&#34;: &#39;SrcIP&#39;},
+        &#34;operator&#34;: &#39;IN&#39;,
+        &#34;values&#34;: [{&#39;type&#39;:&#39;EsmBasicValue&#39;, &#39;value&#39;:&#39;0.0.0.0/0&#39;}]
+        }]</code></pre>
 </details>
 </dd>
 <dt id="msiempy.event.EventManager.get_possible_fields"><code class="name flex">
 <span>def <span class="ident">get_possible_fields</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Indicate a list of possible fields that you can request in a query.
-The list is loaded from the SIEM.</p></section>
+<div class="desc"><p>Indicate a list of possible fields that you can request in a query.
+The list is loaded from the SIEM.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1899,7 +1944,7 @@ The list is loaded from the SIEM.</p></section>
 <span>def <span class="ident">qry_load_data</span></span>(<span>self, retry=1, wait_timeout_sec=120)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Concrete helper method to execute the query and load the data :<br>
+<div class="desc"><p>Concrete helper method to execute the query and load the data :<br>
 -&gt; Submit the query<br>
 -&gt; Wait the query to be executed<br>
 -&gt; Get and parse the events
@@ -1911,9 +1956,9 @@ Retries only when 'ResultUnavailable','UnknownList' or 'JobEngine_GetQueryResult
 </li>
 <li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds</li>
 </ul>
-<p>Returns : <code>tuple</code> : (( <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a>, Status of the query (completed?) <code>True/False</code> ))</p>
-<p>Raises <a title="msiempy.NitroError" href="index.html#msiempy.NitroError"><code>NitroError</code></a> if any unhandled errors<br>
-Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0</p></section>
+<p>Returns : <code>tuple</code> : (( <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code>, Status of the query (completed?) <code>True/False</code> ))</p>
+<p>Raises <code><a title="msiempy.NitroError" href="index.html#msiempy.NitroError">NitroError</a></code> if any unhandled errors<br>
+Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1974,14 +2019,15 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0</p></sect
         events_raw=self._get_events(query_infos[&#39;resultID&#39;])
 
     except (NitroError, TimeoutError) as error :
-        if (retry &gt;0 and ( any(match in str(error) for match in [
-                &#39;ResultUnavailable&#39;,
-                &#39;ERROR_JEC_ResponseNotAvailable&#39;,
-                &#39;UnknownList&#39;,
-                &#39;JobEngine_GetQueryResults_QueryNotFound_Unrecoverable&#39;]) 
-            or isinstance(error, TimeoutError)) ):
-            
-            log.warning(&#39;Retring after: &#39;+str(error))
+        # if (retry &gt;0 and ( any(match in str(error) for match in [
+        #         &#39;ResultUnavailable&#39;,
+        #         &#39;ERROR_JEC_ResponseNotAvailable&#39;,
+        #         &#39;UnknownList&#39;,
+        #         &#39;JobEngine_GetQueryResults_QueryNotFound_Unrecoverable&#39;]) 
+        #     or isinstance(error, TimeoutError)) ):
+        if retry &gt; 0:
+            log.warning(&#39;Retring qry_load_data() after error: &#39;+str(error))
+            time.sleep(0.2)
             return self.qry_load_data(retry=retry-1)
         else: raise
 
@@ -1994,9 +2040,9 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0</p></sect
 <span>def <span class="ident">load_data</span></span>(<span>self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Load the data from the SIEM into the manager list.<br>
+<div class="desc"><p>Load the data from the SIEM into the manager list.<br>
 Split the query in defferents time slots if the query apprears not to be completed.<br>
-Wraps around <a title="msiempy.FilteredQueryList.qry_load_data" href="index.html#msiempy.FilteredQueryList.qry_load_data"><code>FilteredQueryList.qry_load_data()</code></a>.
+Wraps around <code><a title="msiempy.FilteredQueryList.qry_load_data" href="index.html#msiempy.FilteredQueryList.qry_load_data">FilteredQueryList.qry_load_data()</a></code>.
 </p>
 <p>Note: Only the first query is loaded asynchronously.</p>
 <p>Arguments:
@@ -2012,11 +2058,13 @@ with dateutil.
 </li>
 <li><code>max_query_depth</code> : maximum number of supplement reccursions of division of the query times
 Meaning, if EventManager query limit=500, slots=5 and max_query_depth=3, then the maximum capacity of
-the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
+the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000.
+Only works for certain time ranges.
+</li>
 <li><code>retry</code> (<code>int</code>): number of time the query can be failed and retried</li>
 <li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds</li>
 </ul>
-<p>Returns : <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a></p></section>
+<p>Returns : <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2037,7 +2085,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
         with dateutil.  
     - `max_query_depth` : maximum number of supplement reccursions of division of the query times
     Meaning, if EventManager query limit=500, slots=5 and max_query_depth=3, then the maximum capacity of 
-    the list is (500*5)*(500*5)*(500*5) = 15625000000
+    the list is (500*5)*(500*5)*(500*5) = 15625000000.  Only works for certain time ranges.  
     - `retry` (`int`): number of time the query can be failed and retried
     - `wait_timeout_sec` (`int`): wait timeout in seconds
 
@@ -2109,7 +2157,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 <span>def <span class="ident">get_possible_filters</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Return all the fields that you can filter on in a query.</p></section>
+<div class="desc"><p>Return all the fields that you can filter on in a query.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2126,9 +2174,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 <ul class="hlist">
 <li><code><b><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.FilteredQueryList.DEFAULT_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.DEFAULT_TIME_RANGE">DEFAULT_TIME_RANGE</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE" href="index.html#msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE">POSSIBLE_TIME_RANGE</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.end_time" href="index.html#msiempy.FilteredQueryList.end_time">end_time</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
 <li><code><a title="msiempy.FilteredQueryList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
@@ -2149,7 +2195,7 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 <span>(</span><span>adict=None, id=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Dictionary keys :
+<div class="desc"><p>Dictionary keys :
 </p>
 <ul>
 <li><code>Rule.msg</code>
@@ -2161,8 +2207,8 @@ the list is (500<em>5)</em>(500<em>5)</em>(500*5) = 15625000000</li>
 <li>and others&hellip;
 </li>
 </ul>
-<p>You can request more fields by passing a list of fields to the <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a> object.
-<a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS"><code>Event.REGULAR_EVENT_FIELDS</code></a> offer a base list of regular fields that may be useful.
+<p>You can request more fields by passing a list of fields to the <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code> object.
+<code><a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS">Event.REGULAR_EVENT_FIELDS</a></code> offer a base list of regular fields that may be useful.
 See msiempy/static JSON files to browse complete list : <a href="https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json">https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json</a><br>
 You can also use this script to dinamically print the available fields and filters : <a href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py">https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py</a><br>
 Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix autocompletion is computed in any case within the <code>__getitem__</code> method ;)
@@ -2172,7 +2218,7 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
 <li><code>adict</code>: Event parameters
 </li>
 <li><code>id</code>: The event <code>IPSIDAlertID</code> to instanciate. Will load informations</li>
-</ul></section>
+</ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2937,8 +2983,12 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
                 filters=[(&#39;IPSIDAlertID&#39;,id)],
                 fields=extra_fields,
                 limit=2)
-                
-            e.load_data()
+            try:
+                e.load_data()
+            except NitroError:
+                log.error(&#34;Query failed, can&#39;t load event&#39;s data from id with 1 year timerange, looking at the last 45 days only...&#34;)
+                e.start_time=datetime.now()-timedelta(days=45)
+                e.load_data()
 
             if len(e) == 1 :
                 return e[0]
@@ -2974,18 +3024,18 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
 <dl>
 <dt id="msiempy.event.Event.FIELDS_TABLES"><code class="name">var <span class="ident">FIELDS_TABLES</span></code></dt>
 <dd>
-<section class="desc"><p>List of internal fields table : <code>Rule</code>,<code>Alert</code>,etc.</p></section>
+<div class="desc"><p>List of internal fields table : <code>Rule</code>,<code>Alert</code>,etc.</p></div>
 </dd>
 <dt id="msiempy.event.Event.DEFAULTS_EVENT_FIELDS"><code class="name">var <span class="ident">DEFAULTS_EVENT_FIELDS</span></code></dt>
 <dd>
-<section class="desc"><p>Always present when using <a title="msiempy.event.EventManager" href="#msiempy.event.EventManager"><code>EventManager</code></a> querying :<br>
+<div class="desc"><p>Always present when using <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code> querying :<br>
 <code>Rule.msg</code><br>
 <code>Alert.LastTime</code><br>
-<code>Alert.IPSIDAlertID</code></p></section>
+<code>Alert.IPSIDAlertID</code></p></div>
 </dd>
 <dt id="msiempy.event.Event.REGULAR_EVENT_FIELDS"><code class="name">var <span class="ident">REGULAR_EVENT_FIELDS</span></code></dt>
 <dd>
-<section class="desc"><p><code>Rule.msg</code><br>
+<div class="desc"><p><code>Rule.msg</code><br>
 <code>Alert.SrcIP</code><br>
 <code>Alert.DstIP</code> <br>
 <code>Alert.SrcMac</code><br>
@@ -2997,28 +3047,18 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
 <code>Alert.Severity</code><br>
 <code>Alert.LastTime</code><br>
 <code>Alert.DSIDSigID</code><br>
-<code>Alert.IPSIDAlertID</code></p></section>
+<code>Alert.IPSIDAlertID</code></p></div>
 </dd>
 <dt id="msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME"><code class="name">var <span class="ident">SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</span></code></dt>
 <dd>
-<section class="desc"><p>dict() -&gt; new empty dictionary
-dict(mapping) -&gt; new dictionary initialized from a mapping object's
-(key, value) pairs
-dict(iterable) -&gt; new dictionary initialized as if via:
-d = {}
-for k, v in iterable:
-d[k] = v
-dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
-in the keyword argument list.
-For example:
-dict(one=1, two=2)</p></section>
+<div class="desc"></div>
 </dd>
 <dt id="msiempy.event.Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME"><code class="name">var <span class="ident">SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME</span></code></dt>
 <dd>
-<section class="desc"><p>Best effort to match SIEM returned fields with initial.
+<div class="desc"><p>Best effort to match SIEM returned fields with initial.
 <strong>getitem</strong>, <strong>contains</strong>, <strong>setitem</strong> and <strong>delitem</strong> method have been rewrote in order to offer more comprehensive dict usage.
 For exemple, the SIEM will return dicts with keys like
-<code>Alert.65613</code>, <code>Alert.BIN(7)</code> or <code>Alert.SrcIP</code>, you'll be able to use <a title="msiempy.event.Event" href="#msiempy.event.Event"><code>Event</code></a> dictionnary object with your initial queried fields like <code>Web_Doamin</code>, <code>UserIDSrc</code> or <code>SrcIP</code>.</p></section>
+<code>Alert.65613</code>, <code>Alert.BIN(7)</code> or <code>Alert.SrcIP</code>, you'll be able to use <code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code> dictionnary object with your initial queried fields like <code>Web_Doamin</code>, <code>UserIDSrc</code> or <code>SrcIP</code>.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -3027,7 +3067,7 @@ For exemple, the SIEM will return dicts with keys like
 <span>def <span class="ident">clear_notes</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Replace the notes by an empty string. Desctructive action.</p></section>
+<div class="desc"><p>Replace the notes by an empty string. Desctructive action.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3043,7 +3083,7 @@ For exemple, the SIEM will return dicts with keys like
 <span>def <span class="ident">set_note</span></span>(<span>self, note, no_date=False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Set the event's note. Desctructive action.</p></section>
+<div class="desc"><p>Set the event's note. Desctructive action.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3078,7 +3118,7 @@ For exemple, the SIEM will return dicts with keys like
 <span>def <span class="ident">data_from_id</span></span>(<span>self, id, use_query=False, extra_fields=[])</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Load event's data.
+<div class="desc"><p>Load event's data.
 </p>
 <p>Arguments:
 </p>
@@ -3088,7 +3128,7 @@ For exemple, the SIEM will return dicts with keys like
 <li><code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.
 </li>
 <li><code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query.</li>
-</ul></section>
+</ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3113,8 +3153,12 @@ For exemple, the SIEM will return dicts with keys like
             filters=[(&#39;IPSIDAlertID&#39;,id)],
             fields=extra_fields,
             limit=2)
-            
-        e.load_data()
+        try:
+            e.load_data()
+        except NitroError:
+            log.error(&#34;Query failed, can&#39;t load event&#39;s data from id with 1 year timerange, looking at the last 45 days only...&#34;)
+            e.start_time=datetime.now()-timedelta(days=45)
+            e.load_data()
 
         if len(e) == 1 :
             return e[0]
@@ -3129,7 +3173,7 @@ For exemple, the SIEM will return dicts with keys like
 <span>def <span class="ident">refresh</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Re-load event's data</p></section>
+<div class="desc"><p>Re-load event's data</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3162,15 +3206,15 @@ For exemple, the SIEM will return dicts with keys like
 <span>(</span><span>filters, logic='AND')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Based on EsmFilterGroup. See SIEM api doc.
+<div class="desc"><p>Based on EsmFilterGroup. See SIEM api doc.
 Used to dump groups of filters in the right format.</p>
 <p>Arguments :
 </p>
 <ul>
-<li><code>filters</code> : a list of filters, it can be <a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter"><code>FieldFilter</code></a> or <a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter"><code>GroupFilter</code></a>
+<li><code>filters</code> : a list of filters, it can be <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code>
 </li>
 <li><code>logic</code> : 'AND' or 'OR'</li>
-</ul></section>
+</ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3213,8 +3257,20 @@ Used to dump groups of filters in the right format.</p>
 <span>(</span><span>name, values, operator='IN')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Based on EsmFieldFilter. See SIEM api doc.
-Used to dump a filter in the right format.</p>
+<div class="desc"><p>Based on EsmFieldFilter SIEM api doc.
+</p>
+<p>This class is automatically used when instanciating <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code> objects to dump filters in the right <code>dict</code> format if tuples are gave as the <code>filters</code> argument like:
+</p>
+<pre><code>e = EventManager(time_range='LAST_MINUTE', filters=[ ('SrcIP', ['10.5.0..0/16']) ])
+</code></pre>
+<p>Default operator is <code>"IN"</code>.
+</p>
+<p>To change the operator, create a <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code>:<br>
+Exemple to filter by Signature ID.
+</p>
+<pre><code>e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', [&quot;49190-4294967295&quot;], operator='EQUALS') ])
+</code></pre>
+<p><em>Make sure the filter name is valid by checking the result of <code><a title="msiempy.event.EventManager.get_possible_filters" href="#msiempy.event.EventManager.get_possible_filters">EventManager.get_possible_filters()</a></code> or use the provided script in the sample folder</em></p>
 <h2 id="arguments">Arguments</h2>
 <ul>
 <li><code>name</code> : field name as string. Field name property. Example : <code>SrcIP</code>. See full list here: <a href="https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json">https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json</a></li>
@@ -3233,15 +3289,31 @@ Used to dump a filter in the right format.</p>
 <code>CONTAINS</code>,
 <code>DOES_NOT_CONTAIN</code>,
 <code>REGEX</code>.</li>
-</ul></section>
+</ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FieldFilter(_QueryFilter):
     &#34;&#34;&#34;
-    Based on EsmFieldFilter. See SIEM api doc.
-    Used to dump a filter in the right format.
+    Based on EsmFieldFilter SIEM api doc.  
+
+    This class is automatically used when instanciating `EventManager` objects to dump filters in the right `dict` format if tuples are gave as the `filters` argument like:  
+
+    ```
+    e = EventManager(time_range=&#39;LAST_MINUTE&#39;, filters=[ (&#39;SrcIP&#39;, [&#39;10.5.0..0/16&#39;]) ])
+    ```
+
+    Default operator is `&#34;IN&#34;`.  
+    
+    To change the operator, create a `FieldFilter`:  
+    Exemple to filter by Signature ID.  
+
+    ```
+    e = EventManager(time_range=&#39;LAST_24_HOURS&#39;, filters=[ FieldFilter(&#39;DSIDSigID&#39;, [&#34;49190-4294967295&#34;], operator=&#39;EQUALS&#39;) ])
+    ```
+
+    *Make sure the filter name is valid by checking the result of `msiempy.event.EventManager.get_possible_filters` or use the provided script in the sample folder*
 
     Arguments:
 
@@ -3262,14 +3334,25 @@ Used to dump a filter in the right format.</p>
         `REGEX`.  
     &#34;&#34;&#34;
 
+    # Declaring static value containing all the possibles
+    # event fields usable in filters should be loaded once, when instanciating a FieldFilter
+    __documented_filters = []
+
     def __init__(self, name, values, operator=&#39;IN&#39;) :
         super().__init__()
+
+        #If the __documented_filters property hasn&#39;t been set yet, set it
+        # Manually app special case of &#34;IPSIDAlertID&#34;
+        if len(FieldFilter.__documented_filters)==0:
+            FieldFilter.__documented_filters = [&#34;IPSIDAlertID&#34;] + [ item.get(&#39;name&#39;) for item in EventManager().get_possible_filters() ]
+
         #Declaring attributes
         self._operator=str()
         self._values=list()
-        self.name = name
+        
         self.operator = operator
         self.values = values
+        self.name = name
 
         self.data={
             &#34;type&#34;: &#34;EsmFieldFilter&#34;,
@@ -3277,7 +3360,10 @@ Used to dump a filter in the right format.</p>
             &#34;operator&#34;: self.operator,
             &#34;values&#34;: self.values
             }
-
+        
+        # check the name against the list of possible filters and log warning if not present.  
+        if name not in FieldFilter.__documented_filters :
+            log.warning(&#34;Unknown value for the filter name: &#39;{name}&#39;. Unexpected behaviours can happen with filter: {filter}&#34;.format(name=name, filter=self.data))
     
     POSSIBLE_OPERATORS=[&#39;IN&#39;,
         &#39;NOT_IN&#39;,
@@ -3302,7 +3388,7 @@ Used to dump a filter in the right format.</p>
     &#34;&#34;&#34;
     List of possible value type. See `msiempy.event.FieldFilter.add_value`.
     &#34;&#34;&#34;
-   
+
     @property
     def operator(self):
         &#34;&#34;&#34;Field operator.  
@@ -3312,26 +3398,23 @@ Used to dump a filter in the right format.</p>
     
     @operator.setter
     def operator(self, operator):
-        try:
-            if operator in self.POSSIBLE_OPERATORS :
-                self._operator = operator
-            else:
-                raise AttributeError(&#34;Illegal value for the filter operator &#34;+operator+&#34;. The operator must be in &#34;+str(self.POSSIBLE_OPERATORS))
-        except:
-            raise
+        if operator in self.POSSIBLE_OPERATORS :
+            self._operator = operator
+        else:
+            raise AttributeError(&#34;Illegal value for the filter operator: &#34;+str(operator)+&#34;. The operator must be in &#34;+str(self.POSSIBLE_OPERATORS))
 
     @property
     def values(self):
         &#34;&#34;&#34;List of values of the filter.  
         Setter iterate trough the list and call : 
 
-        - `msiempy.FilteredQueryList.add_value()` if value is a `dict`
-        - `msiempy.FilteredQueryList.add_basic_value()` if value type is `int`, `float` or `str`.
+        - `msiempy.event.FieldFilter.add_value()` if value is a `dict`
+        - `msiempy.event.FieldFilter.add_basic_value()` if value type is `int`, `float` or `str`.
 
         Values will always be added to the filter. To remove values, handle directly the `_values` property.
 
         Example :  
-            `filter = FieldFilter(name=&#39;DstIP&#39;,values=[&#39;10.1.13.0/24&#39;, {&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}], operator=&#39;IN&#39;)`
+            `filter = FieldFilter(name=&#39;DstIP&#39;,values=[{&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}], operator=&#39;IN&#39;)`
         &#34;&#34;&#34;
         return (self._values)
 
@@ -3425,19 +3508,19 @@ Used to dump a filter in the right format.</p>
 <dl>
 <dt id="msiempy.event.FieldFilter.POSSIBLE_OPERATORS"><code class="name">var <span class="ident">POSSIBLE_OPERATORS</span></code></dt>
 <dd>
-<section class="desc"><p>List of possibles operators</p></section>
+<div class="desc"><p>List of possibles operators</p></div>
 </dd>
 <dt id="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES"><code class="name">var <span class="ident">POSSIBLE_VALUE_TYPES</span></code></dt>
 <dd>
-<section class="desc"><p>List of possible value type. See <a title="msiempy.event.FieldFilter.add_value" href="#msiempy.event.FieldFilter.add_value"><code>FieldFilter.add_value()</code></a>.</p></section>
+<div class="desc"><p>List of possible value type. See <code><a title="msiempy.event.FieldFilter.add_value" href="#msiempy.event.FieldFilter.add_value">FieldFilter.add_value()</a></code>.</p></div>
 </dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="msiempy.event.FieldFilter.operator"><code class="name">var <span class="ident">operator</span></code></dt>
 <dd>
-<section class="desc"><p>Field operator.<br>
-Setter check the value against the list of possible operators and trow <code>AttributeError</code> if not present.</p></section>
+<div class="desc"><p>Field operator.<br>
+Setter check the value against the list of possible operators and trow <code>AttributeError</code> if not present.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3452,15 +3535,15 @@ def operator(self):
 </dd>
 <dt id="msiempy.event.FieldFilter.values"><code class="name">var <span class="ident">values</span></code></dt>
 <dd>
-<section class="desc"><p>List of values of the filter.<br>
+<div class="desc"><p>List of values of the filter.<br>
 Setter iterate trough the list and call : </p>
 <ul>
-<li><code>msiempy.FilteredQueryList.add_value()</code> if value is a <code>dict</code></li>
-<li><code>msiempy.FilteredQueryList.add_basic_value()</code> if value type is <code>int</code>, <code>float</code> or <code>str</code>.</li>
+<li><code><a title="msiempy.event.FieldFilter.add_value" href="#msiempy.event.FieldFilter.add_value">FieldFilter.add_value()</a></code> if value is a <code>dict</code></li>
+<li><code><a title="msiempy.event.FieldFilter.add_basic_value" href="#msiempy.event.FieldFilter.add_basic_value">FieldFilter.add_basic_value()</a></code> if value type is <code>int</code>, <code>float</code> or <code>str</code>.</li>
 </ul>
 <p>Values will always be added to the filter. To remove values, handle directly the <code>_values</code> property.</p>
 <p>Example :<br>
-<code>filter = FieldFilter(name='DstIP',values=['10.1.13.0/24', {'type':'EsmWatchlistValue', 'watchlist':42}], operator='IN')</code></p></section>
+<code>filter = FieldFilter(name='DstIP',values=[{'type':'EsmWatchlistValue', 'watchlist':42}], operator='IN')</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3470,13 +3553,13 @@ def values(self):
     &#34;&#34;&#34;List of values of the filter.  
     Setter iterate trough the list and call : 
 
-    - `msiempy.FilteredQueryList.add_value()` if value is a `dict`
-    - `msiempy.FilteredQueryList.add_basic_value()` if value type is `int`, `float` or `str`.
+    - `msiempy.event.FieldFilter.add_value()` if value is a `dict`
+    - `msiempy.event.FieldFilter.add_basic_value()` if value type is `int`, `float` or `str`.
 
     Values will always be added to the filter. To remove values, handle directly the `_values` property.
 
     Example :  
-        `filter = FieldFilter(name=&#39;DstIP&#39;,values=[&#39;10.1.13.0/24&#39;, {&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}], operator=&#39;IN&#39;)`
+        `filter = FieldFilter(name=&#39;DstIP&#39;,values=[{&#39;type&#39;:&#39;EsmWatchlistValue&#39;, &#39;watchlist&#39;:42}], operator=&#39;IN&#39;)`
     &#34;&#34;&#34;
     return (self._values)</code></pre>
 </details>
@@ -3488,7 +3571,7 @@ def values(self):
 <span>def <span class="ident">add_value</span></span>(<span>self, type=None, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Add a new value to the field filter.
+<div class="desc"><p>Add a new value to the field filter.
 </p>
 <p>Arguments (<code>**kwargs</code> depends on the value <code>type</code>):
 </p>
@@ -3505,7 +3588,7 @@ def values(self):
 </li>
 </ul>
 <p>Raises : <code>KeyError</code> or <code>AttributeError</code> if you don't respect the correct type/key/value combo.<br>
-Note : Filtering query with other type of filter than <code>EsmBasicValue</code> is not tested.</p></section>
+Note : Filtering query with other type of filter than <code>EsmBasicValue</code> is not tested.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3561,7 +3644,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <span>def <span class="ident">add_basic_value</span></span>(<span>self, value)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Wrapper arround <code>add_value</code> method to simply add a <code>EsmBasicValue</code>.</p></section>
+<div class="desc"><p>Wrapper arround <code>add_value</code> method to simply add a <code>EsmBasicValue</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3641,9 +3724,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
 </footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
 </body>
 </html>

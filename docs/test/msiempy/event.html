@@ -137,7 +137,7 @@ class EventManager(FilteredQueryList):
     @property
     def filters(self):
         &#34;&#34;&#34;
-        Returns SIEM formatted filters for the query by calling reccursively : `msiempy.event._QueryFilter.config_dict`.
+        Returns SIEM formatted filters for the query structured from `msiempy.event.GroupFilter` and/or `msiempy.event.FieldFilter`
         See `msiempy.FilteredQueryList.filters`.
         &#34;&#34;&#34;
         return([dict(f) for f in self._filters])
@@ -1541,7 +1541,7 @@ Some default fields will be present. </li>
     @property
     def filters(self):
         &#34;&#34;&#34;
-        Returns SIEM formatted filters for the query by calling reccursively : `msiempy.event._QueryFilter.config_dict`.
+        Returns SIEM formatted filters for the query structured from `msiempy.event.GroupFilter` and/or `msiempy.event.FieldFilter`
         See `msiempy.FilteredQueryList.filters`.
         &#34;&#34;&#34;
         return([dict(f) for f in self._filters])
@@ -1857,7 +1857,7 @@ def order(self):
 </dd>
 <dt id="msiempy.event.EventManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
-<div class="desc"><p>Returns SIEM formatted filters for the query by calling reccursively : <code>msiempy.event._QueryFilter.config_dict</code>.
+<div class="desc"><p>Returns SIEM formatted filters for the query structured from <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> and/or <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code>
 See <code><a title="msiempy.FilteredQueryList.filters" href="index.html#msiempy.FilteredQueryList.filters">FilteredQueryList.filters</a></code>.</p></div>
 <details class="source">
 <summary>
@@ -1866,7 +1866,7 @@ See <code><a title="msiempy.FilteredQueryList.filters" href="index.html#msiempy.
 <pre><code class="python">@property
 def filters(self):
     &#34;&#34;&#34;
-    Returns SIEM formatted filters for the query by calling reccursively : `msiempy.event._QueryFilter.config_dict`.
+    Returns SIEM formatted filters for the query structured from `msiempy.event.GroupFilter` and/or `msiempy.event.FieldFilter`
     See `msiempy.FilteredQueryList.filters`.
     &#34;&#34;&#34;
     return([dict(f) for f in self._filters])</code></pre>

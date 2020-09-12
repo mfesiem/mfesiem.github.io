@@ -15,6 +15,8 @@ ESM API **v1**: <a href="https://mfesiem.github.io/docs/esm_api/v1.pdf">HERE</a>
 
 ESM API **v2**: <a href="https://mfesiem.github.io/docs/esm_api/v2.pdf">HERE</a>
 
+**Diff** ESM API v1 v2: <a href="https://mfesiem.github.io/docs/esm_api/diff-v1-v2.png">HERE</a>
+
 *Files generated from ESM v11.3*
 
 ###### Disclaimer

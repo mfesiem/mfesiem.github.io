@@ -39,7 +39,7 @@ import copy
 from datetime import datetime, timedelta
 log = logging.getLogger(&#39;msiempy&#39;)
 
-from . import NitroDict, NitroError, FilteredQueryList
+from .core import NitroDict, NitroError, FilteredQueryList
 from .__utils__ import timerange_gettimes, parse_query_result, format_fields_for_query, divide_times, parse_timedelta
 
 class EventManager(FilteredQueryList):
@@ -1426,7 +1426,7 @@ class FieldFilter(_QueryFilter):
 </code></dt>
 <dd>
 <div class="desc"><p>Interface to query and manage events.<br>
-Inherits from <code><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></code>.</p>
+Inherits from <code>msiempy.FilteredQueryList</code>.</p>
 <p>Arguments:
 </p>
 <ul>
@@ -1808,8 +1808,8 @@ Some default fields will be present. </li>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></li>
-<li><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></li>
+<li><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></li>
+<li><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></li>
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
 <li>collections.abc.Sequence</li>
@@ -1818,7 +1818,7 @@ Some default fields will be present. </li>
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Class variables</h3>
@@ -1858,7 +1858,7 @@ def order(self):
 <dt id="msiempy.event.EventManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
 <div class="desc"><p>Returns SIEM formatted filters for the query structured from <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> and/or <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code>
-See <code><a title="msiempy.FilteredQueryList.filters" href="index.html#msiempy.FilteredQueryList.filters">FilteredQueryList.filters</a></code>.</p></div>
+See <code>msiempy.FilteredQueryList.filters</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1879,7 +1879,7 @@ def filters(self):
 <span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Concrete description of the <code><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></code> method.
+<div class="desc"><p>Concrete description of the <code>msiempy.FilteredQueryList</code> method.
 It can take a <code>tuple(fiels, [values])</code>,
 <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> or <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or a <code>dict</code>.</p></div>
 <details class="source">
@@ -1959,7 +1959,7 @@ Retries only when 'ResultUnavailable','UnknownList' or 'JobEngine_GetQueryResult
 <li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds</li>
 </ul>
 <p>Returns : <code>tuple</code> : (( <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code>, Status of the query (completed?) <code>True/False</code> ))</p>
-<p>Raises <code><a title="msiempy.NitroError" href="index.html#msiempy.NitroError">NitroError</a></code> if any unhandled errors<br>
+<p>Raises <code>msiempy.NitroError</code> if any unhandled errors<br>
 Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0</p></div>
 <details class="source">
 <summary>
@@ -2044,7 +2044,7 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0</p></div>
 <dd>
 <div class="desc"><p>Load the data from the SIEM into the manager list.<br>
 Split the query in defferents time slots if the query apprears not to be completed.<br>
-Wraps around <code><a title="msiempy.FilteredQueryList.qry_load_data" href="index.html#msiempy.FilteredQueryList.qry_load_data">FilteredQueryList.qry_load_data()</a></code>.
+Wraps around <code>msiempy.FilteredQueryList.qry_load_data</code>.
 </p>
 <p>Note: Only the first query is loaded asynchronously.</p>
 <p>Arguments:
@@ -2174,20 +2174,20 @@ Only works for certain time ranges.
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.FilteredQueryList" href="index.html#msiempy.FilteredQueryList">FilteredQueryList</a></b></code>:
+<li><code><b><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.FilteredQueryList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.end_time" href="index.html#msiempy.FilteredQueryList.end_time">end_time</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.nitro" href="index.html#msiempy.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.refresh" href="index.html#msiempy.NitroList.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.search" href="index.html#msiempy.NitroList.search">search</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.start_time" href="index.html#msiempy.FilteredQueryList.start_time">start_time</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
-<li><code><a title="msiempy.FilteredQueryList.time_range" href="index.html#msiempy.FilteredQueryList.time_range">time_range</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.end_time" href="core/query.html#msiempy.core.query.FilteredQueryList.end_time">end_time</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.get_text" href="core/types.html#msiempy.core.types.NitroList.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.json" href="core/types.html#msiempy.core.types.NitroList.json">json</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.keys" href="core/types.html#msiempy.core.types.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.perform" href="core/types.html#msiempy.core.types.NitroList.perform">perform</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.refresh" href="core/types.html#msiempy.core.types.NitroList.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.search" href="core/types.html#msiempy.core.types.NitroList.search">search</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.start_time" href="core/query.html#msiempy.core.query.FilteredQueryList.start_time">start_time</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.text" href="core/types.html#msiempy.core.types.NitroList.text">text</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.time_range" href="core/query.html#msiempy.core.query.FilteredQueryList.time_range">time_range</a></code></li>
 </ul>
 </li>
 </ul>
@@ -3011,7 +3011,7 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
+<li><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></li>
 <li>collections.UserDict</li>
 <li>collections.abc.MutableMapping</li>
 <li>collections.abc.Mapping</li>
@@ -3019,7 +3019,7 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Class variables</h3>
@@ -3193,12 +3193,12 @@ For exemple, the SIEM will return dicts with keys like
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
+<li><code><b><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
-<li><code><a title="msiempy.NitroDict.nitro" href="index.html#msiempy.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
+<li><code><a title="msiempy.core.types.NitroDict.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.core.types.NitroDict.json" href="core/types.html#msiempy.core.types.NitroDict.json">json</a></code></li>
+<li><code><a title="msiempy.core.types.NitroDict.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
+<li><code><a title="msiempy.core.types.NitroDict.text" href="core/types.html#msiempy.core.types.NitroDict.text">text</a></code></li>
 </ul>
 </li>
 </ul>

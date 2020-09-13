@@ -44,7 +44,7 @@ from itertools import chain
 from io import StringIO
 from functools import partial, lru_cache
 
-from . import NitroDict, NitroList, NitroError, NitroObject
+from .core import NitroDict, NitroList, NitroError, NitroObject
 from .__utils__ import dehexify
 
 class ESM(NitroObject):
@@ -179,7 +179,8 @@ class ESM(NitroObject):
                 if self.key in self._fields}
 
     def get_alerts(self, ds_id, flows=False):
-        &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.  
+        &#34;&#34;&#34;
+        Tells the ESM to retrieve alerts from the provided device ID.  
         
         Arguments:  
 
@@ -187,6 +188,7 @@ class ESM(NitroObject):
         - `flows`: (`bool`) Also get flows from the device (default: False)  
         
         Returns: `None`
+        # TODO: add test method in tests/auth/test_device.py
         &#34;&#34;&#34;
         self.nitro.request(&#39;get_alerts_now&#39;, ds_id=ds_id)
         if flows:
@@ -329,6 +331,10 @@ class DevTree(NitroList):
     &#34;&#34;&#34;ESM device tree interface.  
     
     - `__contains__` method returns:  (`bool`) `True/None` the name or IP matches the provided search term.
+    
+    Usage exemple:
+    ```
+    ```
 
     &#34;&#34;&#34;
     def __init__(self, *args, **kwargs):
@@ -1338,7 +1344,8 @@ class DataSource(NitroDict):
                 if self.key in self._fields}
 
     def get_alerts(self, ds_id, flows=False):
-        &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.  
+        &#34;&#34;&#34;
+        Tells the ESM to retrieve alerts from the provided device ID.  
         
         Arguments:  
 
@@ -1346,6 +1353,7 @@ class DataSource(NitroDict):
         - `flows`: (`bool`) Also get flows from the device (default: False)  
         
         Returns: `None`
+        # TODO: add test method in tests/auth/test_device.py
         &#34;&#34;&#34;
         self.nitro.request(&#39;get_alerts_now&#39;, ds_id=ds_id)
         if flows:
@@ -1486,7 +1494,7 @@ class DataSource(NitroDict):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
@@ -1733,13 +1741,15 @@ Example:<br>
 <li><code>flows</code>: (<code>bool</code>) Also get flows from the device (default: False)
 </li>
 </ul>
-<p>Returns: <code>None</code></p></div>
+<p>Returns: <code>None</code></p>
+<h1 id="todo-add-test-method-in-testsauthtest_devicepy">TODO: add test method in tests/auth/test_device.py</h1></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_alerts(self, ds_id, flows=False):
-    &#34;&#34;&#34;Tells the ESM to retrieve alerts from the provided device ID.  
+    &#34;&#34;&#34;
+    Tells the ESM to retrieve alerts from the provided device ID.  
     
     Arguments:  
 
@@ -1747,6 +1757,7 @@ Example:<br>
     - `flows`: (`bool`) Also get flows from the device (default: False)  
     
     Returns: `None`
+    # TODO: add test method in tests/auth/test_device.py
     &#34;&#34;&#34;
     self.nitro.request(&#39;get_alerts_now&#39;, ds_id=ds_id)
     if flows:
@@ -1967,13 +1978,13 @@ def recs(self):
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></b></code>:
+<li><code><b><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.NitroObject.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroObject.json" href="index.html#msiempy.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.NitroObject.nitro" href="index.html#msiempy.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.NitroObject.refresh" href="index.html#msiempy.NitroObject.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.NitroObject.text" href="index.html#msiempy.NitroObject.text">text</a></code></li>
+<li><code><a title="msiempy.core.types.NitroObject.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.core.types.NitroObject.json" href="core/types.html#msiempy.core.types.NitroObject.json">json</a></code></li>
+<li><code><a title="msiempy.core.types.NitroObject.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
+<li><code><a title="msiempy.core.types.NitroObject.refresh" href="core/types.html#msiempy.core.types.NitroObject.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.core.types.NitroObject.text" href="core/types.html#msiempy.core.types.NitroObject.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1988,7 +1999,9 @@ def recs(self):
 <ul>
 <li><code>__contains__</code> method returns:
 (<code>bool</code>) <code>True/None</code> the name or IP matches the provided search term.</li>
-</ul></div>
+</ul>
+<p>Usage exemple:</p>
+<pre><code></code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1997,6 +2010,10 @@ def recs(self):
     &#34;&#34;&#34;ESM device tree interface.  
     
     - `__contains__` method returns:  (`bool`) `True/None` the name or IP matches the provided search term.
+    
+    Usage exemple:
+    ```
+    ```
 
     &#34;&#34;&#34;
     def __init__(self, *args, **kwargs):
@@ -2740,7 +2757,7 @@ def recs(self):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></li>
+<li><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></li>
 <li>collections.UserList</li>
 <li>collections.abc.MutableSequence</li>
 <li>collections.abc.Sequence</li>
@@ -2749,7 +2766,7 @@ def recs(self):
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
@@ -3168,15 +3185,15 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.NitroList" href="index.html#msiempy.NitroList">NitroList</a></b></code>:
+<li><code><b><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.NitroList.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroList.get_text" href="index.html#msiempy.NitroList.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.NitroList.json" href="index.html#msiempy.NitroList.json">json</a></code></li>
-<li><code><a title="msiempy.NitroList.keys" href="index.html#msiempy.NitroList.keys">keys</a></code></li>
-<li><code><a title="msiempy.NitroList.nitro" href="index.html#msiempy.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.NitroList.perform" href="index.html#msiempy.NitroList.perform">perform</a></code></li>
-<li><code><a title="msiempy.NitroList.text" href="index.html#msiempy.NitroList.text">text</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.get_text" href="core/types.html#msiempy.core.types.NitroList.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.json" href="core/types.html#msiempy.core.types.NitroList.json">json</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.keys" href="core/types.html#msiempy.core.types.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.perform" href="core/types.html#msiempy.core.types.NitroList.perform">perform</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.text" href="core/types.html#msiempy.core.types.NitroList.text">text</a></code></li>
 </ul>
 </li>
 </ul>
@@ -3361,7 +3378,7 @@ or
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></li>
+<li><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></li>
 <li>collections.UserDict</li>
 <li>collections.abc.MutableMapping</li>
 <li>collections.abc.Mapping</li>
@@ -3369,7 +3386,7 @@ or
 <li>collections.abc.Sized</li>
 <li>collections.abc.Iterable</li>
 <li>collections.abc.Container</li>
-<li><a title="msiempy.NitroObject" href="index.html#msiempy.NitroObject">NitroObject</a></li>
+<li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
@@ -3467,12 +3484,12 @@ or
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.NitroDict" href="index.html#msiempy.NitroDict">NitroDict</a></b></code>:
+<li><code><b><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></b></code>:
 <ul class="hlist">
-<li><code><a title="msiempy.NitroDict.NitroJSONEncoder" href="index.html#msiempy.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.NitroDict.json" href="index.html#msiempy.NitroDict.json">json</a></code></li>
-<li><code><a title="msiempy.NitroDict.nitro" href="index.html#msiempy.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.NitroDict.text" href="index.html#msiempy.NitroDict.text">text</a></code></li>
+<li><code><a title="msiempy.core.types.NitroDict.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.core.types.NitroDict.json" href="core/types.html#msiempy.core.types.NitroDict.json">json</a></code></li>
+<li><code><a title="msiempy.core.types.NitroDict.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
+<li><code><a title="msiempy.core.types.NitroDict.text" href="core/types.html#msiempy.core.types.NitroDict.text">text</a></code></li>
 </ul>
 </li>
 </ul>

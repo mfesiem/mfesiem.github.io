@@ -1,0 +1,1469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.4" />
+<title>msiempy.core.types API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>msiempy.core.types</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python"># -*- coding: utf-8 -*-
+
+import logging
+import json
+import abc
+import collections
+
+import json
+import collections
+import tqdm
+import csv
+import concurrent.futures
+import prettytable
+from prettytable import MSWORD_FRIENDLY
+import functools
+import textwrap
+import logging
+from io import StringIO
+
+from .utils import regex_match
+from .session import NitroSession
+
+log = logging.getLogger(&#39;msiempy&#39;)
+
+__pdoc__ = {} # Init pdoc to document dynamically
+
+class NitroObject(abc.ABC):
+    &#34;&#34;&#34;
+    Base class for all nitro objects. All objects have a reference to the single `msiempy.NitroSession` object that handle the esm requests.  
+    Creates the object session.
+    &#34;&#34;&#34;
+
+    class NitroJSONEncoder(json.JSONEncoder):
+        &#34;&#34;&#34;
+        Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject.  
+        TODO return meta info about the NitroList. Maybe create a section `manager` and `data`.  
+        TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict.  
+        &#34;&#34;&#34;
+        def default(self, obj): # pylint: disable=E0202
+            if isinstance(obj,(NitroObject)):
+                return obj.data
+            else:
+                return json.JSONEncoder.default(self, obj) 
+
+    nitro=NitroSession()
+    &#34;&#34;&#34;
+    `msiempy.NitroSession` object. Interface to the SIEM.
+    &#34;&#34;&#34;
+
+    @abc.abstractproperty
+    def text(self):
+        &#34;&#34;&#34;
+        Returns printable string.  
+        Abstract declaration.
+        &#34;&#34;&#34;
+        pass
+
+    @abc.abstractproperty
+    def json(self):
+        &#34;&#34;&#34;
+        Returns json string representation.  
+        Abstract declaration.
+        &#34;&#34;&#34;
+    
+    @abc.abstractmethod
+    def refresh(self):
+        &#34;&#34;&#34;
+        Re-load the object.  
+        Abstract declaration.
+        &#34;&#34;&#34;
+        pass
+
+class NitroDict(collections.UserDict, NitroObject):
+    &#34;&#34;&#34;
+    Base class that represent any SIEM data that can be represented as a item of a list.
+    Exemple : Event, Alarm, etc...
+    Inherits from dict.
+    Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument and update dict values accordingly.
+
+    This classe and subclasses fully implements `dict` interface and is suitable for dictionnary operations, see: https://docs.python.org/3/library/stdtypes.html#mapping-types-dict
+
+    Arguments:  
+
+    - `adict`: dict object to wrap.  
+    - `id`: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple. 
+    &#34;&#34;&#34;
+    def __init__(self, adict=None, id=None):
+        NitroObject.__init__(self)
+        collections.UserDict.__init__(self, adict)
+
+        if adict : self.data=adict
+        if id : self.data=self.data_from_id(id)
+
+        for key in list(self) :
+            if isinstance(self[key], list):
+                self[key]=NitroList(alist=self[key])
+
+    def __str__(self):
+        &#34;&#34;&#34;str(obj) -&gt; return text string.
+        &#34;&#34;&#34;
+        return self.text
+
+    def __repr__(self):
+        &#34;&#34;&#34;repr(obj) -&gt; return json string.
+        &#34;&#34;&#34;
+        return self.json
+
+    @property
+    def json(self):
+        &#34;&#34;&#34;JSON representation of a item
+        &#34;&#34;&#34;
+        return(json.dumps(dict(self), indent=4, cls=NitroObject.NitroJSONEncoder))
+
+    @property
+    def text(self):
+        &#34;&#34;&#34;Text list of item&#39;s values
+        &#34;&#34;&#34;
+        return(&#39;, &#39;.join([str(val) for val in self.values()]))
+
+    @abc.abstractmethod
+    def data_from_id(self, id):
+        &#34;&#34;&#34;This method retreive the item infos from an object ID.  
+        Abstract declaration.
+        &#34;&#34;&#34;
+        pass
+
+class NitroList(collections.UserList, NitroObject):
+    &#34;&#34;&#34;
+    Base class for list objects.  
+    
+    It offers search and other data list actions.  
+    
+    This classe and subclasses fully implements `list` interface and is suitable for list operations, see: https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range
+    
+    Concrete classes have to cast the list items in their `__init__` method !  
+
+    Subclassing requirements: Subclasses of UserList are expected to offer a constructor which can be called with either no arguments or one argument. List operations which return a new sequence attempt to create an instance of the actual implementation class. To do so, it assumes that the constructor can be called with a single parameter, which is a sequence object used as a data source.
+    If a derived class does not wish to comply with this requirement, all of the special methods supported by this class will need to be overridden; please consult the sources for information about the methods which need to be provided in that case.
+    See: https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects  
+
+    Arguments:  
+
+    - `alist`: list object to wrap.
+    &#34;&#34;&#34;
+
+    # TODO better polymorphism to cast every sub-NitroList class&#39;s item dynamcally in `__init__` method.  
+    def __init__(self, alist=None):
+        NitroObject.__init__(self)
+        if alist : collections.UserList.__init__(self, alist)
+        else : collections.UserList.__init__(self, [])
+
+    def __str__(self):
+        &#34;&#34;&#34;str(obj) -&gt; return text string.
+        &#34;&#34;&#34;
+        return &#34;{} containing {} elements ; keys={}&#34;.format(str(super()), len(list(self)), self.keys())
+
+    def keys(self):
+        &#34;&#34;&#34;Set of keys for all dict&#34;&#34;&#34;
+        #If new fields are added it won&#39;t show on text repr. Only json.
+        manager_keys=set()
+        for item in list(self): manager_keys.update(getattr(item, &#39;keys&#39;, set)())
+        return manager_keys
+
+    def get_text(self, format=&#39;prettytable&#39;, fields=None, 
+                        max_column_width=80, get_text_nest_attr={} ):
+        &#34;&#34;&#34;
+        Return a csv or table string representation of the list
+
+        Arguments:  
+
+        - `format`: 
+              prettytable: Returns a table generated by prettytable
+              csv: Returns data with header and comma separated values. 
+        - `fields`: list of fields you want in the table. If `None` : default fields are returned by .keys attribute and sorted.  
+        - `max_column_width`: when using prettytable only 
+        - `get_text_nest_attr`: attributes passed to the nested `msiempy.NitroList.get_text` elements if any. Useful to control events appearence.
+        &#34;&#34;&#34;
+
+        text=str()
+        
+        if not fields :
+            fields=sorted(self.keys())
+
+        if format == &#39;csv&#39;:
+            file = StringIO()
+            dw = csv.DictWriter(file, fields, extrasaction=&#39;ignore&#39;)
+            dw.writeheader()
+            dw.writerows(list(self))
+            text = file.getvalue()
+
+        elif format == &#39;prettytable&#39;:
+            table = prettytable.PrettyTable()
+            table.set_style(MSWORD_FRIENDLY)
+
+            table.field_names=fields
+
+            for item in list(self):
+                if isinstance(item, (dict, NitroDict)):
+                    values=list()
+                    for field in fields:
+                        obj=None
+                        try:obj=item[field]
+                        except KeyError : pass
+
+                        if isinstance(obj, NitroList):
+                            values.append(obj.get_text(**get_text_nest_attr))
+                        else:
+                            values.append(&#39;\n&#39;.join(textwrap.wrap(str(obj), width=max_column_width)))
+
+                    table.add_row(values)
+                    
+                else : log.warning(&#34;Unnapropriate list element type, won&#39;t show on the prettytable : {}&#34;.format(str(item)))
+
+            text=table.get_string()
+        
+        else :
+            raise AttributeError(&#34;Unknown `NitroList.get_text` format : {}. Accepted values are &#39;prettytable&#39; or &#39;csv&#39;.&#34;.format(format))
+
+        return text
+
+
+    @property
+    def text(self):
+        &#34;&#34;&#34;Defaut table string, a shorcut to `get_text()` with no arguments.
+        &#34;&#34;&#34;
+        return self.get_text()
+        
+    @property
+    def json(self):
+        &#34;&#34;&#34;JSON list of dicts representing the list.
+        &#34;&#34;&#34;
+        return(json.dumps([dict(item) for item in list(self)], indent=4, cls=NitroObject.NitroJSONEncoder))
+
+    def search(self, invert=False, match_prop=&#39;json&#39;, *pattern):
+        &#34;&#34;&#34;
+        Return a list of elements that matches one or more regex patterns.
+        Patterns are applied one after another. It&#39;s a logic AND.
+        Use `|` inside patterns to search with logic OR.
+        This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not
+        references the items in the original NitroList.  
+
+        Arguments:  
+
+        - `*pattern`: List or string regex patterns to look for.
+        - `invert`: Weither or not to invert the search and return elements that doesn&#39;t not match search.
+        - `match_prop`: Propertie that is going to be called to search. Could be `text` or `json`.
+
+
+        If you wish to apply more specific filters to NitroList list, please
+        use filter(), list comprehension, or other filtering method.
+            i.e. : `[item for item in list if item[&#39;cost&#39;] &gt; 50]`
+
+        More on regex https://docs.python.org/3/library/re.html#re.Pattern.search
+        &#34;&#34;&#34;
+        if pattern is None :
+            return self
+        elif len(pattern) == 0 :
+            return self
+        else :
+            pattern=list(pattern)
+            apattern=pattern.pop()
+        
+        matching_items=list()
+        
+        if isinstance(apattern, str):
+            for item in list(self) :
+                if regex_match(apattern, getattr(item, match_prop) if isinstance(item, NitroDict) else str(item)) != invert :
+                    matching_items.append(item)
+            log.debug(&#34;You&#39;re search returned {} rows : {}&#34;.format(
+                len(matching_items),
+                str(matching_items)[:100]+&#39;...&#39;))
+            #Apply AND reccursively
+            return NitroList(alist=matching_items).search(*pattern, invert=invert, match_prop=match_prop)
+        else:
+            raise ValueError(&#39;pattern must be str&#39;)
+
+    def refresh(self):
+        &#34;&#34;&#34;
+        Execute refresh function on all items.
+        &#34;&#34;&#34;
+        log.warning(&#34;The function NitroList.refresh hasn&#39;t been correctly tested&#34;)
+        self.perform(NitroDict.refresh, message=&#39;Refreshing all items...&#39;)
+
+    def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
+        &#34;&#34;&#34;
+        Wrapper arround executable and the a list of elements, typically `msiempy.NitroList` object.  
+
+        Arguments:  
+        
+        - `func`: callable function. `func` is going to be called like `func(item, **func_args)` on all items in data.  This function can be stateless (static) or statefull (first argument is `self`),
+        it doesn&#39;t really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
+        set/delete/change any global variable, as a result, you&#39;ll see your varible beeing potentially corrupted or chalenged with conccurent accesses.
+        - `data`: if stays `None`, will perform the action on itself (`list(self)`) else it will perfom the action on the `data` list.
+        - `func_args`: arguments that will be passed by default to `func` in all calls.
+        - `confirm`: will ask interactively confirmation.
+        - `asynch`: execute the task asynchronously with `concurrent.futures.ThreadPoolExecutor`. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
+        it will be a mess.
+        - `workers`: number of parrallel tasks, mandatory if asynch is true.
+        - `progress`: to show progress bar with ETA (tqdm).
+        - `message` : To show to the user.  
+
+        This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.  
+        Basically, if `asynch==True`, will return :  
+            returned=list(concurrent.futures.ThreadPoolExecutor(
+                        max_workers=workers ).map(
+                            func, data))  
+
+        if `asynch==False`, will iterate and return :
+            for index_or_item in data:
+                returned.append(func(index_or_item))
+
+        Returns a list of returned results.
+        &#34;&#34;&#34;
+
+        log.debug(&#39;Calling perform func=&#39;+str(func)+
+            &#39; data=&#39;+str(data)[:100]+
+            &#39; func_args=&#39;+str(func_args)+
+            &#39; confirm=&#39;+str(confirm)+
+            &#39; asynch=&#39;+str(asynch)+
+            &#39; workers=&#39;+str(workers)+
+            &#39; progress=&#39;+str(progress)+
+            &#39; message=&#39;+str(message))
+
+        if not callable(func) :
+            raise ValueError(&#39;func must be callable&#39;)
+
+        #Confirming with user if asked
+        if confirm : self._confirm_func(func, str(self))
+
+        #Setting the arguments on the function
+        func = functools.partial(func, **(func_args if func_args != None else {}))
+        
+        #The data returned by function
+        returned=list()
+
+        #Usethe self contained data if not speficed otherwise
+        elements=list(self)
+        if data:
+            if isinstance(data, list):
+                elements=data
+            else:
+                raise TypeError(&#39;data argument must be a list not {}&#39;.format(type(data)))
+
+        #Printing message if specified.
+        tqdm_args=dict()
+
+        #The message will appear on loading bar if progress is True
+        if progress is True :
+            tqdm_args=dict(desc=&#39;Loading...&#39;, total=len(elements))
+            if message != None:
+                tqdm_args[&#39;desc&#39;]=message
+        elif message != None:
+            log.info(message)
+
+        #Runs the callable on list on executor or by iterating
+        if asynch == True :
+            if isinstance(workers, int) :
+                if progress==True :
+                    if not self.nitro.config.quiet:
+                        #Need to call tqdm to have better support for concurrent futures executor
+                        # tqdm would load the whole bar intantaneously and not wait until the callable func returns. 
+                        returned=list(tqdm.tqdm(concurrent.futures.ThreadPoolExecutor(
+                        max_workers=workers ).map(
+                            func, elements), **tqdm_args))
+                    else:
+                        log.warning(&#34;You requested to show perfrom progress but config&#39;s quiet value is True, not showing tqdm load bar.&#34;)
+                        returned=list(concurrent.futures.ThreadPoolExecutor(
+                        max_workers=workers ).map(
+                            func, elements))
+                else:
+                    returned=list(concurrent.futures.ThreadPoolExecutor(
+                    max_workers=workers ).map(
+                        func, elements))
+            else:
+                raise AttributeError(&#39;When asynch == True : You must specify a integer value for workers&#39;)
+        else :
+
+            if progress==True:
+                if not self.nitro.config.quiet:
+                    elements=tqdm.tqdm(elements, **tqdm_args)
+                else:
+                    log.warning(&#34;You requested to show perform progress but config&#39;s quiet value is True, not showing tqdm load bar.&#34;)
+
+            for index_or_item in elements:
+                returned.append(func(index_or_item))
+
+        return(returned)
+
+    @staticmethod
+    def _confirm_func(func, elements):
+        &#34;&#34;&#34;
+        Ask user inut to confirm the calling of `func` on `elements`.
+        &#34;&#34;&#34;
+        if not &#39;y&#39; in input(&#39;Are you sure you want to do this &#39;+str(func)+&#39; on &#39;+
+        (&#39;\n&#39;+str(elements) if elements != None else &#39;all elements&#39;)+&#39;? [y/n]: &#39;):
+            raise InterruptedError(&#34;The action was cancelled by the user.&#34;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="msiempy.core.types.NitroObject"><code class="flex name class">
+<span>class <span class="ident">NitroObject</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all nitro objects. All objects have a reference to the single <code>msiempy.NitroSession</code> object that handle the esm requests.<br>
+Creates the object session.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NitroObject(abc.ABC):
+    &#34;&#34;&#34;
+    Base class for all nitro objects. All objects have a reference to the single `msiempy.NitroSession` object that handle the esm requests.  
+    Creates the object session.
+    &#34;&#34;&#34;
+
+    class NitroJSONEncoder(json.JSONEncoder):
+        &#34;&#34;&#34;
+        Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject.  
+        TODO return meta info about the NitroList. Maybe create a section `manager` and `data`.  
+        TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict.  
+        &#34;&#34;&#34;
+        def default(self, obj): # pylint: disable=E0202
+            if isinstance(obj,(NitroObject)):
+                return obj.data
+            else:
+                return json.JSONEncoder.default(self, obj) 
+
+    nitro=NitroSession()
+    &#34;&#34;&#34;
+    `msiempy.NitroSession` object. Interface to the SIEM.
+    &#34;&#34;&#34;
+
+    @abc.abstractproperty
+    def text(self):
+        &#34;&#34;&#34;
+        Returns printable string.  
+        Abstract declaration.
+        &#34;&#34;&#34;
+        pass
+
+    @abc.abstractproperty
+    def json(self):
+        &#34;&#34;&#34;
+        Returns json string representation.  
+        Abstract declaration.
+        &#34;&#34;&#34;
+    
+    @abc.abstractmethod
+    def refresh(self):
+        &#34;&#34;&#34;
+        Re-load the object.  
+        Abstract declaration.
+        &#34;&#34;&#34;
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="msiempy.core.types.NitroDict" href="#msiempy.core.types.NitroDict">NitroDict</a></li>
+<li><a title="msiempy.core.types.NitroList" href="#msiempy.core.types.NitroList">NitroList</a></li>
+<li><a title="msiempy.device.ESM" href="../device.html#msiempy.device.ESM">ESM</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.core.types.NitroObject.NitroJSONEncoder"><code class="name">var <span class="ident">NitroJSONEncoder</span></code></dt>
+<dd>
+<div class="desc"><p>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject.<br>
+TODO return meta info about the NitroList. Maybe create a section <code>manager</code> and <code>data</code>.<br>
+TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict.</p></div>
+</dd>
+<dt id="msiempy.core.types.NitroObject.nitro"><code class="name">var <span class="ident">nitro</span></code></dt>
+<dd>
+<div class="desc"><p><code>msiempy.NitroSession</code> object. Interface to the SIEM.</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.core.types.NitroObject.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<div class="desc"><p>Returns printable string.<br>
+Abstract declaration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractproperty
+def text(self):
+    &#34;&#34;&#34;
+    Returns printable string.  
+    Abstract declaration.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="msiempy.core.types.NitroObject.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<div class="desc"><p>Returns json string representation.<br>
+Abstract declaration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractproperty
+def json(self):
+    &#34;&#34;&#34;
+    Returns json string representation.  
+    Abstract declaration.
+    &#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.core.types.NitroObject.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Re-load the object.<br>
+Abstract declaration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def refresh(self):
+    &#34;&#34;&#34;
+    Re-load the object.  
+    Abstract declaration.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="msiempy.core.types.NitroDict"><code class="flex name class">
+<span>class <span class="ident">NitroDict</span></span>
+<span>(</span><span>adict=None, id=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class that represent any SIEM data that can be represented as a item of a list.
+Exemple : Event, Alarm, etc&hellip;
+Inherits from dict.
+Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument and update dict values accordingly.</p>
+<p>This classe and subclasses fully implements <code>dict</code> interface and is suitable for dictionnary operations, see: <a href="https://docs.python.org/3/library/stdtypes.html#mapping-types-dict">https://docs.python.org/3/library/stdtypes.html#mapping-types-dict</a></p>
+<p>Arguments:
+</p>
+<ul>
+<li><code>adict</code>: dict object to wrap.
+</li>
+<li><code>id</code>: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple.</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NitroDict(collections.UserDict, NitroObject):
+    &#34;&#34;&#34;
+    Base class that represent any SIEM data that can be represented as a item of a list.
+    Exemple : Event, Alarm, etc...
+    Inherits from dict.
+    Initiate the NitroObject and UserDict objects, load the data if id is specified, use adict agument and update dict values accordingly.
+
+    This classe and subclasses fully implements `dict` interface and is suitable for dictionnary operations, see: https://docs.python.org/3/library/stdtypes.html#mapping-types-dict
+
+    Arguments:  
+
+    - `adict`: dict object to wrap.  
+    - `id`: ESM obejct unique identifier. Alert.IPSIDAlertID for exemple. 
+    &#34;&#34;&#34;
+    def __init__(self, adict=None, id=None):
+        NitroObject.__init__(self)
+        collections.UserDict.__init__(self, adict)
+
+        if adict : self.data=adict
+        if id : self.data=self.data_from_id(id)
+
+        for key in list(self) :
+            if isinstance(self[key], list):
+                self[key]=NitroList(alist=self[key])
+
+    def __str__(self):
+        &#34;&#34;&#34;str(obj) -&gt; return text string.
+        &#34;&#34;&#34;
+        return self.text
+
+    def __repr__(self):
+        &#34;&#34;&#34;repr(obj) -&gt; return json string.
+        &#34;&#34;&#34;
+        return self.json
+
+    @property
+    def json(self):
+        &#34;&#34;&#34;JSON representation of a item
+        &#34;&#34;&#34;
+        return(json.dumps(dict(self), indent=4, cls=NitroObject.NitroJSONEncoder))
+
+    @property
+    def text(self):
+        &#34;&#34;&#34;Text list of item&#39;s values
+        &#34;&#34;&#34;
+        return(&#39;, &#39;.join([str(val) for val in self.values()]))
+
+    @abc.abstractmethod
+    def data_from_id(self, id):
+        &#34;&#34;&#34;This method retreive the item infos from an object ID.  
+        Abstract declaration.
+        &#34;&#34;&#34;
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>collections.UserDict</li>
+<li>collections.abc.MutableMapping</li>
+<li>collections.abc.Mapping</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.core.types.NitroObject" href="#msiempy.core.types.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="msiempy.alarm.Alarm" href="../alarm.html#msiempy.alarm.Alarm">Alarm</a></li>
+<li><a title="msiempy.device.DataSource" href="../device.html#msiempy.device.DataSource">DataSource</a></li>
+<li><a title="msiempy.event.Event" href="../event.html#msiempy.event.Event">Event</a></li>
+<li><a title="msiempy.watchlist.Watchlist" href="../watchlist.html#msiempy.watchlist.Watchlist">Watchlist</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.core.types.NitroDict.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<div class="desc"><p>JSON representation of a item</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def json(self):
+    &#34;&#34;&#34;JSON representation of a item
+    &#34;&#34;&#34;
+    return(json.dumps(dict(self), indent=4, cls=NitroObject.NitroJSONEncoder))</code></pre>
+</details>
+</dd>
+<dt id="msiempy.core.types.NitroDict.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<div class="desc"><p>Text list of item's values</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def text(self):
+    &#34;&#34;&#34;Text list of item&#39;s values
+    &#34;&#34;&#34;
+    return(&#39;, &#39;.join([str(val) for val in self.values()]))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.core.types.NitroDict.data_from_id"><code class="name flex">
+<span>def <span class="ident">data_from_id</span></span>(<span>self, id)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method retreive the item infos from an object ID.<br>
+Abstract declaration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def data_from_id(self, id):
+    &#34;&#34;&#34;This method retreive the item infos from an object ID.  
+    Abstract declaration.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.core.types.NitroObject" href="#msiempy.core.types.NitroObject">NitroObject</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.core.types.NitroObject.NitroJSONEncoder" href="#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.core.types.NitroObject.nitro" href="#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
+<li><code><a title="msiempy.core.types.NitroObject.refresh" href="#msiempy.core.types.NitroObject.refresh">refresh</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="msiempy.core.types.NitroList"><code class="flex name class">
+<span>class <span class="ident">NitroList</span></span>
+<span>(</span><span>alist=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for list objects.
+</p>
+<p>It offers search and other data list actions.
+</p>
+<p>This classe and subclasses fully implements <code>list</code> interface and is suitable for list operations, see: <a href="https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range">https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range</a></p>
+<p>Concrete classes have to cast the list items in their <code>__init__</code> method !
+</p>
+<p>Subclassing requirements: Subclasses of UserList are expected to offer a constructor which can be called with either no arguments or one argument. List operations which return a new sequence attempt to create an instance of the actual implementation class. To do so, it assumes that the constructor can be called with a single parameter, which is a sequence object used as a data source.
+If a derived class does not wish to comply with this requirement, all of the special methods supported by this class will need to be overridden; please consult the sources for information about the methods which need to be provided in that case.
+See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects">https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects</a>
+</p>
+<p>Arguments:
+</p>
+<ul>
+<li><code>alist</code>: list object to wrap.</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NitroList(collections.UserList, NitroObject):
+    &#34;&#34;&#34;
+    Base class for list objects.  
+    
+    It offers search and other data list actions.  
+    
+    This classe and subclasses fully implements `list` interface and is suitable for list operations, see: https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range
+    
+    Concrete classes have to cast the list items in their `__init__` method !  
+
+    Subclassing requirements: Subclasses of UserList are expected to offer a constructor which can be called with either no arguments or one argument. List operations which return a new sequence attempt to create an instance of the actual implementation class. To do so, it assumes that the constructor can be called with a single parameter, which is a sequence object used as a data source.
+    If a derived class does not wish to comply with this requirement, all of the special methods supported by this class will need to be overridden; please consult the sources for information about the methods which need to be provided in that case.
+    See: https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects  
+
+    Arguments:  
+
+    - `alist`: list object to wrap.
+    &#34;&#34;&#34;
+
+    # TODO better polymorphism to cast every sub-NitroList class&#39;s item dynamcally in `__init__` method.  
+    def __init__(self, alist=None):
+        NitroObject.__init__(self)
+        if alist : collections.UserList.__init__(self, alist)
+        else : collections.UserList.__init__(self, [])
+
+    def __str__(self):
+        &#34;&#34;&#34;str(obj) -&gt; return text string.
+        &#34;&#34;&#34;
+        return &#34;{} containing {} elements ; keys={}&#34;.format(str(super()), len(list(self)), self.keys())
+
+    def keys(self):
+        &#34;&#34;&#34;Set of keys for all dict&#34;&#34;&#34;
+        #If new fields are added it won&#39;t show on text repr. Only json.
+        manager_keys=set()
+        for item in list(self): manager_keys.update(getattr(item, &#39;keys&#39;, set)())
+        return manager_keys
+
+    def get_text(self, format=&#39;prettytable&#39;, fields=None, 
+                        max_column_width=80, get_text_nest_attr={} ):
+        &#34;&#34;&#34;
+        Return a csv or table string representation of the list
+
+        Arguments:  
+
+        - `format`: 
+              prettytable: Returns a table generated by prettytable
+              csv: Returns data with header and comma separated values. 
+        - `fields`: list of fields you want in the table. If `None` : default fields are returned by .keys attribute and sorted.  
+        - `max_column_width`: when using prettytable only 
+        - `get_text_nest_attr`: attributes passed to the nested `msiempy.NitroList.get_text` elements if any. Useful to control events appearence.
+        &#34;&#34;&#34;
+
+        text=str()
+        
+        if not fields :
+            fields=sorted(self.keys())
+
+        if format == &#39;csv&#39;:
+            file = StringIO()
+            dw = csv.DictWriter(file, fields, extrasaction=&#39;ignore&#39;)
+            dw.writeheader()
+            dw.writerows(list(self))
+            text = file.getvalue()
+
+        elif format == &#39;prettytable&#39;:
+            table = prettytable.PrettyTable()
+            table.set_style(MSWORD_FRIENDLY)
+
+            table.field_names=fields
+
+            for item in list(self):
+                if isinstance(item, (dict, NitroDict)):
+                    values=list()
+                    for field in fields:
+                        obj=None
+                        try:obj=item[field]
+                        except KeyError : pass
+
+                        if isinstance(obj, NitroList):
+                            values.append(obj.get_text(**get_text_nest_attr))
+                        else:
+                            values.append(&#39;\n&#39;.join(textwrap.wrap(str(obj), width=max_column_width)))
+
+                    table.add_row(values)
+                    
+                else : log.warning(&#34;Unnapropriate list element type, won&#39;t show on the prettytable : {}&#34;.format(str(item)))
+
+            text=table.get_string()
+        
+        else :
+            raise AttributeError(&#34;Unknown `NitroList.get_text` format : {}. Accepted values are &#39;prettytable&#39; or &#39;csv&#39;.&#34;.format(format))
+
+        return text
+
+
+    @property
+    def text(self):
+        &#34;&#34;&#34;Defaut table string, a shorcut to `get_text()` with no arguments.
+        &#34;&#34;&#34;
+        return self.get_text()
+        
+    @property
+    def json(self):
+        &#34;&#34;&#34;JSON list of dicts representing the list.
+        &#34;&#34;&#34;
+        return(json.dumps([dict(item) for item in list(self)], indent=4, cls=NitroObject.NitroJSONEncoder))
+
+    def search(self, invert=False, match_prop=&#39;json&#39;, *pattern):
+        &#34;&#34;&#34;
+        Return a list of elements that matches one or more regex patterns.
+        Patterns are applied one after another. It&#39;s a logic AND.
+        Use `|` inside patterns to search with logic OR.
+        This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not
+        references the items in the original NitroList.  
+
+        Arguments:  
+
+        - `*pattern`: List or string regex patterns to look for.
+        - `invert`: Weither or not to invert the search and return elements that doesn&#39;t not match search.
+        - `match_prop`: Propertie that is going to be called to search. Could be `text` or `json`.
+
+
+        If you wish to apply more specific filters to NitroList list, please
+        use filter(), list comprehension, or other filtering method.
+            i.e. : `[item for item in list if item[&#39;cost&#39;] &gt; 50]`
+
+        More on regex https://docs.python.org/3/library/re.html#re.Pattern.search
+        &#34;&#34;&#34;
+        if pattern is None :
+            return self
+        elif len(pattern) == 0 :
+            return self
+        else :
+            pattern=list(pattern)
+            apattern=pattern.pop()
+        
+        matching_items=list()
+        
+        if isinstance(apattern, str):
+            for item in list(self) :
+                if regex_match(apattern, getattr(item, match_prop) if isinstance(item, NitroDict) else str(item)) != invert :
+                    matching_items.append(item)
+            log.debug(&#34;You&#39;re search returned {} rows : {}&#34;.format(
+                len(matching_items),
+                str(matching_items)[:100]+&#39;...&#39;))
+            #Apply AND reccursively
+            return NitroList(alist=matching_items).search(*pattern, invert=invert, match_prop=match_prop)
+        else:
+            raise ValueError(&#39;pattern must be str&#39;)
+
+    def refresh(self):
+        &#34;&#34;&#34;
+        Execute refresh function on all items.
+        &#34;&#34;&#34;
+        log.warning(&#34;The function NitroList.refresh hasn&#39;t been correctly tested&#34;)
+        self.perform(NitroDict.refresh, message=&#39;Refreshing all items...&#39;)
+
+    def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
+        &#34;&#34;&#34;
+        Wrapper arround executable and the a list of elements, typically `msiempy.NitroList` object.  
+
+        Arguments:  
+        
+        - `func`: callable function. `func` is going to be called like `func(item, **func_args)` on all items in data.  This function can be stateless (static) or statefull (first argument is `self`),
+        it doesn&#39;t really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
+        set/delete/change any global variable, as a result, you&#39;ll see your varible beeing potentially corrupted or chalenged with conccurent accesses.
+        - `data`: if stays `None`, will perform the action on itself (`list(self)`) else it will perfom the action on the `data` list.
+        - `func_args`: arguments that will be passed by default to `func` in all calls.
+        - `confirm`: will ask interactively confirmation.
+        - `asynch`: execute the task asynchronously with `concurrent.futures.ThreadPoolExecutor`. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
+        it will be a mess.
+        - `workers`: number of parrallel tasks, mandatory if asynch is true.
+        - `progress`: to show progress bar with ETA (tqdm).
+        - `message` : To show to the user.  
+
+        This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.  
+        Basically, if `asynch==True`, will return :  
+            returned=list(concurrent.futures.ThreadPoolExecutor(
+                        max_workers=workers ).map(
+                            func, data))  
+
+        if `asynch==False`, will iterate and return :
+            for index_or_item in data:
+                returned.append(func(index_or_item))
+
+        Returns a list of returned results.
+        &#34;&#34;&#34;
+
+        log.debug(&#39;Calling perform func=&#39;+str(func)+
+            &#39; data=&#39;+str(data)[:100]+
+            &#39; func_args=&#39;+str(func_args)+
+            &#39; confirm=&#39;+str(confirm)+
+            &#39; asynch=&#39;+str(asynch)+
+            &#39; workers=&#39;+str(workers)+
+            &#39; progress=&#39;+str(progress)+
+            &#39; message=&#39;+str(message))
+
+        if not callable(func) :
+            raise ValueError(&#39;func must be callable&#39;)
+
+        #Confirming with user if asked
+        if confirm : self._confirm_func(func, str(self))
+
+        #Setting the arguments on the function
+        func = functools.partial(func, **(func_args if func_args != None else {}))
+        
+        #The data returned by function
+        returned=list()
+
+        #Usethe self contained data if not speficed otherwise
+        elements=list(self)
+        if data:
+            if isinstance(data, list):
+                elements=data
+            else:
+                raise TypeError(&#39;data argument must be a list not {}&#39;.format(type(data)))
+
+        #Printing message if specified.
+        tqdm_args=dict()
+
+        #The message will appear on loading bar if progress is True
+        if progress is True :
+            tqdm_args=dict(desc=&#39;Loading...&#39;, total=len(elements))
+            if message != None:
+                tqdm_args[&#39;desc&#39;]=message
+        elif message != None:
+            log.info(message)
+
+        #Runs the callable on list on executor or by iterating
+        if asynch == True :
+            if isinstance(workers, int) :
+                if progress==True :
+                    if not self.nitro.config.quiet:
+                        #Need to call tqdm to have better support for concurrent futures executor
+                        # tqdm would load the whole bar intantaneously and not wait until the callable func returns. 
+                        returned=list(tqdm.tqdm(concurrent.futures.ThreadPoolExecutor(
+                        max_workers=workers ).map(
+                            func, elements), **tqdm_args))
+                    else:
+                        log.warning(&#34;You requested to show perfrom progress but config&#39;s quiet value is True, not showing tqdm load bar.&#34;)
+                        returned=list(concurrent.futures.ThreadPoolExecutor(
+                        max_workers=workers ).map(
+                            func, elements))
+                else:
+                    returned=list(concurrent.futures.ThreadPoolExecutor(
+                    max_workers=workers ).map(
+                        func, elements))
+            else:
+                raise AttributeError(&#39;When asynch == True : You must specify a integer value for workers&#39;)
+        else :
+
+            if progress==True:
+                if not self.nitro.config.quiet:
+                    elements=tqdm.tqdm(elements, **tqdm_args)
+                else:
+                    log.warning(&#34;You requested to show perform progress but config&#39;s quiet value is True, not showing tqdm load bar.&#34;)
+
+            for index_or_item in elements:
+                returned.append(func(index_or_item))
+
+        return(returned)
+
+    @staticmethod
+    def _confirm_func(func, elements):
+        &#34;&#34;&#34;
+        Ask user inut to confirm the calling of `func` on `elements`.
+        &#34;&#34;&#34;
+        if not &#39;y&#39; in input(&#39;Are you sure you want to do this &#39;+str(func)+&#39; on &#39;+
+        (&#39;\n&#39;+str(elements) if elements != None else &#39;all elements&#39;)+&#39;? [y/n]: &#39;):
+            raise InterruptedError(&#34;The action was cancelled by the user.&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>collections.UserList</li>
+<li>collections.abc.MutableSequence</li>
+<li>collections.abc.Sequence</li>
+<li>collections.abc.Reversible</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.core.types.NitroObject" href="#msiempy.core.types.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="msiempy.core.query.FilteredQueryList" href="query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></li>
+<li><a title="msiempy.device.DevTree" href="../device.html#msiempy.device.DevTree">DevTree</a></li>
+<li><a title="msiempy.watchlist.WatchlistManager" href="../watchlist.html#msiempy.watchlist.WatchlistManager">WatchlistManager</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.core.types.NitroList.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<div class="desc"><p>Defaut table string, a shorcut to <code>get_text()</code> with no arguments.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def text(self):
+    &#34;&#34;&#34;Defaut table string, a shorcut to `get_text()` with no arguments.
+    &#34;&#34;&#34;
+    return self.get_text()</code></pre>
+</details>
+</dd>
+<dt id="msiempy.core.types.NitroList.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<div class="desc"><p>JSON list of dicts representing the list.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def json(self):
+    &#34;&#34;&#34;JSON list of dicts representing the list.
+    &#34;&#34;&#34;
+    return(json.dumps([dict(item) for item in list(self)], indent=4, cls=NitroObject.NitroJSONEncoder))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.core.types.NitroList.keys"><code class="name flex">
+<span>def <span class="ident">keys</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set of keys for all dict</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def keys(self):
+    &#34;&#34;&#34;Set of keys for all dict&#34;&#34;&#34;
+    #If new fields are added it won&#39;t show on text repr. Only json.
+    manager_keys=set()
+    for item in list(self): manager_keys.update(getattr(item, &#39;keys&#39;, set)())
+    return manager_keys</code></pre>
+</details>
+</dd>
+<dt id="msiempy.core.types.NitroList.get_text"><code class="name flex">
+<span>def <span class="ident">get_text</span></span>(<span>self, format='prettytable', fields=None, max_column_width=80, get_text_nest_attr={})</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a csv or table string representation of the list</p>
+<p>Arguments:
+</p>
+<ul>
+<li><code>format</code>:
+prettytable: Returns a table generated by prettytable
+csv: Returns data with header and comma separated values. </li>
+<li><code>fields</code>: list of fields you want in the table. If <code>None</code> : default fields are returned by .keys attribute and sorted.
+</li>
+<li><code>max_column_width</code>: when using prettytable only </li>
+<li><code>get_text_nest_attr</code>: attributes passed to the nested <code>msiempy.NitroList.get_text</code> elements if any. Useful to control events appearence.</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_text(self, format=&#39;prettytable&#39;, fields=None, 
+                    max_column_width=80, get_text_nest_attr={} ):
+    &#34;&#34;&#34;
+    Return a csv or table string representation of the list
+
+    Arguments:  
+
+    - `format`: 
+          prettytable: Returns a table generated by prettytable
+          csv: Returns data with header and comma separated values. 
+    - `fields`: list of fields you want in the table. If `None` : default fields are returned by .keys attribute and sorted.  
+    - `max_column_width`: when using prettytable only 
+    - `get_text_nest_attr`: attributes passed to the nested `msiempy.NitroList.get_text` elements if any. Useful to control events appearence.
+    &#34;&#34;&#34;
+
+    text=str()
+    
+    if not fields :
+        fields=sorted(self.keys())
+
+    if format == &#39;csv&#39;:
+        file = StringIO()
+        dw = csv.DictWriter(file, fields, extrasaction=&#39;ignore&#39;)
+        dw.writeheader()
+        dw.writerows(list(self))
+        text = file.getvalue()
+
+    elif format == &#39;prettytable&#39;:
+        table = prettytable.PrettyTable()
+        table.set_style(MSWORD_FRIENDLY)
+
+        table.field_names=fields
+
+        for item in list(self):
+            if isinstance(item, (dict, NitroDict)):
+                values=list()
+                for field in fields:
+                    obj=None
+                    try:obj=item[field]
+                    except KeyError : pass
+
+                    if isinstance(obj, NitroList):
+                        values.append(obj.get_text(**get_text_nest_attr))
+                    else:
+                        values.append(&#39;\n&#39;.join(textwrap.wrap(str(obj), width=max_column_width)))
+
+                table.add_row(values)
+                
+            else : log.warning(&#34;Unnapropriate list element type, won&#39;t show on the prettytable : {}&#34;.format(str(item)))
+
+        text=table.get_string()
+    
+    else :
+        raise AttributeError(&#34;Unknown `NitroList.get_text` format : {}. Accepted values are &#39;prettytable&#39; or &#39;csv&#39;.&#34;.format(format))
+
+    return text</code></pre>
+</details>
+</dd>
+<dt id="msiempy.core.types.NitroList.search"><code class="name flex">
+<span>def <span class="ident">search</span></span>(<span>self, invert=False, match_prop='json', *pattern)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a list of elements that matches one or more regex patterns.
+Patterns are applied one after another. It's a logic AND.
+Use <code>|</code> inside patterns to search with logic OR.
+This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not
+references the items in the original NitroList.
+</p>
+<p>Arguments:
+</p>
+<ul>
+<li><code>*pattern</code>: List or string regex patterns to look for.</li>
+<li><code>invert</code>: Weither or not to invert the search and return elements that doesn't not match search.</li>
+<li><code>match_prop</code>: Propertie that is going to be called to search. Could be <code>text</code> or <code>json</code>.</li>
+</ul>
+<p>If you wish to apply more specific filters to NitroList list, please
+use filter(), list comprehension, or other filtering method.
+i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
+<p>More on regex <a href="https://docs.python.org/3/library/re.html#re.Pattern.search">https://docs.python.org/3/library/re.html#re.Pattern.search</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def search(self, invert=False, match_prop=&#39;json&#39;, *pattern):
+    &#34;&#34;&#34;
+    Return a list of elements that matches one or more regex patterns.
+    Patterns are applied one after another. It&#39;s a logic AND.
+    Use `|` inside patterns to search with logic OR.
+    This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not
+    references the items in the original NitroList.  
+
+    Arguments:  
+
+    - `*pattern`: List or string regex patterns to look for.
+    - `invert`: Weither or not to invert the search and return elements that doesn&#39;t not match search.
+    - `match_prop`: Propertie that is going to be called to search. Could be `text` or `json`.
+
+
+    If you wish to apply more specific filters to NitroList list, please
+    use filter(), list comprehension, or other filtering method.
+        i.e. : `[item for item in list if item[&#39;cost&#39;] &gt; 50]`
+
+    More on regex https://docs.python.org/3/library/re.html#re.Pattern.search
+    &#34;&#34;&#34;
+    if pattern is None :
+        return self
+    elif len(pattern) == 0 :
+        return self
+    else :
+        pattern=list(pattern)
+        apattern=pattern.pop()
+    
+    matching_items=list()
+    
+    if isinstance(apattern, str):
+        for item in list(self) :
+            if regex_match(apattern, getattr(item, match_prop) if isinstance(item, NitroDict) else str(item)) != invert :
+                matching_items.append(item)
+        log.debug(&#34;You&#39;re search returned {} rows : {}&#34;.format(
+            len(matching_items),
+            str(matching_items)[:100]+&#39;...&#39;))
+        #Apply AND reccursively
+        return NitroList(alist=matching_items).search(*pattern, invert=invert, match_prop=match_prop)
+    else:
+        raise ValueError(&#39;pattern must be str&#39;)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.core.types.NitroList.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Execute refresh function on all items.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def refresh(self):
+    &#34;&#34;&#34;
+    Execute refresh function on all items.
+    &#34;&#34;&#34;
+    log.warning(&#34;The function NitroList.refresh hasn&#39;t been correctly tested&#34;)
+    self.perform(NitroDict.refresh, message=&#39;Refreshing all items...&#39;)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.core.types.NitroList.perform"><code class="name flex">
+<span>def <span class="ident">perform</span></span>(<span>self, func, data=None, func_args=None, confirm=False, asynch=False, workers=None, progress=False, message=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wrapper arround executable and the a list of elements, typically <code>msiempy.NitroList</code> object.
+</p>
+<p>Arguments:
+</p>
+<ul>
+<li><code>func</code>: callable function. <code>func</code> is going to be called like <code>func(item, **func_args)</code> on all items in data.
+This function can be stateless (static) or statefull (first argument is <code>self</code>),
+it doesn't really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
+set/delete/change any global variable, as a result, you'll see your varible beeing potentially corrupted or chalenged with conccurent accesses.</li>
+<li><code>data</code>: if stays <code>None</code>, will perform the action on itself (<code>list(self)</code>) else it will perfom the action on the <code>data</code> list.</li>
+<li><code>func_args</code>: arguments that will be passed by default to <code>func</code> in all calls.</li>
+<li><code>confirm</code>: will ask interactively confirmation.</li>
+<li><code>asynch</code>: execute the task asynchronously with <code>concurrent.futures.ThreadPoolExecutor</code>. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
+it will be a mess.</li>
+<li><code>workers</code>: number of parrallel tasks, mandatory if asynch is true.</li>
+<li><code>progress</code>: to show progress bar with ETA (tqdm).</li>
+<li><code>message</code> : To show to the user.
+</li>
+</ul>
+<p>This method is where the core of asynchronous tasks resides. <code>func</code> will be executed on all <code>data</code> elements.<br>
+Basically, if <code>asynch==True</code>, will return :<br>
+returned=list(concurrent.futures.ThreadPoolExecutor(
+max_workers=workers ).map(
+func, data))
+</p>
+<p>if <code>asynch==False</code>, will iterate and return :
+for index_or_item in data:
+returned.append(func(index_or_item))</p>
+<p>Returns a list of returned results.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
+    &#34;&#34;&#34;
+    Wrapper arround executable and the a list of elements, typically `msiempy.NitroList` object.  
+
+    Arguments:  
+    
+    - `func`: callable function. `func` is going to be called like `func(item, **func_args)` on all items in data.  This function can be stateless (static) or statefull (first argument is `self`),
+    it doesn&#39;t really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
+    set/delete/change any global variable, as a result, you&#39;ll see your varible beeing potentially corrupted or chalenged with conccurent accesses.
+    - `data`: if stays `None`, will perform the action on itself (`list(self)`) else it will perfom the action on the `data` list.
+    - `func_args`: arguments that will be passed by default to `func` in all calls.
+    - `confirm`: will ask interactively confirmation.
+    - `asynch`: execute the task asynchronously with `concurrent.futures.ThreadPoolExecutor`. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
+    it will be a mess.
+    - `workers`: number of parrallel tasks, mandatory if asynch is true.
+    - `progress`: to show progress bar with ETA (tqdm).
+    - `message` : To show to the user.  
+
+    This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.  
+    Basically, if `asynch==True`, will return :  
+        returned=list(concurrent.futures.ThreadPoolExecutor(
+                    max_workers=workers ).map(
+                        func, data))  
+
+    if `asynch==False`, will iterate and return :
+        for index_or_item in data:
+            returned.append(func(index_or_item))
+
+    Returns a list of returned results.
+    &#34;&#34;&#34;
+
+    log.debug(&#39;Calling perform func=&#39;+str(func)+
+        &#39; data=&#39;+str(data)[:100]+
+        &#39; func_args=&#39;+str(func_args)+
+        &#39; confirm=&#39;+str(confirm)+
+        &#39; asynch=&#39;+str(asynch)+
+        &#39; workers=&#39;+str(workers)+
+        &#39; progress=&#39;+str(progress)+
+        &#39; message=&#39;+str(message))
+
+    if not callable(func) :
+        raise ValueError(&#39;func must be callable&#39;)
+
+    #Confirming with user if asked
+    if confirm : self._confirm_func(func, str(self))
+
+    #Setting the arguments on the function
+    func = functools.partial(func, **(func_args if func_args != None else {}))
+    
+    #The data returned by function
+    returned=list()
+
+    #Usethe self contained data if not speficed otherwise
+    elements=list(self)
+    if data:
+        if isinstance(data, list):
+            elements=data
+        else:
+            raise TypeError(&#39;data argument must be a list not {}&#39;.format(type(data)))
+
+    #Printing message if specified.
+    tqdm_args=dict()
+
+    #The message will appear on loading bar if progress is True
+    if progress is True :
+        tqdm_args=dict(desc=&#39;Loading...&#39;, total=len(elements))
+        if message != None:
+            tqdm_args[&#39;desc&#39;]=message
+    elif message != None:
+        log.info(message)
+
+    #Runs the callable on list on executor or by iterating
+    if asynch == True :
+        if isinstance(workers, int) :
+            if progress==True :
+                if not self.nitro.config.quiet:
+                    #Need to call tqdm to have better support for concurrent futures executor
+                    # tqdm would load the whole bar intantaneously and not wait until the callable func returns. 
+                    returned=list(tqdm.tqdm(concurrent.futures.ThreadPoolExecutor(
+                    max_workers=workers ).map(
+                        func, elements), **tqdm_args))
+                else:
+                    log.warning(&#34;You requested to show perfrom progress but config&#39;s quiet value is True, not showing tqdm load bar.&#34;)
+                    returned=list(concurrent.futures.ThreadPoolExecutor(
+                    max_workers=workers ).map(
+                        func, elements))
+            else:
+                returned=list(concurrent.futures.ThreadPoolExecutor(
+                max_workers=workers ).map(
+                    func, elements))
+        else:
+            raise AttributeError(&#39;When asynch == True : You must specify a integer value for workers&#39;)
+    else :
+
+        if progress==True:
+            if not self.nitro.config.quiet:
+                elements=tqdm.tqdm(elements, **tqdm_args)
+            else:
+                log.warning(&#34;You requested to show perform progress but config&#39;s quiet value is True, not showing tqdm load bar.&#34;)
+
+        for index_or_item in elements:
+            returned.append(func(index_or_item))
+
+    return(returned)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="msiempy.core.types.NitroObject" href="#msiempy.core.types.NitroObject">NitroObject</a></b></code>:
+<ul class="hlist">
+<li><code><a title="msiempy.core.types.NitroObject.NitroJSONEncoder" href="#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.core.types.NitroObject.nitro" href="#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="msiempy.core" href="index.html">msiempy.core</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="msiempy.core.types.NitroObject" href="#msiempy.core.types.NitroObject">NitroObject</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.core.types.NitroObject.refresh" href="#msiempy.core.types.NitroObject.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.core.types.NitroObject.text" href="#msiempy.core.types.NitroObject.text">text</a></code></li>
+<li><code><a title="msiempy.core.types.NitroObject.json" href="#msiempy.core.types.NitroObject.json">json</a></code></li>
+<li><code><a title="msiempy.core.types.NitroObject.NitroJSONEncoder" href="#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+<li><code><a title="msiempy.core.types.NitroObject.nitro" href="#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.core.types.NitroDict" href="#msiempy.core.types.NitroDict">NitroDict</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.core.types.NitroDict.data_from_id" href="#msiempy.core.types.NitroDict.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.core.types.NitroDict.json" href="#msiempy.core.types.NitroDict.json">json</a></code></li>
+<li><code><a title="msiempy.core.types.NitroDict.text" href="#msiempy.core.types.NitroDict.text">text</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.core.types.NitroList" href="#msiempy.core.types.NitroList">NitroList</a></code></h4>
+<ul class="two-column">
+<li><code><a title="msiempy.core.types.NitroList.keys" href="#msiempy.core.types.NitroList.keys">keys</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.get_text" href="#msiempy.core.types.NitroList.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.search" href="#msiempy.core.types.NitroList.search">search</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.refresh" href="#msiempy.core.types.NitroList.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.perform" href="#msiempy.core.types.NitroList.perform">perform</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.text" href="#msiempy.core.types.NitroList.text">text</a></code></li>
+<li><code><a title="msiempy.core.types.NitroList.json" href="#msiempy.core.types.NitroList.json">json</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
+</footer>
+</body>
+</html>

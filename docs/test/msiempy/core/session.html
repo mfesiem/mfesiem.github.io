@@ -362,6 +362,19 @@ PARAMS = {
         
         &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
 } 
+_PARAMS_DOCS=&#34;&#34;
+for k,v in PARAMS.items():
+    name=&#39;`{}`&#39;.format(k)
+    keywords=[]
+    params=&#39;&#39;
+    endpoint=&#39;`{}`&#39;.format(urlparse(v[0] if not isinstance(v[0], Template) else v[0].template).path)
+    if isinstance(v[0], Template):
+        keywords += [s[1] or s[2] for s in Template.pattern.findall(v[0].template) if s[1] or s[2]]
+    if isinstance(v[1], Template):
+        keywords += [s[1] or s[2] for s in Template.pattern.findall(v[1].template) if s[1] or s[2]]
+    params=&#39;, &#39;.join([&#39;`{}`&#39;.format(k) for k in keywords])
+    _PARAMS_DOCS+=&#34;{} | {} | {} \n&#34;.format(name, params, endpoint)
+    
 __pdoc__[&#39;msiempy.core.session.PARAMS&#39;] = &#39;&#39;&#39;
 SIEM API Methos/Parameters mapping.  
 This structure provide a central place to aggregate API methods and parameters.  
@@ -390,20 +403,7 @@ Possible `msiempy.core.session.NitroSession.request` requests and interpolation 
 Request name | Required arguments | Target emdpoint
 --- | --- | ---
 {docs}
-&#39;&#39;&#39;
-_PARAMS_DOCS=&#34;&#34;
-for k,v in PARAMS.items():
-    name=&#39;`{}`&#39;.format(k)
-    keywords=[]
-    params=&#39;&#39;
-    endpoint=&#39;`{}`&#39;.format(urlparse(v[0] if not isinstance(v[0], Template) else v[0].template).path)
-    if isinstance(v[0], Template):
-        keywords += [s[1] or s[2] for s in Template.pattern.findall(v[0].template) if s[1] or s[2]]
-    if isinstance(v[1], Template):
-        keywords += [s[1] or s[2] for s in Template.pattern.findall(v[1].template) if s[1] or s[2]]
-    params=&#39;, &#39;.join([&#39;`{}`&#39;.format(k) for k in keywords])
-    _PARAMS_DOCS+=&#34;{} | {} | {} \n&#34;.format(name, params, endpoint)
-__pdoc__[&#39;msiempy.core.session.PARAMS&#39;] +=_PARAMS_DOCS
+&#39;&#39;&#39;.format(docs=_PARAMS_DOCS)
 
 class NitroSession():
     &#34;&#34;&#34;

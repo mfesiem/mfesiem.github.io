@@ -744,7 +744,6 @@ class NitroSession():
             for a in alarms:
                 a.update(s.request(&#39;get_alarm_details_new&#39;, id=a[&#39;id&#39;]))
 
-
         &#34;&#34;&#34;
         log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
             str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
@@ -879,11 +878,11 @@ for k,v in _PARAMS.items():
     if isinstance(v[1], Template):
         keywords += [s[1] or s[2] for s in Template.pattern.findall(v[1].template) if s[1] or s[2]]
     params=&#39;, &#39;.join([&#39;{}&#39;.format(k) for k in keywords])
-    _PARAMS_DOCS+=&#34;`request(&#39;{}&#39;, {})` -&gt; call `{}`\n&#34;.format(name, params, endpoint)
+    _PARAMS_DOCS+=&#34;     `request(&#39;{}&#39;, {})` -&gt; call `{}`\n&#34;.format(name, params, endpoint)
 
 __pdoc__[&#39;NitroSession.request&#39;] = NitroSession.request.__doc__+&#39;&#39;&#39;
-All Requests |
---- | 
+        All Requests |
+        --- | 
 &#39;&#39;&#39;+_PARAMS_DOCS
 
 class NitroError(Exception):
@@ -1281,7 +1280,6 @@ It provides easier dialogue with the ESM by doing agument interpolation with <co
             alarms = s.request(&#39;get_alarms&#39;, time_range=&#39;LAST_24_HOURS&#39;,  status=&#39;&#39;, page_size=500, page_number=0)
             for a in alarms:
                 a.update(s.request(&#39;get_alarm_details_new&#39;, id=a[&#39;id&#39;]))
-
 
         &#34;&#34;&#34;
         log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
@@ -1886,41 +1884,53 @@ Example: '10.0.2 20170516001031'</p></div>
 <span>def <span class="ident">request</span></span>(<span>self, request, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><pre><code>    Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with &lt;code&gt;msiempy.core.session.PARAMS&lt;/code&gt; docstrings and build a valid datastructure for the HTTP data.
-
-    Then call the &lt;code&gt;&lt;a title="msiempy.core.session.NitroSession.esm_request" href="#msiempy.core.session.NitroSession.esm_request"&gt;NitroSession.esm\_request()&lt;/a&gt;&lt;/code&gt; method with the built data.
-
-    Also handles auto-login.
-
-    Arguments:
-
-    - &lt;code&gt;request&lt;/code&gt;: Name keyword corresponding to the request name in &lt;code&gt;msiempy.core.session.PARAMS&lt;/code&gt; mapping.  
-    - &lt;code&gt;http&lt;/code&gt;: HTTP method.  
-    - &lt;code&gt;callback&lt;/code&gt; : function to apply afterwards  
-    - &lt;code&gt;raw&lt;/code&gt; : If true will return the Response object from requests module.   
-    - &lt;code&gt;secure&lt;/code&gt; : If true will not log the content of the request.   
-    - &lt;code&gt;retry&lt;/code&gt; : Number of time the request can be retried
-
-    Interpolation parameters :
-
-    - `**kwargs` : Interpolation parameters that will be match to &lt;code&gt;msiempy.core.session.PARAMS&lt;/code&gt; templates. Dynamic keyword arguments.
-
-    Returns :
-
-    - a &lt;code&gt;dict&lt;/code&gt;, &lt;code&gt;list&lt;/code&gt; or &lt;code&gt;str&lt;/code&gt; object  
-    - the &lt;code&gt;resquest.Response&lt;/code&gt; object if raw=True  
-    - &lt;code&gt;result.text&lt;/code&gt; if &lt;code&gt;requests.HTTPError&lt;/code&gt;,   
-    - &lt;code&gt;None&lt;/code&gt; if Timeout or TooManyRedirects if raw=False
-
-    Exemple call:
-
-        from msiempy import NitroSession
-        s = NitroSession()
-        s.login()
-        # Get all last 24h alarms details
-        alarms = s.request('get_alarms', time_range='LAST_24_HOURS',  status='', page_size=500, page_number=0)
-        for a in alarms:
-            a.update(s.request('get_alarm_details_new', id=a['id']))
+<div class="desc"><p>Interface to make ESM API calls more simple by interpolating <code>**kwargs</code> arguments with <code>msiempy.core.session.PARAMS</code> docstrings and build a valid datastructure for the HTTP data.
+</p>
+<p>Then call the <code><a title="msiempy.core.session.NitroSession.esm_request" href="#msiempy.core.session.NitroSession.esm_request">NitroSession.esm_request()</a></code> method with the built data.
+</p>
+<p>Also handles auto-login.
+</p>
+<p>Arguments:
+</p>
+<ul>
+<li><code>request</code>: Name keyword corresponding to the request name in <code>msiempy.core.session.PARAMS</code> mapping.
+</li>
+<li><code>http</code>: HTTP method.
+</li>
+<li><code>callback</code> : function to apply afterwards
+</li>
+<li><code>raw</code> : If true will return the Response object from requests module.
+</li>
+<li><code>secure</code> : If true will not log the content of the request.
+</li>
+<li><code>retry</code> : Number of time the request can be retried</li>
+</ul>
+<p>Interpolation parameters :
+</p>
+<ul>
+<li><code>**kwargs</code> : Interpolation parameters that will be match to <code>msiempy.core.session.PARAMS</code> templates. Dynamic keyword arguments.
+</li>
+</ul>
+<p>Returns :
+</p>
+<ul>
+<li>a <code>dict</code>, <code>list</code> or <code>str</code> object
+</li>
+<li>the <code>resquest.Response</code> object if raw=True
+</li>
+<li><code>result.text</code> if <code>requests.HTTPError</code>,
+</li>
+<li><code>None</code> if Timeout or TooManyRedirects if raw=False
+</li>
+</ul>
+<p>Exemple call:</p>
+<pre><code>   from msiempy import NitroSession
+   s = NitroSession()
+   s.login()
+   # Get all last 24h alarms details
+   alarms = s.request('get_alarms', time_range='LAST_24_HOURS',  status='', page_size=500, page_number=0)
+   for a in alarms:
+       a.update(s.request('get_alarm_details_new', id=a['id']))
 </code></pre>
 <p>All Requests |
 &mdash; |
@@ -2023,7 +2033,6 @@ Example: '10.0.2 20170516001031'</p></div>
         alarms = s.request(&#39;get_alarms&#39;, time_range=&#39;LAST_24_HOURS&#39;,  status=&#39;&#39;, page_size=500, page_number=0)
         for a in alarms:
             a.update(s.request(&#39;get_alarm_details_new&#39;, id=a[&#39;id&#39;]))
-
 
     &#34;&#34;&#34;
     log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(

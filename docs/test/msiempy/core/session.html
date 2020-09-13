@@ -876,11 +876,11 @@ for k,v in _PARAMS.items():
     if isinstance(v[1], Template):
         keywords += [s[1] or s[2] for s in Template.pattern.findall(v[1].template) if s[1] or s[2]]
     params=&#39;, &#39;.join([&#39;{}&#39;.format(k) for k in keywords])
-    _PARAMS_DOCS+=&#34;     `request(&#39;{}&#39;, {})` | `{}` | \n  &#34;.format(name, params, endpoint)
+    _PARAMS_DOCS+=&#34;            request(&#39;{}&#39;, {}) # Call {}  \n&#34;.format(name, params, endpoint)
 
 __pdoc__[&#39;NitroSession.request&#39;] = NitroSession.request.__doc__+&#39;&#39;&#39;
-        Request | Endpoint |  
-        --- | --- |
+        **All requests**  
+
 &#39;&#39;&#39;+_PARAMS_DOCS
 
 class NitroError(Exception):
@@ -1960,256 +1960,75 @@ Example: '10.0.2 20170516001031'</p></div>
 </li>
 </ul>
 <p>Exemple call:</p>
-<pre><code>   from msiempy import NitroSession
-   s = NitroSession()
-   s.login()
-   # Get all last 24h alarms details
-   alarms = s.request('get_alarms', time_range='LAST_24_HOURS',  status='', page_size=500, page_number=0)
-   for a in alarms:
-       a.update(s.request('get_alarm_details_new', id=a['id']))
+<pre><code>from msiempy import NitroSession
+s = NitroSession()
+s.login()
+# Get all last 24h alarms details
+alarms = s.request('get_alarms', time_range='LAST_24_HOURS',  status='', page_size=500, page_number=0)
+for a in alarms:
+    a.update(s.request('get_alarm_details_new', id=a['id']))
 </code></pre>
-<table>
-<thead>
-<tr>
-<th>Request</th>
-<th>Endpoint</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>request('login', username, password)</code></td>
-<td><code>login</code></td>
-</tr>
-<tr>
-<td><code>request('get_devtree', )</code></td>
-<td><code>GRP_GETVIRTUALGROUPIPSLISTDATA</code></td>
-</tr>
-<tr>
-<td><code>request('get_zones_devtree', )</code></td>
-<td><code>GRP_GETVIRTUALGROUPIPSLISTDATA</code></td>
-</tr>
-<tr>
-<td><code>request('req_client_str', ds_id)</code></td>
-<td><code>DS_GETDSCLIENTLIST</code></td>
-</tr>
-<tr>
-<td><code>request('get_rfile', ftoken)</code></td>
-<td><code>MISC_READFILE</code></td>
-</tr>
-<tr>
-<td><code>request('del_rfile', ftoken)</code></td>
-<td><code>ESSMGT_DELETEFILE</code></td>
-</tr>
-<tr>
-<td><code>request('get_rfile2', ftoken, pos, nbytes)</code></td>
-<td><code>MISC_READFILE</code></td>
-</tr>
-<tr>
-<td><code>request('get_wfile', ds_id)</code></td>
-<td><code>MISC_WRITEFILE</code></td>
-</tr>
-<tr>
-<td><code>request('get_rule_history', )</code></td>
-<td><code>PLCY_GETRULECHANGEINFO</code></td>
-</tr>
-<tr>
-<td><code>request('add_ds_11_1_3', parent_id, name, ds_ip, type_id, zone_id, enabled, url, ds_id, child_enabled, child_count, child_type, idm_id, parameters)</code></td>
-<td><code>dsAddDataSource</code></td>
-</tr>
-<tr>
-<td><code>request('add_ds_11_2_1', parent_id, name, ds_ip, type_id, zone_id, enabled, url, parameters)</code></td>
-<td><code>dsAddDataSources</code></td>
-</tr>
-<tr>
-<td><code>request('add_client1', parent_id, name, enabled, ds_ip, hostname, type_id, tz_id, dorder, maskflag, port, require_tls)</code></td>
-<td><code>DS_ADDDSCLIENT</code></td>
-</tr>
-<tr>
-<td><code>request('get_recs', )</code></td>
-<td><code>devGetDeviceList</code></td>
-</tr>
-<tr>
-<td><code>request('get_dstypes', rec_id)</code></td>
-<td><code>dsGetDataSourceTypes</code></td>
-</tr>
-<tr>
-<td><code>request('del_ds1', parent_id, ds_id)</code></td>
-<td><code>dsDeleteDataSource</code></td>
-</tr>
-<tr>
-<td><code>request('del_ds2', parent_id, ds_id)</code></td>
-<td><code>dsDeleteDataSources</code></td>
-</tr>
-<tr>
-<td><code>request('del_client', parent_id, ftoken)</code></td>
-<td><code>DS_DELETEDSCLIENTS</code></td>
-</tr>
-<tr>
-<td><code>request('get_job_status', job_id)</code></td>
-<td><code>MISC_JOBSTATUS</code></td>
-</tr>
-<tr>
-<td><code>request('ds_last_times', )</code></td>
-<td><code>QRY_GETDEVICELASTALERTTIME</code></td>
-</tr>
-<tr>
-<td><code>request('zonetree', )</code></td>
-<td><code>zoneGetZoneTree</code></td>
-</tr>
-<tr>
-<td><code>request('ds_by_type', )</code></td>
-<td><code>QRY_GETDEVICECOUNTBYTYPE</code></td>
-</tr>
-<tr>
-<td><code>request('ds_details1', ds_id)</code></td>
-<td><code>dsGetDataSourceDetail</code></td>
-</tr>
-<tr>
-<td><code>request('ds_details2', ds_id)</code></td>
-<td><code>dsGetDataSourceDetail</code></td>
-</tr>
-<tr>
-<td><code>request('get_alarms_custom_time', time_range, start_time, end_time, status, page_size, page_number)</code></td>
-<td><code>alarmGetTriggeredAlarms</code></td>
-</tr>
-<tr>
-<td><code>request('get_alarms', time_range, status, page_size, page_number)</code></td>
-<td><code>alarmGetTriggeredAlarms</code></td>
-</tr>
-<tr>
-<td><code>request('get_alarm_details_new', id)</code></td>
-<td><code>notifyGetTriggeredNotificationDetail</code></td>
-</tr>
-<tr>
-<td><code>request('get_alarm_details', id)</code></td>
-<td><code>notifyGetTriggeredNotification</code></td>
-</tr>
-<tr>
-<td><code>request('get_alarm_details_int', id)</code></td>
-<td><code>NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL</code></td>
-</tr>
-<tr>
-<td><code>request('ack_alarms', ids)</code></td>
-<td><code>alarmAcknowledgeTriggeredAlarm</code></td>
-</tr>
-<tr>
-<td><code>request('ack_alarms_11_2_1', ids)</code></td>
-<td><code>alarmAcknowledgeTriggeredAlarm</code></td>
-</tr>
-<tr>
-<td><code>request('unack_alarms', ids)</code></td>
-<td><code>alarmUnacknowledgeTriggeredAlarm</code></td>
-</tr>
-<tr>
-<td><code>request('unack_alarms_11_2_1', ids)</code></td>
-<td><code>alarmUnacknowledgeTriggeredAlarm</code></td>
-</tr>
-<tr>
-<td><code>request('delete_alarms', ids)</code></td>
-<td><code>alarmDeleteTriggeredAlarm</code></td>
-</tr>
-<tr>
-<td><code>request('delete_alarms_11_2_1', ids)</code></td>
-<td><code>alarmDeleteTriggeredAlarm</code></td>
-</tr>
-<tr>
-<td><code>request('get_possible_filters', )</code></td>
-<td><code>qryGetFilterFields</code></td>
-</tr>
-<tr>
-<td><code>request('get_possible_fields', type, groupType)</code></td>
-<td><code>qryGetSelectFields</code></td>
-</tr>
-<tr>
-<td><code>request('get_esm_time', )</code></td>
-<td><code>essmgtGetESSTime</code></td>
-</tr>
-<tr>
-<td><code>request('get_alerts_now', ds_id)</code></td>
-<td><code>IPS_GETALERTSNOW</code></td>
-</tr>
-<tr>
-<td><code>request('get_flows_now', ds_id)</code></td>
-<td><code>IPS_GETALERTSNOW</code></td>
-</tr>
-<tr>
-<td><code>request('logout', )</code></td>
-<td><code>logout</code></td>
-</tr>
-<tr>
-<td><code>request('get_user_locale', )</code></td>
-<td><code>getUserLocale</code></td>
-</tr>
-<tr>
-<td><code>request('event_query_custom_time', time_range, start_time, end_time, fields, filters, limit, offset, order_field, order_direction)</code></td>
-<td><code>qryExecuteDetail</code></td>
-</tr>
-<tr>
-<td><code>request('event_query', time_range, fields, filters, limit, offset, order_field, order_direction)</code></td>
-<td><code>qryExecuteDetail</code></td>
-</tr>
-<tr>
-<td><code>request('query_status', resultID)</code></td>
-<td><code>qryGetStatus</code></td>
-</tr>
-<tr>
-<td><code>request('query_result', startPos, numRows, resultID)</code></td>
-<td><code>qryGetResults</code></td>
-</tr>
-<tr>
-<td><code>request('time_zones', )</code></td>
-<td><code>userGetTimeZones</code></td>
-</tr>
-<tr>
-<td><code>request('add_note_to_event', id, note)</code></td>
-<td><code>ipsAddAlertNote</code></td>
-</tr>
-<tr>
-<td><code>request('add_note_to_event_int', id, note)</code></td>
-<td><code>IPS_ADDALERTNOTE</code></td>
-</tr>
-<tr>
-<td><code>request('get_wl_types', )</code></td>
-<td><code>sysGetWatchlistFields</code></td>
-</tr>
-<tr>
-<td><code>request('get_watchlists_no_filters', hidden, dynamic, writeOnly, indexedOnly)</code></td>
-<td><code>sysGetWatchlists</code></td>
-</tr>
-<tr>
-<td><code>request('get_watchlist_details', id)</code></td>
-<td><code>sysGetWatchlistDetails</code></td>
-</tr>
-<tr>
-<td><code>request('add_watchlist', name, wl_type)</code></td>
-<td><code>sysAddWatchlist</code></td>
-</tr>
-<tr>
-<td><code>request('add_watchlist_values', watchlist, values)</code></td>
-<td><code>sysAddWatchlistValues</code></td>
-</tr>
-<tr>
-<td><code>request('get_watchlist_values', id)</code></td>
-<td><code>SYS_GETWATCHLISTDETAILS</code></td>
-</tr>
-<tr>
-<td><code>request('remove_watchlists', wl_id_list)</code></td>
-<td><code>sysRemoveWatchlist</code></td>
-</tr>
-<tr>
-<td><code>request('get_alert_data', id)</code></td>
-<td><code>ipsGetAlertData</code></td>
-</tr>
-<tr>
-<td><code>request('get_sys_info', )</code></td>
-<td><code>SYS_GETSYSINFO</code></td>
-</tr>
-<tr>
-<td><code>request('build_stamp', )</code></td>
-<td><code>essmgtGetBuildStamp</code></td>
-</tr>
-</tbody>
-</table></div>
+<p><strong>All requests</strong>
+</p>
+<pre><code>request('login', username, password) # Call &lt;code&gt;login&lt;/code&gt;  
+request('get_devtree', ) # Call &lt;code&gt;GRP\_GETVIRTUALGROUPIPSLISTDATA&lt;/code&gt;  
+request('get_zones_devtree', ) # Call &lt;code&gt;GRP\_GETVIRTUALGROUPIPSLISTDATA&lt;/code&gt;  
+request('req_client_str', ds_id) # Call &lt;code&gt;DS\_GETDSCLIENTLIST&lt;/code&gt;  
+request('get_rfile', ftoken) # Call &lt;code&gt;MISC\_READFILE&lt;/code&gt;  
+request('del_rfile', ftoken) # Call &lt;code&gt;ESSMGT\_DELETEFILE&lt;/code&gt;  
+request('get_rfile2', ftoken, pos, nbytes) # Call &lt;code&gt;MISC\_READFILE&lt;/code&gt;  
+request('get_wfile', ds_id) # Call &lt;code&gt;MISC\_WRITEFILE&lt;/code&gt;  
+request('get_rule_history', ) # Call &lt;code&gt;PLCY\_GETRULECHANGEINFO&lt;/code&gt;  
+request('add_ds_11_1_3', parent_id, name, ds_ip, type_id, zone_id, enabled, url, ds_id, child_enabled, child_count, child_type, idm_id, parameters) # Call &lt;code&gt;dsAddDataSource&lt;/code&gt;  
+request('add_ds_11_2_1', parent_id, name, ds_ip, type_id, zone_id, enabled, url, parameters) # Call &lt;code&gt;dsAddDataSources&lt;/code&gt;  
+request('add_client1', parent_id, name, enabled, ds_ip, hostname, type_id, tz_id, dorder, maskflag, port, require_tls) # Call &lt;code&gt;DS\_ADDDSCLIENT&lt;/code&gt;  
+request('get_recs', ) # Call &lt;code&gt;devGetDeviceList&lt;/code&gt;  
+request('get_dstypes', rec_id) # Call &lt;code&gt;dsGetDataSourceTypes&lt;/code&gt;  
+request('del_ds1', parent_id, ds_id) # Call &lt;code&gt;dsDeleteDataSource&lt;/code&gt;  
+request('del_ds2', parent_id, ds_id) # Call &lt;code&gt;dsDeleteDataSources&lt;/code&gt;  
+request('del_client', parent_id, ftoken) # Call &lt;code&gt;DS\_DELETEDSCLIENTS&lt;/code&gt;  
+request('get_job_status', job_id) # Call &lt;code&gt;MISC\_JOBSTATUS&lt;/code&gt;  
+request('ds_last_times', ) # Call &lt;code&gt;QRY\_GETDEVICELASTALERTTIME&lt;/code&gt;  
+request('zonetree', ) # Call &lt;code&gt;zoneGetZoneTree&lt;/code&gt;  
+request('ds_by_type', ) # Call &lt;code&gt;QRY\_GETDEVICECOUNTBYTYPE&lt;/code&gt;  
+request('ds_details1', ds_id) # Call &lt;code&gt;dsGetDataSourceDetail&lt;/code&gt;  
+request('ds_details2', ds_id) # Call &lt;code&gt;dsGetDataSourceDetail&lt;/code&gt;  
+request('get_alarms_custom_time', time_range, start_time, end_time, status, page_size, page_number) # Call &lt;code&gt;alarmGetTriggeredAlarms&lt;/code&gt;  
+request('get_alarms', time_range, status, page_size, page_number) # Call &lt;code&gt;alarmGetTriggeredAlarms&lt;/code&gt;  
+request('get_alarm_details_new', id) # Call &lt;code&gt;notifyGetTriggeredNotificationDetail&lt;/code&gt;  
+request('get_alarm_details', id) # Call &lt;code&gt;notifyGetTriggeredNotification&lt;/code&gt;  
+request('get_alarm_details_int', id) # Call &lt;code&gt;NOTIFY\_GETTRIGGEREDNOTIFICATIONDETAIL&lt;/code&gt;  
+request('ack_alarms', ids) # Call &lt;code&gt;alarmAcknowledgeTriggeredAlarm&lt;/code&gt;  
+request('ack_alarms_11_2_1', ids) # Call &lt;code&gt;alarmAcknowledgeTriggeredAlarm&lt;/code&gt;  
+request('unack_alarms', ids) # Call &lt;code&gt;alarmUnacknowledgeTriggeredAlarm&lt;/code&gt;  
+request('unack_alarms_11_2_1', ids) # Call &lt;code&gt;alarmUnacknowledgeTriggeredAlarm&lt;/code&gt;  
+request('delete_alarms', ids) # Call &lt;code&gt;alarmDeleteTriggeredAlarm&lt;/code&gt;  
+request('delete_alarms_11_2_1', ids) # Call &lt;code&gt;alarmDeleteTriggeredAlarm&lt;/code&gt;  
+request('get_possible_filters', ) # Call &lt;code&gt;qryGetFilterFields&lt;/code&gt;  
+request('get_possible_fields', type, groupType) # Call &lt;code&gt;qryGetSelectFields&lt;/code&gt;  
+request('get_esm_time', ) # Call &lt;code&gt;essmgtGetESSTime&lt;/code&gt;  
+request('get_alerts_now', ds_id) # Call &lt;code&gt;IPS\_GETALERTSNOW&lt;/code&gt;  
+request('get_flows_now', ds_id) # Call &lt;code&gt;IPS\_GETALERTSNOW&lt;/code&gt;  
+request('logout', ) # Call &lt;code&gt;logout&lt;/code&gt;  
+request('get_user_locale', ) # Call &lt;code&gt;getUserLocale&lt;/code&gt;  
+request('event_query_custom_time', time_range, start_time, end_time, fields, filters, limit, offset, order_field, order_direction) # Call &lt;code&gt;qryExecuteDetail&lt;/code&gt;  
+request('event_query', time_range, fields, filters, limit, offset, order_field, order_direction) # Call &lt;code&gt;qryExecuteDetail&lt;/code&gt;  
+request('query_status', resultID) # Call &lt;code&gt;qryGetStatus&lt;/code&gt;  
+request('query_result', startPos, numRows, resultID) # Call &lt;code&gt;qryGetResults&lt;/code&gt;  
+request('time_zones', ) # Call &lt;code&gt;userGetTimeZones&lt;/code&gt;  
+request('add_note_to_event', id, note) # Call &lt;code&gt;ipsAddAlertNote&lt;/code&gt;  
+request('add_note_to_event_int', id, note) # Call &lt;code&gt;IPS\_ADDALERTNOTE&lt;/code&gt;  
+request('get_wl_types', ) # Call &lt;code&gt;sysGetWatchlistFields&lt;/code&gt;  
+request('get_watchlists_no_filters', hidden, dynamic, writeOnly, indexedOnly) # Call &lt;code&gt;sysGetWatchlists&lt;/code&gt;  
+request('get_watchlist_details', id) # Call &lt;code&gt;sysGetWatchlistDetails&lt;/code&gt;  
+request('add_watchlist', name, wl_type) # Call &lt;code&gt;sysAddWatchlist&lt;/code&gt;  
+request('add_watchlist_values', watchlist, values) # Call &lt;code&gt;sysAddWatchlistValues&lt;/code&gt;  
+request('get_watchlist_values', id) # Call &lt;code&gt;SYS\_GETWATCHLISTDETAILS&lt;/code&gt;  
+request('remove_watchlists', wl_id_list) # Call &lt;code&gt;sysRemoveWatchlist&lt;/code&gt;  
+request('get_alert_data', id) # Call &lt;code&gt;ipsGetAlertData&lt;/code&gt;  
+request('get_sys_info', ) # Call &lt;code&gt;SYS\_GETSYSINFO&lt;/code&gt;  
+request('build_stamp', ) # Call &lt;code&gt;essmgtGetBuildStamp&lt;/code&gt;
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>

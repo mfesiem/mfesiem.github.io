@@ -374,8 +374,8 @@ for k,v in PARAMS.items():
         keywords += [s[1] or s[2] for s in Template.pattern.findall(v[1].template) if s[1] or s[2]]
     params=&#39;, &#39;.join([&#39;`{}`&#39;.format(k) for k in keywords])
     _PARAMS_DOCS+=&#34;{} | {} | {} \n&#34;.format(name, params, endpoint)
-    
-__pdoc__[&#39;msiempy.core.session.PARAMS&#39;] = &#39;&#39;&#39;
+
+__pdoc__[&#39;PARAMS&#39;] = &#39;&#39;&#39;
 SIEM API Methos/Parameters mapping.  
 This structure provide a central place to aggregate API methods and parameters.  
 The parameters are stored as docstrings to support string replacement.  
@@ -394,7 +394,6 @@ Used in `msiempy.core.session.NitroSession.request` code.
 
 Important note : 
     Do not use sigle quotes (`&#39;`) to delimit data into the interpolated strings !
-
 
 See `dump_api_params.py` script [HERE](https://github.com/mfesiem/msiempy/blob/master/samples/dump_api_params.py) to dump the complete structure.
 

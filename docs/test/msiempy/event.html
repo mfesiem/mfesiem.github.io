@@ -190,7 +190,7 @@ class EventManager(FilteredQueryList):
 
         Returns : `tuple` : (( `msiempy.event.EventManager`, Status of the query (completed?) `True/False` ))
 
-        Raises `msiempy.NitroError` if any unhandled errors.  
+        Raises `msiempy.core.session.NitroError` if any unhandled errors.  
         Raises `TimeoutError` if wait_timeout_sec counter gets to 0.  
         &#34;&#34;&#34;
         try:
@@ -1149,7 +1149,7 @@ class Event(NitroDict):
         Arguments:   
 
         - `id` : The event ID. (i.e. : `144128388087414784|747122896`)  
-        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM &gt;=11.2.x.  
         - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.  
         &#34;&#34;&#34;
         
@@ -1253,15 +1253,247 @@ class FieldFilter(_QueryFilter):
 
     # Declaring static value containing all the possibles
     # event fields usable in filters should be loaded once, when instanciating a FieldFilter
-    __documented_filters = []
+
+    # Basically [ item.get(&#39;name&#39;) for item in EventManager().get_possible_filters() ]
+    DOCUMENTED_FILTERS = [
+        &#34;IPSIDAlertID&#34;, # IPSIDAlertID has been manually added to this list
+        &#39;AppID&#39;,
+        &#39;CommandID&#39;,
+        &#39;DomainID&#39;,
+        &#39;HostID&#39;,
+        &#39;ObjectID&#39;,
+        &#39;UserIDDst&#39;,
+        &#39;UserIDSrc&#39;,
+        &#39;URL&#39;,
+        &#39;Database_Name&#39;,
+        &#39;Message_Text&#39;,
+        &#39;Response_Time&#39;,
+        &#39;Application_Protocol&#39;,
+        &#39;Object_Type&#39;,
+        &#39;Filename&#39;,
+        &#39;From&#39;,
+        &#39;To&#39;,
+        &#39;Cc&#39;,
+        &#39;Bcc&#39;,
+        &#39;Subject&#39;,
+        &#39;Method&#39;,
+        &#39;User_Agent&#39;,
+        &#39;Cookie&#39;,
+        &#39;Referer&#39;,
+        &#39;File_Operation&#39;,
+        &#39;File_Operation_Succeeded&#39;,
+        &#39;Destination_Filename&#39;,
+        &#39;User_Nickname&#39;,
+        &#39;Contact_Name&#39;,
+        &#39;Contact_Nickname&#39;,
+        &#39;Client_Version&#39;,
+        &#39;Job_Name&#39;,
+        &#39;Language&#39;,
+        &#39;SWF_URL&#39;,
+        &#39;TC_URL&#39;,
+        &#39;RTMP_Application&#39;,
+        &#39;Version&#39;,
+        &#39;Local_User_Name&#39;,
+        &#39;NAT_Details&#39;,
+        &#39;Network_Layer&#39;,
+        &#39;Transport_Layer&#39;,
+        &#39;Session_Layer&#39;,
+        &#39;Application_Layer&#39;,
+        &#39;HTTP_Layer&#39;,
+        &#39;HTTP_Req_URL&#39;,
+        &#39;HTTP_Req_Cookie&#39;,
+        &#39;HTTP_Req_Referer&#39;,
+        &#39;HTTP_Req_Host&#39;,
+        &#39;HTTP_Req_Method&#39;,
+        &#39;HTTP_User_Agent&#39;,
+        &#39;DNS_Name&#39;,
+        &#39;DNS_Type&#39;,
+        &#39;DNS_Class&#39;,
+        &#39;Query_Response&#39;,
+        &#39;Authoritative_Answer&#39;,
+        &#39;SNMP_Operation&#39;,
+        &#39;SNMP_Item_Type&#39;,
+        &#39;SNMP_Version&#39;,
+        &#39;SNMP_Error_Code&#39;,
+        &#39;NTP_Client_Mode&#39;,
+        &#39;NTP_Server_Mode&#39;,
+        &#39;NTP_Request&#39;,
+        &#39;NTP_Opcode&#39;,
+        &#39;SNMP_Item&#39;,
+        &#39;Interface&#39;,
+        &#39;Direction&#39;,
+        &#39;Sensor_Name&#39;,
+        &#39;Sensor_UUID&#39;,
+        &#39;Sensor_Type&#39;,
+        &#39;Signature_Name&#39;,
+        &#39;Threat_Name&#39;,
+        &#39;Destination_Hostname&#39;,
+        &#39;Category&#39;,
+        &#39;Process_Name&#39;,
+        &#39;Grid_Master_IP&#39;,
+        &#39;Response_Code&#39;,
+        &#39;Device_Port&#39;,
+        &#39;Device_IP&#39;,
+        &#39;PID&#39;,
+        &#39;Target_Context&#39;,
+        &#39;Source_Context&#39;,
+        &#39;Target_Class&#39;,
+        &#39;Policy_Name&#39;,
+        &#39;Destination_Zone&#39;,
+        &#39;Source_Zone&#39;,
+        &#39;Queue_ID&#39;,
+        &#39;Delivery_ID&#39;,
+        &#39;Recipient_ID&#39;,
+        &#39;Spam_Score&#39;,
+        &#39;Mail_ID&#39;,
+        &#39;To_Address&#39;,
+        &#39;From_Address&#39;,
+        &#39;Message_ID&#39;,
+        &#39;Request_Type&#39;,
+        &#39;SQL_Statement&#39;,
+        &#39;External_EventID&#39;,
+        &#39;Event_Class&#39;,
+        &#39;Description&#39;,
+        &#39;File_Hash&#39;,
+        &#39;Mainframe_Job_Name&#39;,
+        &#39;External_SubEventID&#39;,
+        &#39;Destination_UserID&#39;,
+        &#39;Source_UserID&#39;,
+        &#39;Volume_ID&#39;,
+        &#39;Step_Name&#39;,
+        &#39;Step_Count&#39;,
+        &#39;LPAR_DB2_Subsystem&#39;,
+        &#39;Logical_Unit_Name&#39;,
+        &#39;Job_Type&#39;,
+        &#39;FTP_Command&#39;,
+        &#39;File_Type&#39;,
+        &#39;DB2_Plan_Name&#39;,
+        &#39;Catalog_Name&#39;,
+        &#39;Access_Resource&#39;,
+        &#39;Table_Name&#39;,
+        &#39;External_DB2_Server&#39;,
+        &#39;External_Application&#39;,
+        &#39;Creator_Name&#39;,
+        &#39;Return_Code&#39;,
+        &#39;Database_ID&#39;,
+        &#39;Incoming_ID&#39;,
+        &#39;Handle_ID&#39;,
+        &#39;Destination_Network&#39;,
+        &#39;Source_Network&#39;,
+        &#39;Malware_Insp_Result&#39;,
+        &#39;Malware_Insp_Action&#39;,
+        &#39;External_Hostname&#39;,
+        &#39;Privileged_User&#39;,
+        &#39;Facility&#39;,
+        &#39;Area&#39;,
+        &#39;Instance_GUID&#39;,
+        &#39;Logon_Type&#39;,
+        &#39;Operating_System&#39;,
+        &#39;File_Path&#39;,
+        &#39;Agent_GUID&#39;,
+        &#39;Reputation&#39;,
+        &#39;URL_Category&#39;,
+        &#39;Session_Status&#39;,
+        &#39;Destination_Logon_ID&#39;,
+        &#39;Source_Logon_ID&#39;,
+        &#39;UUID&#39;,
+        &#39;External_SessionID&#39;,
+        &#39;Management_Server&#39;,
+        &#39;Detection_Method&#39;,
+        &#39;Target_Process_Name&#39;,
+        &#39;Analyzer_DAT_Version&#39;,
+        &#39;Forwarding_Status&#39;,
+        &#39;Reason&#39;,
+        &#39;Threat_Handled&#39;,
+        &#39;Threat_Category&#39;,
+        &#39;Device_Action&#39;,
+        &#39;Database_GUID&#39;,
+        &#39;SQL_Command&#39;,
+        &#39;Destination_Directory&#39;,
+        &#39;Directory&#39;,
+        &#39;Mailbox&#39;,
+        &#39;Handheld_ID&#39;,
+        &#39;Policy_ID&#39;,
+        &#39;Server_ID&#39;,
+        &#39;Registry_Value&#39;,
+        &#39;Registry_Key&#39;,
+        &#39;Caller_Process&#39;,
+        &#39;DAT_Version&#39;,
+        &#39;Interface_Dest&#39;,
+        &#39;Datacenter_Name&#39;,
+        &#39;Datacenter_ID&#39;,
+        &#39;Virtual_Machine_ID&#39;,
+        &#39;Virtual_Machine_Name&#39;,
+        &#39;PCAP_Name&#39;,
+        &#39;Search_Query&#39;,
+        &#39;Service_Name&#39;,
+        &#39;External_Device_Name&#39;,
+        &#39;External_Device_ID&#39;,
+        &#39;External_Device_Type&#39;,
+        &#39;Organizational_Unit&#39;,
+        &#39;Privileges&#39;,
+        &#39;Reputation_Name&#39;,
+        &#39;Vulnerability_References&#39;,
+        &#39;Web_Domain&#39;,
+        &#39;Sub_Status&#39;,
+        &#39;Status&#39;,
+        &#39;Access_Privileges&#39;,
+        &#39;Rule_Name&#39;,
+        &#39;App_Layer_Protocol&#39;,
+        &#39;Group_Name&#39;,
+        &#39;Authentication_Type&#39;,
+        &#39;New_Value&#39;,
+        &#39;Old_Value&#39;,
+        &#39;Security_ID&#39;,
+        &#39;SHA1&#39;,
+        &#39;Reputation_Score&#39;,
+        &#39;Parent_File_Hash&#39;,
+        &#39;File_ID&#39;,
+        &#39;Engine_List&#39;,
+        &#39;Device_URL&#39;,
+        &#39;Attacker_IP&#39;,
+        &#39;Victim_IP&#39;,
+        &#39;Incident_ID&#39;,
+        &#39;Attribute_Type&#39;,
+        &#39;Access_Mask&#39;,
+        &#39;Object_GUID&#39;,
+        &#39;VPN_Feature_Name&#39;,
+        &#39;Reputation_Server_IP&#39;,
+        &#39;DNS_Server_IP&#39;,
+        &#39;Hash_Type&#39;,
+        &#39;Hash&#39;,
+        &#39;Subcategory&#39;,
+        &#39;Wireless_SSID&#39;,
+        &#39;Share_Name&#39;,
+        &#39;CnC_Host&#39;,
+        &#39;Device_Confidence&#39;,
+        &#39;SHA256&#39;,
+        &#39;DSIDSigID&#39;,
+        &#39;ZoneSrc&#39;,
+        &#39;Action&#39;,
+        &#39;ASNGeoDst&#39;,
+        &#39;FirstTime&#39;,
+        &#39;SrcPort&#39;,
+        &#39;AvgSeverity&#39;,
+        &#39;DSID&#39;,
+        &#39;DstPort&#39;,
+        &#39;SrcIP&#39;,
+        &#39;ZoneDst&#39;,
+        &#39;SigID&#39;,
+        &#39;GUIDSrc&#39;,
+        &#39;GUIDDst&#39;,
+        &#39;DstIP&#39;,
+        &#39;ID&#39;,
+        &#39;Protocol&#39;,
+        &#39;NormID&#39;,
+        &#39;SrcMac&#39;,
+        &#39;SessionID&#39;,
+        &#39;ASNGeoSrc&#39;,
+        &#39;DstMac&#39;,
+        &#39;LastTime&#39;]
 
     def __init__(self, name, values, operator=&#39;IN&#39;) :
         super().__init__()
-
-        #If the __documented_filters property hasn&#39;t been set yet, set it
-        # Manually app special case of &#34;IPSIDAlertID&#34;
-        if len(FieldFilter.__documented_filters)==0:
-            FieldFilter.__documented_filters = [&#34;IPSIDAlertID&#34;] + [ item.get(&#39;name&#39;) for item in EventManager().get_possible_filters() ]
 
         #Declaring attributes
         self._operator=str()
@@ -1279,8 +1511,8 @@ class FieldFilter(_QueryFilter):
             }
         
         # check the name against the list of possible filters and log warning if not present.  
-        if name not in FieldFilter.__documented_filters :
-            log.warning(&#34;Unknown value for the filter name: &#39;{name}&#39;. Unexpected behaviours can happen with filter: {filter}&#34;.format(name=name, filter=self.data))
+        if name not in FieldFilter.DOCUMENTED_FILTERS :
+            log.warning(&#34;You&#39;re using an undocumented filter name: &#39;{name}&#39;.  &#34;.format(name=name, filter=self.data))
     
     POSSIBLE_OPERATORS=[&#39;IN&#39;,
         &#39;NOT_IN&#39;,
@@ -1594,7 +1826,7 @@ Some default fields will be present. </li>
 
         Returns : `tuple` : (( `msiempy.event.EventManager`, Status of the query (completed?) `True/False` ))
 
-        Raises `msiempy.NitroError` if any unhandled errors.  
+        Raises `msiempy.core.session.NitroError` if any unhandled errors.  
         Raises `TimeoutError` if wait_timeout_sec counter gets to 0.  
         &#34;&#34;&#34;
         try:
@@ -1959,7 +2191,7 @@ Retries only when 'ResultUnavailable','UnknownList' or 'JobEngine_GetQueryResult
 <li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds</li>
 </ul>
 <p>Returns : <code>tuple</code> : (( <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code>, Status of the query (completed?) <code>True/False</code> ))</p>
-<p>Raises <code>msiempy.NitroError</code> if any unhandled errors.<br>
+<p>Raises <code><a title="msiempy.core.session.NitroError" href="core/session.html#msiempy.core.session.NitroError">NitroError</a></code> if any unhandled errors.<br>
 Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div>
 <details class="source">
 <summary>
@@ -1980,7 +2212,7 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div
 
     Returns : `tuple` : (( `msiempy.event.EventManager`, Status of the query (completed?) `True/False` ))
 
-    Raises `msiempy.NitroError` if any unhandled errors.  
+    Raises `msiempy.core.session.NitroError` if any unhandled errors.  
     Raises `TimeoutError` if wait_timeout_sec counter gets to 0.  
     &#34;&#34;&#34;
     try:
@@ -2972,7 +3204,7 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
         Arguments:   
 
         - `id` : The event ID. (i.e. : `144128388087414784|747122896`)  
-        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+        - `use_query` : Uses the query module to retreive common event data. Only works with SIEM &gt;=11.2.x.  
         - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.  
         &#34;&#34;&#34;
         
@@ -3127,7 +3359,7 @@ For exemple, the SIEM will return dicts with keys like
 <ul>
 <li><code>id</code> : The event ID. (i.e. : <code>144128388087414784|747122896</code>)
 </li>
-<li><code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.
+<li><code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM &gt;=11.2.x.
 </li>
 <li><code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query.</li>
 </ul></div>
@@ -3142,7 +3374,7 @@ For exemple, the SIEM will return dicts with keys like
     Arguments:   
 
     - `id` : The event ID. (i.e. : `144128388087414784|747122896`)  
-    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2.x.  
+    - `use_query` : Uses the query module to retreive common event data. Only works with SIEM &gt;=11.2.x.  
     - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query.  
     &#34;&#34;&#34;
     
@@ -3338,15 +3570,247 @@ Exemple to filter by Signature ID.
 
     # Declaring static value containing all the possibles
     # event fields usable in filters should be loaded once, when instanciating a FieldFilter
-    __documented_filters = []
+
+    # Basically [ item.get(&#39;name&#39;) for item in EventManager().get_possible_filters() ]
+    DOCUMENTED_FILTERS = [
+        &#34;IPSIDAlertID&#34;, # IPSIDAlertID has been manually added to this list
+        &#39;AppID&#39;,
+        &#39;CommandID&#39;,
+        &#39;DomainID&#39;,
+        &#39;HostID&#39;,
+        &#39;ObjectID&#39;,
+        &#39;UserIDDst&#39;,
+        &#39;UserIDSrc&#39;,
+        &#39;URL&#39;,
+        &#39;Database_Name&#39;,
+        &#39;Message_Text&#39;,
+        &#39;Response_Time&#39;,
+        &#39;Application_Protocol&#39;,
+        &#39;Object_Type&#39;,
+        &#39;Filename&#39;,
+        &#39;From&#39;,
+        &#39;To&#39;,
+        &#39;Cc&#39;,
+        &#39;Bcc&#39;,
+        &#39;Subject&#39;,
+        &#39;Method&#39;,
+        &#39;User_Agent&#39;,
+        &#39;Cookie&#39;,
+        &#39;Referer&#39;,
+        &#39;File_Operation&#39;,
+        &#39;File_Operation_Succeeded&#39;,
+        &#39;Destination_Filename&#39;,
+        &#39;User_Nickname&#39;,
+        &#39;Contact_Name&#39;,
+        &#39;Contact_Nickname&#39;,
+        &#39;Client_Version&#39;,
+        &#39;Job_Name&#39;,
+        &#39;Language&#39;,
+        &#39;SWF_URL&#39;,
+        &#39;TC_URL&#39;,
+        &#39;RTMP_Application&#39;,
+        &#39;Version&#39;,
+        &#39;Local_User_Name&#39;,
+        &#39;NAT_Details&#39;,
+        &#39;Network_Layer&#39;,
+        &#39;Transport_Layer&#39;,
+        &#39;Session_Layer&#39;,
+        &#39;Application_Layer&#39;,
+        &#39;HTTP_Layer&#39;,
+        &#39;HTTP_Req_URL&#39;,
+        &#39;HTTP_Req_Cookie&#39;,
+        &#39;HTTP_Req_Referer&#39;,
+        &#39;HTTP_Req_Host&#39;,
+        &#39;HTTP_Req_Method&#39;,
+        &#39;HTTP_User_Agent&#39;,
+        &#39;DNS_Name&#39;,
+        &#39;DNS_Type&#39;,
+        &#39;DNS_Class&#39;,
+        &#39;Query_Response&#39;,
+        &#39;Authoritative_Answer&#39;,
+        &#39;SNMP_Operation&#39;,
+        &#39;SNMP_Item_Type&#39;,
+        &#39;SNMP_Version&#39;,
+        &#39;SNMP_Error_Code&#39;,
+        &#39;NTP_Client_Mode&#39;,
+        &#39;NTP_Server_Mode&#39;,
+        &#39;NTP_Request&#39;,
+        &#39;NTP_Opcode&#39;,
+        &#39;SNMP_Item&#39;,
+        &#39;Interface&#39;,
+        &#39;Direction&#39;,
+        &#39;Sensor_Name&#39;,
+        &#39;Sensor_UUID&#39;,
+        &#39;Sensor_Type&#39;,
+        &#39;Signature_Name&#39;,
+        &#39;Threat_Name&#39;,
+        &#39;Destination_Hostname&#39;,
+        &#39;Category&#39;,
+        &#39;Process_Name&#39;,
+        &#39;Grid_Master_IP&#39;,
+        &#39;Response_Code&#39;,
+        &#39;Device_Port&#39;,
+        &#39;Device_IP&#39;,
+        &#39;PID&#39;,
+        &#39;Target_Context&#39;,
+        &#39;Source_Context&#39;,
+        &#39;Target_Class&#39;,
+        &#39;Policy_Name&#39;,
+        &#39;Destination_Zone&#39;,
+        &#39;Source_Zone&#39;,
+        &#39;Queue_ID&#39;,
+        &#39;Delivery_ID&#39;,
+        &#39;Recipient_ID&#39;,
+        &#39;Spam_Score&#39;,
+        &#39;Mail_ID&#39;,
+        &#39;To_Address&#39;,
+        &#39;From_Address&#39;,
+        &#39;Message_ID&#39;,
+        &#39;Request_Type&#39;,
+        &#39;SQL_Statement&#39;,
+        &#39;External_EventID&#39;,
+        &#39;Event_Class&#39;,
+        &#39;Description&#39;,
+        &#39;File_Hash&#39;,
+        &#39;Mainframe_Job_Name&#39;,
+        &#39;External_SubEventID&#39;,
+        &#39;Destination_UserID&#39;,
+        &#39;Source_UserID&#39;,
+        &#39;Volume_ID&#39;,
+        &#39;Step_Name&#39;,
+        &#39;Step_Count&#39;,
+        &#39;LPAR_DB2_Subsystem&#39;,
+        &#39;Logical_Unit_Name&#39;,
+        &#39;Job_Type&#39;,
+        &#39;FTP_Command&#39;,
+        &#39;File_Type&#39;,
+        &#39;DB2_Plan_Name&#39;,
+        &#39;Catalog_Name&#39;,
+        &#39;Access_Resource&#39;,
+        &#39;Table_Name&#39;,
+        &#39;External_DB2_Server&#39;,
+        &#39;External_Application&#39;,
+        &#39;Creator_Name&#39;,
+        &#39;Return_Code&#39;,
+        &#39;Database_ID&#39;,
+        &#39;Incoming_ID&#39;,
+        &#39;Handle_ID&#39;,
+        &#39;Destination_Network&#39;,
+        &#39;Source_Network&#39;,
+        &#39;Malware_Insp_Result&#39;,
+        &#39;Malware_Insp_Action&#39;,
+        &#39;External_Hostname&#39;,
+        &#39;Privileged_User&#39;,
+        &#39;Facility&#39;,
+        &#39;Area&#39;,
+        &#39;Instance_GUID&#39;,
+        &#39;Logon_Type&#39;,
+        &#39;Operating_System&#39;,
+        &#39;File_Path&#39;,
+        &#39;Agent_GUID&#39;,
+        &#39;Reputation&#39;,
+        &#39;URL_Category&#39;,
+        &#39;Session_Status&#39;,
+        &#39;Destination_Logon_ID&#39;,
+        &#39;Source_Logon_ID&#39;,
+        &#39;UUID&#39;,
+        &#39;External_SessionID&#39;,
+        &#39;Management_Server&#39;,
+        &#39;Detection_Method&#39;,
+        &#39;Target_Process_Name&#39;,
+        &#39;Analyzer_DAT_Version&#39;,
+        &#39;Forwarding_Status&#39;,
+        &#39;Reason&#39;,
+        &#39;Threat_Handled&#39;,
+        &#39;Threat_Category&#39;,
+        &#39;Device_Action&#39;,
+        &#39;Database_GUID&#39;,
+        &#39;SQL_Command&#39;,
+        &#39;Destination_Directory&#39;,
+        &#39;Directory&#39;,
+        &#39;Mailbox&#39;,
+        &#39;Handheld_ID&#39;,
+        &#39;Policy_ID&#39;,
+        &#39;Server_ID&#39;,
+        &#39;Registry_Value&#39;,
+        &#39;Registry_Key&#39;,
+        &#39;Caller_Process&#39;,
+        &#39;DAT_Version&#39;,
+        &#39;Interface_Dest&#39;,
+        &#39;Datacenter_Name&#39;,
+        &#39;Datacenter_ID&#39;,
+        &#39;Virtual_Machine_ID&#39;,
+        &#39;Virtual_Machine_Name&#39;,
+        &#39;PCAP_Name&#39;,
+        &#39;Search_Query&#39;,
+        &#39;Service_Name&#39;,
+        &#39;External_Device_Name&#39;,
+        &#39;External_Device_ID&#39;,
+        &#39;External_Device_Type&#39;,
+        &#39;Organizational_Unit&#39;,
+        &#39;Privileges&#39;,
+        &#39;Reputation_Name&#39;,
+        &#39;Vulnerability_References&#39;,
+        &#39;Web_Domain&#39;,
+        &#39;Sub_Status&#39;,
+        &#39;Status&#39;,
+        &#39;Access_Privileges&#39;,
+        &#39;Rule_Name&#39;,
+        &#39;App_Layer_Protocol&#39;,
+        &#39;Group_Name&#39;,
+        &#39;Authentication_Type&#39;,
+        &#39;New_Value&#39;,
+        &#39;Old_Value&#39;,
+        &#39;Security_ID&#39;,
+        &#39;SHA1&#39;,
+        &#39;Reputation_Score&#39;,
+        &#39;Parent_File_Hash&#39;,
+        &#39;File_ID&#39;,
+        &#39;Engine_List&#39;,
+        &#39;Device_URL&#39;,
+        &#39;Attacker_IP&#39;,
+        &#39;Victim_IP&#39;,
+        &#39;Incident_ID&#39;,
+        &#39;Attribute_Type&#39;,
+        &#39;Access_Mask&#39;,
+        &#39;Object_GUID&#39;,
+        &#39;VPN_Feature_Name&#39;,
+        &#39;Reputation_Server_IP&#39;,
+        &#39;DNS_Server_IP&#39;,
+        &#39;Hash_Type&#39;,
+        &#39;Hash&#39;,
+        &#39;Subcategory&#39;,
+        &#39;Wireless_SSID&#39;,
+        &#39;Share_Name&#39;,
+        &#39;CnC_Host&#39;,
+        &#39;Device_Confidence&#39;,
+        &#39;SHA256&#39;,
+        &#39;DSIDSigID&#39;,
+        &#39;ZoneSrc&#39;,
+        &#39;Action&#39;,
+        &#39;ASNGeoDst&#39;,
+        &#39;FirstTime&#39;,
+        &#39;SrcPort&#39;,
+        &#39;AvgSeverity&#39;,
+        &#39;DSID&#39;,
+        &#39;DstPort&#39;,
+        &#39;SrcIP&#39;,
+        &#39;ZoneDst&#39;,
+        &#39;SigID&#39;,
+        &#39;GUIDSrc&#39;,
+        &#39;GUIDDst&#39;,
+        &#39;DstIP&#39;,
+        &#39;ID&#39;,
+        &#39;Protocol&#39;,
+        &#39;NormID&#39;,
+        &#39;SrcMac&#39;,
+        &#39;SessionID&#39;,
+        &#39;ASNGeoSrc&#39;,
+        &#39;DstMac&#39;,
+        &#39;LastTime&#39;]
 
     def __init__(self, name, values, operator=&#39;IN&#39;) :
         super().__init__()
-
-        #If the __documented_filters property hasn&#39;t been set yet, set it
-        # Manually app special case of &#34;IPSIDAlertID&#34;
-        if len(FieldFilter.__documented_filters)==0:
-            FieldFilter.__documented_filters = [&#34;IPSIDAlertID&#34;] + [ item.get(&#39;name&#39;) for item in EventManager().get_possible_filters() ]
 
         #Declaring attributes
         self._operator=str()
@@ -3364,8 +3828,8 @@ Exemple to filter by Signature ID.
             }
         
         # check the name against the list of possible filters and log warning if not present.  
-        if name not in FieldFilter.__documented_filters :
-            log.warning(&#34;Unknown value for the filter name: &#39;{name}&#39;. Unexpected behaviours can happen with filter: {filter}&#34;.format(name=name, filter=self.data))
+        if name not in FieldFilter.DOCUMENTED_FILTERS :
+            log.warning(&#34;You&#39;re using an undocumented filter name: &#39;{name}&#39;.  &#34;.format(name=name, filter=self.data))
     
     POSSIBLE_OPERATORS=[&#39;IN&#39;,
         &#39;NOT_IN&#39;,
@@ -3508,6 +3972,10 @@ Exemple to filter by Signature ID.
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="msiempy.event.FieldFilter.DOCUMENTED_FILTERS"><code class="name">var <span class="ident">DOCUMENTED_FILTERS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="msiempy.event.FieldFilter.POSSIBLE_OPERATORS"><code class="name">var <span class="ident">POSSIBLE_OPERATORS</span></code></dt>
 <dd>
 <div class="desc"><p>List of possibles operators</p></div>
@@ -3716,6 +4184,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <li><code><a title="msiempy.event.FieldFilter.add_basic_value" href="#msiempy.event.FieldFilter.add_basic_value">add_basic_value</a></code></li>
 <li><code><a title="msiempy.event.FieldFilter.operator" href="#msiempy.event.FieldFilter.operator">operator</a></code></li>
 <li><code><a title="msiempy.event.FieldFilter.values" href="#msiempy.event.FieldFilter.values">values</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.DOCUMENTED_FILTERS" href="#msiempy.event.FieldFilter.DOCUMENTED_FILTERS">DOCUMENTED_FILTERS</a></code></li>
 <li><code><a title="msiempy.event.FieldFilter.POSSIBLE_OPERATORS" href="#msiempy.event.FieldFilter.POSSIBLE_OPERATORS">POSSIBLE_OPERATORS</a></code></li>
 <li><code><a title="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES" href="#msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES">POSSIBLE_VALUE_TYPES</a></code></li>
 </ul>

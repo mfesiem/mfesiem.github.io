@@ -97,7 +97,7 @@ _PARAMS = {
     
     &#34;get_rule_history&#34;: (&#34;PLCY_GETRULECHANGEINFO&#34;, 
                         &#34;&#34;&#34;{&#34;SHOW&#34;: &#34;F&#34;}&#34;&#34;&#34;),
-
+    # DO NOT DELETE
     # &#34;map_dtree&#34;: (&#34;map_dtree&#34;,
     #             Template(&#34;&#34;&#34;{&#34;dev_type&#34;: &#34;$dev_type&#34;,
     #             &#34;name&#34;: &#34;$ds_name&#34;,
@@ -192,6 +192,7 @@ _PARAMS = {
                     
     &#34;ds_by_type&#34;: (&#34;QRY_GETDEVICECOUNTBYTYPE&#34;,None),
 
+    # DO NOT DELETE
     # &#34;_dev_types&#34;:  (&#34;dev_type_map&#34;,
     #                     &#34;&#34;&#34;{&#34;1&#34;: &#34;zone&#34;,
     #                         &#34;2&#34;: &#34;ERC&#34;,
@@ -388,14 +389,13 @@ class NitroSession():
 
     Arguments:  
 
-    - `conf_path` : Configuration file path.  
-    - `conf_dict` : Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`. See `msiempy.core.config.NitroConfig` class to have full details.
+    - `config` : `msiempy.core.confg.NitroConfig` object, find default config if `None`.  
 
     See `msiempy.core.session.NitroSession.esm_request` and `msiempy.core.session.NitroSession.request` for usage.  
 
     &#34;&#34;&#34;
-    def __init__(self, conf_path=None, conf_dict=None):
-        # global log
+    def __init__(self, config=None):
+
         self.__dict__ = NitroSession.__unique_state__
         
         #Init properties only once
@@ -406,8 +406,13 @@ class NitroSession():
             self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
             
             #Config parsing
-            self.config = NitroConfig(path=conf_path, config=conf_dict)
-            NitroSession.config=self.config
+            if config==None:
+                self.config = NitroConfig()
+            else:
+                if isinstance(config, NitroConfig):
+                    self.config = config
+                else:
+                    raise TypeError(&#39;config must be a NitroConfig or None. Not {}&#39;.format(config))
 
             #Set the logging configuration
             self._init_log(verbose=self.config.verbose,
@@ -423,7 +428,6 @@ class NitroSession():
                 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             except : 
                 pass
-            # logging.getLogger(&#34;urllib3&#34;).setLevel(logging.ERROR)
 
     BASE_URL = &#39;https://{}/rs/esm/&#39;
     &#34;&#34;&#34;API base url: `&#39;https://{}/rs/esm/&#39;`&#34;&#34;&#34;
@@ -440,11 +444,6 @@ class NitroSession():
     The singleton unique state.
     &#34;&#34;&#34;
     
-    config = None
-    &#34;&#34;&#34;
-    `msiempy.core.config.NitroConfig` object.  
-    &#34;&#34;&#34;
-    
     PARAMS = _PARAMS
     &#34;&#34;&#34;
     SIEM API methos/parameters mapping.  
@@ -458,7 +457,7 @@ class NitroSession():
 
     def login(self, retry=1):
         &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.  
-        Throws `msiempy.NitroError` if login fails.  
+        Throws `msiempy.core.session.NitroError` if login fails.  
         &#34;&#34;&#34;
         userb64 = tob64(self.config.user)
         passb64 = self.config.passwd
@@ -510,7 +509,7 @@ class NitroSession():
         self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
         self.user_tz_id = None
 
-    def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
+    def esm_request(self, method, data=None, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
         &#34;&#34;&#34;
         Handle a lower level HTTP request to ESM API endpoints.  
 
@@ -698,7 +697,7 @@ class NitroSession():
 
     def request(self, request, **kwargs):
         &#34;&#34;&#34;
-        Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with `msiempy.core.session.PARAMS` docstrings and build a valid datastructure for the HTTP data.  
+        Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with `msiempy.core.session.NitroSession.PARAMS` docstrings and build a valid datastructure for the HTTP data.  
 
         Then call the `msiempy.core.session.NitroSession.esm_request` method with the built data.  
 
@@ -706,7 +705,7 @@ class NitroSession():
 
         Arguments:  
 
-        - `request`: Name keyword corresponding to the request name in `msiempy.core.session.PARAMS` mapping.  
+        - `request`: Name keyword corresponding to the request name in `msiempy.core.session.NitroSession.PARAMS` mapping.  
         - `http`: HTTP method.  
         - `callback` : function to apply afterwards  
         - `raw` : If true will return the Response object from requests module.   
@@ -715,7 +714,7 @@ class NitroSession():
         
         Interpolation parameters :  
         
-        - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.session.PARAMS` templates. Dynamic keyword arguments.  
+        - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.session.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
 
         Returns:   
 
@@ -734,6 +733,7 @@ class NitroSession():
             for a in alarms:
                 a.update(s.request(&#39;get_alarm_details_new&#39;, id=a[&#39;id&#39;]))
 
+        See all requests on github: https://mfesiem.github.io/docs/test/msiempy/core/session.html#msiempy.core.session.NitroSession.request  
         &#34;&#34;&#34;
         log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
             str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
@@ -770,6 +770,8 @@ class NitroSession():
         Private method. Inits the session&#39;s logger settings based on params
         All objects should be able to log stuff, so the logger is globaly accessible
         &#34;&#34;&#34;
+
+        log = logging.getLogger(&#39;msiempy&#39;)
 
         log.setLevel(logging.DEBUG)
 
@@ -873,6 +875,7 @@ for k,v in _PARAMS.items():
 
 __pdoc__[&#39;NitroSession.request&#39;] = NitroSession.request.__doc__+&#39;&#39;&#39;
         All requests:    
+        ( *All upper cases method names signals to use the private API methods.* )  
 
 &#39;&#39;&#39;+_PARAMS_DOCS
 
@@ -895,7 +898,7 @@ class NitroError(Exception):
 <dl>
 <dt id="msiempy.core.session.NitroSession"><code class="flex name class">
 <span>class <span class="ident">NitroSession</span></span>
-<span>(</span><span>conf_path=None, conf_dict=None)</span>
+<span>(</span><span>config=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p><code><a title="msiempy.core.session.NitroSession" href="#msiempy.core.session.NitroSession">NitroSession</a></code> is the point of convergence of every requests that goes to the ESM.<br>
@@ -907,9 +910,8 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
 <p>Arguments:
 </p>
 <ul>
-<li><code>conf_path</code> : Configuration file path.
+<li><code>config</code> : <code>msiempy.core.confg.NitroConfig</code> object, find default config if <code>None</code>.
 </li>
-<li><code>conf_dict</code> : Manual config dict. ex: <code>{'general':{'verbose':True}}</code>. See <code><a title="msiempy.core.config.NitroConfig" href="config.html#msiempy.core.config.NitroConfig">NitroConfig</a></code> class to have full details.</li>
 </ul>
 <p>See <code><a title="msiempy.core.session.NitroSession.esm_request" href="#msiempy.core.session.NitroSession.esm_request">NitroSession.esm_request()</a></code> and <code><a title="msiempy.core.session.NitroSession.request" href="#msiempy.core.session.NitroSession.request">NitroSession.request()</a></code> for usage.</p></div>
 <details class="source">
@@ -927,14 +929,13 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
 
     Arguments:  
 
-    - `conf_path` : Configuration file path.  
-    - `conf_dict` : Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`. See `msiempy.core.config.NitroConfig` class to have full details.
+    - `config` : `msiempy.core.confg.NitroConfig` object, find default config if `None`.  
 
     See `msiempy.core.session.NitroSession.esm_request` and `msiempy.core.session.NitroSession.request` for usage.  
 
     &#34;&#34;&#34;
-    def __init__(self, conf_path=None, conf_dict=None):
-        # global log
+    def __init__(self, config=None):
+
         self.__dict__ = NitroSession.__unique_state__
         
         #Init properties only once
@@ -945,8 +946,13 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
             self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
             
             #Config parsing
-            self.config = NitroConfig(path=conf_path, config=conf_dict)
-            NitroSession.config=self.config
+            if config==None:
+                self.config = NitroConfig()
+            else:
+                if isinstance(config, NitroConfig):
+                    self.config = config
+                else:
+                    raise TypeError(&#39;config must be a NitroConfig or None. Not {}&#39;.format(config))
 
             #Set the logging configuration
             self._init_log(verbose=self.config.verbose,
@@ -962,7 +968,6 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
                 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             except : 
                 pass
-            # logging.getLogger(&#34;urllib3&#34;).setLevel(logging.ERROR)
 
     BASE_URL = &#39;https://{}/rs/esm/&#39;
     &#34;&#34;&#34;API base url: `&#39;https://{}/rs/esm/&#39;`&#34;&#34;&#34;
@@ -979,11 +984,6 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
     The singleton unique state.
     &#34;&#34;&#34;
     
-    config = None
-    &#34;&#34;&#34;
-    `msiempy.core.config.NitroConfig` object.  
-    &#34;&#34;&#34;
-    
     PARAMS = _PARAMS
     &#34;&#34;&#34;
     SIEM API methos/parameters mapping.  
@@ -997,7 +997,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
 
     def login(self, retry=1):
         &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.  
-        Throws `msiempy.NitroError` if login fails.  
+        Throws `msiempy.core.session.NitroError` if login fails.  
         &#34;&#34;&#34;
         userb64 = tob64(self.config.user)
         passb64 = self.config.passwd
@@ -1049,7 +1049,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
         self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
         self.user_tz_id = None
 
-    def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
+    def esm_request(self, method, data=None, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
         &#34;&#34;&#34;
         Handle a lower level HTTP request to ESM API endpoints.  
 
@@ -1237,7 +1237,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
 
     def request(self, request, **kwargs):
         &#34;&#34;&#34;
-        Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with `msiempy.core.session.PARAMS` docstrings and build a valid datastructure for the HTTP data.  
+        Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with `msiempy.core.session.NitroSession.PARAMS` docstrings and build a valid datastructure for the HTTP data.  
 
         Then call the `msiempy.core.session.NitroSession.esm_request` method with the built data.  
 
@@ -1245,7 +1245,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
 
         Arguments:  
 
-        - `request`: Name keyword corresponding to the request name in `msiempy.core.session.PARAMS` mapping.  
+        - `request`: Name keyword corresponding to the request name in `msiempy.core.session.NitroSession.PARAMS` mapping.  
         - `http`: HTTP method.  
         - `callback` : function to apply afterwards  
         - `raw` : If true will return the Response object from requests module.   
@@ -1254,7 +1254,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
         
         Interpolation parameters :  
         
-        - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.session.PARAMS` templates. Dynamic keyword arguments.  
+        - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.session.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
 
         Returns:   
 
@@ -1273,6 +1273,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
             for a in alarms:
                 a.update(s.request(&#39;get_alarm_details_new&#39;, id=a[&#39;id&#39;]))
 
+        See all requests on github: https://mfesiem.github.io/docs/test/msiempy/core/session.html#msiempy.core.session.NitroSession.request  
         &#34;&#34;&#34;
         log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
             str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
@@ -1309,6 +1310,8 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
         Private method. Inits the session&#39;s logger settings based on params
         All objects should be able to log stuff, so the logger is globaly accessible
         &#34;&#34;&#34;
+
+        log = logging.getLogger(&#39;msiempy&#39;)
 
         log.setLevel(logging.DEBUG)
 
@@ -1406,10 +1409,6 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
 <dd>
 <div class="desc"><p>Private API base URL: <code>'https://{}/ess/'</code></p></div>
 </dd>
-<dt id="msiempy.core.session.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>
-<dd>
-<div class="desc"><p><code><a title="msiempy.core.config.NitroConfig" href="config.html#msiempy.core.config.NitroConfig">NitroConfig</a></code> object.</p></div>
-</dd>
 <dt id="msiempy.core.session.NitroSession.PARAMS"><code class="name">var <span class="ident">PARAMS</span></code></dt>
 <dd>
 <div class="desc"><p>SIEM API methos/parameters mapping.<br>
@@ -1452,14 +1451,14 @@ def format_params(cmd, **params):
 </code></dt>
 <dd>
 <div class="desc"><p>Authentication is done lazily upon the first call to <code><a title="msiempy.core.session.NitroSession.request" href="#msiempy.core.session.NitroSession.request">NitroSession.request()</a></code> method, but you can still do it manually by calling this method.<br>
-Throws <code>msiempy.NitroError</code> if login fails.</p></div>
+Throws <code><a title="msiempy.core.session.NitroError" href="#msiempy.core.session.NitroError">NitroError</a></code> if login fails.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def login(self, retry=1):
     &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.  
-    Throws `msiempy.NitroError` if login fails.  
+    Throws `msiempy.core.session.NitroError` if login fails.  
     &#34;&#34;&#34;
     userb64 = tob64(self.config.user)
     passb64 = self.config.passwd
@@ -1523,7 +1522,7 @@ Throws <code>msiempy.NitroError</code> if login fails.</p></div>
 </details>
 </dd>
 <dt id="msiempy.core.session.NitroSession.esm_request"><code class="name flex">
-<span>def <span class="ident">esm_request</span></span>(<span>self, method, data, http='post', callback=None, raw=False, secure=False, retry=1)</span>
+<span>def <span class="ident">esm_request</span></span>(<span>self, method, data=None, http='post', callback=None, raw=False, secure=False, retry=1)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Handle a lower level HTTP request to ESM API endpoints.
@@ -1580,7 +1579,7 @@ for a in alarms:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
+<pre><code class="python">def esm_request(self, method, data=None, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
     &#34;&#34;&#34;
     Handle a lower level HTTP request to ESM API endpoints.  
 
@@ -1805,7 +1804,7 @@ Example: '10.0.2 20170516001031'</p></div>
 <span>def <span class="ident">request</span></span>(<span>self, request, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Interface to make ESM API calls more simple by interpolating <code>**kwargs</code> arguments with <code>msiempy.core.session.PARAMS</code> docstrings and build a valid datastructure for the HTTP data.
+<div class="desc"><p>Interface to make ESM API calls more simple by interpolating <code>**kwargs</code> arguments with <code><a title="msiempy.core.session.NitroSession.PARAMS" href="#msiempy.core.session.NitroSession.PARAMS">NitroSession.PARAMS</a></code> docstrings and build a valid datastructure for the HTTP data.
 </p>
 <p>Then call the <code><a title="msiempy.core.session.NitroSession.esm_request" href="#msiempy.core.session.NitroSession.esm_request">NitroSession.esm_request()</a></code> method with the built data.
 </p>
@@ -1814,7 +1813,7 @@ Example: '10.0.2 20170516001031'</p></div>
 <p>Arguments:
 </p>
 <ul>
-<li><code>request</code>: Name keyword corresponding to the request name in <code>msiempy.core.session.PARAMS</code> mapping.
+<li><code>request</code>: Name keyword corresponding to the request name in <code><a title="msiempy.core.session.NitroSession.PARAMS" href="#msiempy.core.session.NitroSession.PARAMS">NitroSession.PARAMS</a></code> mapping.
 </li>
 <li><code>http</code>: HTTP method.
 </li>
@@ -1829,7 +1828,7 @@ Example: '10.0.2 20170516001031'</p></div>
 <p>Interpolation parameters :
 </p>
 <ul>
-<li><code>**kwargs</code> : Interpolation parameters that will be match to <code>msiempy.core.session.PARAMS</code> templates. Dynamic keyword arguments.
+<li><code>**kwargs</code> : Interpolation parameters that will be match to <code><a title="msiempy.core.session.NitroSession.PARAMS" href="#msiempy.core.session.NitroSession.PARAMS">NitroSession.PARAMS</a></code> templates. Dynamic keyword arguments.
 </li>
 </ul>
 <p>Returns:
@@ -1854,7 +1853,11 @@ alarms = s.request('get_alarms', time_range='LAST_24_HOURS',  status='', page_si
 for a in alarms:
     a.update(s.request('get_alarm_details_new', id=a['id']))
 </code></pre>
+<p>See all requests on github: <a href="https://mfesiem.github.io/docs/test/msiempy/core/session.html#msiempy.core.session.NitroSession.request">https://mfesiem.github.io/docs/test/msiempy/core/session.html#msiempy.core.session.NitroSession.request</a>
+</p>
 <p>All requests:
+<br>
+( <em>All upper cases method names signals to use the private API methods.</em> )
 </p>
 <pre><code>request('login', username, password) # Call login  
 request('get_devtree', ) # Call GRP_GETVIRTUALGROUPIPSLISTDATA  
@@ -1921,7 +1924,7 @@ request('build_stamp', ) # Call essmgtGetBuildStamp
 </summary>
 <pre><code class="python">def request(self, request, **kwargs):
     &#34;&#34;&#34;
-    Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with `msiempy.core.session.PARAMS` docstrings and build a valid datastructure for the HTTP data.  
+    Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with `msiempy.core.session.NitroSession.PARAMS` docstrings and build a valid datastructure for the HTTP data.  
 
     Then call the `msiempy.core.session.NitroSession.esm_request` method with the built data.  
 
@@ -1929,7 +1932,7 @@ request('build_stamp', ) # Call essmgtGetBuildStamp
 
     Arguments:  
 
-    - `request`: Name keyword corresponding to the request name in `msiempy.core.session.PARAMS` mapping.  
+    - `request`: Name keyword corresponding to the request name in `msiempy.core.session.NitroSession.PARAMS` mapping.  
     - `http`: HTTP method.  
     - `callback` : function to apply afterwards  
     - `raw` : If true will return the Response object from requests module.   
@@ -1938,7 +1941,7 @@ request('build_stamp', ) # Call essmgtGetBuildStamp
     
     Interpolation parameters :  
     
-    - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.session.PARAMS` templates. Dynamic keyword arguments.  
+    - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.session.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
 
     Returns:   
 
@@ -1957,6 +1960,7 @@ request('build_stamp', ) # Call essmgtGetBuildStamp
         for a in alarms:
             a.update(s.request(&#39;get_alarm_details_new&#39;, id=a[&#39;id&#39;]))
 
+    See all requests on github: https://mfesiem.github.io/docs/test/msiempy/core/session.html#msiempy.core.session.NitroSession.request  
     &#34;&#34;&#34;
     log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
         str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
@@ -2043,7 +2047,6 @@ It's used when the user/passwd is incorrect and other HTTP errors.</p></div>
 <li><code><a title="msiempy.core.session.NitroSession.request" href="#msiempy.core.session.NitroSession.request">request</a></code></li>
 <li><code><a title="msiempy.core.session.NitroSession.BASE_URL" href="#msiempy.core.session.NitroSession.BASE_URL">BASE_URL</a></code></li>
 <li><code><a title="msiempy.core.session.NitroSession.BASE_URL_PRIV" href="#msiempy.core.session.NitroSession.BASE_URL_PRIV">BASE_URL_PRIV</a></code></li>
-<li><code><a title="msiempy.core.session.NitroSession.config" href="#msiempy.core.session.NitroSession.config">config</a></code></li>
 <li><code><a title="msiempy.core.session.NitroSession.PARAMS" href="#msiempy.core.session.NitroSession.PARAMS">PARAMS</a></code></li>
 </ul>
 </li>

@@ -115,6 +115,21 @@ def fromb64(s):
     if type(s) is str:
         return base64.b64decode(s.encode(&#39;utf-8&#39;)).encode()
 
+# Usefull to compte CURRENT_WEEK timerange
+# one_day = timedelta(days=1)
+# def get_week(date):
+#     &#34;&#34;&#34;
+#     Return the full week (Sunday first) of the week containing the given date.  
+
+#         - &#39;date&#39; may be a datetime or date instance (the same type is returned).  
+#     &#34;&#34;&#34;
+#     day_idx = (date.weekday() + 1) % 7  # turn sunday into 0, monday into 1, etc.
+#     sunday = date - timedelta(days=day_idx)
+#     date = sunday
+#     for n in range(7):
+#         yield date
+#         date += one_day
+
 def timerange_gettimes(time_range):
     &#34;&#34;&#34;
     Convert a string time range to a tuple of datetime objects. Only works for certain time ranges.
@@ -150,31 +165,28 @@ def timerange_gettimes(time_range):
 
     elif t == &#39;LAST_3_DAYS&#39;:
         times=(now-timedelta(days=3), now)
-
+    #TODO Support other time ranges
+    # elif t == &#39;CURRENT_WEEK&#39;:
+    #     pass
+    # elif t == &#39;PREVIOUS_WEEK&#39;:
+    #     pass
+    # elif t == &#39;CURRENT_MONTH&#39;:
+    #     pass
+    # elif t == &#39;PREVIOUS_MONTH&#39;:
+    #     pass
+    # elif t == &#39;CURRENT_QUARTER&#39;:
+    #     pass
+    # elif t == &#39;PREVIOUS_QUARTER&#39;:
+    #     pass
+    # elif t == &#39;CURRENT_YEAR&#39;:
+    #     pass
+    # elif t == &#39;PREVIOUS_YEAR&#39;:
+    #     pass
     else :
         raise NotImplementedError(&#34;Timerange &#34;+t+&#34; is not supported yet&#34;)
     
     return(times[0].isoformat(), times[1].isoformat())
     
-    &#34;&#34;&#34; 
-    #TODO Support other time ranges
-    elif t is &#39;CURRENT_WEEK&#39;:
-        pass
-    elif t is &#39;PREVIOUS_WEEK&#39;:
-        pass
-    elif t is &#39;CURRENT_MONTH&#39;:
-        pass
-    elif t is &#39;PREVIOUS_MONTH&#39;:
-        pass
-    elif t is &#39;CURRENT_QUARTER&#39;:
-        pass
-    elif t is &#39;PREVIOUS_QUARTER&#39;:
-        pass
-    elif t is &#39;CURRENT_YEAR&#39;:
-        pass
-    elif t is &#39;PREVIOUS_YEAR&#39;:
-        pass
-    &#34;&#34;&#34;
 
 def divide_times(first, last, time=0, slots=0, delta=0):
     &#34;&#34;&#34;&#34;
@@ -280,14 +292,20 @@ def parse_query_result(columns, rows):
 
 def format_fields_for_query(fields):
     &#34;&#34;&#34;
-    [&#39;field1&#39;,&#39;name&#39;,&#39;user&#39;]
+    Format fields names to cann query module.  
 
-    Returns :
-    [
-        {&#39;name&#39;:&#39;field1&#39;},
-        {...},
-        {},
-    ]
+    Arguments:  
+
+    - `fields`: list of fields, i.e. `[&#39;field1&#39;,&#39;name&#39;,&#39;user&#39;]`
+
+    Returns:  
+    
+        [
+            {&#39;name&#39;:&#39;field1&#39;},
+            {&#39;name&#39;:&#39;name&#39;},
+            {&#39;name&#39;:&#39;user&#39;},
+        ]
+    
     &#34;&#34;&#34;
     return([{&#39;name&#39;:value} for value in list(fields)])
 
@@ -571,31 +589,27 @@ Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing
 
     elif t == &#39;LAST_3_DAYS&#39;:
         times=(now-timedelta(days=3), now)
-
+    #TODO Support other time ranges
+    # elif t == &#39;CURRENT_WEEK&#39;:
+    #     pass
+    # elif t == &#39;PREVIOUS_WEEK&#39;:
+    #     pass
+    # elif t == &#39;CURRENT_MONTH&#39;:
+    #     pass
+    # elif t == &#39;PREVIOUS_MONTH&#39;:
+    #     pass
+    # elif t == &#39;CURRENT_QUARTER&#39;:
+    #     pass
+    # elif t == &#39;PREVIOUS_QUARTER&#39;:
+    #     pass
+    # elif t == &#39;CURRENT_YEAR&#39;:
+    #     pass
+    # elif t == &#39;PREVIOUS_YEAR&#39;:
+    #     pass
     else :
         raise NotImplementedError(&#34;Timerange &#34;+t+&#34; is not supported yet&#34;)
     
-    return(times[0].isoformat(), times[1].isoformat())
-    
-    &#34;&#34;&#34; 
-    #TODO Support other time ranges
-    elif t is &#39;CURRENT_WEEK&#39;:
-        pass
-    elif t is &#39;PREVIOUS_WEEK&#39;:
-        pass
-    elif t is &#39;CURRENT_MONTH&#39;:
-        pass
-    elif t is &#39;PREVIOUS_MONTH&#39;:
-        pass
-    elif t is &#39;CURRENT_QUARTER&#39;:
-        pass
-    elif t is &#39;PREVIOUS_QUARTER&#39;:
-        pass
-    elif t is &#39;CURRENT_YEAR&#39;:
-        pass
-    elif t is &#39;PREVIOUS_YEAR&#39;:
-        pass
-    &#34;&#34;&#34;</code></pre>
+    return(times[0].isoformat(), times[1].isoformat())</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.utils.divide_times"><code class="name flex">
@@ -782,27 +796,41 @@ Returns :
 <span>def <span class="ident">format_fields_for_query</span></span>(<span>fields)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>['field1','name','user']</p>
-<p>Returns :
-[
-{'name':'field1'},
-{&hellip;},
-{},
-]</p></div>
+<div class="desc"><p>Format fields names to cann query module.
+</p>
+<p>Arguments:
+</p>
+<ul>
+<li><code>fields</code>: list of fields, i.e. <code>['field1','name','user']</code></li>
+</ul>
+<p>Returns:
+</p>
+<pre><code>[
+    {'name':'field1'},
+    {'name':'name'},
+    {'name':'user'},
+]
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def format_fields_for_query(fields):
     &#34;&#34;&#34;
-    [&#39;field1&#39;,&#39;name&#39;,&#39;user&#39;]
+    Format fields names to cann query module.  
 
-    Returns :
-    [
-        {&#39;name&#39;:&#39;field1&#39;},
-        {...},
-        {},
-    ]
+    Arguments:  
+
+    - `fields`: list of fields, i.e. `[&#39;field1&#39;,&#39;name&#39;,&#39;user&#39;]`
+
+    Returns:  
+    
+        [
+            {&#39;name&#39;:&#39;field1&#39;},
+            {&#39;name&#39;:&#39;name&#39;},
+            {&#39;name&#39;:&#39;user&#39;},
+        ]
+    
     &#34;&#34;&#34;
     return([{&#39;name&#39;:value} for value in list(fields)])</code></pre>
 </details>

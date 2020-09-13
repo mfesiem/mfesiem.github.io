@@ -362,31 +362,6 @@ _PARAMS = {
         
         &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
 } 
-&#34;&#34;&#34;
-SIEM API Methos/Parameters mapping.  
-This structure provide a central place to aggregate API methods and parameters.  
-The parameters are stored as docstrings to support string replacement.  
-
-Args:  
-    - `method` (str): Dict key associated with desired function
-    Use normal dict access, `PARAMS[&#34;method&#34;]`, or `PARAMS.get(&#34;method&#34;)`
-
-Returns:  
-    - `tuple `: `(string or Template, string or Template)` :  
-    The first string is the SIEM API endpoint name.  
-    The second string is the JSON formatted parameters required for the enpoint call. 
-    The formatted string might be a `Template` string and contains interpolation flags like `$id` and will be matched to `msiempy.core.session.NitroSession.request` arguments. 
-
-Used in `msiempy.core.session.NitroSession.request` code.  
-
-Important note : 
-    Do not use sigle quotes (`&#39;`) to delimit data into the interpolated strings !
-
-See `dump_api_params.py` script [HERE](https://github.com/mfesiem/msiempy/blob/master/samples/dump_api_params.py) to dump the complete structure.
-
-Possible `msiempy.core.session.NitroSession.request` requests and interpolation arguments: 
-
-&#34;&#34;&#34;
 
 class NitroSession():
     &#34;&#34;&#34;
@@ -457,6 +432,31 @@ class NitroSession():
     &#34;&#34;&#34;
     
     PARAMS = _PARAMS
+    &#34;&#34;&#34;
+    SIEM API Methos/Parameters mapping.  
+    This structure provide a central place to aggregate API methods and parameters.  
+    The parameters are stored as docstrings to support string replacement.  
+
+    Args:  
+        - `method` (str): Dict key associated with desired function
+        Use normal dict access, `PARAMS[&#34;method&#34;]`, or `PARAMS.get(&#34;method&#34;)`
+
+    Returns:  
+        - `tuple `: `(string or Template, string or Template)` :  
+        The first string is the SIEM API endpoint name.  
+        The second string is the JSON formatted parameters required for the enpoint call. 
+        The formatted string might be a `Template` string and contains interpolation flags like `$id` and will be matched to `msiempy.core.session.NitroSession.request` arguments. 
+
+    Used in `msiempy.core.session.NitroSession.request` code.  
+
+    Important note : 
+        Do not use sigle quotes (`&#39;`) to delimit data into the interpolated strings !
+
+    See `dump_api_params.py` script [HERE](https://github.com/mfesiem/msiempy/blob/master/samples/dump_api_params.py) to dump the complete structure.
+
+    Possible `msiempy.core.session.NitroSession.request` requests and interpolation arguments: 
+
+    &#34;&#34;&#34;
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -561,8 +561,6 @@ class NitroSession():
                 a.update(s.esm_request(&#39;v2/notifyGetTriggeredNotificationDetail&#39;, {&#39;id&#39;:a[&#39;id&#39;]}))
 
         &#34;&#34;&#34;
-
-
 
         url=&#39;&#39;
         privateApiCall=False
@@ -878,11 +876,11 @@ for k,v in _PARAMS.items():
     if isinstance(v[1], Template):
         keywords += [s[1] or s[2] for s in Template.pattern.findall(v[1].template) if s[1] or s[2]]
     params=&#39;, &#39;.join([&#39;{}&#39;.format(k) for k in keywords])
-    _PARAMS_DOCS+=&#34;     `request(&#39;{}&#39;, {})` -&gt; call `{}`\n&#34;.format(name, params, endpoint)
+    _PARAMS_DOCS+=&#34;         `request(&#39;{}&#39;, {})` -&gt; call `{}` | \n  &#34;.format(name, params, endpoint)
 
 __pdoc__[&#39;NitroSession.request&#39;] = NitroSession.request.__doc__+&#39;&#39;&#39;
-        All Requests |
-        --- | 
+            All Requests |  
+            --- |  
 &#39;&#39;&#39;+_PARAMS_DOCS
 
 class NitroError(Exception):
@@ -994,6 +992,31 @@ It provides easier dialogue with the ESM by doing agument interpolation with <co
     &#34;&#34;&#34;
     
     PARAMS = _PARAMS
+    &#34;&#34;&#34;
+    SIEM API Methos/Parameters mapping.  
+    This structure provide a central place to aggregate API methods and parameters.  
+    The parameters are stored as docstrings to support string replacement.  
+
+    Args:  
+        - `method` (str): Dict key associated with desired function
+        Use normal dict access, `PARAMS[&#34;method&#34;]`, or `PARAMS.get(&#34;method&#34;)`
+
+    Returns:  
+        - `tuple `: `(string or Template, string or Template)` :  
+        The first string is the SIEM API endpoint name.  
+        The second string is the JSON formatted parameters required for the enpoint call. 
+        The formatted string might be a `Template` string and contains interpolation flags like `$id` and will be matched to `msiempy.core.session.NitroSession.request` arguments. 
+
+    Used in `msiempy.core.session.NitroSession.request` code.  
+
+    Important note : 
+        Do not use sigle quotes (`&#39;`) to delimit data into the interpolated strings !
+
+    See `dump_api_params.py` script [HERE](https://github.com/mfesiem/msiempy/blob/master/samples/dump_api_params.py) to dump the complete structure.
+
+    Possible `msiempy.core.session.NitroSession.request` requests and interpolation arguments: 
+
+    &#34;&#34;&#34;
         
     def __str__(self):
         return repr(self.__unique_state__) 
@@ -1098,8 +1121,6 @@ It provides easier dialogue with the ESM by doing agument interpolation with <co
                 a.update(s.esm_request(&#39;v2/notifyGetTriggeredNotificationDetail&#39;, {&#39;id&#39;:a[&#39;id&#39;]}))
 
         &#34;&#34;&#34;
-
-
 
         url=&#39;&#39;
         privateApiCall=False
@@ -1420,7 +1441,24 @@ It provides easier dialogue with the ESM by doing agument interpolation with <co
 </dd>
 <dt id="msiempy.core.session.NitroSession.PARAMS"><code class="name">var <span class="ident">PARAMS</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>SIEM API Methos/Parameters mapping.<br>
+This structure provide a central place to aggregate API methods and parameters.<br>
+The parameters are stored as docstrings to support string replacement.
+</p>
+<p>Args:<br>
+- <code>method</code> (str): Dict key associated with desired function
+Use normal dict access, <code>PARAMS["method"]</code>, or <code>PARAMS.get("method")</code></p>
+<p>Returns:<br>
+- <code>tuple </code>: <code>(string or Template, string or Template)</code> :<br>
+The first string is the SIEM API endpoint name.<br>
+The second string is the JSON formatted parameters required for the enpoint call.
+The formatted string might be a <code>Template</code> string and contains interpolation flags like <code>$id</code> and will be matched to <code><a title="msiempy.core.session.NitroSession.request" href="#msiempy.core.session.NitroSession.request">NitroSession.request()</a></code> arguments. </p>
+<p>Used in <code><a title="msiempy.core.session.NitroSession.request" href="#msiempy.core.session.NitroSession.request">NitroSession.request()</a></code> code.
+</p>
+<p>Important note :
+Do not use sigle quotes (<code>'</code>) to delimit data into the interpolated strings !</p>
+<p>See <code>dump_api_params.py</code> script <a href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_api_params.py">HERE</a> to dump the complete structure.</p>
+<p>Possible <code><a title="msiempy.core.session.NitroSession.request" href="#msiempy.core.session.NitroSession.request">NitroSession.request()</a></code> requests and interpolation arguments:</p></div>
 </dd>
 </dl>
 <h3>Static methods</h3>
@@ -1701,8 +1739,6 @@ for a in alarms:
 
     &#34;&#34;&#34;
 
-
-
     url=&#39;&#39;
     privateApiCall=False
     result=None
@@ -1924,74 +1960,76 @@ Example: '10.0.2 20170516001031'</p></div>
 </li>
 </ul>
 <p>Exemple call:</p>
-<pre><code>   from msiempy import NitroSession
-   s = NitroSession()
-   s.login()
-   # Get all last 24h alarms details
-   alarms = s.request('get_alarms', time_range='LAST_24_HOURS',  status='', page_size=500, page_number=0)
-   for a in alarms:
-       a.update(s.request('get_alarm_details_new', id=a['id']))
+<pre><code>from msiempy import NitroSession
+s = NitroSession()
+s.login()
+# Get all last 24h alarms details
+alarms = s.request('get_alarms', time_range='LAST_24_HOURS',  status='', page_size=500, page_number=0)
+for a in alarms:
+    a.update(s.request('get_alarm_details_new', id=a['id']))
+
+
+All Requests |  
+--- |
 </code></pre>
-<p>All Requests |
-&mdash; |
-<code>request('login', username, password)</code> -&gt; call <code>login</code>
-<code>request('get_devtree', )</code> -&gt; call <code>GRP_GETVIRTUALGROUPIPSLISTDATA</code>
-<code>request('get_zones_devtree', )</code> -&gt; call <code>GRP_GETVIRTUALGROUPIPSLISTDATA</code>
-<code>request('req_client_str', ds_id)</code> -&gt; call <code>DS_GETDSCLIENTLIST</code>
-<code>request('get_rfile', ftoken)</code> -&gt; call <code>MISC_READFILE</code>
-<code>request('del_rfile', ftoken)</code> -&gt; call <code>ESSMGT_DELETEFILE</code>
-<code>request('get_rfile2', ftoken, pos, nbytes)</code> -&gt; call <code>MISC_READFILE</code>
-<code>request('get_wfile', ds_id)</code> -&gt; call <code>MISC_WRITEFILE</code>
-<code>request('get_rule_history', )</code> -&gt; call <code>PLCY_GETRULECHANGEINFO</code>
-<code>request('add_ds_11_1_3', parent_id, name, ds_ip, type_id, zone_id, enabled, url, ds_id, child_enabled, child_count, child_type, idm_id, parameters)</code> -&gt; call <code>dsAddDataSource</code>
-<code>request('add_ds_11_2_1', parent_id, name, ds_ip, type_id, zone_id, enabled, url, parameters)</code> -&gt; call <code>dsAddDataSources</code>
-<code>request('add_client1', parent_id, name, enabled, ds_ip, hostname, type_id, tz_id, dorder, maskflag, port, require_tls)</code> -&gt; call <code>DS_ADDDSCLIENT</code>
-<code>request('get_recs', )</code> -&gt; call <code>devGetDeviceList</code>
-<code>request('get_dstypes', rec_id)</code> -&gt; call <code>dsGetDataSourceTypes</code>
-<code>request('del_ds1', parent_id, ds_id)</code> -&gt; call <code>dsDeleteDataSource</code>
-<code>request('del_ds2', parent_id, ds_id)</code> -&gt; call <code>dsDeleteDataSources</code>
-<code>request('del_client', parent_id, ftoken)</code> -&gt; call <code>DS_DELETEDSCLIENTS</code>
-<code>request('get_job_status', job_id)</code> -&gt; call <code>MISC_JOBSTATUS</code>
-<code>request('ds_last_times', )</code> -&gt; call <code>QRY_GETDEVICELASTALERTTIME</code>
-<code>request('zonetree', )</code> -&gt; call <code>zoneGetZoneTree</code>
-<code>request('ds_by_type', )</code> -&gt; call <code>QRY_GETDEVICECOUNTBYTYPE</code>
-<code>request('ds_details1', ds_id)</code> -&gt; call <code>dsGetDataSourceDetail</code>
-<code>request('ds_details2', ds_id)</code> -&gt; call <code>dsGetDataSourceDetail</code>
-<code>request('get_alarms_custom_time', time_range, start_time, end_time, status, page_size, page_number)</code> -&gt; call <code>alarmGetTriggeredAlarms</code>
-<code>request('get_alarms', time_range, status, page_size, page_number)</code> -&gt; call <code>alarmGetTriggeredAlarms</code>
-<code>request('get_alarm_details_new', id)</code> -&gt; call <code>notifyGetTriggeredNotificationDetail</code>
-<code>request('get_alarm_details', id)</code> -&gt; call <code>notifyGetTriggeredNotification</code>
-<code>request('get_alarm_details_int', id)</code> -&gt; call <code>NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL</code>
-<code>request('ack_alarms', ids)</code> -&gt; call <code>alarmAcknowledgeTriggeredAlarm</code>
-<code>request('ack_alarms_11_2_1', ids)</code> -&gt; call <code>alarmAcknowledgeTriggeredAlarm</code>
-<code>request('unack_alarms', ids)</code> -&gt; call <code>alarmUnacknowledgeTriggeredAlarm</code>
-<code>request('unack_alarms_11_2_1', ids)</code> -&gt; call <code>alarmUnacknowledgeTriggeredAlarm</code>
-<code>request('delete_alarms', ids)</code> -&gt; call <code>alarmDeleteTriggeredAlarm</code>
-<code>request('delete_alarms_11_2_1', ids)</code> -&gt; call <code>alarmDeleteTriggeredAlarm</code>
-<code>request('get_possible_filters', )</code> -&gt; call <code>qryGetFilterFields</code>
-<code>request('get_possible_fields', type, groupType)</code> -&gt; call <code>qryGetSelectFields</code>
-<code>request('get_esm_time', )</code> -&gt; call <code>essmgtGetESSTime</code>
-<code>request('get_alerts_now', ds_id)</code> -&gt; call <code>IPS_GETALERTSNOW</code>
-<code>request('get_flows_now', ds_id)</code> -&gt; call <code>IPS_GETALERTSNOW</code>
-<code>request('logout', )</code> -&gt; call <code>logout</code>
-<code>request('get_user_locale', )</code> -&gt; call <code>getUserLocale</code>
-<code>request('event_query_custom_time', time_range, start_time, end_time, fields, filters, limit, offset, order_field, order_direction)</code> -&gt; call <code>qryExecuteDetail</code>
-<code>request('event_query', time_range, fields, filters, limit, offset, order_field, order_direction)</code> -&gt; call <code>qryExecuteDetail</code>
-<code>request('query_status', resultID)</code> -&gt; call <code>qryGetStatus</code>
-<code>request('query_result', startPos, numRows, resultID)</code> -&gt; call <code>qryGetResults</code>
-<code>request('time_zones', )</code> -&gt; call <code>userGetTimeZones</code>
-<code>request('add_note_to_event', id, note)</code> -&gt; call <code>ipsAddAlertNote</code>
-<code>request('add_note_to_event_int', id, note)</code> -&gt; call <code>IPS_ADDALERTNOTE</code>
-<code>request('get_wl_types', )</code> -&gt; call <code>sysGetWatchlistFields</code>
-<code>request('get_watchlists_no_filters', hidden, dynamic, writeOnly, indexedOnly)</code> -&gt; call <code>sysGetWatchlists</code>
-<code>request('get_watchlist_details', id)</code> -&gt; call <code>sysGetWatchlistDetails</code>
-<code>request('add_watchlist', name, wl_type)</code> -&gt; call <code>sysAddWatchlist</code>
-<code>request('add_watchlist_values', watchlist, values)</code> -&gt; call <code>sysAddWatchlistValues</code>
-<code>request('get_watchlist_values', id)</code> -&gt; call <code>SYS_GETWATCHLISTDETAILS</code>
-<code>request('remove_watchlists', wl_id_list)</code> -&gt; call <code>sysRemoveWatchlist</code>
-<code>request('get_alert_data', id)</code> -&gt; call <code>ipsGetAlertData</code>
-<code>request('get_sys_info', )</code> -&gt; call <code>SYS_GETSYSINFO</code>
-<code>request('build_stamp', )</code> -&gt; call <code>essmgtGetBuildStamp</code></p></div>
+<p><code>request('login', username, password)</code> -&gt; call <code>login</code> |
+<code>request('get_devtree', )</code> -&gt; call <code>GRP_GETVIRTUALGROUPIPSLISTDATA</code> |
+<code>request('get_zones_devtree', )</code> -&gt; call <code>GRP_GETVIRTUALGROUPIPSLISTDATA</code> |
+<code>request('req_client_str', ds_id)</code> -&gt; call <code>DS_GETDSCLIENTLIST</code> |
+<code>request('get_rfile', ftoken)</code> -&gt; call <code>MISC_READFILE</code> |
+<code>request('del_rfile', ftoken)</code> -&gt; call <code>ESSMGT_DELETEFILE</code> |
+<code>request('get_rfile2', ftoken, pos, nbytes)</code> -&gt; call <code>MISC_READFILE</code> |
+<code>request('get_wfile', ds_id)</code> -&gt; call <code>MISC_WRITEFILE</code> |
+<code>request('get_rule_history', )</code> -&gt; call <code>PLCY_GETRULECHANGEINFO</code> |
+<code>request('add_ds_11_1_3', parent_id, name, ds_ip, type_id, zone_id, enabled, url, ds_id, child_enabled, child_count, child_type, idm_id, parameters)</code> -&gt; call <code>dsAddDataSource</code> |
+<code>request('add_ds_11_2_1', parent_id, name, ds_ip, type_id, zone_id, enabled, url, parameters)</code> -&gt; call <code>dsAddDataSources</code> |
+<code>request('add_client1', parent_id, name, enabled, ds_ip, hostname, type_id, tz_id, dorder, maskflag, port, require_tls)</code> -&gt; call <code>DS_ADDDSCLIENT</code> |
+<code>request('get_recs', )</code> -&gt; call <code>devGetDeviceList</code> |
+<code>request('get_dstypes', rec_id)</code> -&gt; call <code>dsGetDataSourceTypes</code> |
+<code>request('del_ds1', parent_id, ds_id)</code> -&gt; call <code>dsDeleteDataSource</code> |
+<code>request('del_ds2', parent_id, ds_id)</code> -&gt; call <code>dsDeleteDataSources</code> |
+<code>request('del_client', parent_id, ftoken)</code> -&gt; call <code>DS_DELETEDSCLIENTS</code> |
+<code>request('get_job_status', job_id)</code> -&gt; call <code>MISC_JOBSTATUS</code> |
+<code>request('ds_last_times', )</code> -&gt; call <code>QRY_GETDEVICELASTALERTTIME</code> |
+<code>request('zonetree', )</code> -&gt; call <code>zoneGetZoneTree</code> |
+<code>request('ds_by_type', )</code> -&gt; call <code>QRY_GETDEVICECOUNTBYTYPE</code> |
+<code>request('ds_details1', ds_id)</code> -&gt; call <code>dsGetDataSourceDetail</code> |
+<code>request('ds_details2', ds_id)</code> -&gt; call <code>dsGetDataSourceDetail</code> |
+<code>request('get_alarms_custom_time', time_range, start_time, end_time, status, page_size, page_number)</code> -&gt; call <code>alarmGetTriggeredAlarms</code> |
+<code>request('get_alarms', time_range, status, page_size, page_number)</code> -&gt; call <code>alarmGetTriggeredAlarms</code> |
+<code>request('get_alarm_details_new', id)</code> -&gt; call <code>notifyGetTriggeredNotificationDetail</code> |
+<code>request('get_alarm_details', id)</code> -&gt; call <code>notifyGetTriggeredNotification</code> |
+<code>request('get_alarm_details_int', id)</code> -&gt; call <code>NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL</code> |
+<code>request('ack_alarms', ids)</code> -&gt; call <code>alarmAcknowledgeTriggeredAlarm</code> |
+<code>request('ack_alarms_11_2_1', ids)</code> -&gt; call <code>alarmAcknowledgeTriggeredAlarm</code> |
+<code>request('unack_alarms', ids)</code> -&gt; call <code>alarmUnacknowledgeTriggeredAlarm</code> |
+<code>request('unack_alarms_11_2_1', ids)</code> -&gt; call <code>alarmUnacknowledgeTriggeredAlarm</code> |
+<code>request('delete_alarms', ids)</code> -&gt; call <code>alarmDeleteTriggeredAlarm</code> |
+<code>request('delete_alarms_11_2_1', ids)</code> -&gt; call <code>alarmDeleteTriggeredAlarm</code> |
+<code>request('get_possible_filters', )</code> -&gt; call <code>qryGetFilterFields</code> |
+<code>request('get_possible_fields', type, groupType)</code> -&gt; call <code>qryGetSelectFields</code> |
+<code>request('get_esm_time', )</code> -&gt; call <code>essmgtGetESSTime</code> |
+<code>request('get_alerts_now', ds_id)</code> -&gt; call <code>IPS_GETALERTSNOW</code> |
+<code>request('get_flows_now', ds_id)</code> -&gt; call <code>IPS_GETALERTSNOW</code> |
+<code>request('logout', )</code> -&gt; call <code>logout</code> |
+<code>request('get_user_locale', )</code> -&gt; call <code>getUserLocale</code> |
+<code>request('event_query_custom_time', time_range, start_time, end_time, fields, filters, limit, offset, order_field, order_direction)</code> -&gt; call <code>qryExecuteDetail</code> |
+<code>request('event_query', time_range, fields, filters, limit, offset, order_field, order_direction)</code> -&gt; call <code>qryExecuteDetail</code> |
+<code>request('query_status', resultID)</code> -&gt; call <code>qryGetStatus</code> |
+<code>request('query_result', startPos, numRows, resultID)</code> -&gt; call <code>qryGetResults</code> |
+<code>request('time_zones', )</code> -&gt; call <code>userGetTimeZones</code> |
+<code>request('add_note_to_event', id, note)</code> -&gt; call <code>ipsAddAlertNote</code> |
+<code>request('add_note_to_event_int', id, note)</code> -&gt; call <code>IPS_ADDALERTNOTE</code> |
+<code>request('get_wl_types', )</code> -&gt; call <code>sysGetWatchlistFields</code> |
+<code>request('get_watchlists_no_filters', hidden, dynamic, writeOnly, indexedOnly)</code> -&gt; call <code>sysGetWatchlists</code> |
+<code>request('get_watchlist_details', id)</code> -&gt; call <code>sysGetWatchlistDetails</code> |
+<code>request('add_watchlist', name, wl_type)</code> -&gt; call <code>sysAddWatchlist</code> |
+<code>request('add_watchlist_values', watchlist, values)</code> -&gt; call <code>sysAddWatchlistValues</code> |
+<code>request('get_watchlist_values', id)</code> -&gt; call <code>SYS_GETWATCHLISTDETAILS</code> |
+<code>request('remove_watchlists', wl_id_list)</code> -&gt; call <code>sysRemoveWatchlist</code> |
+<code>request('get_alert_data', id)</code> -&gt; call <code>ipsGetAlertData</code> |
+<code>request('get_sys_info', )</code> -&gt; call <code>SYS_GETSYSINFO</code> |
+<code>request('build_stamp', )</code> -&gt; call <code>essmgtGetBuildStamp</code> | </p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>

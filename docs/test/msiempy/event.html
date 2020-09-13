@@ -40,7 +40,7 @@ from datetime import datetime, timedelta
 log = logging.getLogger(&#39;msiempy&#39;)
 
 from .core import NitroDict, NitroError, FilteredQueryList
-from .__utils__ import timerange_gettimes, parse_query_result, format_fields_for_query, divide_times, parse_timedelta
+from .core.utils import timerange_gettimes, parse_query_result, format_fields_for_query, divide_times, parse_timedelta
 
 class EventManager(FilteredQueryList):
     &#34;&#34;&#34;Interface to query and manage events.  
@@ -1154,12 +1154,12 @@ class Event(NitroDict):
         &#34;&#34;&#34;
         
         if use_query == True :
-
+            f = FieldFilter(&#39;IPSIDAlertID&#39;, id, operator=&#39;EQUALS&#39;)
             e = EventManager(
                 time_range=&#39;CUSTOM&#39;,
                 start_time=datetime.now()-timedelta(days=365),
                 end_time=datetime.now()+timedelta(days=1),
-                filters=[(&#39;IPSIDAlertID&#39;,id)],
+                filters=[f],
                 fields=extra_fields,
                 limit=2)
             try:
@@ -2977,12 +2977,12 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, prefix auto
         &#34;&#34;&#34;
         
         if use_query == True :
-
+            f = FieldFilter(&#39;IPSIDAlertID&#39;, id, operator=&#39;EQUALS&#39;)
             e = EventManager(
                 time_range=&#39;CUSTOM&#39;,
                 start_time=datetime.now()-timedelta(days=365),
                 end_time=datetime.now()+timedelta(days=1),
-                filters=[(&#39;IPSIDAlertID&#39;,id)],
+                filters=[f],
                 fields=extra_fields,
                 limit=2)
             try:
@@ -3147,12 +3147,12 @@ For exemple, the SIEM will return dicts with keys like
     &#34;&#34;&#34;
     
     if use_query == True :
-
+        f = FieldFilter(&#39;IPSIDAlertID&#39;, id, operator=&#39;EQUALS&#39;)
         e = EventManager(
             time_range=&#39;CUSTOM&#39;,
             start_time=datetime.now()-timedelta(days=365),
             end_time=datetime.now()+timedelta(days=1),
-            filters=[(&#39;IPSIDAlertID&#39;,id)],
+            filters=[f],
             fields=extra_fields,
             limit=2)
         try:

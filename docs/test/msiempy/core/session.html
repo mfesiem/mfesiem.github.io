@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.4" />
 <title>msiempy.core.session API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Lower level interface to the ESM API." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
@@ -22,12 +22,15 @@
 <h1 class="title">Module <code>msiempy.core.session</code></h1>
 </header>
 <section id="section-intro">
+<p>Lower level interface to the ESM API.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
-
+&#34;&#34;&#34;
+Lower level interface to the ESM API.  
+&#34;&#34;&#34;
 import logging
 import requests
 import json
@@ -40,7 +43,7 @@ import time
 from .utils import tob64
 from .config import NitroConfig
 from .params import PARAMS
-from .error import NitroError
+from .__error__ import NitroError
 
 log = logging.getLogger(&#39;msiempy&#39;)
 
@@ -48,13 +51,13 @@ __pdoc__ = {} # Init pdoc to document dynamically
 
 class NitroSession():
     &#34;&#34;&#34;
-    `msiempy.NitroSession` is the point of convergence of every request to the McAfee ESM.  
-    It provides standard dialogue with the ESM by doing agument interpolation with `msiempy.NitroSession.PARAMS`.  
+    `msiempy.core.session.NitroSession` is the point of convergence of every request to the McAfee ESM.  
+    It provides standard dialogue with the ESM by doing agument interpolation with `msiempy.core.params.PARAMS`.  
     Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once.  
-    It uses `msiempy.NitroConfig` to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
+    It uses `msiempy.core.config.NitroConfig` to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
 
     The init method is called every time you call NitroSession() constructor. But the properties are actually initiated only once.  
-    Use `logout()` to reinstanciate NitroSession.  
+    Use `logout()` before to reinstanciate NitroSession.  
 
     Arguments:  
 
@@ -116,7 +119,7 @@ class NitroSession():
     
     config = None
     &#34;&#34;&#34;
-    `msiempy.NitroConfig` object.  
+    `msiempy.core.config.NitroConfig` object.  
     &#34;&#34;&#34;
     
     PARAMS=PARAMS
@@ -125,7 +128,7 @@ class NitroSession():
         return repr(self.__unique_state__) 
 
     def login(self, retry=1):
-        &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.NitroSession.request` method, but you can still do it manually by calling this method.  
+        &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.  
         Throws `msiempy.NitroError` if login fails
         &#34;&#34;&#34;
         userb64 = tob64(self.config.user)
@@ -180,9 +183,14 @@ class NitroSession():
 
     def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
         &#34;&#34;&#34;
-        Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
-        If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
-        In any way, the ESM response is unpacked by `msiempy.NitroSession.unpack_resp`.  
+        Handle a low level HTTP request to ESM API endpoints.  
+
+        Format the request, handle the basic parsing of the SIEM result as well as other errors.  
+
+        All upper cases method names signals to use the private API methods. 
+        See `msiempy.core.session.NitroSession.format_priv_resp` and `msiempy.core.session.NitroSession.format_params`
+
+        ESM responses are unpacked with `msiempy.core.session.NitroSession.unpack_resp`.  
 
         Arguments :  
 
@@ -278,21 +286,6 @@ class NitroSession():
                         return self.esm_request(method, data, http, callback, raw, secure, retry=retry-1)
                     
                     else :
-                        # # Data unavailable error -&gt; raise
-                        # if any([match in result.text for match in [&#39;ERROR_IndexNotTurnedOn&#39;,
-                        #     &#39;ERROR_NoData&#39;,&#39;ERROR_UnknownList&#39;,&#39;ERROR_JobEngine_GetQueryStatus_StatusNotFound&#39;]]):
-                        #     error = NitroError(&#39;Data unavailable error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
-                        #         method, data, e, result.text))
-                        #     log.error(error)
-                        #     raise
-                        # else :
-                        #     # Other handlers
-                        #     # if True : # Other HTTP errors... TODO
-                        #         # _InvalidFilter (228)
-                        #         # Status Code 500: Error processing request, see server logs for more details 
-                        #         # Input Validation Error
-
-                        # Raise error in the worst case
                         error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
                             method, data, e, result.text))
                         log.error(error)
@@ -374,13 +367,17 @@ class NitroSession():
 
     def request(self, request, **kwargs):
         &#34;&#34;&#34;
-        This method is the centralized interface of all requests going to the SIEM.  
-        It interpolates `**params` with `msiempy.NitroSession.PARAMS` docstrings and build a valid datastructure with `ast`.  
-        Wrapper around the `msiempy.NitroSession.esm_request` method.  
+        Interface to make ESM API calls more simple.  
+
+        Interpolates `**kwargs` with `msiempy.core.params.PARAMS` docstrings and build a valid datastructure for the HTTP data.  
+
+        Then call the `msiempy.core.session.NitroSession.esm_request` method with the built data.  
+
+        Also handles auto-login.  
 
         Arguments:  
 
-        - `request`: Keyword corresponding to the request name in `msiempy.core.PARAMS` mapping.  
+        - `request`: Keyword corresponding to the request name in `msiempy.core.params.PARAMS` mapping.  
         - `http`: HTTP method.  
         - `callback` : function to apply afterwards  
         - `raw` : If true will return the Response object from requests module.   
@@ -389,7 +386,7 @@ class NitroSession():
         
         Interpolation parameters :  
         
-        - `**kwargs` : Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
+        - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.params.PARAMS` templates. Dynamic keyword arguments.  
 
         Returns :  
 
@@ -417,7 +414,6 @@ class NitroSession():
         if not self.logged_in and method != &#39;login&#39;:
             # Autologin
             self.login()
-            
     
         try :
             #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
@@ -546,12 +542,12 @@ class NitroSession():
 <span>(</span><span>conf_path=None, conf_dict=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p><code>msiempy.NitroSession</code> is the point of convergence of every request to the McAfee ESM.<br>
-It provides standard dialogue with the ESM by doing agument interpolation with <code>msiempy.NitroSession.PARAMS</code>.<br>
+<div class="desc"><p><code><a title="msiempy.core.session.NitroSession" href="#msiempy.core.session.NitroSession">NitroSession</a></code> is the point of convergence of every request to the McAfee ESM.<br>
+It provides standard dialogue with the ESM by doing agument interpolation with <code><a title="msiempy.core.params.PARAMS" href="params.html#msiempy.core.params.PARAMS">PARAMS</a></code>.<br>
 Internal <code>__dict__</code> refers to a unique instance of dict and thus, properties can be instanciated only once.<br>
-It uses <code>msiempy.NitroConfig</code> to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.</p>
+It uses <code><a title="msiempy.core.config.NitroConfig" href="config.html#msiempy.core.config.NitroConfig">NitroConfig</a></code> to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.</p>
 <p>The init method is called every time you call NitroSession() constructor. But the properties are actually initiated only once.<br>
-Use <code>logout()</code> to reinstanciate NitroSession.
+Use <code>logout()</code> before to reinstanciate NitroSession.
 </p>
 <p>Arguments:
 </p>
@@ -569,13 +565,13 @@ Use <code>logout()</code> to reinstanciate NitroSession.
 </summary>
 <pre><code class="python">class NitroSession():
     &#34;&#34;&#34;
-    `msiempy.NitroSession` is the point of convergence of every request to the McAfee ESM.  
-    It provides standard dialogue with the ESM by doing agument interpolation with `msiempy.NitroSession.PARAMS`.  
+    `msiempy.core.session.NitroSession` is the point of convergence of every request to the McAfee ESM.  
+    It provides standard dialogue with the ESM by doing agument interpolation with `msiempy.core.params.PARAMS`.  
     Internal `__dict__` refers to a unique instance of dict and thus, properties can be instanciated only once.  
-    It uses `msiempy.NitroConfig` to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
+    It uses `msiempy.core.config.NitroConfig` to setup authentication, other configuration like verbosity, logfile, general timeout, are offered throught the config file.
 
     The init method is called every time you call NitroSession() constructor. But the properties are actually initiated only once.  
-    Use `logout()` to reinstanciate NitroSession.  
+    Use `logout()` before to reinstanciate NitroSession.  
 
     Arguments:  
 
@@ -637,7 +633,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
     
     config = None
     &#34;&#34;&#34;
-    `msiempy.NitroConfig` object.  
+    `msiempy.core.config.NitroConfig` object.  
     &#34;&#34;&#34;
     
     PARAMS=PARAMS
@@ -646,7 +642,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         return repr(self.__unique_state__) 
 
     def login(self, retry=1):
-        &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.NitroSession.request` method, but you can still do it manually by calling this method.  
+        &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.  
         Throws `msiempy.NitroError` if login fails
         &#34;&#34;&#34;
         userb64 = tob64(self.config.user)
@@ -701,9 +697,14 @@ Use <code>logout()</code> to reinstanciate NitroSession.
 
     def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
         &#34;&#34;&#34;
-        Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
-        If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
-        In any way, the ESM response is unpacked by `msiempy.NitroSession.unpack_resp`.  
+        Handle a low level HTTP request to ESM API endpoints.  
+
+        Format the request, handle the basic parsing of the SIEM result as well as other errors.  
+
+        All upper cases method names signals to use the private API methods. 
+        See `msiempy.core.session.NitroSession.format_priv_resp` and `msiempy.core.session.NitroSession.format_params`
+
+        ESM responses are unpacked with `msiempy.core.session.NitroSession.unpack_resp`.  
 
         Arguments :  
 
@@ -799,21 +800,6 @@ Use <code>logout()</code> to reinstanciate NitroSession.
                         return self.esm_request(method, data, http, callback, raw, secure, retry=retry-1)
                     
                     else :
-                        # # Data unavailable error -&gt; raise
-                        # if any([match in result.text for match in [&#39;ERROR_IndexNotTurnedOn&#39;,
-                        #     &#39;ERROR_NoData&#39;,&#39;ERROR_UnknownList&#39;,&#39;ERROR_JobEngine_GetQueryStatus_StatusNotFound&#39;]]):
-                        #     error = NitroError(&#39;Data unavailable error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
-                        #         method, data, e, result.text))
-                        #     log.error(error)
-                        #     raise
-                        # else :
-                        #     # Other handlers
-                        #     # if True : # Other HTTP errors... TODO
-                        #         # _InvalidFilter (228)
-                        #         # Status Code 500: Error processing request, see server logs for more details 
-                        #         # Input Validation Error
-
-                        # Raise error in the worst case
                         error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
                             method, data, e, result.text))
                         log.error(error)
@@ -895,13 +881,17 @@ Use <code>logout()</code> to reinstanciate NitroSession.
 
     def request(self, request, **kwargs):
         &#34;&#34;&#34;
-        This method is the centralized interface of all requests going to the SIEM.  
-        It interpolates `**params` with `msiempy.NitroSession.PARAMS` docstrings and build a valid datastructure with `ast`.  
-        Wrapper around the `msiempy.NitroSession.esm_request` method.  
+        Interface to make ESM API calls more simple.  
+
+        Interpolates `**kwargs` with `msiempy.core.params.PARAMS` docstrings and build a valid datastructure for the HTTP data.  
+
+        Then call the `msiempy.core.session.NitroSession.esm_request` method with the built data.  
+
+        Also handles auto-login.  
 
         Arguments:  
 
-        - `request`: Keyword corresponding to the request name in `msiempy.core.PARAMS` mapping.  
+        - `request`: Keyword corresponding to the request name in `msiempy.core.params.PARAMS` mapping.  
         - `http`: HTTP method.  
         - `callback` : function to apply afterwards  
         - `raw` : If true will return the Response object from requests module.   
@@ -910,7 +900,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         
         Interpolation parameters :  
         
-        - `**kwargs` : Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
+        - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.params.PARAMS` templates. Dynamic keyword arguments.  
 
         Returns :  
 
@@ -938,7 +928,6 @@ Use <code>logout()</code> to reinstanciate NitroSession.
         if not self.logged_in and method != &#39;login&#39;:
             # Autologin
             self.login()
-            
     
         try :
             #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.
@@ -1064,7 +1053,7 @@ Use <code>logout()</code> to reinstanciate NitroSession.
 </dd>
 <dt id="msiempy.core.session.NitroSession.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>
-<div class="desc"><p><code>msiempy.NitroConfig</code> object.</p></div>
+<div class="desc"><p><code><a title="msiempy.core.config.NitroConfig" href="config.html#msiempy.core.config.NitroConfig">NitroConfig</a></code> object.</p></div>
 </dd>
 <dt id="msiempy.core.session.NitroSession.PARAMS"><code class="name">var <span class="ident">PARAMS</span></code></dt>
 <dd>
@@ -1176,14 +1165,14 @@ def unpack_resp(response) :
 <span>def <span class="ident">login</span></span>(<span>self, retry=1)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Authentication is done lazily upon the first call to <code>msiempy.NitroSession.request</code> method, but you can still do it manually by calling this method.<br>
+<div class="desc"><p>Authentication is done lazily upon the first call to <code><a title="msiempy.core.session.NitroSession.request" href="#msiempy.core.session.NitroSession.request">NitroSession.request()</a></code> method, but you can still do it manually by calling this method.<br>
 Throws <code>msiempy.NitroError</code> if login fails</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def login(self, retry=1):
-    &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.NitroSession.request` method, but you can still do it manually by calling this method.  
+    &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.  
     Throws `msiempy.NitroError` if login fails
     &#34;&#34;&#34;
     userb64 = tob64(self.config.user)
@@ -1251,10 +1240,13 @@ Throws <code>msiempy.NitroError</code> if login fails</p></div>
 <span>def <span class="ident">esm_request</span></span>(<span>self, method, data, http='post', callback=None, raw=False, secure=False, retry=1)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.
-<br>
-If method is all upper cases, it's going to be formatted as a private API call. See <code>msiempy.NitroSession.format_params</code> and <code>msiempy.NitroSession.format_priv_resp</code>
-In any way, the ESM response is unpacked by <code>msiempy.NitroSession.unpack_resp</code>.
+<div class="desc"><p>Handle a low level HTTP request to ESM API endpoints.
+</p>
+<p>Format the request, handle the basic parsing of the SIEM result as well as other errors.
+</p>
+<p>All upper cases method names signals to use the private API methods.
+See <code><a title="msiempy.core.session.NitroSession.format_priv_resp" href="#msiempy.core.session.NitroSession.format_priv_resp">NitroSession.format_priv_resp()</a></code> and <code><a title="msiempy.core.session.NitroSession.format_params" href="#msiempy.core.session.NitroSession.format_params">NitroSession.format_params()</a></code></p>
+<p>ESM responses are unpacked with <code><a title="msiempy.core.session.NitroSession.unpack_resp" href="#msiempy.core.session.NitroSession.unpack_resp">NitroSession.unpack_resp()</a></code>.
 </p>
 <p>Arguments :
 </p>
@@ -1300,9 +1292,14 @@ time = session.esm_request('v2/')
 </summary>
 <pre><code class="python">def esm_request(self, method, data, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
     &#34;&#34;&#34;
-    Helper method that format the request, handle the basic parsing of the SIEM result as well as other errors.          
-    If method is all upper cases, it&#39;s going to be formatted as a private API call. See `msiempy.NitroSession.format_params` and `msiempy.NitroSession.format_priv_resp` 
-    In any way, the ESM response is unpacked by `msiempy.NitroSession.unpack_resp`.  
+    Handle a low level HTTP request to ESM API endpoints.  
+
+    Format the request, handle the basic parsing of the SIEM result as well as other errors.  
+
+    All upper cases method names signals to use the private API methods. 
+    See `msiempy.core.session.NitroSession.format_priv_resp` and `msiempy.core.session.NitroSession.format_params`
+
+    ESM responses are unpacked with `msiempy.core.session.NitroSession.unpack_resp`.  
 
     Arguments :  
 
@@ -1398,21 +1395,6 @@ time = session.esm_request('v2/')
                     return self.esm_request(method, data, http, callback, raw, secure, retry=retry-1)
                 
                 else :
-                    # # Data unavailable error -&gt; raise
-                    # if any([match in result.text for match in [&#39;ERROR_IndexNotTurnedOn&#39;,
-                    #     &#39;ERROR_NoData&#39;,&#39;ERROR_UnknownList&#39;,&#39;ERROR_JobEngine_GetQueryStatus_StatusNotFound&#39;]]):
-                    #     error = NitroError(&#39;Data unavailable error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
-                    #         method, data, e, result.text))
-                    #     log.error(error)
-                    #     raise
-                    # else :
-                    #     # Other handlers
-                    #     # if True : # Other HTTP errors... TODO
-                    #         # _InvalidFilter (228)
-                    #         # Status Code 500: Error processing request, see server logs for more details 
-                    #         # Input Validation Error
-
-                    # Raise error in the worst case
                     error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
                         method, data, e, result.text))
                     log.error(error)
@@ -1531,14 +1513,18 @@ Example: '10.0.2 20170516001031'</p></div>
 <span>def <span class="ident">request</span></span>(<span>self, request, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This method is the centralized interface of all requests going to the SIEM.<br>
-It interpolates <code>**params</code> with <code>msiempy.NitroSession.PARAMS</code> docstrings and build a valid datastructure with <code>ast</code>.<br>
-Wrapper around the <code>msiempy.NitroSession.esm_request</code> method.
+<div class="desc"><p>Interface to make ESM API calls more simple.
+</p>
+<p>Interpolates <code>**kwargs</code> with <code><a title="msiempy.core.params.PARAMS" href="params.html#msiempy.core.params.PARAMS">PARAMS</a></code> docstrings and build a valid datastructure for the HTTP data.
+</p>
+<p>Then call the <code><a title="msiempy.core.session.NitroSession.esm_request" href="#msiempy.core.session.NitroSession.esm_request">NitroSession.esm_request()</a></code> method with the built data.
+</p>
+<p>Also handles auto-login.
 </p>
 <p>Arguments:
 </p>
 <ul>
-<li><code>request</code>: Keyword corresponding to the request name in <code>msiempy.core.PARAMS</code> mapping.
+<li><code>request</code>: Keyword corresponding to the request name in <code><a title="msiempy.core.params.PARAMS" href="params.html#msiempy.core.params.PARAMS">PARAMS</a></code> mapping.
 </li>
 <li><code>http</code>: HTTP method.
 </li>
@@ -1553,7 +1539,7 @@ Wrapper around the <code>msiempy.NitroSession.esm_request</code> method.
 <p>Interpolation parameters :
 </p>
 <ul>
-<li><code>**kwargs</code> : Interpolation parameters that will be match to <code>msiempy.NitroSession.PARAMS</code> templates. Dynamic keyword arguments.
+<li><code>**kwargs</code> : Interpolation parameters that will be match to <code><a title="msiempy.core.params.PARAMS" href="params.html#msiempy.core.params.PARAMS">PARAMS</a></code> templates. Dynamic keyword arguments.
 </li>
 </ul>
 <p>Returns :
@@ -1573,13 +1559,17 @@ Wrapper around the <code>msiempy.NitroSession.esm_request</code> method.
 </summary>
 <pre><code class="python">def request(self, request, **kwargs):
     &#34;&#34;&#34;
-    This method is the centralized interface of all requests going to the SIEM.  
-    It interpolates `**params` with `msiempy.NitroSession.PARAMS` docstrings and build a valid datastructure with `ast`.  
-    Wrapper around the `msiempy.NitroSession.esm_request` method.  
+    Interface to make ESM API calls more simple.  
+
+    Interpolates `**kwargs` with `msiempy.core.params.PARAMS` docstrings and build a valid datastructure for the HTTP data.  
+
+    Then call the `msiempy.core.session.NitroSession.esm_request` method with the built data.  
+
+    Also handles auto-login.  
 
     Arguments:  
 
-    - `request`: Keyword corresponding to the request name in `msiempy.core.PARAMS` mapping.  
+    - `request`: Keyword corresponding to the request name in `msiempy.core.params.PARAMS` mapping.  
     - `http`: HTTP method.  
     - `callback` : function to apply afterwards  
     - `raw` : If true will return the Response object from requests module.   
@@ -1588,7 +1578,7 @@ Wrapper around the <code>msiempy.NitroSession.esm_request</code> method.
     
     Interpolation parameters :  
     
-    - `**kwargs` : Interpolation parameters that will be match to `msiempy.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
+    - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.params.PARAMS` templates. Dynamic keyword arguments.  
 
     Returns :  
 
@@ -1616,7 +1606,6 @@ Wrapper around the <code>msiempy.NitroSession.esm_request</code> method.
     if not self.logged_in and method != &#39;login&#39;:
         # Autologin
         self.login()
-        
 
     try :
         #Dynamically checking the esm_request arguments so additionnal parameters can be passed afterwards.

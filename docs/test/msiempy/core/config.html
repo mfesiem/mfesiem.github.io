@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.4" />
 <title>msiempy.core.config API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Configuration parser object." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
@@ -22,12 +22,15 @@
 <h1 class="title">Module <code>msiempy.core.config</code></h1>
 </header>
 <section id="section-intro">
+<p>Configuration parser object.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
-
+&#34;&#34;&#34;
+Configuration parser object.  
+&#34;&#34;&#34;
 import logging
 import configparser
 import os
@@ -174,7 +177,7 @@ class NitroConfig(configparser.ConfigParser):
         Returns the location of a supposed conf.ini file the `conf.ini` file.  
         If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.  
         If the file doesn&#39;t exist, will still return the location.  
-        Do not create a file nor directory, you must call `msiempy.NitroConfig.write`.  
+        Do not create a file nor directory, you must call `msiempy.core.config.NitroConfig.write`.  
         &#39;&#39;&#39;
         conf_path_dir=None
         if os.path.isdir(&#39;./&#39;+NitroConfig.CONF_DIR): conf_path_dir=&#39;./&#39;
@@ -371,7 +374,7 @@ If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/con
         Returns the location of a supposed conf.ini file the `conf.ini` file.  
         If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.  
         If the file doesn&#39;t exist, will still return the location.  
-        Do not create a file nor directory, you must call `msiempy.NitroConfig.write`.  
+        Do not create a file nor directory, you must call `msiempy.core.config.NitroConfig.write`.  
         &#39;&#39;&#39;
         conf_path_dir=None
         if os.path.isdir(&#39;./&#39;+NitroConfig.CONF_DIR): conf_path_dir=&#39;./&#39;
@@ -418,7 +421,7 @@ If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/con
 <div class="desc"><p>Returns the location of a supposed conf.ini file the <code>conf.ini</code> file.<br>
 If <code>.msiem</code> folder exists in you local directory, assume the <code>conf.ini</code> file is in there.<br>
 If the file doesn't exist, will still return the location.<br>
-Do not create a file nor directory, you must call <code>msiempy.NitroConfig.write</code>.</p></div>
+Do not create a file nor directory, you must call <code><a title="msiempy.core.config.NitroConfig.write" href="#msiempy.core.config.NitroConfig.write">NitroConfig.write()</a></code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -429,7 +432,7 @@ def find_ini_location():
     Returns the location of a supposed conf.ini file the `conf.ini` file.  
     If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.  
     If the file doesn&#39;t exist, will still return the location.  
-    Do not create a file nor directory, you must call `msiempy.NitroConfig.write`.  
+    Do not create a file nor directory, you must call `msiempy.core.config.NitroConfig.write`.  
     &#39;&#39;&#39;
     conf_path_dir=None
     if os.path.isdir(&#39;./&#39;+NitroConfig.CONF_DIR): conf_path_dir=&#39;./&#39;

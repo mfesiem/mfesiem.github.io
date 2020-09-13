@@ -44,7 +44,7 @@ from .__utils__ import timerange_gettimes, parse_query_result, format_fields_for
 
 class EventManager(FilteredQueryList):
     &#34;&#34;&#34;Interface to query and manage events.  
-    Inherits from `msiempy.FilteredQueryList`.
+    Inherits from `msiempy.core.query.FilteredQueryList`.
 
     Arguments:  
 
@@ -138,13 +138,13 @@ class EventManager(FilteredQueryList):
     def filters(self):
         &#34;&#34;&#34;
         Returns SIEM formatted filters for the query structured from `msiempy.event.GroupFilter` and/or `msiempy.event.FieldFilter`
-        See `msiempy.FilteredQueryList.filters`.
+        See `msiempy.core.query.FilteredQueryList.filters`.
         &#34;&#34;&#34;
         return([dict(f) for f in self._filters])
 
     def add_filter(self, afilter):
         &#34;&#34;&#34;
-        Concrete description of the `msiempy.FilteredQueryList` method.
+        Concrete description of the `msiempy.core.query.FilteredQueryList` method.
         It can take a `tuple(fiels, [values])`,  `msiempy.event.GroupFilter` or `msiempy.event.FieldFilter` or a `dict`.  
         &#34;&#34;&#34;
         if isinstance(afilter, tuple) :
@@ -190,7 +190,7 @@ class EventManager(FilteredQueryList):
 
         Returns : `tuple` : (( `msiempy.event.EventManager`, Status of the query (completed?) `True/False` ))
 
-        Raises `msiempy.NitroError` if any unhandled errors  
+        Raises `msiempy.core.error.NitroError` if any unhandled errors  
         Raises `TimeoutError` if wait_timeout_sec counter gets to 0
         &#34;&#34;&#34;
         try:
@@ -250,7 +250,7 @@ class EventManager(FilteredQueryList):
     def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
         &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
         Split the query in defferents time slots if the query apprears not to be completed.  
-        Wraps around `msiempy.FilteredQueryList.qry_load_data`.    
+        Wraps around `msiempy.event.EventManager.qry_load_data`.    
 
         Note: Only the first query is loaded asynchronously.
 
@@ -1426,7 +1426,7 @@ class FieldFilter(_QueryFilter):
 </code></dt>
 <dd>
 <div class="desc"><p>Interface to query and manage events.<br>
-Inherits from <code>msiempy.FilteredQueryList</code>.</p>
+Inherits from <code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.</p>
 <p>Arguments:
 </p>
 <ul>
@@ -1448,7 +1448,7 @@ Some default fields will be present. </li>
 </summary>
 <pre><code class="python">class EventManager(FilteredQueryList):
     &#34;&#34;&#34;Interface to query and manage events.  
-    Inherits from `msiempy.FilteredQueryList`.
+    Inherits from `msiempy.core.query.FilteredQueryList`.
 
     Arguments:  
 
@@ -1542,13 +1542,13 @@ Some default fields will be present. </li>
     def filters(self):
         &#34;&#34;&#34;
         Returns SIEM formatted filters for the query structured from `msiempy.event.GroupFilter` and/or `msiempy.event.FieldFilter`
-        See `msiempy.FilteredQueryList.filters`.
+        See `msiempy.core.query.FilteredQueryList.filters`.
         &#34;&#34;&#34;
         return([dict(f) for f in self._filters])
 
     def add_filter(self, afilter):
         &#34;&#34;&#34;
-        Concrete description of the `msiempy.FilteredQueryList` method.
+        Concrete description of the `msiempy.core.query.FilteredQueryList` method.
         It can take a `tuple(fiels, [values])`,  `msiempy.event.GroupFilter` or `msiempy.event.FieldFilter` or a `dict`.  
         &#34;&#34;&#34;
         if isinstance(afilter, tuple) :
@@ -1594,7 +1594,7 @@ Some default fields will be present. </li>
 
         Returns : `tuple` : (( `msiempy.event.EventManager`, Status of the query (completed?) `True/False` ))
 
-        Raises `msiempy.NitroError` if any unhandled errors  
+        Raises `msiempy.core.error.NitroError` if any unhandled errors  
         Raises `TimeoutError` if wait_timeout_sec counter gets to 0
         &#34;&#34;&#34;
         try:
@@ -1654,7 +1654,7 @@ Some default fields will be present. </li>
     def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
         &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
         Split the query in defferents time slots if the query apprears not to be completed.  
-        Wraps around `msiempy.FilteredQueryList.qry_load_data`.    
+        Wraps around `msiempy.event.EventManager.qry_load_data`.    
 
         Note: Only the first query is loaded asynchronously.
 
@@ -1858,7 +1858,7 @@ def order(self):
 <dt id="msiempy.event.EventManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
 <div class="desc"><p>Returns SIEM formatted filters for the query structured from <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> and/or <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code>
-See <code>msiempy.FilteredQueryList.filters</code>.</p></div>
+See <code><a title="msiempy.core.query.FilteredQueryList.filters" href="core/query.html#msiempy.core.query.FilteredQueryList.filters">FilteredQueryList.filters</a></code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1867,7 +1867,7 @@ See <code>msiempy.FilteredQueryList.filters</code>.</p></div>
 def filters(self):
     &#34;&#34;&#34;
     Returns SIEM formatted filters for the query structured from `msiempy.event.GroupFilter` and/or `msiempy.event.FieldFilter`
-    See `msiempy.FilteredQueryList.filters`.
+    See `msiempy.core.query.FilteredQueryList.filters`.
     &#34;&#34;&#34;
     return([dict(f) for f in self._filters])</code></pre>
 </details>
@@ -1879,7 +1879,7 @@ def filters(self):
 <span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Concrete description of the <code>msiempy.FilteredQueryList</code> method.
+<div class="desc"><p>Concrete description of the <code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code> method.
 It can take a <code>tuple(fiels, [values])</code>,
 <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> or <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or a <code>dict</code>.</p></div>
 <details class="source">
@@ -1888,7 +1888,7 @@ It can take a <code>tuple(fiels, [values])</code>,
 </summary>
 <pre><code class="python">def add_filter(self, afilter):
     &#34;&#34;&#34;
-    Concrete description of the `msiempy.FilteredQueryList` method.
+    Concrete description of the `msiempy.core.query.FilteredQueryList` method.
     It can take a `tuple(fiels, [values])`,  `msiempy.event.GroupFilter` or `msiempy.event.FieldFilter` or a `dict`.  
     &#34;&#34;&#34;
     if isinstance(afilter, tuple) :
@@ -1959,7 +1959,7 @@ Retries only when 'ResultUnavailable','UnknownList' or 'JobEngine_GetQueryResult
 <li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds</li>
 </ul>
 <p>Returns : <code>tuple</code> : (( <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code>, Status of the query (completed?) <code>True/False</code> ))</p>
-<p>Raises <code>msiempy.NitroError</code> if any unhandled errors<br>
+<p>Raises <code>msiempy.core.error.NitroError</code> if any unhandled errors<br>
 Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0</p></div>
 <details class="source">
 <summary>
@@ -1980,7 +1980,7 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0</p></div>
 
     Returns : `tuple` : (( `msiempy.event.EventManager`, Status of the query (completed?) `True/False` ))
 
-    Raises `msiempy.NitroError` if any unhandled errors  
+    Raises `msiempy.core.error.NitroError` if any unhandled errors  
     Raises `TimeoutError` if wait_timeout_sec counter gets to 0
     &#34;&#34;&#34;
     try:
@@ -2044,7 +2044,7 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0</p></div>
 <dd>
 <div class="desc"><p>Load the data from the SIEM into the manager list.<br>
 Split the query in defferents time slots if the query apprears not to be completed.<br>
-Wraps around <code>msiempy.FilteredQueryList.qry_load_data</code>.
+Wraps around <code><a title="msiempy.event.EventManager.qry_load_data" href="#msiempy.event.EventManager.qry_load_data">EventManager.qry_load_data()</a></code>.
 </p>
 <p>Note: Only the first query is loaded asynchronously.</p>
 <p>Arguments:
@@ -2074,7 +2074,7 @@ Only works for certain time ranges.
 <pre><code class="python">def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
     &#34;&#34;&#34;Load the data from the SIEM into the manager list.  
     Split the query in defferents time slots if the query apprears not to be completed.  
-    Wraps around `msiempy.FilteredQueryList.qry_load_data`.    
+    Wraps around `msiempy.event.EventManager.qry_load_data`.    
 
     Note: Only the first query is loaded asynchronously.
 

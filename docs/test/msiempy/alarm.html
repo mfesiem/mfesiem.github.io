@@ -35,16 +35,16 @@ import datetime
 import logging
 log = logging.getLogger(&#39;msiempy&#39;)
 
-from . import NitroDict, NitroList, FilteredQueryList
+from .core import NitroDict, NitroList, FilteredQueryList
 from .event import EventManager, Event
-from .__utils__ import regex_match, convert_to_time_obj, dehexify
+from .__utils__ import regex_match, dehexify
 
 __pdoc__={}
 
 class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
     Interface to query and manage Alarms.  
-    Inherits from `msiempy.FilteredQueryList`.
+    Inherits from `msiempy.core.query.FilteredQueryList`.
 
     Arguments:  
 
@@ -53,11 +53,13 @@ class AlarmManager(FilteredQueryList):
     `filters` are computed locally - Unlike `msiempy.event.EventManager` filters.  
     - `page_size` : max number of rows per query.  
     - `page_number` : defaulted to 1.
-    - `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted.  
+    - `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted. 
     - `event_filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.event.Event` objects. A single `tuple` is also accepted.  
     - `time_range` : Query time range. String representation of a time range.  
     - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
+
+    Filters are computed after the data loaded with regex matching.  
     
     &#34;&#34;&#34;
     def __init__(self, *args, status_filter=&#39;all&#39;, page_size=200, filters=None, event_filters=None, **kwargs):
@@ -82,8 +84,6 @@ class AlarmManager(FilteredQueryList):
 
         #Casting all data to Alarms objects, better way to do it ?
         collections.UserList.__init__(self, [Alarm(adict=item) for item in self.data if isinstance(item, (dict, NitroDict))])
-
-    
 
     @property
     def filters(self):
@@ -401,7 +401,7 @@ class Alarm(NitroDict):
 
     ALARM_DEFAULT_FIELDS=[&#39;id&#39;,&#39;alarmName&#39;, &#39;summary&#39;,&#39;triggeredDate&#39;, &#39;acknowledgedUsername&#39;]
     __pdoc__[&#39;Alarm.ALARM_DEFAULT_FIELDS&#39;]=&#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
-    (not used , may be for printing with `msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join(ALARM_DEFAULT_FIELDS))
+    (not used in library, can bu useful for printing with `get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join(ALARM_DEFAULT_FIELDS))
 
 
     def acknowledge(self):
@@ -597,7 +597,7 @@ class Alarm(NitroDict):
 </code></dt>
 <dd>
 <div class="desc"><p>Interface to query and manage Alarms.<br>
-Inherits from <code>msiempy.FilteredQueryList</code>.</p>
+Inherits from <code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.</p>
 <p>Arguments:
 </p>
 <ul>
@@ -608,16 +608,17 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 <li><code>page_size</code> : max number of rows per query.
 </li>
 <li><code>page_number</code> : defaulted to 1.</li>
-<li><code>filters</code> : <code>[(field, [values]), (field, [values])]</code> Filters applied to <code><a title="msiempy.alarm.Alarm" href="#msiempy.alarm.Alarm">Alarm</a></code> objects. A single <code>tuple</code> is also accepted.
-</li>
+<li><code>filters</code> : <code>[(field, [values]), (field, [values])]</code> Filters applied to <code><a title="msiempy.alarm.Alarm" href="#msiempy.alarm.Alarm">Alarm</a></code> objects. A single <code>tuple</code> is also accepted. </li>
 <li><code>event_filters</code> : <code>[(field, [values]), (field, [values])]</code> Filters applied to <code><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></code> objects. A single <code>tuple</code> is also accepted.
 </li>
 <li><code>time_range</code> : Query time range. String representation of a time range.
 </li>
 <li><code>start_time</code> : Query starting time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
 </li>
-<li><code>end_time</code> : Query endding time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.</li>
-</ul></div>
+<li><code>end_time</code> : Query endding time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
+</li>
+</ul>
+<p>Filters are computed after the data loaded with regex matching.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -625,7 +626,7 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 <pre><code class="python">class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
     Interface to query and manage Alarms.  
-    Inherits from `msiempy.FilteredQueryList`.
+    Inherits from `msiempy.core.query.FilteredQueryList`.
 
     Arguments:  
 
@@ -634,11 +635,13 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
     `filters` are computed locally - Unlike `msiempy.event.EventManager` filters.  
     - `page_size` : max number of rows per query.  
     - `page_number` : defaulted to 1.
-    - `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted.  
+    - `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted. 
     - `event_filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.event.Event` objects. A single `tuple` is also accepted.  
     - `time_range` : Query time range. String representation of a time range.  
     - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
+
+    Filters are computed after the data loaded with regex matching.  
     
     &#34;&#34;&#34;
     def __init__(self, *args, status_filter=&#39;all&#39;, page_size=200, filters=None, event_filters=None, **kwargs):
@@ -663,8 +666,6 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 
         #Casting all data to Alarms objects, better way to do it ?
         collections.UserList.__init__(self, [Alarm(adict=item) for item in self.data if isinstance(item, (dict, NitroDict))])
-
-    
 
     @property
     def filters(self):
@@ -1386,7 +1387,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 
     ALARM_DEFAULT_FIELDS=[&#39;id&#39;,&#39;alarmName&#39;, &#39;summary&#39;,&#39;triggeredDate&#39;, &#39;acknowledgedUsername&#39;]
     __pdoc__[&#39;Alarm.ALARM_DEFAULT_FIELDS&#39;]=&#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
-    (not used , may be for printing with `msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join(ALARM_DEFAULT_FIELDS))
+    (not used in library, can bu useful for printing with `get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join(ALARM_DEFAULT_FIELDS))
 
 
     def acknowledge(self):
@@ -1592,7 +1593,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <dt id="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS"><code class="name">var <span class="ident">ALARM_DEFAULT_FIELDS</span></code></dt>
 <dd>
 <div class="desc"><p>Defaulfs fields : <code>id, alarmName, summary, triggeredDate, acknowledgedUsername</code>
-(not used , may be for printing with <code>msiempy.NitroList.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)</code>)</p></div>
+(not used in library, can bu useful for printing with <code>get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)</code>)</p></div>
 </dd>
 <dt id="msiempy.alarm.Alarm.ALARM_FIELDS_MAP"><code class="name">var <span class="ident">ALARM_FIELDS_MAP</span></code></dt>
 <dd>

@@ -27,7 +27,9 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
+&#34;&#34;&#34;
 
+&#34;&#34;&#34;
 import logging
 import abc
 import datetime
@@ -47,7 +49,7 @@ class FilteredQueryList(NitroList):
     Arguments:  
 
     - `time_range` : Query time range. String representation of a time range. 
-        See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`.  
+        See `msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.  
     - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `filters` : List of filters applied to the query.  
@@ -117,8 +119,8 @@ class FilteredQueryList(NitroList):
     @property
     def time_range(self):
         &#34;&#34;&#34;
-        Query time range. See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`.
-        Default to `msiempy.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
+        Query time range. See `msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+        Default to `msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
         Note that the time range is upper cased automatically.
         Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
         &#34;&#34;&#34;
@@ -188,7 +190,7 @@ class FilteredQueryList(NitroList):
         &#34;&#34;&#34; 
         Filter property : Returns a list of filters.
         Can be set with list of tuple(field, [values]), a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
-        `None` value will trigger `msiempy.FilteredQueryList.clear_filters()`.  
+        `None` value will trigger `msiempy.core.query.FilteredQueryList.clear_filters()`.  
         Raises : `AttributeError` if type not supported.
         Abstract declaration.
         TODO find a better solution to integrate the filter property
@@ -263,7 +265,7 @@ Abstract base class that provide time ranged filtered query wrapper.
 </p>
 <ul>
 <li><code>time_range</code> : Query time range. String representation of a time range.
-See <code>msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE</code>.
+See <code><a title="msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE">FilteredQueryList.POSSIBLE_TIME_RANGE</a></code>.
 </li>
 <li><code>start_time</code> : Query starting time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
 </li>
@@ -284,7 +286,7 @@ See <code>msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE</code>.
     Arguments:  
 
     - `time_range` : Query time range. String representation of a time range. 
-        See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`.  
+        See `msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.  
     - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
     - `filters` : List of filters applied to the query.  
@@ -354,8 +356,8 @@ See <code>msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE</code>.
     @property
     def time_range(self):
         &#34;&#34;&#34;
-        Query time range. See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`.
-        Default to `msiempy.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
+        Query time range. See `msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+        Default to `msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
         Note that the time range is upper cased automatically.
         Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
         &#34;&#34;&#34;
@@ -425,7 +427,7 @@ See <code>msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE</code>.
         &#34;&#34;&#34; 
         Filter property : Returns a list of filters.
         Can be set with list of tuple(field, [values]), a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
-        `None` value will trigger `msiempy.FilteredQueryList.clear_filters()`.  
+        `None` value will trigger `msiempy.core.query.FilteredQueryList.clear_filters()`.  
         Raises : `AttributeError` if type not supported.
         Abstract declaration.
         TODO find a better solution to integrate the filter property
@@ -511,8 +513,8 @@ See <code>msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE</code>.
 <dl>
 <dt id="msiempy.core.query.FilteredQueryList.time_range"><code class="name">var <span class="ident">time_range</span></code></dt>
 <dd>
-<div class="desc"><p>Query time range. See <code>msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE</code>.
-Default to <code>msiempy.FilteredQueryList.DEFAULT_TIME_RANGE</code> (CURRENT_DAY).
+<div class="desc"><p>Query time range. See <code><a title="msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE">FilteredQueryList.POSSIBLE_TIME_RANGE</a></code>.
+Default to <code><a title="msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE" href="#msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE">FilteredQueryList.DEFAULT_TIME_RANGE</a></code> (CURRENT_DAY).
 Note that the time range is upper cased automatically.
 Raises <code>VallueError</code> if unrecognized time range is set and <code>AttributeError</code> if not the right type.</p></div>
 <details class="source">
@@ -522,8 +524,8 @@ Raises <code>VallueError</code> if unrecognized time range is set and <code>Attr
 <pre><code class="python">@property
 def time_range(self):
     &#34;&#34;&#34;
-    Query time range. See `msiempy.FilteredQueryList.POSSIBLE_TIME_RANGE`.
-    Default to `msiempy.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
+    Query time range. See `msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+    Default to `msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE` (CURRENT_DAY).
     Note that the time range is upper cased automatically.
     Raises `VallueError` if unrecognized time range is set and `AttributeError` if not the right type.
     &#34;&#34;&#34;
@@ -576,7 +578,7 @@ def end_time(self):
 <dd>
 <div class="desc"><p>Filter property : Returns a list of filters.
 Can be set with list of tuple(field, [values]), a <code><a title="msiempy.event.FieldFilter" href="../event.html#msiempy.event.FieldFilter">FieldFilter</a></code> or <code><a title="msiempy.event.GroupFilter" href="../event.html#msiempy.event.GroupFilter">GroupFilter</a></code> in the case of a <code><a title="msiempy.event.EventManager" href="../event.html#msiempy.event.EventManager">EventManager</a></code> query. A single tuple is also accepted.<br>
-<code>None</code> value will trigger <code>msiempy.FilteredQueryList.clear_filters()</code>.<br>
+<code>None</code> value will trigger <code><a title="msiempy.core.query.FilteredQueryList.clear_filters" href="#msiempy.core.query.FilteredQueryList.clear_filters">FilteredQueryList.clear_filters()</a></code>.<br>
 Raises : <code>AttributeError</code> if type not supported.
 Abstract declaration.
 TODO find a better solution to integrate the filter property</p></div>
@@ -589,7 +591,7 @@ def filters(self):
     &#34;&#34;&#34; 
     Filter property : Returns a list of filters.
     Can be set with list of tuple(field, [values]), a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
-    `None` value will trigger `msiempy.FilteredQueryList.clear_filters()`.  
+    `None` value will trigger `msiempy.core.query.FilteredQueryList.clear_filters()`.  
     Raises : `AttributeError` if type not supported.
     Abstract declaration.
     TODO find a better solution to integrate the filter property

@@ -332,7 +332,100 @@ def parse_timedelta(time_str):
 #     strg = strg.strip() # Remove leading and trailing whitespace
 
     
-#     return strg</code></pre>
+#     return strg
+
+
+def nitro_tz(tz_id):
+    &#34;&#34;&#34;Maps McAfee SIEM/Nitro ESM internal timezone IDs to 
+        the tz database at: http://web.cs.ucla.edu/~eggert/tz/tz-link.htm
+    
+        Args:
+            tz_id (str/int): McAfee ESM internal timezone ID
+            
+        Returns:
+            timezone name (str)
+    
+    &#34;&#34;&#34;
+
+    tz_map = {1: &#39;Pacific/Pago_Pago&#39;,
+                2: &#39;Pacific/Honolulu&#39;,
+                3: &#39;America/Anchorage&#39;,     
+                4: &#39;America/Los_Angeles&#39;,  
+                5: &#39;America/Phoenix&#39;,      
+                6: &#39;America/Chihuahua&#39;,    
+                7: &#39;America/Denver&#39;,     
+                8: &#39;America/Guatemala&#39;,    
+                9: &#39;America/Chicago&#39;,    
+                10: &#39;America/Mexico_City&#39;, 
+                11: &#39;America/Regina&#39;,     
+                12: &#39;America/Bogota&#39;,     
+                13: &#39;America/New_York&#39;,    
+                14: &#39;America/Indiana/Indianapolis&#39;, 
+                15: &#39;America/Halifax&#39;,     
+                16: &#39;America/Caracas&#39;,     
+                17: &#39;America/Santiago&#39;,    
+                18: &#39;America/St_Johns&#39;,     
+                19: &#39;America/Sao_Paulo&#39;, 
+                20: &#39;America/Buenos_Aires&#39;,     
+                21: &#39;America/Godthab&#39;,     
+                22: &#39;Atlantic/South_Georgia&#39;, 
+                23: &#39;Atlantic/Azores&#39;,     
+                24: &#39;Atlantic/Cape_Verde&#39;,     
+                25: &#39;Africa/Casablanca&#39;,     
+                26: &#39;Etc/UTC&#39;, 
+                27: &#39;Europe/Amsterdam&#39;, 
+                28: &#39;Europe/Belgrade&#39;, 
+                29: &#39;Europe/Brussels&#39;, 
+                30: &#39;Europe/Warsaw&#39;, 
+                31: &#39;Africa/Tripoli&#39;, 
+                32: &#39;Europe/Athens&#39;, 
+                33: &#39;Europe/Bucharest&#39;,     
+                34: &#39;Africa/Cairo&#39;,     
+                35: &#39;Africa/Maputo&#39;, 
+                36: &#39;Europe/Helsinki&#39;, 
+                37: &#39;Asia/Jerusalem&#39;,     
+                38: &#39;Asia/Baghdad&#39;,     
+                39: &#39;Asia/Riyadh&#39;,
+                40: &#39;Europe/Moscow&#39;,     
+                41: &#39;Africa/Nairobi&#39;,     
+                42: &#39;Asia/Tehran&#39;,     
+                43: &#39;Asia/Dubai&#39;,
+                44: &#39;Asia/Baku&#39;,
+                45: &#39;Asia/Kabul&#39;,     
+                46: &#39;Asia/Yekaterinburg&#39;,     
+                47: &#39;Asia/Karachi&#39;,
+                48: &#39;Asia/Kolkata&#39;,
+                49: &#39;Asia/Kathmandu&#39;, 
+                50: &#39;Asia/Almaty&#39;,     
+                51: &#39;Asia/Dhaka&#39;, 
+                52: &#39;Asia/Colombo&#39;, 
+                53: &#39;Asia/Rangoon&#39;,     
+                54: &#39;Asia/Bangkok&#39;,     
+                55: &#39;Asia/Krasnoyarsk&#39;,     
+                56: &#39;Asia/Shanghai&#39;, 
+                57: &#39;Asia/Irkutsk&#39;,     
+                58: &#39;Asia/Singapore&#39;, 
+                59: &#39;Australia/Perth&#39;,     
+                60: &#39;Asia/Taipei&#39;,     
+                61: &#39;Asia/Tokyo&#39;, 
+                62: &#39;Asia/Seoul&#39;,     
+                63: &#39;Asia/Yakutsk&#39;,     
+                64: &#39;Australia/Adelaide&#39;,     
+                65: &#39;Australia/Darwin&#39;,     
+                66: &#39;Australia/Brisbane&#39;,     
+                67: &#39;Australia/Sydney&#39;,
+                68: &#39;Pacific/Guam&#39;, 
+                69: &#39;Australia/Hobart&#39;,     
+                70: &#39;Asia/Vladivostok&#39;,     
+                71: &#39;Asia/Magadan&#39;,     
+                72: &#39;Pacific/Auckland&#39;,     
+                73: &#39;Pacific/Fiji&#39;, 
+                74: &#39;Pacific/Tongatapu&#39;, 
+                75: &#39;Asia/Tbilisi&#39;,     
+                76: &#39;Europe/Dublin&#39;,
+                77: &#39;Europe/Istanbul&#39;}
+    
+    return tz_map[tz_id]</code></pre>
 </details>
 </section>
 <section>
@@ -743,6 +836,113 @@ Returns :
     return timedelta(**time_params)</code></pre>
 </details>
 </dd>
+<dt id="msiempy.core.utils.nitro_tz"><code class="name flex">
+<span>def <span class="ident">nitro_tz</span></span>(<span>tz_id)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Maps McAfee SIEM/Nitro ESM internal timezone IDs to
+the tz database at: <a href="http://web.cs.ucla.edu/~eggert/tz/tz-link.htm">http://web.cs.ucla.edu/~eggert/tz/tz-link.htm</a></p>
+<h2 id="args">Args</h2>
+<p>tz_id (str/int): McAfee ESM internal timezone ID</p>
+<h2 id="returns">Returns</h2>
+<p>timezone name (str)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def nitro_tz(tz_id):
+    &#34;&#34;&#34;Maps McAfee SIEM/Nitro ESM internal timezone IDs to 
+        the tz database at: http://web.cs.ucla.edu/~eggert/tz/tz-link.htm
+    
+        Args:
+            tz_id (str/int): McAfee ESM internal timezone ID
+            
+        Returns:
+            timezone name (str)
+    
+    &#34;&#34;&#34;
+
+    tz_map = {1: &#39;Pacific/Pago_Pago&#39;,
+                2: &#39;Pacific/Honolulu&#39;,
+                3: &#39;America/Anchorage&#39;,     
+                4: &#39;America/Los_Angeles&#39;,  
+                5: &#39;America/Phoenix&#39;,      
+                6: &#39;America/Chihuahua&#39;,    
+                7: &#39;America/Denver&#39;,     
+                8: &#39;America/Guatemala&#39;,    
+                9: &#39;America/Chicago&#39;,    
+                10: &#39;America/Mexico_City&#39;, 
+                11: &#39;America/Regina&#39;,     
+                12: &#39;America/Bogota&#39;,     
+                13: &#39;America/New_York&#39;,    
+                14: &#39;America/Indiana/Indianapolis&#39;, 
+                15: &#39;America/Halifax&#39;,     
+                16: &#39;America/Caracas&#39;,     
+                17: &#39;America/Santiago&#39;,    
+                18: &#39;America/St_Johns&#39;,     
+                19: &#39;America/Sao_Paulo&#39;, 
+                20: &#39;America/Buenos_Aires&#39;,     
+                21: &#39;America/Godthab&#39;,     
+                22: &#39;Atlantic/South_Georgia&#39;, 
+                23: &#39;Atlantic/Azores&#39;,     
+                24: &#39;Atlantic/Cape_Verde&#39;,     
+                25: &#39;Africa/Casablanca&#39;,     
+                26: &#39;Etc/UTC&#39;, 
+                27: &#39;Europe/Amsterdam&#39;, 
+                28: &#39;Europe/Belgrade&#39;, 
+                29: &#39;Europe/Brussels&#39;, 
+                30: &#39;Europe/Warsaw&#39;, 
+                31: &#39;Africa/Tripoli&#39;, 
+                32: &#39;Europe/Athens&#39;, 
+                33: &#39;Europe/Bucharest&#39;,     
+                34: &#39;Africa/Cairo&#39;,     
+                35: &#39;Africa/Maputo&#39;, 
+                36: &#39;Europe/Helsinki&#39;, 
+                37: &#39;Asia/Jerusalem&#39;,     
+                38: &#39;Asia/Baghdad&#39;,     
+                39: &#39;Asia/Riyadh&#39;,
+                40: &#39;Europe/Moscow&#39;,     
+                41: &#39;Africa/Nairobi&#39;,     
+                42: &#39;Asia/Tehran&#39;,     
+                43: &#39;Asia/Dubai&#39;,
+                44: &#39;Asia/Baku&#39;,
+                45: &#39;Asia/Kabul&#39;,     
+                46: &#39;Asia/Yekaterinburg&#39;,     
+                47: &#39;Asia/Karachi&#39;,
+                48: &#39;Asia/Kolkata&#39;,
+                49: &#39;Asia/Kathmandu&#39;, 
+                50: &#39;Asia/Almaty&#39;,     
+                51: &#39;Asia/Dhaka&#39;, 
+                52: &#39;Asia/Colombo&#39;, 
+                53: &#39;Asia/Rangoon&#39;,     
+                54: &#39;Asia/Bangkok&#39;,     
+                55: &#39;Asia/Krasnoyarsk&#39;,     
+                56: &#39;Asia/Shanghai&#39;, 
+                57: &#39;Asia/Irkutsk&#39;,     
+                58: &#39;Asia/Singapore&#39;, 
+                59: &#39;Australia/Perth&#39;,     
+                60: &#39;Asia/Taipei&#39;,     
+                61: &#39;Asia/Tokyo&#39;, 
+                62: &#39;Asia/Seoul&#39;,     
+                63: &#39;Asia/Yakutsk&#39;,     
+                64: &#39;Australia/Adelaide&#39;,     
+                65: &#39;Australia/Darwin&#39;,     
+                66: &#39;Australia/Brisbane&#39;,     
+                67: &#39;Australia/Sydney&#39;,
+                68: &#39;Pacific/Guam&#39;, 
+                69: &#39;Australia/Hobart&#39;,     
+                70: &#39;Asia/Vladivostok&#39;,     
+                71: &#39;Asia/Magadan&#39;,     
+                72: &#39;Pacific/Auckland&#39;,     
+                73: &#39;Pacific/Fiji&#39;, 
+                74: &#39;Pacific/Tongatapu&#39;, 
+                75: &#39;Asia/Tbilisi&#39;,     
+                76: &#39;Europe/Dublin&#39;,
+                77: &#39;Europe/Istanbul&#39;}
+    
+    return tz_map[tz_id]</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -772,6 +972,7 @@ Returns :
 <li><code><a title="msiempy.core.utils.parse_query_result" href="#msiempy.core.utils.parse_query_result">parse_query_result</a></code></li>
 <li><code><a title="msiempy.core.utils.format_fields_for_query" href="#msiempy.core.utils.format_fields_for_query">format_fields_for_query</a></code></li>
 <li><code><a title="msiempy.core.utils.parse_timedelta" href="#msiempy.core.utils.parse_timedelta">parse_timedelta</a></code></li>
+<li><code><a title="msiempy.core.utils.nitro_tz" href="#msiempy.core.utils.nitro_tz">nitro_tz</a></code></li>
 </ul>
 </li>
 </ul>

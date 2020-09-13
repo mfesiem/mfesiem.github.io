@@ -58,7 +58,7 @@ __pdoc__ = {} # Init pdoc to document dynamically
 
 class NitroObject(abc.ABC):
     &#34;&#34;&#34;
-    Base class for all nitro objects. All objects have a reference to the single `msiempy.NitroSession` object that handle the esm requests.  
+    Base class for all nitro objects. All objects have a reference to the single `msiempy.core.session.NitroSession` object that handle the esm requests.  
     Creates the object session.
     &#34;&#34;&#34;
 
@@ -205,7 +205,7 @@ class NitroList(collections.UserList, NitroObject):
               csv: Returns data with header and comma separated values. 
         - `fields`: list of fields you want in the table. If `None` : default fields are returned by .keys attribute and sorted.  
         - `max_column_width`: when using prettytable only 
-        - `get_text_nest_attr`: attributes passed to the nested `msiempy.NitroList.get_text` elements if any. Useful to control events appearence.
+        - `get_text_nest_attr`: attributes passed to the nested `msiempy.core.types.NitroList.get_text` elements if any. Useful to control events appearence.
         &#34;&#34;&#34;
 
         text=str()
@@ -315,7 +315,7 @@ class NitroList(collections.UserList, NitroObject):
 
     def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
         &#34;&#34;&#34;
-        Wrapper arround executable and the a list of elements, typically `msiempy.NitroList` object.  
+        Wrapper arround executable and the a list of elements, typically `msiempy.core.types.NitroList` object.  
 
         Arguments:  
         
@@ -441,7 +441,7 @@ class NitroList(collections.UserList, NitroObject):
 <span>class <span class="ident">NitroObject</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all nitro objects. All objects have a reference to the single <code>msiempy.NitroSession</code> object that handle the esm requests.<br>
+<div class="desc"><p>Base class for all nitro objects. All objects have a reference to the single <code><a title="msiempy.core.session.NitroSession" href="session.html#msiempy.core.session.NitroSession">NitroSession</a></code> object that handle the esm requests.<br>
 Creates the object session.</p></div>
 <details class="source">
 <summary>
@@ -449,7 +449,7 @@ Creates the object session.</p></div>
 </summary>
 <pre><code class="python">class NitroObject(abc.ABC):
     &#34;&#34;&#34;
-    Base class for all nitro objects. All objects have a reference to the single `msiempy.NitroSession` object that handle the esm requests.  
+    Base class for all nitro objects. All objects have a reference to the single `msiempy.core.session.NitroSession` object that handle the esm requests.  
     Creates the object session.
     &#34;&#34;&#34;
 
@@ -806,7 +806,7 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
               csv: Returns data with header and comma separated values. 
         - `fields`: list of fields you want in the table. If `None` : default fields are returned by .keys attribute and sorted.  
         - `max_column_width`: when using prettytable only 
-        - `get_text_nest_attr`: attributes passed to the nested `msiempy.NitroList.get_text` elements if any. Useful to control events appearence.
+        - `get_text_nest_attr`: attributes passed to the nested `msiempy.core.types.NitroList.get_text` elements if any. Useful to control events appearence.
         &#34;&#34;&#34;
 
         text=str()
@@ -916,7 +916,7 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
 
     def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
         &#34;&#34;&#34;
-        Wrapper arround executable and the a list of elements, typically `msiempy.NitroList` object.  
+        Wrapper arround executable and the a list of elements, typically `msiempy.core.types.NitroList` object.  
 
         Arguments:  
         
@@ -1111,7 +1111,7 @@ csv: Returns data with header and comma separated values. </li>
 <li><code>fields</code>: list of fields you want in the table. If <code>None</code> : default fields are returned by .keys attribute and sorted.
 </li>
 <li><code>max_column_width</code>: when using prettytable only </li>
-<li><code>get_text_nest_attr</code>: attributes passed to the nested <code>msiempy.NitroList.get_text</code> elements if any. Useful to control events appearence.</li>
+<li><code>get_text_nest_attr</code>: attributes passed to the nested <code><a title="msiempy.core.types.NitroList.get_text" href="#msiempy.core.types.NitroList.get_text">NitroList.get_text()</a></code> elements if any. Useful to control events appearence.</li>
 </ul></div>
 <details class="source">
 <summary>
@@ -1129,7 +1129,7 @@ csv: Returns data with header and comma separated values. </li>
           csv: Returns data with header and comma separated values. 
     - `fields`: list of fields you want in the table. If `None` : default fields are returned by .keys attribute and sorted.  
     - `max_column_width`: when using prettytable only 
-    - `get_text_nest_attr`: attributes passed to the nested `msiempy.NitroList.get_text` elements if any. Useful to control events appearence.
+    - `get_text_nest_attr`: attributes passed to the nested `msiempy.core.types.NitroList.get_text` elements if any. Useful to control events appearence.
     &#34;&#34;&#34;
 
     text=str()
@@ -1265,7 +1265,7 @@ i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
 <span>def <span class="ident">perform</span></span>(<span>self, func, data=None, func_args=None, confirm=False, asynch=False, workers=None, progress=False, message=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Wrapper arround executable and the a list of elements, typically <code>msiempy.NitroList</code> object.
+<div class="desc"><p>Wrapper arround executable and the a list of elements, typically <code><a title="msiempy.core.types.NitroList" href="#msiempy.core.types.NitroList">NitroList</a></code> object.
 </p>
 <p>Arguments:
 </p>
@@ -1300,7 +1300,7 @@ returned.append(func(index_or_item))</p>
 </summary>
 <pre><code class="python">def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
     &#34;&#34;&#34;
-    Wrapper arround executable and the a list of elements, typically `msiempy.NitroList` object.  
+    Wrapper arround executable and the a list of elements, typically `msiempy.core.types.NitroList` object.  
 
     Arguments:  
     

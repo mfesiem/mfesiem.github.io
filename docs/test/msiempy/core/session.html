@@ -231,7 +231,7 @@ _PARAMS = {
 
         &#34;get_alarms&#34;: (Template(&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=$time_range&amp;status=$status&amp;pageSize=$page_size&amp;pageNumber=$page_number&#34;&#34;&#34;), None),
 
-        &#34;get_alarm_details_new&#34;: (&#34;&#34;&#34;notifyGetTriggeredNotificationDetail&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;id&#34;:$id}&#34;&#34;&#34;)),
+        &#34;get_notification_detail&#34;: (&#34;&#34;&#34;notifyGetTriggeredNotificationDetail&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;id&#34;:$id}&#34;&#34;&#34;)),
 
         &#34;get_alarm_details&#34;: (&#34;&#34;&#34;notifyGetTriggeredNotification&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;id&#34;:$id}&#34;&#34;&#34;)),
 
@@ -744,7 +744,7 @@ class NitroSession():
             # Get all last 24h alarms details
             alarms = s.request(&#39;get_alarms&#39;, time_range=&#39;LAST_24_HOURS&#39;,  status=&#39;&#39;, page_size=500, page_number=0)
             for a in alarms:
-                a.update(s.request(&#39;get_alarm_details_new&#39;, id=a[&#39;id&#39;]))
+                a.update(s.request(&#39;get_notification_detail&#39;, id=a[&#39;id&#39;]))
 
         If you&#39;re reading this thom an IDE, all possible requests are listed on the documentation webpage:   
         https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request  
@@ -1290,7 +1290,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
             # Get all last 24h alarms details
             alarms = s.request(&#39;get_alarms&#39;, time_range=&#39;LAST_24_HOURS&#39;,  status=&#39;&#39;, page_size=500, page_number=0)
             for a in alarms:
-                a.update(s.request(&#39;get_alarm_details_new&#39;, id=a[&#39;id&#39;]))
+                a.update(s.request(&#39;get_notification_detail&#39;, id=a[&#39;id&#39;]))
 
         If you&#39;re reading this thom an IDE, all possible requests are listed on the documentation webpage:   
         https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request  
@@ -1846,7 +1846,7 @@ s.login()
 # Get all last 24h alarms details
 alarms = s.request('get_alarms', time_range='LAST_24_HOURS',  status='', page_size=500, page_number=0)
 for a in alarms:
-    a.update(s.request('get_alarm_details_new', id=a['id']))
+    a.update(s.request('get_notification_detail', id=a['id']))
 </code></pre>
 <p>If you're reading this thom an IDE, all possible requests are listed on the documentation webpage: <br>
 <a href="https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request">https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request</a>
@@ -1880,7 +1880,7 @@ request('ds_details1', ds_id) # Call dsGetDataSourceDetail
 request('ds_details2', ds_id) # Call dsGetDataSourceDetail  
 request('get_alarms_custom_time', time_range, start_time, end_time, status, page_size, page_number) # Call alarmGetTriggeredAlarms  
 request('get_alarms', time_range, status, page_size, page_number) # Call alarmGetTriggeredAlarms  
-request('get_alarm_details_new', id) # Call notifyGetTriggeredNotificationDetail  
+request('get_notification_detail', id) # Call notifyGetTriggeredNotificationDetail  
 request('get_alarm_details', id) # Call notifyGetTriggeredNotification  
 request('get_alarm_details_int', id) # Call NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL  
 request('ack_alarms', ids) # Call alarmAcknowledgeTriggeredAlarm  
@@ -1954,7 +1954,7 @@ request('build_stamp', ) # Call essmgtGetBuildStamp
         # Get all last 24h alarms details
         alarms = s.request(&#39;get_alarms&#39;, time_range=&#39;LAST_24_HOURS&#39;,  status=&#39;&#39;, page_size=500, page_number=0)
         for a in alarms:
-            a.update(s.request(&#39;get_alarm_details_new&#39;, id=a[&#39;id&#39;]))
+            a.update(s.request(&#39;get_notification_detail&#39;, id=a[&#39;id&#39;]))
 
     If you&#39;re reading this thom an IDE, all possible requests are listed on the documentation webpage:   
     https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request  

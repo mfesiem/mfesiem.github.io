@@ -29,15 +29,335 @@ The pythonic way to deal …" />
 The pythonic way to deal with McAfee SIEM API.
 </p>
 <hr>
-<p><a href="https://github.com/mfesiem/msiempy">GitHub</a> <br>
-<a href="https://pypi.org/project/msiempy/">PyPI</a>
+<p>Links : <a href="https://github.com/mfesiem/msiempy">GitHub</a>, <a href="https://pypi.org/project/msiempy/">PyPI</a>, <a href="https://mfesiem.github.io">SIEM API documentation</a> (generated PDFs)
 </p>
 <hr>
-<p><a href="https://mfesiem.github.io/docs/msiempy/classes.png">Class diagram</a><br>
-<a href="https://mfesiem.github.io/docs/msiempy/packages.png">Packages diagram</a>
+<p><a href="https://mfesiem.github.io/docs/msiempy/classes.png">Class diagram</a>, <a href="https://mfesiem.github.io/docs/msiempy/packages.png">Packages diagram</a>
 </p>
 <hr>
-<p>Head out to one of the sub-modules to start documenting.</p>
+<p>Head out to one of the sub-modules to see objects definitions.
+</p>
+<h3 id="installation">Installation</h3>
+<pre><code>python3 -m pip install msiempy
+</code></pre>
+<h5 id="for-development">For development</h5>
+<pre><code># Fork the repo
+git clone https://github.com/mfesiem/msiempy.git
+cd msiempy
+# Install dev requirements
+python3 -m pip install -r requirements.txt
+# Install module
+python3 ./setup.py install
+# Hack and pull request
+</code></pre>
+<h3 id="authentication-and-configuration-setup">Authentication and configuration setup</h3>
+<p>The module offers a single point of authentication against your SIEM, so you don't have to worry about authentication when writting your scripts. This means that you need to preconfigure the authentication using the configuration file.</p>
+<p>The configuration file is located (by default) securely in your user directory since it contains credentials.
+- For Windows:
+<code>%APPDATA%\.msiem\conf.ini</code>
+- For Mac :
+<code>$HOME/.msiem/conf.ini</code>
+- For Linux :
+<code>$XDG_CONFIG_HOME/.msiem/conf.ini</code> or :
+<code>$HOME/.msiem/conf.ini</code></p>
+<pre><code>[esm]
+host = HOST
+user = USER
+passwd = PASSWORD's BASE64
+
+[general]
+verbose = no
+quiet = no
+logfile = /var/log/msiempy/log.txt
+timeout = 60
+ssl_verify = no
+</code></pre>
+<p>To set the password, you can use the <a href="https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py"><code>msiempy_setup.py</code></a> script.<br>
+You can also directly paste the password's base64 in the config file by doing:
+</p>
+<pre><code class="python">&gt;&gt;&gt; import base64
+&gt;&gt;&gt; passwd = 'P@assW0rd'
+&gt;&gt;&gt; print(base64.b64encode(passwd.encode('utf-8')).decode())
+UEBhc3NXMHJk
+</code></pre>
+<h3 id="examples">Examples</h3>
+<p>See <a href="https://github.com/mfesiem/msiempy/tree/master/samples/examples.py"><code>examples.py</code></a> and all the <a href="https://github.com/mfesiem/msiempy/tree/master/samples">samples folder</a> for more detailed uses !<br>
+For further informations, please visit the <a href="https://mfesiem.github.io/docs/msiempy/index.html">module documentation</a> ! :)
+</p>
+<h4 id="alarm">Alarm</h4>
+<p>Print all <code>unacknowledged</code> alarms of the year who's name match <code>'IPS alarm'</code> and triggering event message match <code>'Wordpress'</code>. Then print all of their JSON representations.
+</p>
+<p>Print and acknowledge some alarms based on filters.
+</p>
+<pre><code class="python">from msiempy.alarm import AlarmManager, Alarm
+
+alarms=AlarmManager(
+        time_range='CURRENT_YEAR',
+        status_filter='unacknowledged',
+        filters=[('alarmName', 'Test alarm')],
+        event_filters=[('ruleName','Postfix')], 
+        page_size=5)
+
+print(&quot;Alarm list before load_data: &quot;)
+print(alarms)
+print(alarms.json)
+
+alarms.load_data()
+
+print(&quot;Alarm list: &quot;)
+print(alarms)
+print(alarms.get_text(
+        fields=['id','triggeredDate','acknowledgedDate', 'alarmName', 'acknowledgedUsername']))
+
+print(&quot;Acknowledge alarms...&quot;)
+
+[ alarm.acknowledge() for alarm in alarms ]
+while any( [ alarm['acknowledgedDate']==None for alarm in alarms ] ): 
+        time.sleep(1)
+        [ alarm.refresh() for alarm in alarms ]
+print(alarms.get_text(
+        fields=['id','triggeredDate','acknowledgedDate', 'alarmName', 'acknowledgedUsername']))
+</code></pre>
+<details><summary>Output</summary>
+<p>
+Alarm list before load_data:
+<super: <class 'NitroList'>, <AlarmManager object>> containing 0 elements ; keys=set()
+[]
+INFO - Login into ESM 207.179.200.58:4443 with username NGCP. Last login 12/12/2019 18:04:48
+INFO - Getting alarms infos...
+INFO - Getting events infos...
+INFO - The alarm Test Alarm (12/12/2019 18:05:26) has no events associated
+INFO - 4 alarms are matching your filter(s)
+Alarm list:
+<super: <class 'NitroList'>, <AlarmManager object>> containing 4 elements ; keys={'alretRateMin', 'filters', 'NE', 'severity', 'XMIN', 'matchField', 'description', 'queryId', 'escalatedDate', 'alertRateCount', 'percentAbove', 'NID', 'offsetMinutes', 'acknowledgedDate', 'triggeredDate', 'percentBelow', 'EC', 'CTYPE', 'assignee', 'assigneeId', 'caseName', 'summary', 'DCHNG', 'caseId', 'id', 'alarmName', 'matchValue', 'actions', 'iocName', 'conditionType', 'iocId', 'acknowledgedUsername', 'useWatchlist', 'maximumConditionTriggerFrequency', 'events'}
+|
+id
+|
+triggeredDate
+| acknowledgedDate | alarmName
+| acknowledgedUsername |
+| {'value': 3840} | 12/12/2019 17:54:46 |
+None
+| Test Alarm |
+|
+| {'value': 3839} | 12/12/2019 17:42:56 |
+None
+| Test Alarm |
+|
+| {'value': 3838} | 12/12/2019 17:29:16 |
+None
+| Test Alarm |
+|
+| {'value': 3837} | 12/12/2019 17:11:56 |
+None
+| Test Alarm |
+|
+Acknowledge alarms...
+|
+id
+|
+triggeredDate
+|
+acknowledgedDate
+| alarmName
+| acknowledgedUsername |
+| {'value': 3840} | 12/12/2019 17:54:46 | 12/12/2019 18:07:53 | Test Alarm |
+|
+| {'value': 3839} | 12/12/2019 17:42:56 | 12/12/2019 18:07:53 | Test Alarm |
+|
+| {'value': 3838} | 12/12/2019 17:29:16 | 12/12/2019 18:07:53 | Test Alarm |
+|
+| {'value': 3837} | 12/12/2019 17:11:56 | 12/12/2019 18:07:53 | Test Alarm |
+|
+</p>
+</details>
+<p>The number of alarms retreived is defined by the <code>page_size</code> property.</p>
+<p>See: <a href="https://mfesiem.github.io/docs/msiempy/core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a>, <a href="https://mfesiem.github.io/docs/msiempy/alarm.html#msiempy.alarm.AlarmManager">AlarmManager</a>, <a href="https://mfesiem.github.io/docs/msiempy/alarm.html#msiempy.alarm.Alarm">Alarm</a></p>
+<h4 id="event">Event</h4>
+<p>Query events according to destination IP and hostname filters, sorted by AlertID. </p>
+<pre><code class="python">from  msiempy.event import EventManager, FieldFilter
+
+print('Simple event query sorted by AlertID')
+events = EventManager(
+        time_range='CURRENT_YEAR',
+        fields=['SrcIP', 'AlertID'], # SrcIP and AlertID are not queried by default
+        filters=[
+                FieldFilter('DstIP', ['0.0.0.0/0',]),
+                FieldFilter('HostID', ['mail'], operator='CONTAINS')], # Please replace &quot;mail&quot; by a test hostname
+        order=(('ASCENDING', 'AlertID')),
+        limit=10)
+
+events.load_data()
+print(events)
+print(events.get_text(fields=['AlertID','LastTime','SrcIP', 'Rule.msg']))
+</code></pre>
+<details><summary>Output</summary>
+<p>
+Simple event query sorted by AlertID
+INFO - Login into ESM 207.179.200.58:4443 with username NGCP. Last login 12/12/2019 18:18:12
+WARNING - The query is not complete... Try to divide in more slots or increase the limit
+<super: <class 'NitroList'>, <EventManager object>> containing 10 elements ; keys={'Alert.AlertID', 'Alert.SrcIP', 'Rule.msg', 'Alert.LastTime', 'Alert.IPSIDAlertID'}
+| AlertID |
+LastTime
+|
+SrcIP
+|
+Rule.msg
+|
+|
+139345 | 12/09/2019 18:22:21 |
+22.22.24.4
+|
+Postfix Message moved to incoming queue
+|
+|
+139346 | 12/09/2019 18:22:21 |
+22.22.24.4
+| Postfix Message moved to active queue for delivery |
+|
+139351 | 12/09/2019 18:22:21 |
+22.22.24.4
+|
+Postfix Message sent
+|
+|
+139352 | 12/09/2019 18:22:21 |
+22.22.24.4
+|
+Linux Postfix qmgr mail removed
+|
+|
+139367 | 12/09/2019 18:19:09 |
+22.22.24.4
+|
+Postfix Max connection rate statistics
+|
+|
+139368 | 12/09/2019 18:19:09 |
+22.22.24.4
+|
+Postfix Max connection count statistics
+|
+|
+139369 | 12/09/2019 18:19:09 |
+22.22.24.4
+|
+Postfix Max cache size statistics
+|
+|
+139370 | 12/09/2019 18:20:16 | 209.85.160.178 |
+Postfix Connect from host
+|
+|
+139371 | 12/09/2019 18:20:17 | 209.85.160.178 |
+Postfix Client message transfer
+|
+|
+139372 | 12/09/2019 18:20:17 | 209.85.160.178 |
+Postfix Disconnect from host
+|
+</p>
+</details>
+<p>Setting the note of an event, retreiving the genuine event from IPSIDAlertID and checking the note is well set. See <a href="https://github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py"><code>add_wpsan_note.py</code></a> script to see more how to add note to event that triggered alarms !
+</p>
+<pre><code class="python">from  msiempy.event import EventManager, Event
+events = EventManager(
+        time_range='CURRENT_YEAR',
+        limit=2
+)
+events.load_data()
+
+for event in events :
+        event.set_note(&quot;Test note&quot;)
+        genuine_event = Event(id=event['IPSIDAlertID']) # Event data will be loaded with ipsGetAlertData
+        assert &quot;Test note&quot; in genuine_event['note'], &quot;The note doesn't seem to have been added to the event 
+ {}&quot;.format(event)
+</code></pre>
+<p>See: <a href="https://mfesiem.github.io/docs/msiempy/index.html#msiempy.FilteredQueryList">FilteredQueryList</a>, <a href="https://mfesiem.github.io/docs/msiempy/event.html#msiempy.event.EventManager">EventManager</a>, <a href="https://mfesiem.github.io/docs/msiempy/event.html#msiempy.event.FieldFilter">FieldFilter</a>, <a href="https://mfesiem.github.io/docs/msiempy/event.html#msiempy.event.Event">Event</a></p>
+<p><code>EventManager()</code> can parameter like <code>order</code> or <code>start_time</code> and <code>end_time</code> or <code>time_rage</code>.
+</p>
+<p><code>EventManager.load_data()</code> method accept also several parameters. It controls the query's division time range into slots of <code>delta</code> duration, then the query would be divided into the specified number of <code>slots</code>. Control also the number of asyncronous jobs using <code>workers</code> parameter. <code>max_query_depth</code> parameter specify the number of sub-divisions the query can take at most (zero by default). The query is divided only if it hasn't completed with the current query settings. <br>
+See
+module documentation for more infos.
+</p>
+<p>See <a href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py"><code>dump_all_fields.py</code></a> script to have full list of <code>fields</code> you can request and fields you can use with <code>FieldFilter</code> .</p>
+<h4 id="esm">ESM</h4>
+<p>Print a few esm infos. ESM object has not state for it self, it's a simple interface to data structures / values returned by the SIEM.
+</p>
+<pre><code class="python">&gt;&gt;&gt; from msiempy.device import ESM
+
+&gt;&gt;&gt; esm=ESM()
+&gt;&gt;&gt; esm.version()
+'11.2.1'
+&gt;&gt;&gt; esm.recs()
+[('ERC-1', 144116287587483648)]
+&gt;&gt;&gt; esm.buildstamp()
+'11.2.1 20190725050014'
+</code></pre>
+<p>See: <a href="https://mfesiem.github.io/docs/msiempy/device.html#msiempy.device.ESM">ESM</a></p>
+<h4 id="datasource">Datasource</h4>
+<p>Load all datasources and write all infos in a CSV file.
+</p>
+<pre><code class="python">from msiempy.device import DevTree
+
+devtree = DevTree()
+
+with open('all-datasources.csv', 'w') as f:
+        f.write(devtree.get_text(format='csv'))
+</code></pre>
+<p>See: <a href="https://mfesiem.github.io/docs/msiempy/device.html#msiempy.device.DevTree">DevTree</a>, <a href="https://mfesiem.github.io/docs/msiempy/device.html#msiempy.device.DataSource">DataSource</a></p>
+<h4 id="watchlist">Watchlist</h4>
+<p>Print whatchlist list.</p>
+<pre><code class="python">from msiempy.watchlist import WatchlistManager
+watchlists=WatchlistManager()
+print(watchlists)
+</code></pre>
+<p>See: <a href="https://mfesiem.github.io/docs/msiempy/watchlist.html#msiempy.watchlist.WatchlistManager">WatchlistManager</a>, <a href="https://mfesiem.github.io/docs/msiempy/watchlist.html#msiempy.watchlist.Watchlist">Watchlist</a></p>
+<h4 id="use-the-session-oject">Use the Session oject</h4>
+<p>You can choose not to use wrapper ojects like <code>AlarmManager</code> and use directly the Session object to make any API calls with any data. The Session object will handle intermittent SIEM errors.
+</p>
+<pre><code class="python">from msiempy import NitroSession
+s = NitroSession()
+s.login()
+# Get all last 24h alarms details with ESM API v2 (not supported by other objects yet)  
+alarms = s.api_request('v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1')
+for a in alarms:
+    a.update(s.api_request('v2/notifyGetTriggeredNotificationDetail', {'id':a['id']}))
+</code></pre>
+<p>See <a href="https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession">NitroSession</a></p>
+<h3 id="questions">Questions ?</h3>
+<p>If you have any questions, please create a new issue.</p>
+<h3 id="contribute">Contribute</h3>
+<p>If you like the project and think you could help with making it better, there are many ways you can do it:</p>
+<ul>
+<li>Create new issue for new feature proposal or a bug</li>
+<li>Implement new features!
+</li>
+<li>Fix issues</li>
+<li>Help with improving the documentation</li>
+<li>Spread a word about the project to your collegues, friends, <strong>blogs</strong> or any other channels</li>
+<li>Any other things you could imagine</li>
+<li>Any contribution would be of great help and we'll will highly appreciate it! </li>
+</ul>
+<h3 id="run-tests">Run tests</h3>
+<p>Run all tests, sometimes the tests have to be reruns.
+</p>
+<pre><code>pytest --reruns 3
+</code></pre>
+<p>You might also want to run per-file tests</p>
+<pre><code>pytest tests/auth/test_device.py
+</code></pre>
+<p>Or per-method test</p>
+<pre><code>python3 -m unittest tests.auth.test_event.T.test_add_note
+</code></pre>
+<h3 id="code-analysis">Code analysis</h3>
+<p><a href="https://www.codacy.com/gh/mfesiem/msiempy?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mfesiem/msiempy&amp;utm_campaign=Badge_Grade"><img alt="Codacy Badge" src="https://app.codacy.com/project/badge/Grade/114821fcf6e14b8eb0f927e0112488c8"></a> <a href="https://codeclimate.com/github/mfesiem/msiempy/maintainability"><img alt="Maintainability" src="https://api.codeclimate.com/v1/badges/0cc21ba8f82394cb05f3/maintainability"></a></p>
+<h3 id="error-report">Error report</h3>
+<p>Configure log file reporting in the configuration file and and look for <code>"ERROR"</code>.<br>
+Useful shell command to get simple list of errors:
+</p>
+<pre><code>cat /path/to/your/log/file | grep -i error | sort | uniq
+</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -50,17 +370,292 @@ The pythonic way to deal with McAfee SIEM API.
 
 ***
 
-[GitHub](https://github.com/mfesiem/msiempy)   
-[PyPI](https://pypi.org/project/msiempy/)  
+Links : [GitHub](https://github.com/mfesiem/msiempy), [PyPI](https://pypi.org/project/msiempy/), [SIEM API documentation](https://mfesiem.github.io) (generated PDFs)  
 
 *** 
 
-[Class diagram](https://mfesiem.github.io/docs/msiempy/classes.png)  
-[Packages diagram](https://mfesiem.github.io/docs/msiempy/packages.png)  
+[Class diagram](https://mfesiem.github.io/docs/msiempy/classes.png), [Packages diagram](https://mfesiem.github.io/docs/msiempy/packages.png)  
 
 ***
 
-Head out to one of the sub-modules to start documenting.  
+Head out to one of the sub-modules to see objects definitions.  
+
+### Installation 
+
+```
+python3 -m pip install msiempy
+```
+
+##### For development
+```
+# Fork the repo
+git clone https://github.com/mfesiem/msiempy.git
+cd msiempy
+# Install dev requirements
+python3 -m pip install -r requirements.txt
+# Install module
+python3 ./setup.py install
+# Hack and pull request
+```
+
+### Authentication and configuration setup
+The module offers a single point of authentication against your SIEM, so you don&#39;t have to worry about authentication when writting your scripts. This means that you need to preconfigure the authentication using the configuration file.
+
+The configuration file is located (by default) securely in your user directory since it contains credentials.
+- For Windows:  `%APPDATA%\.msiem\conf.ini`
+- For Mac :     `$HOME/.msiem/conf.ini`
+- For Linux :   `$XDG_CONFIG_HOME/.msiem/conf.ini` or :   `$HOME/.msiem/conf.ini`
+```
+[esm]
+host = HOST
+user = USER
+passwd = PASSWORD&#39;s BASE64
+
+[general]
+verbose = no
+quiet = no
+logfile = /var/log/msiempy/log.txt
+timeout = 60
+ssl_verify = no
+```
+
+To set the password, you can use the [`msiempy_setup.py`](https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py) script.  
+You can also directly paste the password&#39;s base64 in the config file by doing:  
+```python
+&gt;&gt;&gt; import base64
+&gt;&gt;&gt; passwd = &#39;P@assW0rd&#39;
+&gt;&gt;&gt; print(base64.b64encode(passwd.encode(&#39;utf-8&#39;)).decode())
+UEBhc3NXMHJk
+```
+### Examples
+See [`examples.py`](https://github.com/mfesiem/msiempy/tree/master/samples/examples.py) and all the [samples folder](https://github.com/mfesiem/msiempy/tree/master/samples) for more detailed uses !  
+For further informations, please visit the [module documentation](https://mfesiem.github.io/docs/msiempy/index.html) ! :)  
+
+#### Alarm
+Print all `unacknowledged` alarms of the year who&#39;s name match `&#39;IPS alarm&#39;` and triggering event message match `&#39;Wordpress&#39;`. Then print all of their JSON representations.  
+
+Print and acknowledge some alarms based on filters.  
+```python
+from msiempy.alarm import AlarmManager, Alarm
+
+alarms=AlarmManager(
+        time_range=&#39;CURRENT_YEAR&#39;,
+        status_filter=&#39;unacknowledged&#39;,
+        filters=[(&#39;alarmName&#39;, &#39;Test alarm&#39;)],
+        event_filters=[(&#39;ruleName&#39;,&#39;Postfix&#39;)], 
+        page_size=5)
+
+print(&#34;Alarm list before load_data: &#34;)
+print(alarms)
+print(alarms.json)
+
+alarms.load_data()
+
+print(&#34;Alarm list: &#34;)
+print(alarms)
+print(alarms.get_text(
+        fields=[&#39;id&#39;,&#39;triggeredDate&#39;,&#39;acknowledgedDate&#39;, &#39;alarmName&#39;, &#39;acknowledgedUsername&#39;]))
+
+print(&#34;Acknowledge alarms...&#34;)
+
+[ alarm.acknowledge() for alarm in alarms ]
+while any( [ alarm[&#39;acknowledgedDate&#39;]==None for alarm in alarms ] ): 
+        time.sleep(1)
+        [ alarm.refresh() for alarm in alarms ]
+print(alarms.get_text(
+        fields=[&#39;id&#39;,&#39;triggeredDate&#39;,&#39;acknowledgedDate&#39;, &#39;alarmName&#39;, &#39;acknowledgedUsername&#39;]))
+```  
+
+&lt;details&gt;&lt;summary&gt;Output&lt;/summary&gt;
+&lt;p&gt;
+        
+        Alarm list before load_data: 
+        &lt;super: &lt;class &#39;NitroList&#39;&gt;, &lt;AlarmManager object&gt;&gt; containing 0 elements ; keys=set()
+        []
+        INFO - Login into ESM 207.179.200.58:4443 with username NGCP. Last login 12/12/2019 18:04:48
+        INFO - Getting alarms infos...
+        INFO - Getting events infos...
+        INFO - The alarm Test Alarm (12/12/2019 18:05:26) has no events associated
+        INFO - 4 alarms are matching your filter(s)
+        Alarm list: 
+        &lt;super: &lt;class &#39;NitroList&#39;&gt;, &lt;AlarmManager object&gt;&gt; containing 4 elements ; keys={&#39;alretRateMin&#39;, &#39;filters&#39;, &#39;NE&#39;, &#39;severity&#39;, &#39;XMIN&#39;, &#39;matchField&#39;, &#39;description&#39;, &#39;queryId&#39;, &#39;escalatedDate&#39;, &#39;alertRateCount&#39;, &#39;percentAbove&#39;, &#39;NID&#39;, &#39;offsetMinutes&#39;, &#39;acknowledgedDate&#39;, &#39;triggeredDate&#39;, &#39;percentBelow&#39;, &#39;EC&#39;, &#39;CTYPE&#39;, &#39;assignee&#39;, &#39;assigneeId&#39;, &#39;caseName&#39;, &#39;summary&#39;, &#39;DCHNG&#39;, &#39;caseId&#39;, &#39;id&#39;, &#39;alarmName&#39;, &#39;matchValue&#39;, &#39;actions&#39;, &#39;iocName&#39;, &#39;conditionType&#39;, &#39;iocId&#39;, &#39;acknowledgedUsername&#39;, &#39;useWatchlist&#39;, &#39;maximumConditionTriggerFrequency&#39;, &#39;events&#39;}
+        |        id       |    triggeredDate    | acknowledgedDate | alarmName  | acknowledgedUsername |
+        | {&#39;value&#39;: 3840} | 12/12/2019 17:54:46 |       None       | Test Alarm |                      |
+        | {&#39;value&#39;: 3839} | 12/12/2019 17:42:56 |       None       | Test Alarm |                      |
+        | {&#39;value&#39;: 3838} | 12/12/2019 17:29:16 |       None       | Test Alarm |                      |
+        | {&#39;value&#39;: 3837} | 12/12/2019 17:11:56 |       None       | Test Alarm |                      |
+        Acknowledge alarms...
+        |        id       |    triggeredDate    |   acknowledgedDate  | alarmName  | acknowledgedUsername |
+        | {&#39;value&#39;: 3840} | 12/12/2019 17:54:46 | 12/12/2019 18:07:53 | Test Alarm |                      |
+        | {&#39;value&#39;: 3839} | 12/12/2019 17:42:56 | 12/12/2019 18:07:53 | Test Alarm |                      |
+        | {&#39;value&#39;: 3838} | 12/12/2019 17:29:16 | 12/12/2019 18:07:53 | Test Alarm |                      |
+        | {&#39;value&#39;: 3837} | 12/12/2019 17:11:56 | 12/12/2019 18:07:53 | Test Alarm |                      |
+        
+&lt;/p&gt;
+&lt;/details&gt;
+
+
+The number of alarms retreived is defined by the `page_size` property.
+
+See: [FilteredQueryList](https://mfesiem.github.io/docs/msiempy/core/query.html#msiempy.core.query.FilteredQueryList), [AlarmManager](https://mfesiem.github.io/docs/msiempy/alarm.html#msiempy.alarm.AlarmManager), [Alarm](https://mfesiem.github.io/docs/msiempy/alarm.html#msiempy.alarm.Alarm)
+
+#### Event
+Query events according to destination IP and hostname filters, sorted by AlertID. 
+```python
+from  msiempy.event import EventManager, FieldFilter
+
+print(&#39;Simple event query sorted by AlertID&#39;)
+events = EventManager(
+        time_range=&#39;CURRENT_YEAR&#39;,
+        fields=[&#39;SrcIP&#39;, &#39;AlertID&#39;], # SrcIP and AlertID are not queried by default
+        filters=[
+                FieldFilter(&#39;DstIP&#39;, [&#39;0.0.0.0/0&#39;,]),
+                FieldFilter(&#39;HostID&#39;, [&#39;mail&#39;], operator=&#39;CONTAINS&#39;)], # Please replace &#34;mail&#34; by a test hostname
+        order=((&#39;ASCENDING&#39;, &#39;AlertID&#39;)),
+        limit=10)
+
+events.load_data()
+print(events)
+print(events.get_text(fields=[&#39;AlertID&#39;,&#39;LastTime&#39;,&#39;SrcIP&#39;, &#39;Rule.msg&#39;]))
+```
+
+&lt;details&gt;&lt;summary&gt;Output&lt;/summary&gt;
+&lt;p&gt;
+
+        Simple event query sorted by AlertID
+        INFO - Login into ESM 207.179.200.58:4443 with username NGCP. Last login 12/12/2019 18:18:12
+        WARNING - The query is not complete... Try to divide in more slots or increase the limit
+        &lt;super: &lt;class &#39;NitroList&#39;&gt;, &lt;EventManager object&gt;&gt; containing 10 elements ; keys={&#39;Alert.AlertID&#39;, &#39;Alert.SrcIP&#39;, &#39;Rule.msg&#39;, &#39;Alert.LastTime&#39;, &#39;Alert.IPSIDAlertID&#39;}
+        | AlertID |       LastTime      |     SrcIP      |                      Rule.msg                      |
+        |  139345 | 12/09/2019 18:22:21 |   22.22.24.4   |      Postfix Message moved to incoming queue       |
+        |  139346 | 12/09/2019 18:22:21 |   22.22.24.4   | Postfix Message moved to active queue for delivery |
+        |  139351 | 12/09/2019 18:22:21 |   22.22.24.4   |                Postfix Message sent                |
+        |  139352 | 12/09/2019 18:22:21 |   22.22.24.4   |          Linux Postfix qmgr mail removed           |
+        |  139367 | 12/09/2019 18:19:09 |   22.22.24.4   |       Postfix Max connection rate statistics       |
+        |  139368 | 12/09/2019 18:19:09 |   22.22.24.4   |      Postfix Max connection count statistics       |
+        |  139369 | 12/09/2019 18:19:09 |   22.22.24.4   |         Postfix Max cache size statistics          |
+        |  139370 | 12/09/2019 18:20:16 | 209.85.160.178 |             Postfix Connect from host              |
+        |  139371 | 12/09/2019 18:20:17 | 209.85.160.178 |          Postfix Client message transfer           |
+        |  139372 | 12/09/2019 18:20:17 | 209.85.160.178 |            Postfix Disconnect from host            |
+
+
+&lt;/p&gt;
+&lt;/details&gt;
+
+Setting the note of an event, retreiving the genuine event from IPSIDAlertID and checking the note is well set. See [`add_wpsan_note.py`](https://github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py) script to see more how to add note to event that triggered alarms !  
+```python
+from  msiempy.event import EventManager, Event
+events = EventManager(
+        time_range=&#39;CURRENT_YEAR&#39;,
+        limit=2
+)
+events.load_data()
+
+for event in events :
+        event.set_note(&#34;Test note&#34;)
+        genuine_event = Event(id=event[&#39;IPSIDAlertID&#39;]) # Event data will be loaded with ipsGetAlertData
+        assert &#34;Test note&#34; in genuine_event[&#39;note&#39;], &#34;The note doesn&#39;t seem to have been added to the event \n {}&#34;.format(event)
+```
+
+
+See: [FilteredQueryList](https://mfesiem.github.io/docs/msiempy/index.html#msiempy.FilteredQueryList), [EventManager](https://mfesiem.github.io/docs/msiempy/event.html#msiempy.event.EventManager), [FieldFilter](https://mfesiem.github.io/docs/msiempy/event.html#msiempy.event.FieldFilter), [Event](https://mfesiem.github.io/docs/msiempy/event.html#msiempy.event.Event)
+
+`EventManager()` can parameter like `order` or `start_time` and `end_time` or `time_rage`.  
+
+`EventManager.load_data()` method accept also several parameters. It controls the query&#39;s division time range into slots of `delta` duration, then the query would be divided into the specified number of `slots`. Control also the number of asyncronous jobs using `workers` parameter. `max_query_depth` parameter specify the number of sub-divisions the query can take at most (zero by default). The query is divided only if it hasn&#39;t completed with the current query settings.   
+See  module documentation for more infos.  
+ 
+See [`dump_all_fields.py`](https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py) script to have full list of `fields` you can request and fields you can use with `FieldFilter` .
+
+#### ESM
+Print a few esm infos. ESM object has not state for it self, it&#39;s a simple interface to data structures / values returned by the SIEM.  
+```python
+&gt;&gt;&gt; from msiempy.device import ESM
+
+&gt;&gt;&gt; esm=ESM()
+&gt;&gt;&gt; esm.version()
+&#39;11.2.1&#39;
+&gt;&gt;&gt; esm.recs()
+[(&#39;ERC-1&#39;, 144116287587483648)]
+&gt;&gt;&gt; esm.buildstamp()
+&#39;11.2.1 20190725050014&#39;
+```
+See: [ESM](https://mfesiem.github.io/docs/msiempy/device.html#msiempy.device.ESM)
+
+#### Datasource
+Load all datasources and write all infos in a CSV file.  
+```python
+from msiempy.device import DevTree
+
+devtree = DevTree()
+
+with open(&#39;all-datasources.csv&#39;, &#39;w&#39;) as f:
+        f.write(devtree.get_text(format=&#39;csv&#39;))
+```
+See: [DevTree](https://mfesiem.github.io/docs/msiempy/device.html#msiempy.device.DevTree), [DataSource](https://mfesiem.github.io/docs/msiempy/device.html#msiempy.device.DataSource)
+
+#### Watchlist
+Print whatchlist list.
+```python
+from msiempy.watchlist import WatchlistManager
+watchlists=WatchlistManager()
+print(watchlists)
+```
+See: [WatchlistManager](https://mfesiem.github.io/docs/msiempy/watchlist.html#msiempy.watchlist.WatchlistManager), [Watchlist](https://mfesiem.github.io/docs/msiempy/watchlist.html#msiempy.watchlist.Watchlist)
+
+#### Use the Session oject
+
+You can choose not to use wrapper ojects like `AlarmManager` and use directly the Session object to make any API calls with any data. The Session object will handle intermittent SIEM errors.  
+
+```python
+from msiempy import NitroSession
+s = NitroSession()
+s.login()
+# Get all last 24h alarms details with ESM API v2 (not supported by other objects yet)  
+alarms = s.api_request(&#39;v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1&#39;)
+for a in alarms:
+    a.update(s.api_request(&#39;v2/notifyGetTriggeredNotificationDetail&#39;, {&#39;id&#39;:a[&#39;id&#39;]}))
+```
+See [NitroSession](https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession)
+
+### Questions ?
+If you have any questions, please create a new issue.
+
+### Contribute
+If you like the project and think you could help with making it better, there are many ways you can do it:
+
+- Create new issue for new feature proposal or a bug
+- Implement new features!  
+- Fix issues
+- Help with improving the documentation
+- Spread a word about the project to your collegues, friends, **blogs** or any other channels
+- Any other things you could imagine
+- Any contribution would be of great help and we&#39;ll will highly appreciate it! 
+
+### Run tests
+Run all tests, sometimes the tests have to be reruns.  
+```
+pytest --reruns 3
+```
+You might also want to run per-file tests
+```
+pytest tests/auth/test_device.py
+```
+Or per-method test
+````
+python3 -m unittest tests.auth.test_event.T.test_add_note
+````
+
+### Code analysis
+
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/114821fcf6e14b8eb0f927e0112488c8)](https://www.codacy.com/gh/mfesiem/msiempy?utm_source=github.com&amp;amp;utm_medium=referral&amp;amp;utm_content=mfesiem/msiempy&amp;amp;utm_campaign=Badge_Grade) [![Maintainability](https://api.codeclimate.com/v1/badges/0cc21ba8f82394cb05f3/maintainability)](https://codeclimate.com/github/mfesiem/msiempy/maintainability)
+
+### Error report
+Configure log file reporting in the configuration file and and look for `&#34;ERROR&#34;`.  
+Useful shell command to get simple list of errors:  
+```
+cat /path/to/your/log/file | grep -i error | sort | uniq
+```
 
 &#34;&#34;&#34;
 
@@ -107,7 +702,27 @@ from .core import (
 <nav id="sidebar">
 <h1>Index</h1>
 <div class="toc">
-<ul></ul>
+<ul>
+<li><a href="#installation">Installation</a><ul>
+<li><a href="#for-development">For development</a></li>
+</ul>
+</li>
+<li><a href="#authentication-and-configuration-setup">Authentication and configuration setup</a></li>
+<li><a href="#examples">Examples</a><ul>
+<li><a href="#alarm">Alarm</a></li>
+<li><a href="#event">Event</a></li>
+<li><a href="#esm">ESM</a></li>
+<li><a href="#datasource">Datasource</a></li>
+<li><a href="#watchlist">Watchlist</a></li>
+<li><a href="#use-the-session-oject">Use the Session oject</a></li>
+</ul>
+</li>
+<li><a href="#questions">Questions ?</a></li>
+<li><a href="#contribute">Contribute</a></li>
+<li><a href="#run-tests">Run tests</a></li>
+<li><a href="#code-analysis">Code analysis</a></li>
+<li><a href="#error-report">Error report</a></li>
+</ul>
 </div>
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>

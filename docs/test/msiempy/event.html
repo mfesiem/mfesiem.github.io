@@ -46,9 +46,6 @@ from .core.utils import timerange_gettimes, parse_query_result, format_fields_fo
 
 __pdoc__[&#39;EventManager.fields&#39;]=&#34;List of query fields&#34;
 __pdoc__[&#39;EventManager.limit&#39;]=&#34;Max number of rows per query&#34;
-__pdoc__[&#39;EventManager.time_range&#39;]=&#34;Query time range&#34;
-__pdoc__[&#39;EventManager.start_time&#39;]=&#34;Query start time&#34;
-__pdoc__[&#39;EventManager.end_time&#39;]=&#34;Query end time&#34;
 
 class EventManager(FilteredQueryList):
     &#34;&#34;&#34;
@@ -251,7 +248,8 @@ class EventManager(FilteredQueryList):
         return((events_raw,len(events_raw)&lt;self.limit))
 
     def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
-        &#34;&#34;&#34;Load the data into the list.  
+        &#34;&#34;&#34;
+        Load the data into the list.  
         Split the query in defferents time slots if the query apprears not to be completed.  
         Wraps around `msiempy.event.EventManager.qry_load_data`.    
 
@@ -414,7 +412,33 @@ class Event(NitroDict):
     &#34;&#34;&#34;
     Dict-Like object.   
 
-    Common keys :  
+    Event interface, this object handles both events objects created with `msiempy.event.EventManager` (the SIEM `qryGetResults` api call) 
+        and events objects created with `msiempy.alarm.AlarmManager` (if `load_events_data=True` and `use_query=False` - defaults) (`ipsGetAlertData` api call) .  
+
+    Common keys for alert data events :  
+
+    - `ruleName`
+    - `srcIp`
+    - `destIp`
+    - `protocol`
+    - `lastTime`
+    - `subtype`
+    - `destPort`
+    - `destMac`
+    - `srcMac`
+    - `srcPort`
+    - `deviceName`
+    - `sigId`
+    - `normId`
+    - `srcUser`
+    - `destUser`
+    - `normMessage`
+    - `normDesc`
+    - `host`
+    - `domain`
+    - `ipsId`
+
+    Common keys for query events :  
 
     - `Rule.msg`  
     - `Alert.LastTime`  
@@ -431,11 +455,12 @@ class Event(NitroDict):
     - `adict`: Event parameters  
     - `id`: The event `IPSIDAlertID` to instanciate. Will load informations
 
-    We tried our best effort to match SIEM returned fields with initially requested fields.  Prefixes `Alert.`, `Rule.`, etc are optionnal, autocompletion is computed in any case.    
+    **For query events**: We tried our best effort to match SIEM returned fields with initially requested fields.  Prefixes `Alert.`, `Rule.`, etc are optionnal, autocompletion is computed in any case.    
     `__getitem__`, `__contains__`, `__setitem__` and `__delitem__` method have been rewrote in order to offer more straight-forward `dict` usage.
-    For exemple, if the SIEM will return dicts with keys like  `Alert.65613`, `Alert.BIN(7)` or `Alert.SrcIP`: you&#39;ll be able to use `Event` dict with your initial queried keys like `e[&#39;Web_Doamin&#39;] `, `e[&#39;UserIDSrc&#39;]` or `e[&#39;SrcIP&#39;]`. (You can still use internal keys if you want). 
+    For exemple, if the SIEM returns results with keys like  `Alert.65613`, `Alert.BIN(7)` or `Alert.SrcIP`: you&#39;ll be able to use `Event` dict with your initial 
+    queried keys like `Event[&#39;Web_Doamin&#39;] `, `Event[&#39;UserIDSrc&#39;]` or `Event[&#39;SrcIP&#39;]`. (You can still use internal keys if you want).   
 
-    Exemple:
+    Exemple:  
 
         
 
@@ -505,19 +530,19 @@ class Event(NitroDict):
     &#34;&#34;&#34;
     List of regular event fields.  
 
-        `Rule.msg`  
-        `Alert.SrcIP`  
-        `Alert.DstIP`   
-        `Alert.SrcMac`  
-        `Alert.DstMac`  
-        `Rule.NormID`  
-        `HostID`  
-        `UserIDSrc`  
-        `ObjectID`  
-        `Alert.Severity`  
-        `Alert.LastTime`  
-        `Alert.DSIDSigID`  
-        `Alert.IPSIDAlertID` 
+    `Rule.msg`  
+    `Alert.SrcIP`  
+    `Alert.DstIP`   
+    `Alert.SrcMac`  
+    `Alert.DstMac`  
+    `Rule.NormID`  
+    `HostID`  
+    `UserIDSrc`  
+    `ObjectID`  
+    `Alert.Severity`  
+    `Alert.LastTime`  
+    `Alert.DSIDSigID`  
+    `Alert.IPSIDAlertID` 
     &#34;&#34;&#34;
     
     SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME = {
@@ -1108,7 +1133,8 @@ class Event(NitroDict):
     def _find_key(self, key):
         if collections.UserDict.__contains__(self, key): 
             return key
-        if key in self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME.keys() and collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[key]): 
+        if ( key in self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME.keys() and 
+            collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[key]) ): 
             return self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[key]
 
         # Loop thought FIELDS_TABLES and try with table prefix
@@ -1130,6 +1156,18 @@ class Event(NitroDict):
         try: return collections.UserDict.__setitem__(self, self._find_key(key), value)
         except KeyError: return collections.UserDict.__setitem__(self, key, value)
 
+    def get_id(self):
+        &#34;&#34;&#34;
+        Get the event ID.  
+        Try to return `e[&#39;Alert.IPSIDAlertID&#39;] ` or concatenate `e[&#39;ipsId&#39;][&#39;id&#39;]` and `e[&#39;alertId&#39;]` depending if Event is loaded from the SIEM `qryGetResults` api call or `ipsGetAlertData`
+        &#34;&#34;&#34;
+        the_id = ( self.data[&#34;Alert.IPSIDAlertID&#34;] if ( &#34;Alert.IPSIDAlertID&#34; in self.data )
+            else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if ( &#34;alertId&#34; in self.data )
+            else None )
+        if the_id:
+            return the_id
+        else:
+            return None
 
     def clear_notes(self):
         &#34;&#34;&#34;
@@ -1141,8 +1179,8 @@ class Event(NitroDict):
         &#34;&#34;&#34;
         Set the event&#39;s note. Desctructive action.
         &#34;&#34;&#34;
-        the_id = self.data[&#34;Alert.IPSIDAlertID&#34;] if &#34;Alert.IPSIDAlertID&#34; in self.data else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if &#34;alertId&#34; in self.data else None
-
+        the_id = self.get_id()
+        
         if isinstance(the_id, str):
 
             if len(note) &gt;= 4000:
@@ -1160,7 +1198,7 @@ class Event(NitroDict):
                 id=the_id,
                 note=note)
         else :
-            log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found.&#34;)
+            log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found. Event: {}&#34;.format(self))
         
     def data_from_id(self, id, use_query=False, extra_fields=[]):
         &#34;&#34;&#34;
@@ -1201,10 +1239,11 @@ class Event(NitroDict):
     def refresh(self): 
         &#34;&#34;&#34;Re-load event&#39;s data&#34;&#34;&#34;
         if &#39;Alert.IPSIDAlertID&#39; in self.data.keys() :
+            # ensure to re-use the query module if that&#39;s the case
             self.data.update(self.data_from_id(self.data[&#39;Alert.IPSIDAlertID&#39;], 
                 use_query=True, extra_fields=self.data.keys()))
         else :
-            the_id = &#39;|&#39;.join([str(self.data[&#39;ipsId&#39;][&#39;id&#39;]), str(self.data[&#39;alertId&#39;])])
+            the_id = self.get_id()
             self.data.update(self.data_from_id(the_id))
    
 class _QueryFilter(collections.UserDict): 
@@ -1536,7 +1575,7 @@ class FieldFilter(_QueryFilter):
         
         # check the name against the list of possible filters and log warning if not present.  
         if name not in FieldFilter.DOCUMENTED_FILTERS :
-            log.warning(&#34;You&#39;re using an undocumented filter name: &#39;{name}&#39;.  &#34;.format(name=name, filter=self.data))
+            log.warning(&#34;You&#39;re using an undocumented filter name: &#39;{name}&#39;.  &#34;.format(name=name))
     
     POSSIBLE_OPERATORS=[&#39;IN&#39;,
         &#39;NOT_IN&#39;,
@@ -1908,7 +1947,8 @@ Some default fields will be present. </li>
         return((events_raw,len(events_raw)&lt;self.limit))
 
     def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
-        &#34;&#34;&#34;Load the data into the list.  
+        &#34;&#34;&#34;
+        Load the data into the list.  
         Split the query in defferents time slots if the query apprears not to be completed.  
         Wraps around `msiempy.event.EventManager.qry_load_data`.    
 
@@ -2304,7 +2344,8 @@ Only works for certain time ranges.
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
-    &#34;&#34;&#34;Load the data into the list.  
+    &#34;&#34;&#34;
+    Load the data into the list.  
     Split the query in defferents time slots if the query apprears not to be completed.  
     Wraps around `msiempy.event.EventManager.qry_load_data`.    
 
@@ -2451,7 +2492,34 @@ The list is loaded from the SIEM.</p></div>
 <dd>
 <div class="desc"><p>Dict-Like object.
 </p>
-<p>Common keys :
+<p>Event interface, this object handles both events objects created with <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code> (the SIEM <code>qryGetResults</code> api call)
+and events objects created with <code><a title="msiempy.alarm.AlarmManager" href="alarm.html#msiempy.alarm.AlarmManager">AlarmManager</a></code> (if <code>load_events_data=True</code> and <code>use_query=False</code> - defaults) (<code>ipsGetAlertData</code> api call) .
+</p>
+<p>Common keys for alert data events :
+</p>
+<ul>
+<li><code>ruleName</code></li>
+<li><code>srcIp</code></li>
+<li><code>destIp</code></li>
+<li><code>protocol</code></li>
+<li><code>lastTime</code></li>
+<li><code>subtype</code></li>
+<li><code>destPort</code></li>
+<li><code>destMac</code></li>
+<li><code>srcMac</code></li>
+<li><code>srcPort</code></li>
+<li><code>deviceName</code></li>
+<li><code>sigId</code></li>
+<li><code>normId</code></li>
+<li><code>srcUser</code></li>
+<li><code>destUser</code></li>
+<li><code>normMessage</code></li>
+<li><code>normDesc</code></li>
+<li><code>host</code></li>
+<li><code>domain</code></li>
+<li><code>ipsId</code></li>
+</ul>
+<p>Common keys for query events :
 </p>
 <ul>
 <li><code>Rule.msg</code>
@@ -2474,12 +2542,14 @@ You can also use this script to dinamically print the available fields and filte
 </li>
 <li><code>id</code>: The event <code>IPSIDAlertID</code> to instanciate. Will load informations</li>
 </ul>
-<p>We tried our best effort to match SIEM returned fields with initially requested fields.
+<p><strong>For query events</strong>: We tried our best effort to match SIEM returned fields with initially requested fields.
 Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, autocompletion is computed in any case.
 <br>
 <code>__getitem__</code>, <code>__contains__</code>, <code>__setitem__</code> and <code>__delitem__</code> method have been rewrote in order to offer more straight-forward <code>dict</code> usage.
-For exemple, if the SIEM will return dicts with keys like
-<code>Alert.65613</code>, <code>Alert.BIN(7)</code> or <code>Alert.SrcIP</code>: you'll be able to use <code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code> dict with your initial queried keys like <code>e['Web_Doamin']</code>, <code>e['UserIDSrc']</code> or <code>e['SrcIP']</code>. (You can still use internal keys if you want). </p>
+For exemple, if the SIEM returns results with keys like
+<code>Alert.65613</code>, <code>Alert.BIN(7)</code> or <code>Alert.SrcIP</code>: you'll be able to use <code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code> dict with your initial
+queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</code> or <code>Event['SrcIP']</code>. (You can still use internal keys if you want).
+</p>
 <p>Exemple:</p></div>
 <details class="source">
 <summary>
@@ -2489,7 +2559,33 @@ For exemple, if the SIEM will return dicts with keys like
     &#34;&#34;&#34;
     Dict-Like object.   
 
-    Common keys :  
+    Event interface, this object handles both events objects created with `msiempy.event.EventManager` (the SIEM `qryGetResults` api call) 
+        and events objects created with `msiempy.alarm.AlarmManager` (if `load_events_data=True` and `use_query=False` - defaults) (`ipsGetAlertData` api call) .  
+
+    Common keys for alert data events :  
+
+    - `ruleName`
+    - `srcIp`
+    - `destIp`
+    - `protocol`
+    - `lastTime`
+    - `subtype`
+    - `destPort`
+    - `destMac`
+    - `srcMac`
+    - `srcPort`
+    - `deviceName`
+    - `sigId`
+    - `normId`
+    - `srcUser`
+    - `destUser`
+    - `normMessage`
+    - `normDesc`
+    - `host`
+    - `domain`
+    - `ipsId`
+
+    Common keys for query events :  
 
     - `Rule.msg`  
     - `Alert.LastTime`  
@@ -2506,11 +2602,12 @@ For exemple, if the SIEM will return dicts with keys like
     - `adict`: Event parameters  
     - `id`: The event `IPSIDAlertID` to instanciate. Will load informations
 
-    We tried our best effort to match SIEM returned fields with initially requested fields.  Prefixes `Alert.`, `Rule.`, etc are optionnal, autocompletion is computed in any case.    
+    **For query events**: We tried our best effort to match SIEM returned fields with initially requested fields.  Prefixes `Alert.`, `Rule.`, etc are optionnal, autocompletion is computed in any case.    
     `__getitem__`, `__contains__`, `__setitem__` and `__delitem__` method have been rewrote in order to offer more straight-forward `dict` usage.
-    For exemple, if the SIEM will return dicts with keys like  `Alert.65613`, `Alert.BIN(7)` or `Alert.SrcIP`: you&#39;ll be able to use `Event` dict with your initial queried keys like `e[&#39;Web_Doamin&#39;] `, `e[&#39;UserIDSrc&#39;]` or `e[&#39;SrcIP&#39;]`. (You can still use internal keys if you want). 
+    For exemple, if the SIEM returns results with keys like  `Alert.65613`, `Alert.BIN(7)` or `Alert.SrcIP`: you&#39;ll be able to use `Event` dict with your initial 
+    queried keys like `Event[&#39;Web_Doamin&#39;] `, `Event[&#39;UserIDSrc&#39;]` or `Event[&#39;SrcIP&#39;]`. (You can still use internal keys if you want).   
 
-    Exemple:
+    Exemple:  
 
         
 
@@ -2580,19 +2677,19 @@ For exemple, if the SIEM will return dicts with keys like
     &#34;&#34;&#34;
     List of regular event fields.  
 
-        `Rule.msg`  
-        `Alert.SrcIP`  
-        `Alert.DstIP`   
-        `Alert.SrcMac`  
-        `Alert.DstMac`  
-        `Rule.NormID`  
-        `HostID`  
-        `UserIDSrc`  
-        `ObjectID`  
-        `Alert.Severity`  
-        `Alert.LastTime`  
-        `Alert.DSIDSigID`  
-        `Alert.IPSIDAlertID` 
+    `Rule.msg`  
+    `Alert.SrcIP`  
+    `Alert.DstIP`   
+    `Alert.SrcMac`  
+    `Alert.DstMac`  
+    `Rule.NormID`  
+    `HostID`  
+    `UserIDSrc`  
+    `ObjectID`  
+    `Alert.Severity`  
+    `Alert.LastTime`  
+    `Alert.DSIDSigID`  
+    `Alert.IPSIDAlertID` 
     &#34;&#34;&#34;
     
     SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME = {
@@ -3183,7 +3280,8 @@ For exemple, if the SIEM will return dicts with keys like
     def _find_key(self, key):
         if collections.UserDict.__contains__(self, key): 
             return key
-        if key in self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME.keys() and collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[key]): 
+        if ( key in self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME.keys() and 
+            collections.UserDict.__contains__(self, self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[key]) ): 
             return self.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[key]
 
         # Loop thought FIELDS_TABLES and try with table prefix
@@ -3205,6 +3303,18 @@ For exemple, if the SIEM will return dicts with keys like
         try: return collections.UserDict.__setitem__(self, self._find_key(key), value)
         except KeyError: return collections.UserDict.__setitem__(self, key, value)
 
+    def get_id(self):
+        &#34;&#34;&#34;
+        Get the event ID.  
+        Try to return `e[&#39;Alert.IPSIDAlertID&#39;] ` or concatenate `e[&#39;ipsId&#39;][&#39;id&#39;]` and `e[&#39;alertId&#39;]` depending if Event is loaded from the SIEM `qryGetResults` api call or `ipsGetAlertData`
+        &#34;&#34;&#34;
+        the_id = ( self.data[&#34;Alert.IPSIDAlertID&#34;] if ( &#34;Alert.IPSIDAlertID&#34; in self.data )
+            else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if ( &#34;alertId&#34; in self.data )
+            else None )
+        if the_id:
+            return the_id
+        else:
+            return None
 
     def clear_notes(self):
         &#34;&#34;&#34;
@@ -3216,8 +3326,8 @@ For exemple, if the SIEM will return dicts with keys like
         &#34;&#34;&#34;
         Set the event&#39;s note. Desctructive action.
         &#34;&#34;&#34;
-        the_id = self.data[&#34;Alert.IPSIDAlertID&#34;] if &#34;Alert.IPSIDAlertID&#34; in self.data else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if &#34;alertId&#34; in self.data else None
-
+        the_id = self.get_id()
+        
         if isinstance(the_id, str):
 
             if len(note) &gt;= 4000:
@@ -3235,7 +3345,7 @@ For exemple, if the SIEM will return dicts with keys like
                 id=the_id,
                 note=note)
         else :
-            log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found.&#34;)
+            log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found. Event: {}&#34;.format(self))
         
     def data_from_id(self, id, use_query=False, extra_fields=[]):
         &#34;&#34;&#34;
@@ -3276,10 +3386,11 @@ For exemple, if the SIEM will return dicts with keys like
     def refresh(self): 
         &#34;&#34;&#34;Re-load event&#39;s data&#34;&#34;&#34;
         if &#39;Alert.IPSIDAlertID&#39; in self.data.keys() :
+            # ensure to re-use the query module if that&#39;s the case
             self.data.update(self.data_from_id(self.data[&#39;Alert.IPSIDAlertID&#39;], 
                 use_query=True, extra_fields=self.data.keys()))
         else :
-            the_id = &#39;|&#39;.join([str(self.data[&#39;ipsId&#39;][&#39;id&#39;]), str(self.data[&#39;alertId&#39;])])
+            the_id = self.get_id()
             self.data.update(self.data_from_id(the_id))</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -3312,20 +3423,19 @@ For exemple, if the SIEM will return dicts with keys like
 <dd>
 <div class="desc"><p>List of regular event fields.
 </p>
-<pre><code>&lt;code&gt;Rule.msg&lt;/code&gt;  
-&lt;code&gt;Alert.SrcIP&lt;/code&gt;  
-&lt;code&gt;Alert.DstIP&lt;/code&gt;   
-&lt;code&gt;Alert.SrcMac&lt;/code&gt;  
-&lt;code&gt;Alert.DstMac&lt;/code&gt;  
-&lt;code&gt;Rule.NormID&lt;/code&gt;  
-&lt;code&gt;HostID&lt;/code&gt;  
-&lt;code&gt;UserIDSrc&lt;/code&gt;  
-&lt;code&gt;ObjectID&lt;/code&gt;  
-&lt;code&gt;Alert.Severity&lt;/code&gt;  
-&lt;code&gt;Alert.LastTime&lt;/code&gt;  
-&lt;code&gt;Alert.DSIDSigID&lt;/code&gt;  
-&lt;code&gt;Alert.IPSIDAlertID&lt;/code&gt;
-</code></pre></div>
+<p><code>Rule.msg</code><br>
+<code>Alert.SrcIP</code><br>
+<code>Alert.DstIP</code> <br>
+<code>Alert.SrcMac</code><br>
+<code>Alert.DstMac</code><br>
+<code>Rule.NormID</code><br>
+<code>HostID</code><br>
+<code>UserIDSrc</code><br>
+<code>ObjectID</code><br>
+<code>Alert.Severity</code><br>
+<code>Alert.LastTime</code><br>
+<code>Alert.DSIDSigID</code><br>
+<code>Alert.IPSIDAlertID</code></p></div>
 </dd>
 <dt id="msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME"><code class="name">var <span class="ident">SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</span></code></dt>
 <dd>
@@ -3338,6 +3448,30 @@ For exemple, if the SIEM will return dicts with keys like
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="msiempy.event.Event.get_id"><code class="name flex">
+<span>def <span class="ident">get_id</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the event ID.<br>
+Try to return <code>e['Alert.IPSIDAlertID']</code> or concatenate <code>e['ipsId']['id']</code> and <code>e['alertId']</code> depending if Event is loaded from the SIEM <code>qryGetResults</code> api call or <code>ipsGetAlertData</code></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_id(self):
+    &#34;&#34;&#34;
+    Get the event ID.  
+    Try to return `e[&#39;Alert.IPSIDAlertID&#39;] ` or concatenate `e[&#39;ipsId&#39;][&#39;id&#39;]` and `e[&#39;alertId&#39;]` depending if Event is loaded from the SIEM `qryGetResults` api call or `ipsGetAlertData`
+    &#34;&#34;&#34;
+    the_id = ( self.data[&#34;Alert.IPSIDAlertID&#34;] if ( &#34;Alert.IPSIDAlertID&#34; in self.data )
+        else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if ( &#34;alertId&#34; in self.data )
+        else None )
+    if the_id:
+        return the_id
+    else:
+        return None</code></pre>
+</details>
+</dd>
 <dt id="msiempy.event.Event.clear_notes"><code class="name flex">
 <span>def <span class="ident">clear_notes</span></span>(<span>self)</span>
 </code></dt>
@@ -3367,8 +3501,8 @@ For exemple, if the SIEM will return dicts with keys like
     &#34;&#34;&#34;
     Set the event&#39;s note. Desctructive action.
     &#34;&#34;&#34;
-    the_id = self.data[&#34;Alert.IPSIDAlertID&#34;] if &#34;Alert.IPSIDAlertID&#34; in self.data else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if &#34;alertId&#34; in self.data else None
-
+    the_id = self.get_id()
+    
     if isinstance(the_id, str):
 
         if len(note) &gt;= 4000:
@@ -3386,7 +3520,7 @@ For exemple, if the SIEM will return dicts with keys like
             id=the_id,
             note=note)
     else :
-        log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found.&#34;)</code></pre>
+        log.error(&#34;Couldn&#39;t set event&#39;s note, the event ID hasn&#39;t been found. Event: {}&#34;.format(self))</code></pre>
 </details>
 </dd>
 <dt id="msiempy.event.Event.data_from_id"><code class="name flex">
@@ -3459,10 +3593,11 @@ Default behaviour will call <code>ipsGetAlertData</code> to retreive the complet
 <pre><code class="python">def refresh(self): 
     &#34;&#34;&#34;Re-load event&#39;s data&#34;&#34;&#34;
     if &#39;Alert.IPSIDAlertID&#39; in self.data.keys() :
+        # ensure to re-use the query module if that&#39;s the case
         self.data.update(self.data_from_id(self.data[&#39;Alert.IPSIDAlertID&#39;], 
             use_query=True, extra_fields=self.data.keys()))
     else :
-        the_id = &#39;|&#39;.join([str(self.data[&#39;ipsId&#39;][&#39;id&#39;]), str(self.data[&#39;alertId&#39;])])
+        the_id = self.get_id()
         self.data.update(self.data_from_id(the_id))</code></pre>
 </details>
 </dd>
@@ -3874,7 +4009,7 @@ Exemple to filter by Signature ID.
         
         # check the name against the list of possible filters and log warning if not present.  
         if name not in FieldFilter.DOCUMENTED_FILTERS :
-            log.warning(&#34;You&#39;re using an undocumented filter name: &#39;{name}&#39;.  &#34;.format(name=name, filter=self.data))
+            log.warning(&#34;You&#39;re using an undocumented filter name: &#39;{name}&#39;.  &#34;.format(name=name))
     
     POSSIBLE_OPERATORS=[&#39;IN&#39;,
         &#39;NOT_IN&#39;,
@@ -4216,6 +4351,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <li>
 <h4><code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code></h4>
 <ul class="">
+<li><code><a title="msiempy.event.Event.get_id" href="#msiempy.event.Event.get_id">get_id</a></code></li>
 <li><code><a title="msiempy.event.Event.clear_notes" href="#msiempy.event.Event.clear_notes">clear_notes</a></code></li>
 <li><code><a title="msiempy.event.Event.set_note" href="#msiempy.event.Event.set_note">set_note</a></code></li>
 <li><code><a title="msiempy.event.Event.data_from_id" href="#msiempy.event.Event.data_from_id">data_from_id</a></code></li>

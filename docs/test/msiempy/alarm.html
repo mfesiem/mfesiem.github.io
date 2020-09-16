@@ -39,13 +39,6 @@ from .core.utils import regex_match, dehexify
 
 __pdoc__={}
 
-__pdoc__[&#39;AlarmManager.status_filter&#39;]=&#34;Alarms status filter&#34;
-__pdoc__[&#39;AlarmManager.page_size&#39;]=&#34;Max number of alarms per query&#34;
-__pdoc__[&#39;AlarmManager.page_number&#39;]=&#34;The alarms page to load&#34;
-__pdoc__[&#39;AlarmManager.time_range&#39;]=&#34;Query time range&#34;
-__pdoc__[&#39;AlarmManager.start_time&#39;]=&#34;Query start time&#34;
-__pdoc__[&#39;AlarmManager.end_time&#39;]=&#34;Query end time&#34;
-
 class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
     Interface to query and manage Alarms.  
@@ -77,7 +70,14 @@ class AlarmManager(FilteredQueryList):
 
         #Setting attributes
         self.status_filter=status_filter
+        &#34;&#34;&#34;&#34;
+        Alarms status filter
+        &#34;&#34;&#34;
+
         self.page_size=page_size
+        &#34;&#34;&#34;&#34;
+        Max number of alarms per query
+        &#34;&#34;&#34;
 
         #uses the parent filter setter
         #TODO : find a soltuion not to use this
@@ -412,7 +412,6 @@ class Alarm(NitroDict):
     (&#34;domain&#34;,),
     (&#34;ipsId&#34;,),
     ]
-    __pdoc__[&#39;Alarm.ALARM_EVENT_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Static event related fields usable in a filter. Usable in `filters` parameter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_EVENT_FILTER_FIELDS]))
 
     ALARM_DEFAULT_FIELDS=[&#39;id&#39;,&#39;alarmName&#39;, &#39;summary&#39;,&#39;triggeredDate&#39;, &#39;acknowledgedUsername&#39;]
     __pdoc__[&#39;Alarm.ALARM_DEFAULT_FIELDS&#39;]=&#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
@@ -595,11 +594,14 @@ class Alarm(NitroDict):
         &#34;&#34;&#34;
         Gets the alarm parameters based on an ID
         &#34;&#34;&#34;
-        alarms = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
+        # if self.nitro.version().startswith(&#39;10&#39;):
+        alarm = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
         # Wrap arround private api call
-        alarms = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarms.items()} 
-        alarms = self.map_alarm_int_fields(alarms)        
-        return alarms</code></pre>
+        alarm = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarm.items()} 
+        alarm = self.map_alarm_int_fields(alarm)        
+        # else:
+        #     alarm = self.nitro.request(&#39;get_notification_detail&#39;, id=str(id))
+        return alarm</code></pre>
 </details>
 </section>
 <section>
@@ -674,7 +676,14 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 
         #Setting attributes
         self.status_filter=status_filter
+        &#34;&#34;&#34;&#34;
+        Alarms status filter
+        &#34;&#34;&#34;
+
         self.page_size=page_size
+        &#34;&#34;&#34;&#34;
+        Max number of alarms per query
+        &#34;&#34;&#34;
 
         #uses the parent filter setter
         #TODO : find a soltuion not to use this
@@ -980,18 +989,8 @@ def filters(self):
 </dd>
 <dt id="msiempy.alarm.AlarmManager.status_filter"><code class="name">var <span class="ident">status_filter</span></code></dt>
 <dd>
-<div class="desc"><p>Alarms status filter</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def status_filter(self):
-    &#34;&#34;&#34;
-    Status of the alarms in the query.  
-    &#34;&#34;&#34;
-    return self._status_filter</code></pre>
-</details>
+<div class="desc"><p>"
+Alarms status filter</p></div>
 </dd>
 <dt id="msiempy.alarm.AlarmManager.event_filters"><code class="name">var <span class="ident">event_filters</span></code></dt>
 <dd>
@@ -1005,6 +1004,11 @@ def event_filters(self):
     &#34;&#34;&#34;Event related filters.&#34;&#34;&#34;
     return self._event_filters</code></pre>
 </details>
+</dd>
+<dt id="msiempy.alarm.AlarmManager.page_size"><code class="name">var <span class="ident">page_size</span></code></dt>
+<dd>
+<div class="desc"><p>"
+Max number of alarms per query</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -1427,7 +1431,6 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
     (&#34;domain&#34;,),
     (&#34;ipsId&#34;,),
     ]
-    __pdoc__[&#39;Alarm.ALARM_EVENT_FILTER_FIELDS&#39;]=&#34;&#34;&#34;Static event related fields usable in a filter. Usable in `filters` parameter : ```%(fields)s```&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in ALARM_EVENT_FILTER_FIELDS]))
 
     ALARM_DEFAULT_FIELDS=[&#39;id&#39;,&#39;alarmName&#39;, &#39;summary&#39;,&#39;triggeredDate&#39;, &#39;acknowledgedUsername&#39;]
     __pdoc__[&#39;Alarm.ALARM_DEFAULT_FIELDS&#39;]=&#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
@@ -1610,11 +1613,14 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
         &#34;&#34;&#34;
         Gets the alarm parameters based on an ID
         &#34;&#34;&#34;
-        alarms = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
+        # if self.nitro.version().startswith(&#39;10&#39;):
+        alarm = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
         # Wrap arround private api call
-        alarms = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarms.items()} 
-        alarms = self.map_alarm_int_fields(alarms)        
-        return alarms</code></pre>
+        alarm = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarm.items()} 
+        alarm = self.map_alarm_int_fields(alarm)        
+        # else:
+        #     alarm = self.nitro.request(&#39;get_notification_detail&#39;, id=str(id))
+        return alarm</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1637,7 +1643,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 </dd>
 <dt id="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS"><code class="name">var <span class="ident">ALARM_EVENT_FILTER_FIELDS</span></code></dt>
 <dd>
-<div class="desc"><p>Static event related fields usable in a filter. Usable in <code>filters</code> parameter : <code>ruleName, srcIp, destIp, protocol, lastTime, subtype, destPort, destMac, srcMac, srcPort, deviceName, sigId, normId, srcUser, destUser, normMessage, normDesc, host, domain, ipsId</code></p></div>
+<div class="desc"></div>
 </dd>
 <dt id="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS"><code class="name">var <span class="ident">ALARM_DEFAULT_FIELDS</span></code></dt>
 <dd>
@@ -1891,11 +1897,14 @@ Converts "T" and "F" to <code>True</code> and <code>False</code> and handle None
     &#34;&#34;&#34;
     Gets the alarm parameters based on an ID
     &#34;&#34;&#34;
-    alarms = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
+    # if self.nitro.version().startswith(&#39;10&#39;):
+    alarm = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
     # Wrap arround private api call
-    alarms = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarms.items()} 
-    alarms = self.map_alarm_int_fields(alarms)        
-    return alarms</code></pre>
+    alarm = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarm.items()} 
+    alarm = self.map_alarm_int_fields(alarm)        
+    # else:
+    #     alarm = self.nitro.request(&#39;get_notification_detail&#39;, id=str(id))
+    return alarm</code></pre>
 </details>
 </dd>
 </dl>
@@ -1938,6 +1947,7 @@ Converts "T" and "F" to <code>True</code> and <code>False</code> and handle None
 <li><code><a title="msiempy.alarm.AlarmManager.filters" href="#msiempy.alarm.AlarmManager.filters">filters</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.status_filter" href="#msiempy.alarm.AlarmManager.status_filter">status_filter</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.event_filters" href="#msiempy.alarm.AlarmManager.event_filters">event_filters</a></code></li>
+<li><code><a title="msiempy.alarm.AlarmManager.page_size" href="#msiempy.alarm.AlarmManager.page_size">page_size</a></code></li>
 </ul>
 </li>
 <li>

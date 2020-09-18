@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L0-L559" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L0-L562" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Provide alarm management.  
 &#34;&#34;&#34;
@@ -139,14 +139,14 @@ class AlarmManager(FilteredQueryList):
 
         for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
             if afilter[0] in synonims :
-                log.warning(&#39;Passing event related filters in `filters` argument is not safe consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+                log.warning(&#39;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
                 self._event_filters.append((synonims[0], values))
                 added=True
 
         #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
         if len(afilter[0].split(&#39;.&#39;)) == 2 :
             self._event_filters.append((afilter[0], values))
-            log.warning(&#39;Passing event related filters in `filters` argument is not safe, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+            log.warning(&#39;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
             added=True
 
         if added==False:
@@ -213,7 +213,7 @@ class AlarmManager(FilteredQueryList):
 
         - `workers` : Number of asynchronous workers   
         - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.  
-        - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded only `str` representation.  
+        - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded. Only `str` representation for SIEM 10.x and minimal events records from SIEM 11.x.  
         - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
         Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.    
         - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
@@ -301,7 +301,7 @@ class AlarmManager(FilteredQueryList):
             detailed_alarm_based_filtered = [Alarm(adict=a) for a in alarm_detailed if self._alarm_match(a)]
 
             if events_details :
-                log.info(&#34;Getting events infos...&#34;)
+                log.info(&#34;Getting full events infos...&#34;)
                 event_detailed = self.perform(Alarm.load_events, 
                     list(alarm_detailed),
                     func_args=dict(use_query=use_query, extra_fields=extra_fields),
@@ -309,9 +309,9 @@ class AlarmManager(FilteredQueryList):
                     progress=True, 
                     workers=workers)
 
-                filtered_alarms = [a for a in event_detailed if self._event_match(a)]
+                filtered_alarms = [Alarm(adict=a) for a in event_detailed if self._event_match(a)]
             else:
-                filtered_alarms=detailed_alarm_based_filtered
+                filtered_alarms = [Alarm(adict=a) for a in detailed_alarm_based_filtered if self._event_match(a)] 
         else :
             filtered_alarms = alarm_based_filtered
             log.warning(&#39;Event filters and some Alarm filters are ignored when `alarms_details is False`&#39;)
@@ -383,6 +383,9 @@ class Alarm(NitroDict):
         #Keep the id in the dict when instanciating an Alarm directly from its id.
         if &#39;id&#39; in kwargs :
             self.data[&#39;id&#39;] = {&#39;value&#39;:str(kwargs[&#39;id&#39;])}
+        # Casting all events to Event object
+        if &#39;events&#39; in self.data and isinstance(self.data[&#39;events&#39;], list):
+            self.data[&#39;events&#39;] = [Event(d) for d in self.data[&#39;events&#39;]]
 
     POSSIBLE_ALARM_STATUS=[
         [&#39;acknowledged&#39;, &#39;ack&#39;,],
@@ -633,7 +636,7 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L13-L320" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L13-L320" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
@@ -731,14 +734,14 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 
         for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
             if afilter[0] in synonims :
-                log.warning(&#39;Passing event related filters in `filters` argument is not safe consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+                log.warning(&#39;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
                 self._event_filters.append((synonims[0], values))
                 added=True
 
         #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
         if len(afilter[0].split(&#39;.&#39;)) == 2 :
             self._event_filters.append((afilter[0], values))
-            log.warning(&#39;Passing event related filters in `filters` argument is not safe, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+            log.warning(&#39;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
             added=True
 
         if added==False:
@@ -805,7 +808,7 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 
         - `workers` : Number of asynchronous workers   
         - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.  
-        - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded only `str` representation.  
+        - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded. Only `str` representation for SIEM 10.x and minimal events records from SIEM 11.x.  
         - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
         Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.    
         - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
@@ -893,7 +896,7 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
             detailed_alarm_based_filtered = [Alarm(adict=a) for a in alarm_detailed if self._alarm_match(a)]
 
             if events_details :
-                log.info(&#34;Getting events infos...&#34;)
+                log.info(&#34;Getting full events infos...&#34;)
                 event_detailed = self.perform(Alarm.load_events, 
                     list(alarm_detailed),
                     func_args=dict(use_query=use_query, extra_fields=extra_fields),
@@ -901,9 +904,9 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
                     progress=True, 
                     workers=workers)
 
-                filtered_alarms = [a for a in event_detailed if self._event_match(a)]
+                filtered_alarms = [Alarm(adict=a) for a in event_detailed if self._event_match(a)]
             else:
-                filtered_alarms=detailed_alarm_based_filtered
+                filtered_alarms = [Alarm(adict=a) for a in detailed_alarm_based_filtered if self._event_match(a)] 
         else :
             filtered_alarms = alarm_based_filtered
             log.warning(&#39;Event filters and some Alarm filters are ignored when `alarms_details is False`&#39;)
@@ -967,7 +970,7 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L64-L69" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L64-L69" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def filters(self):
@@ -988,7 +991,7 @@ Alarms status filter</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L123-L126" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L123-L126" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def event_filters(self):
@@ -1019,7 +1022,7 @@ Max number of alarms per query</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L90-L121" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L90-L121" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_filter(self, afilter):
     &#34;&#34;&#34;
@@ -1040,14 +1043,14 @@ Max number of alarms per query</p></div>
 
     for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
         if afilter[0] in synonims :
-            log.warning(&#39;Passing event related filters in `filters` argument is not safe consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+            log.warning(&#39;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
             self._event_filters.append((synonims[0], values))
             added=True
 
     #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
     if len(afilter[0].split(&#39;.&#39;)) == 2 :
         self._event_filters.append((afilter[0], values))
-        log.warning(&#39;Passing event related filters in `filters` argument is not safe, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+        log.warning(&#39;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
         added=True
 
     if added==False:
@@ -1070,7 +1073,7 @@ Max number of alarms per query</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L143-L159" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L143-L159" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_event_filter(self, afilter):
     &#34;&#34;&#34;
@@ -1099,7 +1102,7 @@ Max number of alarms per query</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L161-L166" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L161-L166" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
@@ -1131,7 +1134,7 @@ the full details is loaded, then the trigerring event details is loaded.
 </li>
 <li><code>alarms_details</code> : Load detailed alarms infos. If <code>False</code>, only a couple values are loaded, no <code>events</code> infos.
 </li>
-<li><code>events_details</code> : Load detailed events infos. If <code>False</code>, no detailed <code>events</code> will be loaded only <code>str</code> representation.
+<li><code>events_details</code> : Load detailed events infos. If <code>False</code>, no detailed <code>events</code> will be loaded. Only <code>str</code> representation for SIEM 10.x and minimal events records from SIEM 11.x.
 </li>
 <li><code>use_query</code> : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.<br>
 Default behaviour will call <code>ipsGetAlertData</code> to retreive the complete event definition.
@@ -1146,7 +1149,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L168-L210" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L168-L210" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_data(self, pages=1, **kwargs):
     &#34;&#34;&#34;
@@ -1163,7 +1166,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 
     - `workers` : Number of asynchronous workers   
     - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.  
-    - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded only `str` representation.  
+    - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded. Only `str` representation for SIEM 10.x and minimal events records from SIEM 11.x.  
     - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
     Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.    
     - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
@@ -1222,7 +1225,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L212-L286" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L212-L286" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def qry_load_data(self, workers=10,
     alarms_details=True, events_details=True,
@@ -1283,7 +1286,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
         detailed_alarm_based_filtered = [Alarm(adict=a) for a in alarm_detailed if self._alarm_match(a)]
 
         if events_details :
-            log.info(&#34;Getting events infos...&#34;)
+            log.info(&#34;Getting full events infos...&#34;)
             event_detailed = self.perform(Alarm.load_events, 
                 list(alarm_detailed),
                 func_args=dict(use_query=use_query, extra_fields=extra_fields),
@@ -1291,9 +1294,9 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
                 progress=True, 
                 workers=workers)
 
-            filtered_alarms = [a for a in event_detailed if self._event_match(a)]
+            filtered_alarms = [Alarm(adict=a) for a in event_detailed if self._event_match(a)]
         else:
-            filtered_alarms=detailed_alarm_based_filtered
+            filtered_alarms = [Alarm(adict=a) for a in detailed_alarm_based_filtered if self._event_match(a)] 
     else :
         filtered_alarms = alarm_based_filtered
         log.warning(&#39;Event filters and some Alarm filters are ignored when `alarms_details is False`&#39;)
@@ -1364,7 +1367,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L322-L560" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L322-L563" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Alarm(NitroDict):
     &#34;&#34;&#34;
@@ -1397,6 +1400,9 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
         #Keep the id in the dict when instanciating an Alarm directly from its id.
         if &#39;id&#39; in kwargs :
             self.data[&#39;id&#39;] = {&#39;value&#39;:str(kwargs[&#39;id&#39;])}
+        # Casting all events to Event object
+        if &#39;events&#39; in self.data and isinstance(self.data[&#39;events&#39;], list):
+            self.data[&#39;events&#39;] = [Event(d) for d in self.data[&#39;events&#39;]]
 
     POSSIBLE_ALARM_STATUS=[
         [&#39;acknowledged&#39;, &#39;ack&#39;,],
@@ -1651,7 +1657,7 @@ To change genuine (UPPERCASE) key names to more explicit ones matching public AP
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L389-L395" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L392-L398" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def acknowledge(self):
     &#34;&#34;&#34;Mark the alarm as acknowledged.
@@ -1670,7 +1676,7 @@ To change genuine (UPPERCASE) key names to more explicit ones matching public AP
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L397-L403" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L400-L406" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def unacknowledge(self):
     &#34;&#34;&#34;Mark the alarm as unacknowledge.
@@ -1690,7 +1696,7 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L406-L413" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L409-L416" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def delete(self):
     &#34;&#34;&#34;Destructive action!
@@ -1710,7 +1716,7 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L415-L418" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L418-L421" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def ceate_case(self):
     &#34;&#34;&#34;Not implemented : TODO
@@ -1726,7 +1732,7 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L420-L427" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L423-L430" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
@@ -1746,7 +1752,7 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L429-L432" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L432-L435" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self):
     &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.  
@@ -1776,7 +1782,7 @@ Default behaviour will call <code>ipsGetAlertData</code> to retreive the complet
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L434-L463" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L437-L466" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_events(self, use_query=False, extra_fields=[]):
     &#34;&#34;&#34;
@@ -1819,7 +1825,7 @@ Converts "T" and "F" to <code>True</code> and <code>False</code> and handle None
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L504-L527" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L507-L530" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def map_alarm_int_fields(self, alarm_details):
     &#34;&#34;&#34;
@@ -1860,7 +1866,7 @@ Will only load the details of the first triggering event.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L529-L554" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L532-L557" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id, use_priv=False):
     &#34;&#34;&#34;
@@ -1898,7 +1904,7 @@ Will only load the details of the first triggering event.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/422ac1139632874c40ab60c97f7fdb8846229fd3/msiempy/alarm.py#L556-L560" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/13a3f49e64b6c3daa33a97d35c87c79a3a2bc90e/msiempy/alarm.py#L559-L563" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_id(self):
     &#34;&#34;&#34;

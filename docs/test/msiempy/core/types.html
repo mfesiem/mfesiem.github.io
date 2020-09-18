@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L0-L395" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L0-L404" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;
@@ -158,6 +158,15 @@ class NitroDict(collections.UserDict, NitroObject):
         &#34;&#34;&#34;This method retreive the item infos from an object ID.  
         Abstract declaration.
         &#34;&#34;&#34;
+        pass
+
+    @abc.abstractmethod
+    def get_id(self):
+        &#34;&#34;&#34;
+        Return the object ID.  
+        Abstract definition.  
+        &#34;&#34;&#34;
+
         pass
 
 class NitroList(collections.UserList, NitroObject):
@@ -447,7 +456,7 @@ Creates the object session.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L30-L74" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L30-L74" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class NitroObject(abc.ABC):
     &#34;&#34;&#34;
@@ -522,7 +531,7 @@ Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L53-L59" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L53-L59" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractproperty
 def text(self):
@@ -540,7 +549,7 @@ Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L61-L66" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L61-L66" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractproperty
 def json(self):
@@ -566,7 +575,7 @@ Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L68-L74" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L68-L74" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def refresh(self):
@@ -600,7 +609,7 @@ Exemple : <code>Event</code>, <code>Alarm</code>, etc&hellip;
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L76-L128" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L76-L137" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class NitroDict(collections.UserDict, NitroObject):
     &#34;&#34;&#34;
@@ -654,6 +663,15 @@ Exemple : <code>Event</code>, <code>Alarm</code>, etc&hellip;
         &#34;&#34;&#34;This method retreive the item infos from an object ID.  
         Abstract declaration.
         &#34;&#34;&#34;
+        pass
+
+    @abc.abstractmethod
+    def get_id(self):
+        &#34;&#34;&#34;
+        Return the object ID.  
+        Abstract definition.  
+        &#34;&#34;&#34;
+
         pass</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -683,7 +701,7 @@ Exemple : <code>Event</code>, <code>Alarm</code>, etc&hellip;
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L111-L115" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L111-L115" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def json(self):
@@ -698,7 +716,7 @@ def json(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L117-L121" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L117-L121" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def text(self):
@@ -719,13 +737,34 @@ Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L123-L128" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L123-L128" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def data_from_id(id):
     &#34;&#34;&#34;This method retreive the item infos from an object ID.  
     Abstract declaration.
     &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="msiempy.core.types.NitroDict.get_id"><code class="name flex">
+<span>def <span class="ident">get_id</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the object ID.<br>
+Abstract definition.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L130-L137" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def get_id(self):
+    &#34;&#34;&#34;
+    Return the object ID.  
+    Abstract definition.  
+    &#34;&#34;&#34;
+
     pass</code></pre>
 </details>
 </dd>
@@ -765,7 +804,7 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L130-L396" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L139-L405" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class NitroList(collections.UserList, NitroObject):
     &#34;&#34;&#34;
@@ -1062,7 +1101,7 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L225-L229" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L234-L238" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def text(self):
@@ -1077,7 +1116,7 @@ def text(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L231-L235" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L240-L244" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def json(self):
@@ -1097,7 +1136,7 @@ def json(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L160-L165" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L169-L174" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def keys(self):
     &#34;&#34;&#34;Set of keys for all dict&#34;&#34;&#34;
@@ -1126,7 +1165,7 @@ csv: Returns data with header and comma separated values. </li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L167-L222" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L176-L231" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_text(self, format=&#39;prettytable&#39;, fields=None, 
                     max_column_width=80, get_text_nest_attr={} ):
@@ -1211,7 +1250,7 @@ i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L237-L278" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L246-L287" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def search(self, invert=False, match_prop=&#39;json&#39;, *pattern):
     &#34;&#34;&#34;
@@ -1265,7 +1304,7 @@ i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L280-L285" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L289-L294" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self):
     &#34;&#34;&#34;
@@ -1311,7 +1350,7 @@ returned.append(func(index_or_item))</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/core/types.py#L287-L387" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/types.py#L296-L396" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def perform(self, func, data=None, func_args=None, confirm=False, asynch=False,  workers=None , progress=False, message=None):
     &#34;&#34;&#34;
@@ -1508,6 +1547,7 @@ setTimeout(() => input.focus(), 100);
 <h4><code><a title="msiempy.core.types.NitroDict" href="#msiempy.core.types.NitroDict">NitroDict</a></code></h4>
 <ul class="">
 <li><code><a title="msiempy.core.types.NitroDict.data_from_id" href="#msiempy.core.types.NitroDict.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.core.types.NitroDict.get_id" href="#msiempy.core.types.NitroDict.get_id">get_id</a></code></li>
 <li><code><a title="msiempy.core.types.NitroDict.json" href="#msiempy.core.types.NitroDict.json">json</a></code></li>
 <li><code><a title="msiempy.core.types.NitroDict.text" href="#msiempy.core.types.NitroDict.text">text</a></code></li>
 </ul>

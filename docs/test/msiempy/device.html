@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L0-L1161" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L0-L1167" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Provide ESM, Receiver and Datasource management.
 &#34;&#34;&#34;
@@ -1192,7 +1192,13 @@ class DataSource(NitroDict):
                     # The key is called &#34;key&#34; and the value is the key. 
                     # The value is called value and the value is the value.
                     new_dev[d.get(&#39;key&#39;)] = d.get(&#39;value&#39;)
-        return new_dev</code></pre>
+        return new_dev
+
+    def get_id(self):
+        &#34;&#34;&#34;
+        Returns the Datasource ID.  
+        &#34;&#34;&#34;
+        return self[&#39;ds_id&#39;]</code></pre>
 </details>
 </section>
 <section>
@@ -1213,7 +1219,7 @@ class DataSource(NitroDict):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L16-L294" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L16-L294" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ESM(NitroObject):
     &#34;&#34;&#34;Enterprise Security Manager interface&#34;&#34;&#34;
@@ -1511,7 +1517,7 @@ Example: <code>2017-07-06T12:21:59.0+0000</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L31-L35" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L31-L35" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def time(self):
     &#34;&#34;&#34;Returns: string of ESM time (GMT)  
@@ -1529,7 +1535,7 @@ Example: <code>10.0.2 20170516001031</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L37-L41" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L37-L41" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def buildstamp(self):
     &#34;&#34;&#34;Returns: buildstamp string  
@@ -1547,7 +1553,7 @@ Example: <code>10.1.0</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L43-L48" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L43-L48" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def version(self):
     &#34;&#34;&#34;
@@ -1597,7 +1603,7 @@ Other functions exist to return subsets of this data also.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L50-L70" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L50-L70" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def status(self):
     &#34;&#34;&#34;
@@ -1630,7 +1636,7 @@ Other functions exist to return subsets of this data also.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L95-L98" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L95-L98" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def disks(self):
     &#34;&#34;&#34;Returns: `self.status()[&#39;hdd&#39;]`
@@ -1646,7 +1652,7 @@ Other functions exist to return subsets of this data also.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L100-L102" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L100-L102" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def ram(self):
     &#34;&#34;&#34;Returns: `self.status()[&#39;ram&#39;]`&#34;&#34;&#34;
@@ -1667,7 +1673,7 @@ Example :<br>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L104-L122" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L104-L122" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def backup_status(self):
     &#34;&#34;&#34;
@@ -1698,7 +1704,7 @@ Example :<br>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L124-L129" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L124-L129" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def callhome(self):
     &#34;&#34;&#34;
@@ -1720,7 +1726,7 @@ Example:<br>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L131-L145" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L131-L145" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def rules_status(self):
     &#34;&#34;&#34;
@@ -1758,7 +1764,7 @@ Example:<br>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L147-L161" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L147-L161" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_alerts(self, ds_id, flows=False):
     &#34;&#34;&#34;
@@ -1785,7 +1791,7 @@ Example:<br>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L163-L169" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L163-L169" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@lru_cache(maxsize=None)    
 def recs(self):
@@ -1812,7 +1818,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L178-L191" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L178-L191" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tz_offsets(self):
     &#34;&#34;&#34;
@@ -1840,7 +1846,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L194-L201" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L194-L201" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def timezones(self):
     &#34;&#34;&#34;
@@ -1866,7 +1872,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L203-L216" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L203-L216" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tz_name_to_id(self, tz_name):
     &#34;&#34;&#34;
@@ -1898,7 +1904,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L218-L229" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L218-L229" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tz_id_to_name(self, tz_id):
     &#34;&#34;&#34;
@@ -1928,7 +1934,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L231-L243" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L231-L243" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def type_id_to_venmod(self, type_id):
     &#34;&#34;&#34;
@@ -1961,7 +1967,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L245-L257" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L245-L257" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def venmod_to_type_id(self, vendor, model):
     &#34;&#34;&#34;
@@ -1986,7 +1992,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L259-L264" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L259-L264" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def rules_history(self):
     &#34;&#34;&#34;
@@ -2027,7 +2033,7 @@ ESM device tree interface.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L296-L1045" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L296-L1045" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DevTree(NitroList):
     &#34;&#34;&#34;
@@ -2812,7 +2818,7 @@ ESM device tree interface.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L339-L356" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L339-L356" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def search(self, term, zone_id=&#39;0&#39;):
     &#34;&#34;&#34;
@@ -2874,7 +2880,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L358-L383" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L358-L383" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
     &#34;&#34;&#34;
@@ -2912,7 +2918,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L385-L388" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L385-L388" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self):
     &#34;&#34;&#34;Rebuilds the devtree&#34;&#34;&#34;
@@ -2928,7 +2934,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L398-L403" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L398-L403" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def recs(self):
     &#34;&#34;&#34;
@@ -2946,7 +2952,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L405-L425" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L405-L425" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def build_devtree(self):
     &#34;&#34;&#34;Coordinates assembly of the devtree object&#34;&#34;&#34;
@@ -2994,7 +3000,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L784-L806" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L784-L806" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def duplicate_datasource(self, ds_params):
     &#34;&#34;&#34;Check for duplicate dataname name or IP address.
@@ -3059,7 +3065,7 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L808-L869" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L808-L869" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add(self, attr):
     &#34;&#34;&#34;
@@ -3166,7 +3172,7 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L871-L915" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L871-L915" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_client(self, attr):
     &#34;&#34;&#34;Add a datasource client
@@ -3292,7 +3298,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L1047-L1162" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L1047-L1168" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DataSource(NitroDict):
     &#34;&#34;&#34;
@@ -3409,7 +3415,13 @@ or
                     # The key is called &#34;key&#34; and the value is the key. 
                     # The value is called value and the value is the value.
                     new_dev[d.get(&#39;key&#39;)] = d.get(&#39;value&#39;)
-        return new_dev</code></pre>
+        return new_dev
+
+    def get_id(self):
+        &#34;&#34;&#34;
+        Returns the Datasource ID.  
+        &#34;&#34;&#34;
+        return self[&#39;ds_id&#39;]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -3434,7 +3446,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L1086-L1092" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L1086-L1092" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id):
     &#34;&#34;&#34;Gets full of the DataSource parameters&#34;&#34;&#34;
@@ -3453,7 +3465,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L1094-L1096" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L1094-L1096" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
@@ -3468,7 +3480,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L1098-L1100" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L1098-L1100" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self) : 
     &#34;&#34;&#34;Gets the detailed parameters.&#34;&#34;&#34;
@@ -3483,7 +3495,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L1102-L1115" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L1102-L1115" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def delete(self):
     &#34;&#34;&#34;This deletes the datasource and all the data. Be careful.
@@ -3509,7 +3521,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/device.py#L1117-L1124" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L1117-L1124" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def delete_client(self):
     &#34;&#34;&#34;This deletes the datasource&#39;s clients and all the data. Be careful.&#34;&#34;&#34;
@@ -3519,6 +3531,23 @@ or
     status = self.nitro.request(&#39;get_job_status&#39;, job_id=job_id)[&#39;JS&#39;]
     while status == 0:
         status = self.nitro.request(&#39;get_job_status&#39;, job_id=job_id)[&#39;JS&#39;]</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.DataSource.get_id"><code class="name flex">
+<span>def <span class="ident">get_id</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the Datasource ID.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/device.py#L1164-L1168" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def get_id(self):
+    &#34;&#34;&#34;
+    Returns the Datasource ID.  
+    &#34;&#34;&#34;
+    return self[&#39;ds_id&#39;]</code></pre>
 </details>
 </dd>
 </dl>
@@ -3639,12 +3668,13 @@ setTimeout(() => input.focus(), 100);
 </li>
 <li>
 <h4><code><a title="msiempy.device.DataSource" href="#msiempy.device.DataSource">DataSource</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="msiempy.device.DataSource.data_from_id" href="#msiempy.device.DataSource.data_from_id">data_from_id</a></code></li>
 <li><code><a title="msiempy.device.DataSource.load_details" href="#msiempy.device.DataSource.load_details">load_details</a></code></li>
 <li><code><a title="msiempy.device.DataSource.refresh" href="#msiempy.device.DataSource.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.device.DataSource.delete" href="#msiempy.device.DataSource.delete">delete</a></code></li>
 <li><code><a title="msiempy.device.DataSource.delete_client" href="#msiempy.device.DataSource.delete_client">delete_client</a></code></li>
+<li><code><a title="msiempy.device.DataSource.get_id" href="#msiempy.device.DataSource.get_id">get_id</a></code></li>
 </ul>
 </li>
 </ul>

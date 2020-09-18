@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L0-L584" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L0-L559" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Provide alarm management.  
 &#34;&#34;&#34;
@@ -311,7 +311,6 @@ class AlarmManager(FilteredQueryList):
 
                 filtered_alarms = [a for a in event_detailed if self._event_match(a)]
             else:
-                log.warning(&#39;Field based Event filters are ignored when `events_details is False`. You can use `events` keyword in alarms filters to match str representation.&#39;)
                 filtered_alarms=detailed_alarm_based_filtered
         else :
             filtered_alarms = alarm_based_filtered
@@ -327,7 +326,7 @@ class AlarmManager(FilteredQueryList):
         for alarm_filter in self._alarm_filters :
             match=False
             try: value = str(alarm[alarm_filter[0]]) #Can only match strings
-            except KeyError: break
+            except KeyError: continue
             for filter_value in alarm_filter[1]:
                 if regex_match(filter_value.lower(), value.lower()):
                     match=True
@@ -344,7 +343,7 @@ class AlarmManager(FilteredQueryList):
         for event_filter in self._event_filters :
             match=False
             try: value = str(alarm[&#39;events&#39;][0][event_filter[0]])
-            except KeyError: break
+            except KeyError: continue
             for filter_value in event_filter[1]:
                 if regex_match(filter_value.lower(), value.lower()) :
                     match=True
@@ -352,8 +351,6 @@ class AlarmManager(FilteredQueryList):
             if not match :
                 break
         return match
-
-
 
 class Alarm(NitroDict):
     &#34;&#34;&#34;
@@ -370,7 +367,7 @@ class Alarm(NitroDict):
     - `acknowledgedUsername` : The user that acknowledged this triggered alarm  
     - `alarmName` : The name of the alarm that was triggered  
     - `events` : The events that triggered the alarm    
-    - And others... see `msiempy.alarm.Alarm.ALARM_FIELDS_MAP`  
+    - And others...   
     
     Arguments:
 
@@ -469,14 +466,15 @@ class Alarm(NitroDict):
 
     def load_events(self, use_query=False, extra_fields=[]):
         &#34;&#34;&#34;
-        Retreive the genuine Event object from an Alarm.
-        Warning : This method will load the details of the first triggering event only.  
-
+        Retreive the complete trigerring Event objects from an Alarm.  
+        This methos is automatically called automatically bu default when calling `load_data()`.   
         Arguments:  
 
         - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2 or greater.    
         Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.  
         - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
+
+        .. Warning:: On SIEM v10.X This method will only load the details of the first triggering event.  
         &#34;&#34;&#34;
         if isinstance(self.data[&#39;events&#39;], str):
 
@@ -531,42 +529,9 @@ class Alarm(NitroDict):
                 &#39;DCHNG&#39;: None}
     &#34;&#34;&#34;
     List of all `Alarm` possible fields.  
-    This mapping is used to create new alarms and change genuine (UPPERCASE) key names to explicit ones.  
-    If the value is None, the original key name is kept, otherwise the UPPERCASE key won&#39;t work. 
-    ```
-    {&#39;EC&#39;: None,
-    &#39;SMRY&#39;: &#39;summary&#39;,
-    &#39;NAME&#39;: &#39;alarmName&#39;,
-    &#39;FILTERS&#39;: &#39;filters&#39;,
-    &#39;CTYPE&#39;: None,
-    &#39;QID&#39;: &#39;queryId&#39;,
-    &#39;ARM&#39;: &#39;alretRateMin&#39;,
-    &#39;ARC&#39;: &#39;alertRateCount&#39;,
-    &#39;PCTA&#39;: &#39;percentAbove&#39;,
-    &#39;PCTB&#39;: &#39;percentBelow&#39;,
-    &#39;OFFSETMIN&#39;: &#39;offsetMinutes&#39;,
-    &#39;TIMEF&#39;: &#39;maximumConditionTriggerFrequency&#39;,
-    &#39;XMIN&#39;: None,
-    &#39;USEW&#39;: &#39;useWatchlist&#39;,
-    &#39;MFLD&#39;: &#39;matchField&#39;,
-    &#39;MVAL&#39;: &#39;matchValue&#39;,
-    &#39;SVRTY&#39;: &#39;severity&#39;,
-    &#39;ASNID&#39;: &#39;assigneeId&#39;,
-    &#39;ASNNAME&#39;: &#39;assignee&#39;,
-    &#39;TRGDATE&#39;: &#39;triggeredDate&#39;,
-    &#39;ACKDATE&#39;: &#39;acknowledgedDate&#39;,
-    &#39;ESCDATE&#39;: &#39;escalatedDate&#39;,
-    &#39;CASEID&#39;: &#39;caseId&#39;,
-    &#39;CASENAME&#39;: &#39;caseName&#39;,
-    &#39;IOCNAME&#39;: &#39;iocName&#39;,
-    &#39;IOCID&#39;: &#39;iocId&#39;,
-    &#39;DESC&#39;: &#39;description&#39;,
-    &#39;NID&#39;: None,
-    &#39;ACTIONS&#39;: &#39;actions&#39;,
-    &#39;NE&#39;: None,
-    &#39;EVENTS&#39;: &#39;events&#39;,
-    &#39;DCHNG&#39;: None}
-    ```
+    This is used only when the private API is used to retreive Alarm infos.  
+    To change genuine (UPPERCASE) key names to more explicit ones matching public API names.  
+
     &#34;&#34;&#34; 
 
     def map_alarm_int_fields(self, alarm_details):
@@ -598,6 +563,11 @@ class Alarm(NitroDict):
         &#34;&#34;&#34;
         Gets the alarm parameters based on an ID.  
         Will still use private method if SIEM if v10.X because it&#39;s the only way to get the trigerring event ID.   
+
+        Arguments:  
+        - `use_priv`: (`bool`): Use the private API methods to retreive the INFO, will use it anyway with ESM v10.x.  
+        Will only load the details of the first triggering event.  
+
         &#34;&#34;&#34;
         if self.nitro.esm_v.startswith((&#39;10&#39;)) or use_priv:
             try:
@@ -612,10 +582,15 @@ class Alarm(NitroDict):
                 alarm = {k:(v if v else None if isinstance(v, str) else v) for k, v in alarm.items()}
         else:
             alarm = self.nitro.request(&#39;get_notification_detail&#39;, id=str(id))
-            # TODO cast empty string values to False, or at least the &#39;acknowledgedDate&#39; 
             # Replace empty strings by None
             alarm = {k:(v if v else None if isinstance(v, str) else v) for k, v in alarm.items()}
-        return alarm</code></pre>
+        return alarm
+
+    def get_id(self):
+        &#34;&#34;&#34;
+        Return the alarm ID.  
+        &#34;&#34;&#34;
+        return self.data[&#39;id&#39;][&#39;value&#39;]</code></pre>
 </details>
 </section>
 <section>
@@ -658,7 +633,7 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L13-L321" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L13-L320" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
@@ -928,7 +903,6 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 
                 filtered_alarms = [a for a in event_detailed if self._event_match(a)]
             else:
-                log.warning(&#39;Field based Event filters are ignored when `events_details is False`. You can use `events` keyword in alarms filters to match str representation.&#39;)
                 filtered_alarms=detailed_alarm_based_filtered
         else :
             filtered_alarms = alarm_based_filtered
@@ -944,7 +918,7 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
         for alarm_filter in self._alarm_filters :
             match=False
             try: value = str(alarm[alarm_filter[0]]) #Can only match strings
-            except KeyError: break
+            except KeyError: continue
             for filter_value in alarm_filter[1]:
                 if regex_match(filter_value.lower(), value.lower()):
                     match=True
@@ -961,7 +935,7 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
         for event_filter in self._event_filters :
             match=False
             try: value = str(alarm[&#39;events&#39;][0][event_filter[0]])
-            except KeyError: break
+            except KeyError: continue
             for filter_value in event_filter[1]:
                 if regex_match(filter_value.lower(), value.lower()) :
                     match=True
@@ -993,7 +967,7 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L64-L69" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L64-L69" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def filters(self):
@@ -1014,7 +988,7 @@ Alarms status filter</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L123-L126" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L123-L126" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def event_filters(self):
@@ -1045,7 +1019,7 @@ Max number of alarms per query</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L90-L121" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L90-L121" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_filter(self, afilter):
     &#34;&#34;&#34;
@@ -1096,7 +1070,7 @@ Max number of alarms per query</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L143-L159" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L143-L159" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_event_filter(self, afilter):
     &#34;&#34;&#34;
@@ -1125,7 +1099,7 @@ Max number of alarms per query</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L161-L166" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L161-L166" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
@@ -1172,7 +1146,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L168-L210" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L168-L210" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_data(self, pages=1, **kwargs):
     &#34;&#34;&#34;
@@ -1248,7 +1222,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L212-L287" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L212-L286" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def qry_load_data(self, workers=10,
     alarms_details=True, events_details=True,
@@ -1319,7 +1293,6 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 
             filtered_alarms = [a for a in event_detailed if self._event_match(a)]
         else:
-            log.warning(&#39;Field based Event filters are ignored when `events_details is False`. You can use `events` keyword in alarms filters to match str representation.&#39;)
             filtered_alarms=detailed_alarm_based_filtered
     else :
         filtered_alarms = alarm_based_filtered
@@ -1378,7 +1351,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 </li>
 <li><code>events</code> : The events that triggered the alarm
 </li>
-<li>And others&hellip; see <code><a title="msiempy.alarm.Alarm.ALARM_FIELDS_MAP" href="#msiempy.alarm.Alarm.ALARM_FIELDS_MAP">Alarm.ALARM_FIELDS_MAP</a></code>
+<li>And others&hellip;
 </li>
 </ul>
 <p>Arguments:</p>
@@ -1391,7 +1364,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L325-L585" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L322-L560" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Alarm(NitroDict):
     &#34;&#34;&#34;
@@ -1408,7 +1381,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
     - `acknowledgedUsername` : The user that acknowledged this triggered alarm  
     - `alarmName` : The name of the alarm that was triggered  
     - `events` : The events that triggered the alarm    
-    - And others... see `msiempy.alarm.Alarm.ALARM_FIELDS_MAP`  
+    - And others...   
     
     Arguments:
 
@@ -1507,14 +1480,15 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 
     def load_events(self, use_query=False, extra_fields=[]):
         &#34;&#34;&#34;
-        Retreive the genuine Event object from an Alarm.
-        Warning : This method will load the details of the first triggering event only.  
-
+        Retreive the complete trigerring Event objects from an Alarm.  
+        This methos is automatically called automatically bu default when calling `load_data()`.   
         Arguments:  
 
         - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2 or greater.    
         Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.  
         - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
+
+        .. Warning:: On SIEM v10.X This method will only load the details of the first triggering event.  
         &#34;&#34;&#34;
         if isinstance(self.data[&#39;events&#39;], str):
 
@@ -1569,42 +1543,9 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
                 &#39;DCHNG&#39;: None}
     &#34;&#34;&#34;
     List of all `Alarm` possible fields.  
-    This mapping is used to create new alarms and change genuine (UPPERCASE) key names to explicit ones.  
-    If the value is None, the original key name is kept, otherwise the UPPERCASE key won&#39;t work. 
-    ```
-    {&#39;EC&#39;: None,
-    &#39;SMRY&#39;: &#39;summary&#39;,
-    &#39;NAME&#39;: &#39;alarmName&#39;,
-    &#39;FILTERS&#39;: &#39;filters&#39;,
-    &#39;CTYPE&#39;: None,
-    &#39;QID&#39;: &#39;queryId&#39;,
-    &#39;ARM&#39;: &#39;alretRateMin&#39;,
-    &#39;ARC&#39;: &#39;alertRateCount&#39;,
-    &#39;PCTA&#39;: &#39;percentAbove&#39;,
-    &#39;PCTB&#39;: &#39;percentBelow&#39;,
-    &#39;OFFSETMIN&#39;: &#39;offsetMinutes&#39;,
-    &#39;TIMEF&#39;: &#39;maximumConditionTriggerFrequency&#39;,
-    &#39;XMIN&#39;: None,
-    &#39;USEW&#39;: &#39;useWatchlist&#39;,
-    &#39;MFLD&#39;: &#39;matchField&#39;,
-    &#39;MVAL&#39;: &#39;matchValue&#39;,
-    &#39;SVRTY&#39;: &#39;severity&#39;,
-    &#39;ASNID&#39;: &#39;assigneeId&#39;,
-    &#39;ASNNAME&#39;: &#39;assignee&#39;,
-    &#39;TRGDATE&#39;: &#39;triggeredDate&#39;,
-    &#39;ACKDATE&#39;: &#39;acknowledgedDate&#39;,
-    &#39;ESCDATE&#39;: &#39;escalatedDate&#39;,
-    &#39;CASEID&#39;: &#39;caseId&#39;,
-    &#39;CASENAME&#39;: &#39;caseName&#39;,
-    &#39;IOCNAME&#39;: &#39;iocName&#39;,
-    &#39;IOCID&#39;: &#39;iocId&#39;,
-    &#39;DESC&#39;: &#39;description&#39;,
-    &#39;NID&#39;: None,
-    &#39;ACTIONS&#39;: &#39;actions&#39;,
-    &#39;NE&#39;: None,
-    &#39;EVENTS&#39;: &#39;events&#39;,
-    &#39;DCHNG&#39;: None}
-    ```
+    This is used only when the private API is used to retreive Alarm infos.  
+    To change genuine (UPPERCASE) key names to more explicit ones matching public API names.  
+
     &#34;&#34;&#34; 
 
     def map_alarm_int_fields(self, alarm_details):
@@ -1636,6 +1577,11 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
         &#34;&#34;&#34;
         Gets the alarm parameters based on an ID.  
         Will still use private method if SIEM if v10.X because it&#39;s the only way to get the trigerring event ID.   
+
+        Arguments:  
+        - `use_priv`: (`bool`): Use the private API methods to retreive the INFO, will use it anyway with ESM v10.x.  
+        Will only load the details of the first triggering event.  
+
         &#34;&#34;&#34;
         if self.nitro.esm_v.startswith((&#39;10&#39;)) or use_priv:
             try:
@@ -1650,10 +1596,15 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
                 alarm = {k:(v if v else None if isinstance(v, str) else v) for k, v in alarm.items()}
         else:
             alarm = self.nitro.request(&#39;get_notification_detail&#39;, id=str(id))
-            # TODO cast empty string values to False, or at least the &#39;acknowledgedDate&#39; 
             # Replace empty strings by None
             alarm = {k:(v if v else None if isinstance(v, str) else v) for k, v in alarm.items()}
-        return alarm</code></pre>
+        return alarm
+
+    def get_id(self):
+        &#34;&#34;&#34;
+        Return the alarm ID.  
+        &#34;&#34;&#34;
+        return self.data[&#39;id&#39;][&#39;value&#39;]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1686,41 +1637,8 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <dt id="msiempy.alarm.Alarm.ALARM_FIELDS_MAP"><code class="name">var <span class="ident">ALARM_FIELDS_MAP</span></code></dt>
 <dd>
 <div class="desc"><p>List of all <code><a title="msiempy.alarm.Alarm" href="#msiempy.alarm.Alarm">Alarm</a></code> possible fields.<br>
-This mapping is used to create new alarms and change genuine (UPPERCASE) key names to explicit ones.<br>
-If the value is None, the original key name is kept, otherwise the UPPERCASE key won't work. </p>
-<pre><code>{'EC': None,
-'SMRY': 'summary',
-'NAME': 'alarmName',
-'FILTERS': 'filters',
-'CTYPE': None,
-'QID': 'queryId',
-'ARM': 'alretRateMin',
-'ARC': 'alertRateCount',
-'PCTA': 'percentAbove',
-'PCTB': 'percentBelow',
-'OFFSETMIN': 'offsetMinutes',
-'TIMEF': 'maximumConditionTriggerFrequency',
-'XMIN': None,
-'USEW': 'useWatchlist',
-'MFLD': 'matchField',
-'MVAL': 'matchValue',
-'SVRTY': 'severity',
-'ASNID': 'assigneeId',
-'ASNNAME': 'assignee',
-'TRGDATE': 'triggeredDate',
-'ACKDATE': 'acknowledgedDate',
-'ESCDATE': 'escalatedDate',
-'CASEID': 'caseId',
-'CASENAME': 'caseName',
-'IOCNAME': 'iocName',
-'IOCID': 'iocId',
-'DESC': 'description',
-'NID': None,
-'ACTIONS': 'actions',
-'NE': None,
-'EVENTS': 'events',
-'DCHNG': None}
-</code></pre></div>
+This is used only when the private API is used to retreive Alarm infos.<br>
+To change genuine (UPPERCASE) key names to more explicit ones matching public API names.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -1733,7 +1651,7 @@ If the value is None, the original key name is kept, otherwise the UPPERCASE key
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L392-L398" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L389-L395" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def acknowledge(self):
     &#34;&#34;&#34;Mark the alarm as acknowledged.
@@ -1752,7 +1670,7 @@ If the value is None, the original key name is kept, otherwise the UPPERCASE key
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L400-L406" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L397-L403" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def unacknowledge(self):
     &#34;&#34;&#34;Mark the alarm as unacknowledge.
@@ -1772,7 +1690,7 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L409-L416" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L406-L413" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def delete(self):
     &#34;&#34;&#34;Destructive action!
@@ -1792,7 +1710,7 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L418-L421" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L415-L418" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def ceate_case(self):
     &#34;&#34;&#34;Not implemented : TODO
@@ -1808,7 +1726,7 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L423-L430" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L420-L427" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
@@ -1828,7 +1746,7 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L432-L435" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L429-L432" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self):
     &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.  
@@ -1840,33 +1758,37 @@ Delete the alarm.</p></div>
 <span>def <span class="ident">load_events</span></span>(<span>self, use_query=False, extra_fields=[])</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Retreive the genuine Event object from an Alarm.
-Warning : This method will load the details of the first triggering event only.
-</p>
-<p>Arguments:
+<div class="desc"><p>Retreive the complete trigerring Event objects from an Alarm.<br>
+This methos is automatically called automatically bu default when calling <code>load_data()</code>. <br>
+Arguments:
 </p>
 <ul>
 <li><code>use_query</code> : Uses the query module to retreive common event data. Only works with SIEM v 11.2 or greater.
 <br>
 Default behaviour will call <code>ipsGetAlertData</code> to retreive the complete event definition.
 </li>
-<li><code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code></li>
-</ul></div>
+<li><code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning:&ensp;On SIEM v10.X This method will only load the details of the first triggering event.</p>
+</div></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L437-L465" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L434-L463" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_events(self, use_query=False, extra_fields=[]):
     &#34;&#34;&#34;
-    Retreive the genuine Event object from an Alarm.
-    Warning : This method will load the details of the first triggering event only.  
-
+    Retreive the complete trigerring Event objects from an Alarm.  
+    This methos is automatically called automatically bu default when calling `load_data()`.   
     Arguments:  
 
     - `use_query` : Uses the query module to retreive common event data. Only works with SIEM v 11.2 or greater.    
     Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.  
     - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
+
+    .. Warning:: On SIEM v10.X This method will only load the details of the first triggering event.  
     &#34;&#34;&#34;
     if isinstance(self.data[&#39;events&#39;], str):
 
@@ -1897,7 +1819,7 @@ Converts "T" and "F" to <code>True</code> and <code>False</code> and handle None
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L539-L562" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L504-L527" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def map_alarm_int_fields(self, alarm_details):
     &#34;&#34;&#34;
@@ -1930,16 +1852,25 @@ Converts "T" and "F" to <code>True</code> and <code>False</code> and handle None
 </code></dt>
 <dd>
 <div class="desc"><p>Gets the alarm parameters based on an ID.<br>
-Will still use private method if SIEM if v10.X because it's the only way to get the trigerring event ID.</p></div>
+Will still use private method if SIEM if v10.X because it's the only way to get the trigerring event ID.
+</p>
+<p>Arguments:<br>
+- <code>use_priv</code>: (<code>bool</code>): Use the private API methods to retreive the INFO, will use it anyway with ESM v10.x.<br>
+Will only load the details of the first triggering event.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/alarm.py#L564-L585" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L529-L554" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id, use_priv=False):
     &#34;&#34;&#34;
     Gets the alarm parameters based on an ID.  
     Will still use private method if SIEM if v10.X because it&#39;s the only way to get the trigerring event ID.   
+
+    Arguments:  
+    - `use_priv`: (`bool`): Use the private API methods to retreive the INFO, will use it anyway with ESM v10.x.  
+    Will only load the details of the first triggering event.  
+
     &#34;&#34;&#34;
     if self.nitro.esm_v.startswith((&#39;10&#39;)) or use_priv:
         try:
@@ -1954,10 +1885,26 @@ Will still use private method if SIEM if v10.X because it's the only way to get 
             alarm = {k:(v if v else None if isinstance(v, str) else v) for k, v in alarm.items()}
     else:
         alarm = self.nitro.request(&#39;get_notification_detail&#39;, id=str(id))
-        # TODO cast empty string values to False, or at least the &#39;acknowledgedDate&#39; 
         # Replace empty strings by None
         alarm = {k:(v if v else None if isinstance(v, str) else v) for k, v in alarm.items()}
     return alarm</code></pre>
+</details>
+</dd>
+<dt id="msiempy.alarm.Alarm.get_id"><code class="name flex">
+<span>def <span class="ident">get_id</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the alarm ID.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/alarm.py#L556-L560" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def get_id(self):
+    &#34;&#34;&#34;
+    Return the alarm ID.  
+    &#34;&#34;&#34;
+    return self.data[&#39;id&#39;][&#39;value&#39;]</code></pre>
 </details>
 </dd>
 </dl>
@@ -2066,6 +2013,7 @@ setTimeout(() => input.focus(), 100);
 <li><code><a title="msiempy.alarm.Alarm.load_events" href="#msiempy.alarm.Alarm.load_events">load_events</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.map_alarm_int_fields" href="#msiempy.alarm.Alarm.map_alarm_int_fields">map_alarm_int_fields</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.data_from_id" href="#msiempy.alarm.Alarm.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.alarm.Alarm.get_id" href="#msiempy.alarm.Alarm.get_id">get_id</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS" href="#msiempy.alarm.Alarm.POSSIBLE_ALARM_STATUS">POSSIBLE_ALARM_STATUS</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS" href="#msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS">ALARM_EVENT_FILTER_FIELDS</a></code></li>
 <li><code><a title="msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS" href="#msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS">ALARM_DEFAULT_FIELDS</a></code></li>

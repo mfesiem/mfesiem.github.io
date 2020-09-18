@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L0-L1679" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L0-L1693" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Provide event management.   
 &#34;&#34;&#34;
@@ -416,10 +416,11 @@ class Event(NitroDict):
     &#34;&#34;&#34;
     Dict-Like object.   
 
-    Event interface, this object handles both events objects created with `msiempy.event.EventManager` (the SIEM `qryGetResults` api call) 
-        and events objects created with `msiempy.alarm.AlarmManager` (if `load_events_data=True` and `use_query=False` - defaults) (`ipsGetAlertData` api call) .  
+    Event interface.
+    This object handles events objects created with `msiempy.event.EventManager` (From the `qryGetResults` api call) 
+        and events objects created with `msiempy.alarm.AlarmManager` (From `ipsGetAlertData` api call or `notifyGetTriggeredNotificationDetail` depending of the value of `load_data(events_details=True/False)` ) .  
 
-    Common keys for alert data events :  
+    Common keys for alert data events (When loading from ID or with `AlarmManager.load_data(events_details=False)` :  
 
     - `ruleName`
     - `srcIp`
@@ -442,12 +443,23 @@ class Event(NitroDict):
     - `domain`
     - `ipsId`
 
-    Common keys for query events :  
+    Common keys for triggered alarms events (When `AlarmManager.load_data(events_details=False)`):  
+    - `ruleMessage`  
+    - `eventId`  
+    - `severity`  
+    - `eventCount`  
+    - `sourceIp`  
+    - `destIp`  
+    - `protocol`  
+    - `lastTime`  
+    - `eventSubType`  
+
+    Common keys for query events (When using `EventManager`):  
 
     - `Rule.msg`  
     - `Alert.LastTime`  
     - `Alert.IPSIDAlertID`  
-    - and others...  
+    - and any other...  
 
     You can request more fields by passing a list of fields to the `msiempy.event.EventManager` object. 
     `msiempy.event.Event.REGULAR_EVENT_FIELDS` offer a base list of regular fields that may be useful.
@@ -1163,11 +1175,11 @@ class Event(NitroDict):
     def get_id(self):
         &#34;&#34;&#34;
         Get the event ID.  
-        Try to return `e[&#39;Alert.IPSIDAlertID&#39;] ` or concatenate `e[&#39;ipsId&#39;][&#39;id&#39;]` and `e[&#39;alertId&#39;]` depending if Event is loaded from the SIEM `qryGetResults` api call or `ipsGetAlertData`
+        Try to return `e[&#39;Alert.IPSIDAlertID&#39;]` or e[&#39;eventId&#39;]` or concatenate `e[&#39;ipsId&#39;][&#39;id&#39;]` and `e[&#39;alertId&#39;]` depending of the Event dictionnary keys.  
         &#34;&#34;&#34;
         the_id = ( self.data[&#34;Alert.IPSIDAlertID&#34;] if ( &#34;Alert.IPSIDAlertID&#34; in self.data )
             else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if ( &#34;alertId&#34; in self.data )
-            else None )
+            else self.data[&#34;eventId&#34;] if ( &#34;eventId&#34; in self.data ) else None )
         if the_id:
             return the_id
         else:
@@ -1274,8 +1286,6 @@ class GroupFilter(_QueryFilter):
             &#34;filters&#34;: [dict(f) for f in filters],
             &#34;logic&#34;:logic
             }
-
-__pdoc__[&#39;FieldFilter.name&#39;]=&#34;Name of the field&#34;
 
 class FieldFilter(_QueryFilter):
     &#34;&#34;&#34;
@@ -1568,7 +1578,11 @@ class FieldFilter(_QueryFilter):
         
         self.operator = operator
         self.values = values
+
         self.name = name
+        &#34;&#34;&#34;
+        Name of the field
+        &#34;&#34;&#34;
 
         self.data={
             &#34;type&#34;: &#34;EsmFieldFilter&#34;,
@@ -1608,7 +1622,7 @@ class FieldFilter(_QueryFilter):
     @property
     def operator(self):
         &#34;&#34;&#34;Filter operator.  
-        Throws `AttributeError` if trying to set an unknown operator.
+        Throws `AttributeError` if trying to set an unknown operator.  
         &#34;&#34;&#34;
         return (self._operator)
     
@@ -1749,7 +1763,7 @@ Some default fields will be present. </li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L21-L380" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L21-L380" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class EventManager(FilteredQueryList):
     &#34;&#34;&#34;
@@ -2143,7 +2157,7 @@ Default value is <code>(DESCENDING, LastTime)</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L93-L99" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L93-L99" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def order(self):
@@ -2161,7 +2175,7 @@ See <code><a title="msiempy.core.query.FilteredQueryList.filters" href="core/que
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L116-L122" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L116-L122" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def filters(self):
@@ -2184,7 +2198,7 @@ Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L124-L136" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L124-L136" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_filter(self, afilter):
     &#34;&#34;&#34;
@@ -2210,7 +2224,7 @@ Acts like there is not filters.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L138-L148" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L138-L148" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
@@ -2247,7 +2261,7 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L151-L219" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L151-L219" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def qry_load_data(self, retry=1, wait_timeout_sec=120):
     &#34;&#34;&#34;
@@ -2352,7 +2366,7 @@ Only works for certain time ranges.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L221-L303" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L221-L303" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
     &#34;&#34;&#34;
@@ -2448,7 +2462,7 @@ The list is loaded from the SIEM.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L368-L373" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L368-L373" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_possible_fields(self):
     &#34;&#34;&#34;
@@ -2467,7 +2481,7 @@ The list is loaded from the SIEM.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L375-L380" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L375-L380" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_possible_filters(self):
     &#34;&#34;&#34;
@@ -2505,10 +2519,11 @@ The list is loaded from the SIEM.</p></div>
 <dd>
 <div class="desc"><p>Dict-Like object.
 </p>
-<p>Event interface, this object handles both events objects created with <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code> (the SIEM <code>qryGetResults</code> api call)
-and events objects created with <code><a title="msiempy.alarm.AlarmManager" href="alarm.html#msiempy.alarm.AlarmManager">AlarmManager</a></code> (if <code>load_events_data=True</code> and <code>use_query=False</code> - defaults) (<code>ipsGetAlertData</code> api call) .
+<p>Event interface.
+This object handles events objects created with <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code> (From the <code>qryGetResults</code> api call)
+and events objects created with <code><a title="msiempy.alarm.AlarmManager" href="alarm.html#msiempy.alarm.AlarmManager">AlarmManager</a></code> (From <code>ipsGetAlertData</code> api call or <code>notifyGetTriggeredNotificationDetail</code> depending of the value of <code>load_data(events_details=True/False)</code> ) .
 </p>
-<p>Common keys for alert data events :
+<p>Common keys for alert data events (When loading from ID or with <code>AlarmManager.load_data(events_details=False)</code> :
 </p>
 <ul>
 <li><code>ruleName</code></li>
@@ -2532,7 +2547,18 @@ and events objects created with <code><a title="msiempy.alarm.AlarmManager" href
 <li><code>domain</code></li>
 <li><code>ipsId</code></li>
 </ul>
-<p>Common keys for query events :
+<p>Common keys for triggered alarms events (When <code>AlarmManager.load_data(events_details=False)</code>):<br>
+- <code>ruleMessage</code><br>
+- <code>eventId</code><br>
+- <code>severity</code><br>
+- <code>eventCount</code><br>
+- <code>sourceIp</code><br>
+- <code>destIp</code><br>
+- <code>protocol</code><br>
+- <code>lastTime</code><br>
+- <code>eventSubType</code>
+</p>
+<p>Common keys for query events (When using <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code>):
 </p>
 <ul>
 <li><code>Rule.msg</code>
@@ -2541,7 +2567,7 @@ and events objects created with <code><a title="msiempy.alarm.AlarmManager" href
 </li>
 <li><code>Alert.IPSIDAlertID</code>
 </li>
-<li>and others&hellip;
+<li>and any other&hellip;
 </li>
 </ul>
 <p>You can request more fields by passing a list of fields to the <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code> object.
@@ -2567,16 +2593,17 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L382-L1218" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L382-L1230" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Event(NitroDict):
     &#34;&#34;&#34;
     Dict-Like object.   
 
-    Event interface, this object handles both events objects created with `msiempy.event.EventManager` (the SIEM `qryGetResults` api call) 
-        and events objects created with `msiempy.alarm.AlarmManager` (if `load_events_data=True` and `use_query=False` - defaults) (`ipsGetAlertData` api call) .  
+    Event interface.
+    This object handles events objects created with `msiempy.event.EventManager` (From the `qryGetResults` api call) 
+        and events objects created with `msiempy.alarm.AlarmManager` (From `ipsGetAlertData` api call or `notifyGetTriggeredNotificationDetail` depending of the value of `load_data(events_details=True/False)` ) .  
 
-    Common keys for alert data events :  
+    Common keys for alert data events (When loading from ID or with `AlarmManager.load_data(events_details=False)` :  
 
     - `ruleName`
     - `srcIp`
@@ -2599,12 +2626,23 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
     - `domain`
     - `ipsId`
 
-    Common keys for query events :  
+    Common keys for triggered alarms events (When `AlarmManager.load_data(events_details=False)`):  
+    - `ruleMessage`  
+    - `eventId`  
+    - `severity`  
+    - `eventCount`  
+    - `sourceIp`  
+    - `destIp`  
+    - `protocol`  
+    - `lastTime`  
+    - `eventSubType`  
+
+    Common keys for query events (When using `EventManager`):  
 
     - `Rule.msg`  
     - `Alert.LastTime`  
     - `Alert.IPSIDAlertID`  
-    - and others...  
+    - and any other...  
 
     You can request more fields by passing a list of fields to the `msiempy.event.EventManager` object. 
     `msiempy.event.Event.REGULAR_EVENT_FIELDS` offer a base list of regular fields that may be useful.
@@ -3320,11 +3358,11 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
     def get_id(self):
         &#34;&#34;&#34;
         Get the event ID.  
-        Try to return `e[&#39;Alert.IPSIDAlertID&#39;] ` or concatenate `e[&#39;ipsId&#39;][&#39;id&#39;]` and `e[&#39;alertId&#39;]` depending if Event is loaded from the SIEM `qryGetResults` api call or `ipsGetAlertData`
+        Try to return `e[&#39;Alert.IPSIDAlertID&#39;]` or e[&#39;eventId&#39;]` or concatenate `e[&#39;ipsId&#39;][&#39;id&#39;]` and `e[&#39;alertId&#39;]` depending of the Event dictionnary keys.  
         &#34;&#34;&#34;
         the_id = ( self.data[&#34;Alert.IPSIDAlertID&#34;] if ( &#34;Alert.IPSIDAlertID&#34; in self.data )
             else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if ( &#34;alertId&#34; in self.data )
-            else None )
+            else self.data[&#34;eventId&#34;] if ( &#34;eventId&#34; in self.data ) else None )
         if the_id:
             return the_id
         else:
@@ -3467,20 +3505,20 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
 </code></dt>
 <dd>
 <div class="desc"><p>Get the event ID.<br>
-Try to return <code>e['Alert.IPSIDAlertID']</code> or concatenate <code>e['ipsId']['id']</code> and <code>e['alertId']</code> depending if Event is loaded from the SIEM <code>qryGetResults</code> api call or <code>ipsGetAlertData</code></p></div>
+Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or concatenate </code>e['ipsId']['id']<code> and </code>e['alertId']` depending of the Event dictionnary keys.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L1130-L1141" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L1142-L1153" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_id(self):
     &#34;&#34;&#34;
     Get the event ID.  
-    Try to return `e[&#39;Alert.IPSIDAlertID&#39;] ` or concatenate `e[&#39;ipsId&#39;][&#39;id&#39;]` and `e[&#39;alertId&#39;]` depending if Event is loaded from the SIEM `qryGetResults` api call or `ipsGetAlertData`
+    Try to return `e[&#39;Alert.IPSIDAlertID&#39;]` or e[&#39;eventId&#39;]` or concatenate `e[&#39;ipsId&#39;][&#39;id&#39;]` and `e[&#39;alertId&#39;]` depending of the Event dictionnary keys.  
     &#34;&#34;&#34;
     the_id = ( self.data[&#34;Alert.IPSIDAlertID&#34;] if ( &#34;Alert.IPSIDAlertID&#34; in self.data )
         else str(self.data[&#39;ipsId&#39;][&#39;id&#39;])+&#39;|&#39;+str(self.data[&#34;alertId&#34;]) if ( &#34;alertId&#34; in self.data )
-        else None )
+        else self.data[&#34;eventId&#34;] if ( &#34;eventId&#34; in self.data ) else None )
     if the_id:
         return the_id
     else:
@@ -3495,7 +3533,7 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or concatenate <code>e['ipsId
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L1143-L1147" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L1155-L1159" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_notes(self):
     &#34;&#34;&#34;
@@ -3512,7 +3550,7 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or concatenate <code>e['ipsId
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L1149-L1172" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L1161-L1184" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def set_note(self, note, no_date=False):
     &#34;&#34;&#34;
@@ -3560,7 +3598,7 @@ Default behaviour will call <code>ipsGetAlertData</code> to retreive the complet
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L1174-L1208" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L1186-L1220" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id, use_query=False, extra_fields=[]):
     &#34;&#34;&#34;
@@ -3607,7 +3645,7 @@ Default behaviour will call <code>ipsGetAlertData</code> to retreive the complet
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L1210-L1218" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L1222-L1230" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self): 
     &#34;&#34;&#34;Re-load event&#39;s data&#34;&#34;&#34;
@@ -3650,7 +3688,7 @@ Used to dump groups of filters in the right format.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L1224-L1243" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L1236-L1255" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GroupFilter(_QueryFilter):
     &#34;&#34;&#34;
@@ -3726,7 +3764,7 @@ Exemple to filter by Signature ID.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L1247-L1680" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L1257-L1694" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FieldFilter(_QueryFilter):
     &#34;&#34;&#34;
@@ -4019,7 +4057,11 @@ Exemple to filter by Signature ID.
         
         self.operator = operator
         self.values = values
+
         self.name = name
+        &#34;&#34;&#34;
+        Name of the field
+        &#34;&#34;&#34;
 
         self.data={
             &#34;type&#34;: &#34;EsmFieldFilter&#34;,
@@ -4059,7 +4101,7 @@ Exemple to filter by Signature ID.
     @property
     def operator(self):
         &#34;&#34;&#34;Filter operator.  
-        Throws `AttributeError` if trying to set an unknown operator.
+        Throws `AttributeError` if trying to set an unknown operator.  
         &#34;&#34;&#34;
         return (self._operator)
     
@@ -4198,12 +4240,12 @@ Throws <code>AttributeError</code> if trying to set an unknown operator.</p></di
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L1575-L1580" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L1589-L1594" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def operator(self):
     &#34;&#34;&#34;Filter operator.  
-    Throws `AttributeError` if trying to set an unknown operator.
+    Throws `AttributeError` if trying to set an unknown operator.  
     &#34;&#34;&#34;
     return (self._operator)</code></pre>
 </details>
@@ -4222,7 +4264,7 @@ Setter iterate trough the list and call : </p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L1589-L1602" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L1603-L1616" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def values(self):
@@ -4239,6 +4281,10 @@ def values(self):
     &#34;&#34;&#34;
     return (self._values)</code></pre>
 </details>
+</dd>
+<dt id="msiempy.event.FieldFilter.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>Name of the field</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -4272,7 +4318,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L1627-L1674" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L1641-L1688" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_value(self, type=None, **kwargs):
     &#34;&#34;&#34;
@@ -4332,7 +4378,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/40bee1f5f7e58e7dd6446f2249249d1ac2f98773/msiempy/event.py#L1676-L1680" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/event.py#L1690-L1694" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_basic_value(self, value):
     &#34;&#34;&#34;
@@ -4449,6 +4495,7 @@ setTimeout(() => input.focus(), 100);
 <li><code><a title="msiempy.event.FieldFilter.add_basic_value" href="#msiempy.event.FieldFilter.add_basic_value">add_basic_value</a></code></li>
 <li><code><a title="msiempy.event.FieldFilter.operator" href="#msiempy.event.FieldFilter.operator">operator</a></code></li>
 <li><code><a title="msiempy.event.FieldFilter.values" href="#msiempy.event.FieldFilter.values">values</a></code></li>
+<li><code><a title="msiempy.event.FieldFilter.name" href="#msiempy.event.FieldFilter.name">name</a></code></li>
 <li><code><a title="msiempy.event.FieldFilter.DOCUMENTED_FILTERS" href="#msiempy.event.FieldFilter.DOCUMENTED_FILTERS">DOCUMENTED_FILTERS</a></code></li>
 <li><code><a title="msiempy.event.FieldFilter.POSSIBLE_OPERATORS" href="#msiempy.event.FieldFilter.POSSIBLE_OPERATORS">POSSIBLE_OPERATORS</a></code></li>
 <li><code><a title="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES" href="#msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES">POSSIBLE_VALUE_TYPES</a></code></li>

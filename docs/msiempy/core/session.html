@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/af4ad10a9dd23d20428982f08d69d6ab6d7d1719/msiempy/core/session.py#L0-L878" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L0-L883" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
 HTTP level interface to the ESM API.  
@@ -661,10 +661,15 @@ class NitroSession():
 
                     return result
 
-        #Hard errors, could retry
-        except requests.exceptions.Timeout as e:
-            log.error(e)
-            raise
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+            
+            if retry&gt;0 :
+                log.warning(&#39;An network error occured ({}), retrying api_request()&#39;.format(e))
+                time.sleep(1)
+                return self.api_request(method, data, http, callback, raw, secure, retry=retry-1)
+            else :
+                raise e
+
         except requests.exceptions.TooManyRedirects as e :
             log.error(e)
             raise
@@ -939,7 +944,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/af4ad10a9dd23d20428982f08d69d6ab6d7d1719/msiempy/core/session.py#L355-L852" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L355-L857" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class NitroSession():
     &#34;&#34;&#34;
@@ -1217,10 +1222,15 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
 
                     return result
 
-        #Hard errors, could retry
-        except requests.exceptions.Timeout as e:
-            log.error(e)
-            raise
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+            
+            if retry&gt;0 :
+                log.warning(&#39;An network error occured ({}), retrying api_request()&#39;.format(e))
+                time.sleep(1)
+                return self.api_request(method, data, http, callback, raw, secure, retry=retry-1)
+            else :
+                raise e
+
         except requests.exceptions.TooManyRedirects as e :
             log.error(e)
             raise
@@ -1469,7 +1479,7 @@ Throws <code><a title="msiempy.core.session.NitroError" href="#msiempy.core.sess
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/af4ad10a9dd23d20428982f08d69d6ab6d7d1719/msiempy/core/session.py#L439-L488" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L439-L488" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def login(self, retry=1):
     &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.  
@@ -1531,7 +1541,7 @@ Throws <code><a title="msiempy.core.session.NitroError" href="#msiempy.core.sess
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/af4ad10a9dd23d20428982f08d69d6ab6d7d1719/msiempy/core/session.py#L490-L500" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L490-L500" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def logout(self):
     &#34;&#34;&#34; 
@@ -1603,7 +1613,7 @@ for a in alarms:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/af4ad10a9dd23d20428982f08d69d6ab6d7d1719/msiempy/core/session.py#L502-L637" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L502-L642" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def api_request(self, method, data=None, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
     &#34;&#34;&#34;
@@ -1734,10 +1744,15 @@ for a in alarms:
 
                 return result
 
-    #Hard errors, could retry
-    except requests.exceptions.Timeout as e:
-        log.error(e)
-        raise
+    except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+        
+        if retry&gt;0 :
+            log.warning(&#39;An network error occured ({}), retrying api_request()&#39;.format(e))
+            time.sleep(1)
+            return self.api_request(method, data, http, callback, raw, secure, retry=retry-1)
+        else :
+            raise e
+
     except requests.exceptions.TooManyRedirects as e :
         log.error(e)
         raise</code></pre>
@@ -1752,7 +1767,7 @@ Example: '10.0.2'</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/af4ad10a9dd23d20428982f08d69d6ab6d7d1719/msiempy/core/session.py#L643-L648" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L648-L653" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def version(self):
     &#34;&#34;&#34;
@@ -1771,7 +1786,7 @@ Example: '10.0.2 20170516001031'</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/af4ad10a9dd23d20428982f08d69d6ab6d7d1719/msiempy/core/session.py#L650-L655" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L655-L660" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def buildstamp(self):
     &#34;&#34;&#34;
@@ -1794,7 +1809,7 @@ Example: '10.0.2 20170516001031'</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/af4ad10a9dd23d20428982f08d69d6ab6d7d1719/msiempy/core/session.py#L657-L686" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L662-L691" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_internal_file(self, file_token):
     &#34;&#34;&#34;Uses the private API to retrieve, assemble and delete a temp file from the ESM.
@@ -1950,7 +1965,7 @@ request('build_stamp', ) # Call essmgtGetBuildStamp
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/af4ad10a9dd23d20428982f08d69d6ab6d7d1719/msiempy/core/session.py#L688-L757" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L693-L762" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def request(self, request, **kwargs):
     &#34;&#34;&#34;
@@ -2036,7 +2051,7 @@ It's used when the user/passwd is incorrect and other HTTP errors.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/af4ad10a9dd23d20428982f08d69d6ab6d7d1719/msiempy/core/session.py#L874-L879" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L879-L884" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class NitroError(Exception):
     &#34;&#34;&#34;

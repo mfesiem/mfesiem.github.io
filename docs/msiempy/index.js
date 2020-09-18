@@ -194,13 +194,13 @@ INDEX=[
 {
 "ref":"msiempy.event.Event.data_from_id",
 "url":1,
-"doc":"Load event's data. Arguments: -  id : The event ID. (i.e. :  144128388087414784|747122896 ) -  use_query : Uses the query module to retreive common event data. Only works with SIEM 11.2 or greater. Default behaviour will call  ipsGetAlertData to retreive the complete event definition. -  extra_fields : Only when  use_query=True . Additionnal event fields to load in the query.",
+"doc":"Load event's data. Arguments: -  id : The event ID. (i.e. :  144128388087414784|747122896 ) -  use_query ( bool ): Uses the query module to retreive common event data. Only works with SIEM 11.2 or greater. Default behaviour will call  ipsGetAlertData to retreive the complete event definition. -  extra_fields ( list ): Only when  use_query=True . Additionnal event fields to load in the query.",
 "func":1
 },
 {
 "ref":"msiempy.event.Event.refresh",
 "url":1,
-"doc":"Re-load event's data",
+"doc":"Re-load event's data. Arguments: -  use_query ( bool ): Force the use of the query module to retreive the event data. The default behaviour will use  EventManager query if an 'Alert.IPSIDAlertID' key is present in the event, else call  ipsGetAlertData to get the full details. -  extra_fields ( list ): Only when  use_query=True or the Event is already a query event. Additionnal event fields to load in the query.  Warning Enforce  use_query=True will reset the Events fields to whatever is passed to  extra_fields Raise  AttributeError if the event ID has not been found.",
 "func":1
 },
 {
@@ -1240,7 +1240,7 @@ INDEX=[
 {
 "ref":"msiempy.alarm.Alarm.load_events",
 "url":9,
-"doc":"Retreive the complete trigerring Event objects from an Alarm. This methos is automatically called automatically bu default when calling  load_data() . Arguments: -  use_query : Uses the query module to retreive common event data. Only works with SIEM v 11.2 or greater. Default behaviour will call  ipsGetAlertData to retreive the complete event definition. -  extra_fields : Only when  use_query=True . Additionnal event fields to load in the query. See :  msiempy.event.EventManager  Warning On SIEM v10.X This method will only load the details of the first triggering event.",
+"doc":"Retreive the complete trigerring Event(s) objects from an Alarm. This methos is automatically called automatically by default when calling  load_data() . Arguments: -  use_query : Uses the query module to retreive the event(s) data. Only works with SIEM v 11.2 or greater. Default behaviour will call  ipsGetAlertData to retreive the complete event definition. -  extra_fields : Only when  use_query=True . Additionnal event fields to load in the query. See :  msiempy.event.EventManager -  workers : The number of asynchronous workers.  Warning On SIEM v10.X This method will only load the details of the first triggering event.",
 "func":1
 },
 {

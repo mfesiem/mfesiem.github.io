@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L0-L1867" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L0-L1878" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Provide event management.   
 &#34;&#34;&#34;
@@ -426,6 +426,127 @@ class EventManager(QueryExecuteManager):
         The list is loaded from the SIEM.  
         &#34;&#34;&#34;
         return(self.nitro.request(&#39;get_possible_filters&#39;))
+
+class GroupedEventManager(QueryExecuteManager):
+    &#34;&#34;&#34;
+    List-Like object.  
+    Interface to execute grouped queries.    
+
+    Arguments:  
+    - `field` (`str`): The field that will be selected when this query is executed.  
+    - `filters` (`list`): list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` if you wish to use advanced filtering.  
+    - `time_range` (`str`): Query time range. String representation of a time range. Not need to specify &#39;CUSTOM&#39; if `start_time` and `end_time` are set.  
+    - `start_time` : Query start time, can be a `str` or a `datetime` object. Parsed with `dateutil`.  
+    - `end_time` : Query end time, can be a `str` or a `datetime` object. Parsed with `dateutil`.  
+    
+    &#34;&#34;&#34;
+
+    def __init__(self, *args, field=None, **kwargs):
+        # Calling super constructor : time_range set etc...
+        super().__init__(*args, **kwargs)
+        
+        # Declaring attributes
+        if field:
+            if not isinstance(field, str): 
+                raise TypeError(&#34;Argument field must be a string. Not {}&#34;.format(field))
+            self.field=self.get_field_nickname(field)
+        else:
+            self.field=None
+
+        #Type cast all items in the list &#34;data&#34; to events type objects
+        #Casting all data to Event objects, better way to do it ?
+        collections.UserList.__init__(self, [GroupedEvent(item) for item in self.data if isinstance(item, (dict, NitroDict))])
+
+    def load_data(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        Load the data into the list.  
+
+        Arguments:  
+
+        - `num_rows` (`int`): Maximum number of rows to load.  
+        - `retry` (`int`): number of time the query can be failed and retried.  
+        - `wait_timeout_sec` (`int`): wait timeout in seconds.  
+        
+        Returns `GroupedEventManager`  
+        &#34;&#34;&#34;
+        items, completed = self.qry_load_data(*args, **kwargs)
+        if not completed:
+            log.warning(&#34;The query is not complete... Try to increase the num_rows&#34;)
+        self.data=[GroupedEvent(item) for item in items ]
+        return self
+
+    def clear_filters(self):
+        &#34;&#34;&#34;
+        Replace all filters by a non filtering rule with all datasources IPSIDs (Using `msiempy.device.DevTree`).
+        Acts like there is no filters.  
+        &#34;&#34;&#34; 
+        log.info(&#34;Setting a generic filter to the grouped query with all datasources IPSIDs...&#34;)
+        tree = DevTree()
+        dsids=[d[&#39;ds_id&#39;] for d in tree]
+        self._filters=[{
+            &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+            &#34;field&#34;: {&#34;name&#34;: &#39;IPSID&#39;},
+            &#34;operator&#34;: &#39;IN&#39;,
+            &#34;values&#34;: [{&#39;type&#39;:&#39;EsmCompoundValue&#39;, &#39;values&#39;:dsids}]
+            }]
+
+    def qry_load_data(self, num_rows=500, retry=1, wait_timeout_sec=120):
+        &#34;&#34;&#34;
+        Helper method to execute the grouped query and load the data :  
+            -&gt; Submit the query  
+            -&gt; Wait the query to be executed  
+            -&gt; Get and parse the events  
+
+        Arguments:
+
+        - `num_rows` (`int`): Maximum number of rows to load.  
+        - `retry` (`int`): number of time the query can be failed and retried.  
+        - `wait_timeout_sec` (`int`): wait timeout in seconds.  
+
+        Returns : `tuple` : (( `list`, Query completed? `True/False` ))
+
+        Raises `msiempy.core.session.NitroError` if any unhandled errors.  
+        Raises `TimeoutError` if wait_timeout_sec counter gets to 0.  
+        &#34;&#34;&#34;
+        if not any( [f[&#39;field&#39;][&#39;name&#39;] == &#34;IPSID&#34; for f in self.filters ] ):
+            raise ValueError(&#34;An &#39;IPSID&#39; filter must be specified when issuing a grouped query.  &#34;)
+        try:
+            query_infos=dict()
+
+            #Queries api calls are very different if the time range is custom.
+            if self.time_range == &#39;CUSTOM&#39; :
+                query_infos=self.nitro.request(
+                    &#39;grouped_event_query_custom_time&#39;,
+                    time_range=self.time_range,
+                    start_time=self.start_time,
+                    end_time=self.end_time,
+                    field=self.field,
+                    filters=self.filters
+                    )
+
+            else :
+                query_infos=self.nitro.request(
+                    &#39;grouped_event_query&#39;,
+                    time_range=self.time_range,
+                    field=self.field,
+                    filters=self.filters,
+                    )
+            
+            log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
+        
+            self._wait_for(query_infos[&#39;resultID&#39;], wait_timeout_sec)
+            events_raw = self._get_events(query_infos[&#39;resultID&#39;], numRows=num_rows)
+            self._close_query(query_infos[&#39;resultID&#39;])
+
+        except (NitroError, TimeoutError) as error :
+            if retry &gt; 0:
+                log.warning(&#39;Retring qry_load_data() after error: &#39;+str(error))
+                time.sleep(1)
+                return self.qry_load_data(retry=retry-1)
+            else: raise
+
+        return(events_raw, len(events_raw)&lt;num_rows)
+
 
 class Event(NitroDict):
     &#34;&#34;&#34;
@@ -1298,7 +1419,33 @@ class Event(NitroDict):
         else:
             the_id = self.get_id()
             self.data.update(self.data_from_id(the_id))
-   
+
+
+class GroupedEvent(Event):
+    &#34;&#34;&#34;
+    Dict-Like object.  
+    Grouped event item, represents a row of grouped query results.  
+
+    Common keys:  
+    - The requested field  
+    - `COUNT(*)`: The number of event for the result row  
+    - `SUM(Alert.EventCount)`:  The sum of their `EventCount` attribute  
+
+    
+    The following `__getitem__` key mapping are added on top of `Event`&#39;s :  
+
+        &#34;Count&#34;:&#34;COUNT(*)&#34;, 
+        &#34;TotalEventCount&#34;:&#34;SUM(Alert.EventCount)&#34;
+
+    Meaning that you can use `e[&#39;TotalEventCount&#39;]`, it will return `e[&#39;SUM(Alert.EventCount)&#39;]`.  
+
+    Note: `GroupedEvent` is not suitable for `Event`s operations like `set_note()` or `refresh()` because there is no ID associated with events records.   
+
+    &#34;&#34;&#34;
+    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME=Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME
+    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[&#39;Count&#39;]=&#39;COUNT(*)&#39;
+    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[&#39;TotalEventCount&#39;]=&#39;SUM(Alert.EventCount)&#39;
+
 class _QueryFilter(collections.UserDict): 
     &#34;&#34;&#34;Base class for all SIEM query objects in order to dump the filter as dict.
     &#34;&#34;&#34;
@@ -1762,143 +1909,7 @@ class FieldFilter(_QueryFilter):
         &#34;&#34;&#34;
         Wrapper arround `add_value` method to simply add a `EsmBasicValue`.
         &#34;&#34;&#34;
-        self.add_value(type=&#39;EsmBasicValue&#39;, value=value)
-
-class GroupedEvent(Event):
-    &#34;&#34;&#34;
-    Grouped event item. Just like `Event` but with the following `__getitem__` key mapping added:  
-
-            {
-                &#34;Count&#34;:&#34;COUNT(*)&#34;, 
-                &#34;TotalEventCount&#34;:&#34;SUM(Alert.EventCount)&#34;
-            }
-
-    Meaning that you can use `e[&#39;TotalEventCount&#39;]`, it will return `e[&#39;SUM(Alert.EventCount)&#39;]`.  
-
-    &#34;&#34;&#34;
-    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME=Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME
-    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[&#39;Count&#39;]=&#39;COUNT(*)&#39;
-    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[&#39;TotalEventCount&#39;]=&#39;SUM(Alert.EventCount)&#39;
-
-class GroupedEventManager(QueryExecuteManager):
-    &#34;&#34;&#34;
-    List-Like object.  
-    Interface to execute grouped queries.    
-
-    Arguments:  
-    - `field` (`str`): The field that will be selected when this query is executed.  
-    - `filters` (`list`): list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` if you wish to use advanced filtering.
-    - `time_range` (`str`): Query time range. String representation of a time range. Not need to specify &#39;CUSTOM&#39; if `start_time` and `end_time` are set.  
-    - `start_time` : Query start time, can be a `str` or a `datetime` object. Parsed with `dateutil`.  
-    - `end_time` : Query end time, can be a `str` or a `datetime` object. Parsed with `dateutil`.  
-    
-    &#34;&#34;&#34;
-
-    def __init__(self, *args, field=None, **kwargs):
-        # Calling super constructor : time_range set etc...
-        super().__init__(*args, **kwargs)
-        
-        # Declaring attributes
-        if field:
-            if not isinstance(field, str): 
-                raise TypeError(&#34;Argument field must be a string. Not {}&#34;.format(field))
-            self.field=self.get_field_nickname(field)
-        else:
-            self.field=None
-
-        #Type cast all items in the list &#34;data&#34; to events type objects
-        #Casting all data to Event objects, better way to do it ?
-        collections.UserList.__init__(self, [GroupedEvent(item) for item in self.data if isinstance(item, (dict, NitroDict))])
-
-    def load_data(self, *args, **kwargs):
-        &#34;&#34;&#34;
-        Load the data into the list.  
-
-        Arguments:  
-
-        - `num_rows` (`int`): Maximum number of rows to load.  
-        - `retry` (`int`): number of time the query can be failed and retried.  
-        - `wait_timeout_sec` (`int`): wait timeout in seconds.  
-        
-        Returns `GroupedEventManager`  
-        &#34;&#34;&#34;
-        items, completed = self.qry_load_data(*args, **kwargs)
-        if not completed:
-            log.warning(&#34;The query is not complete... Try to increase the num_rows&#34;)
-        self.data=[GroupedEvent(item) for item in items ]
-        return self
-
-    def clear_filters(self):
-        &#34;&#34;&#34;
-        Replace all filters by a non filtering rule with all datasources IPSIDs (Using `msiempy.device.DevTree`).
-        Acts like there is no filters.  
-        &#34;&#34;&#34; 
-        log.info(&#34;Setting a generic filter to the grouped query with all datasources IPSIDs...&#34;)
-        tree = DevTree()
-        dsids=[d[&#39;ds_id&#39;] for d in tree]
-        self._filters=[{
-            &#34;type&#34;: &#34;EsmFieldFilter&#34;,
-            &#34;field&#34;: {&#34;name&#34;: &#39;IPSID&#39;},
-            &#34;operator&#34;: &#39;IN&#39;,
-            &#34;values&#34;: [{&#39;type&#39;:&#39;EsmCompoundValue&#39;, &#39;values&#39;:dsids}]
-            }]
-
-    def qry_load_data(self, num_rows=500, retry=1, wait_timeout_sec=120):
-        &#34;&#34;&#34;
-        Helper method to execute the grouped query and load the data :  
-            -&gt; Submit the query  
-            -&gt; Wait the query to be executed  
-            -&gt; Get and parse the events  
-
-        Arguments:
-
-        - `num_rows` (`int`): Maximum number of rows to load.  
-        - `retry` (`int`): number of time the query can be failed and retried.  
-        - `wait_timeout_sec` (`int`): wait timeout in seconds.  
-
-        Returns : `tuple` : (( `list`, Query completed? `True/False` ))
-
-        Raises `msiempy.core.session.NitroError` if any unhandled errors.  
-        Raises `TimeoutError` if wait_timeout_sec counter gets to 0.  
-        &#34;&#34;&#34;
-        if not any( [f[&#39;field&#39;][&#39;name&#39;] == &#34;IPSID&#34; for f in self.filters ] ):
-            raise ValueError(&#34;An &#39;IPSID&#39; filter must be specified when issuing a grouped query.  &#34;)
-        try:
-            query_infos=dict()
-
-            #Queries api calls are very different if the time range is custom.
-            if self.time_range == &#39;CUSTOM&#39; :
-                query_infos=self.nitro.request(
-                    &#39;grouped_event_query_custom_time&#39;,
-                    time_range=self.time_range,
-                    start_time=self.start_time,
-                    end_time=self.end_time,
-                    field=self.field,
-                    filters=self.filters
-                    )
-
-            else :
-                query_infos=self.nitro.request(
-                    &#39;grouped_event_query&#39;,
-                    time_range=self.time_range,
-                    field=self.field,
-                    filters=self.filters,
-                    )
-            
-            log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
-        
-            self._wait_for(query_infos[&#39;resultID&#39;], wait_timeout_sec)
-            events_raw = self._get_events(query_infos[&#39;resultID&#39;], numRows=num_rows)
-            self._close_query(query_infos[&#39;resultID&#39;])
-
-        except (NitroError, TimeoutError) as error :
-            if retry &gt; 0:
-                log.warning(&#39;Retring qry_load_data() after error: &#39;+str(error))
-                time.sleep(1)
-                return self.qry_load_data(retry=retry-1)
-            else: raise
-
-        return(events_raw, len(events_raw)&lt;num_rows)</code></pre>
+        self.add_value(type=&#39;EsmBasicValue&#39;, value=value)</code></pre>
 </details>
 </section>
 <section>
@@ -1921,7 +1932,7 @@ Only Events query are currently supported.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L19-L125" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L19-L125" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class QueryExecuteManager(FilteredQueryList):
     &#34;&#34;&#34;
@@ -2051,6 +2062,18 @@ Only Events query are currently supported.</p></div>
 <li><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></li>
 <li><a title="msiempy.event.GroupedEventManager" href="#msiempy.event.GroupedEventManager">GroupedEventManager</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.event.QueryExecuteManager.NitroJSONEncoder"><code class="name">var <span class="ident">NitroJSONEncoder</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.NitroJSONEncoder" href="core/types.html#msiempy.core.query.FilteredQueryList.NitroJSONEncoder">NitroJSONEncoder</a></code>
+</p>
+<div class="desc inherited"><p>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject.<br>
+TODO support json json dumping of QueryFilers, …</p></div>
+</dd>
+</dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="msiempy.event.QueryExecuteManager.get_field_nickname"><code class="name flex">
@@ -2062,7 +2085,7 @@ Returns the valid query field nickname if found else the initial value.</p></div
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L116-L125" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L116-L125" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@staticmethod
 def get_field_nickname(field):
@@ -2077,6 +2100,69 @@ def get_field_nickname(field):
 </details>
 </dd>
 </dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.event.QueryExecuteManager.time_range"><code class="name">var <span class="ident">time_range</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.time_range" href="core/query.html#msiempy.core.query.FilteredQueryList.time_range">time_range</a></code>
+</p>
+<div class="desc inherited"><p>Query time range. See <code><a title="msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="core/query.html#msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE">FilteredQueryList.POSSIBLE_TIME_RANGE</a></code>.
+Default to <code><a title="msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE" href="core/query.html#msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE">FilteredQueryList.DEFAULT_TIME_RANGE</a></code> …</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.start_time"><code class="name">var <span class="ident">start_time</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.start_time" href="core/query.html#msiempy.core.query.FilteredQueryList.start_time">start_time</a></code>
+</p>
+<div class="desc inherited"><p>Start time of the query in the right SIEM format.<br>
+Use <code>_start_time</code> to get the datetime object. You can set the <code>star_time</code> as a <code>str</code> or a …</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.end_time"><code class="name">var <span class="ident">end_time</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.end_time" href="core/query.html#msiempy.core.query.FilteredQueryList.end_time">end_time</a></code>
+</p>
+<div class="desc inherited"><p>End time of the query in the right SIEM format.<br>
+Use <code>_end_time</code> property to get the datetime object. You can set the <code>end_time</code> as a <code>str</code> or a …</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.filters" href="core/query.html#msiempy.core.query.FilteredQueryList.filters">filters</a></code>
+</p>
+<div class="desc inherited"><p>Filter property : Returns a list of filters.<br>
+Can be set with list of tuple(field, [values]), a <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or …</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.text" href="core/types.html#msiempy.core.query.FilteredQueryList.text">text</a></code>
+</p>
+<div class="desc inherited"><p>Defaut table string, a shorcut to <code>get_text()</code> with no arguments.</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.json" href="core/types.html#msiempy.core.query.FilteredQueryList.json">json</a></code>
+</p>
+<div class="desc inherited"><p>JSON list of dicts representing the list.</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.nitro"><code class="name">var <span class="ident">nitro</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.nitro" href="core/types.html#msiempy.core.query.FilteredQueryList.nitro">nitro</a></code>
+</p>
+<div class="desc inherited"><p><code><a title="msiempy.core.session.NitroSession" href="core/session.html#msiempy.core.session.NitroSession">NitroSession</a></code> object. Interface to the SIEM.</p></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="msiempy.event.QueryExecuteManager.add_filter"><code class="name flex">
@@ -2088,7 +2174,7 @@ Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L45-L57" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L45-L57" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_filter(self, afilter):
     &#34;&#34;&#34;
@@ -2105,30 +2191,93 @@ Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</
         raise TypeError(&#34;Sorry, filters must be either a tuple a GroupFilter, a FieldFilter or a dict. Not {}&#34;.format(afilter))</code></pre>
 </details>
 </dd>
+<dt id="msiempy.event.QueryExecuteManager.clear_filters"><code class="name flex">
+<span>def <span class="ident">clear_filters</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.clear_filters" href="core/query.html#msiempy.core.query.FilteredQueryList.clear_filters">clear_filters</a></code>
+</p>
+<div class="desc inherited"><p>Remove all filters to the query.<br>
+Abstract declaration.</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.qry_load_data"><code class="name flex">
+<span>def <span class="ident">qry_load_data</span></span>(<span>self, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.qry_load_data" href="core/query.html#msiempy.core.query.FilteredQueryList.qry_load_data">qry_load_data</a></code>
+</p>
+<div class="desc inherited"><p>Method to load the data from the SIEM.<br>
+Rturns a <code>tuple ((items, completed))</code>.<br>
+Abstract declaration.</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.load_data"><code class="name flex">
+<span>def <span class="ident">load_data</span></span>(<span>self, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.load_data" href="core/query.html#msiempy.core.query.FilteredQueryList.load_data">load_data</a></code>
+</p>
+<div class="desc inherited"><p>Load the data from the SIEM into the list.<br>
+Abstract declaration.</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.keys"><code class="name flex">
+<span>def <span class="ident">keys</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.keys" href="core/types.html#msiempy.core.query.FilteredQueryList.keys">keys</a></code>
+</p>
+<div class="desc inherited"><p>Set of keys for all dict</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.get_text"><code class="name flex">
+<span>def <span class="ident">get_text</span></span>(<span>self, format='prettytable', fields=None, max_column_width=80, get_text_nest_attr={})</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.get_text" href="core/types.html#msiempy.core.query.FilteredQueryList.get_text">get_text</a></code>
+</p>
+<div class="desc inherited"><p>Return a csv or table string representation of the list …</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.search"><code class="name flex">
+<span>def <span class="ident">search</span></span>(<span>self, invert=False, match_prop='json', *pattern)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.search" href="core/types.html#msiempy.core.query.FilteredQueryList.search">search</a></code>
+</p>
+<div class="desc inherited"><p>Return a list of elements that matches one or more regex patterns.
+Patterns are applied one after another
+Use <code>|</code> inside patterns to search with logic …</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.refresh" href="core/types.html#msiempy.core.query.FilteredQueryList.refresh">refresh</a></code>
+</p>
+<div class="desc inherited"><p>Execute refresh function on all items.</p></div>
+</dd>
+<dt id="msiempy.event.QueryExecuteManager.perform"><code class="name flex">
+<span>def <span class="ident">perform</span></span>(<span>self, func, data=None, func_args=None, confirm=False, asynch=False, workers=None, progress=False, message=None)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.<code><a title="msiempy.core.query.FilteredQueryList.perform" href="core/types.html#msiempy.core.query.FilteredQueryList.perform">perform</a></code>
+</p>
+<div class="desc inherited"><p>Wrapper arround executable and the a list of elements, typically <code><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></code> object …</p></div>
+</dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.core.query.FilteredQueryList.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.clear_filters" href="core/query.html#msiempy.core.query.FilteredQueryList.clear_filters">clear_filters</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.end_time" href="core/query.html#msiempy.core.query.FilteredQueryList.end_time">end_time</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.filters" href="core/query.html#msiempy.core.query.FilteredQueryList.filters">filters</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.get_text" href="core/types.html#msiempy.core.types.NitroList.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.json" href="core/types.html#msiempy.core.types.NitroList.json">json</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.keys" href="core/types.html#msiempy.core.types.NitroList.keys">keys</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.load_data" href="core/query.html#msiempy.core.query.FilteredQueryList.load_data">load_data</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.perform" href="core/types.html#msiempy.core.types.NitroList.perform">perform</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.qry_load_data" href="core/query.html#msiempy.core.query.FilteredQueryList.qry_load_data">qry_load_data</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.refresh" href="core/types.html#msiempy.core.types.NitroList.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.search" href="core/types.html#msiempy.core.types.NitroList.search">search</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.start_time" href="core/query.html#msiempy.core.query.FilteredQueryList.start_time">start_time</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.text" href="core/types.html#msiempy.core.types.NitroList.text">text</a></code></li>
-<li><code><a title="msiempy.core.query.FilteredQueryList.time_range" href="core/query.html#msiempy.core.query.FilteredQueryList.time_range">time_range</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 <dt id="msiempy.event.EventManager"><code class="flex name class">
 <span>class <span class="ident">EventManager</span></span>
@@ -2156,7 +2305,7 @@ Some default fields will be present. </li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L127-L395" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L127-L395" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class EventManager(QueryExecuteManager):
     &#34;&#34;&#34;
@@ -2450,6 +2599,29 @@ Some default fields will be present. </li>
 <dd>
 <div class="desc"><p><code>ASCENDING</code> or <code>DESCENDING</code></p></div>
 </dd>
+<dt id="msiempy.event.EventManager.NitroJSONEncoder"><code class="name">var <span class="ident">NitroJSONEncoder</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.NitroJSONEncoder" href="core/types.html#msiempy.event.QueryExecuteManager.NitroJSONEncoder">NitroJSONEncoder</a></code>
+</p>
+<div class="desc inherited"><p>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject.<br>
+TODO support json json dumping of QueryFilers, …</p></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="msiempy.event.EventManager.get_field_nickname"><code class="name flex">
+<span>def <span class="ident">get_field_nickname</span></span>(<span>field)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.get_field_nickname" href="#msiempy.event.QueryExecuteManager.get_field_nickname">get_field_nickname</a></code>
+</p>
+<div class="desc inherited"><p>Resolve SIEM events field nickname base on <code><a title="msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME" href="#msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME">Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</a></code> mapping.<br>
+Returns the valid query field nickname if …</p></div>
+</dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
@@ -2460,7 +2632,7 @@ Default value is <code>(DESCENDING, LastTime)</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L184-L190" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L184-L190" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def order(self):
@@ -2470,6 +2642,66 @@ def order(self):
     &#34;&#34;&#34;
     return((self._order_direction, self._order_field))</code></pre>
 </details>
+</dd>
+<dt id="msiempy.event.EventManager.time_range"><code class="name">var <span class="ident">time_range</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.time_range" href="core/query.html#msiempy.event.QueryExecuteManager.time_range">time_range</a></code>
+</p>
+<div class="desc inherited"><p>Query time range. See <code><a title="msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="core/query.html#msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE">FilteredQueryList.POSSIBLE_TIME_RANGE</a></code>.
+Default to <code><a title="msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE" href="core/query.html#msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE">FilteredQueryList.DEFAULT_TIME_RANGE</a></code> …</p></div>
+</dd>
+<dt id="msiempy.event.EventManager.start_time"><code class="name">var <span class="ident">start_time</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.start_time" href="core/query.html#msiempy.event.QueryExecuteManager.start_time">start_time</a></code>
+</p>
+<div class="desc inherited"><p>Start time of the query in the right SIEM format.<br>
+Use <code>_start_time</code> to get the datetime object. You can set the <code>star_time</code> as a <code>str</code> or a …</p></div>
+</dd>
+<dt id="msiempy.event.EventManager.end_time"><code class="name">var <span class="ident">end_time</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.end_time" href="core/query.html#msiempy.event.QueryExecuteManager.end_time">end_time</a></code>
+</p>
+<div class="desc inherited"><p>End time of the query in the right SIEM format.<br>
+Use <code>_end_time</code> property to get the datetime object. You can set the <code>end_time</code> as a <code>str</code> or a …</p></div>
+</dd>
+<dt id="msiempy.event.EventManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.filters" href="core/query.html#msiempy.event.QueryExecuteManager.filters">filters</a></code>
+</p>
+<div class="desc inherited"><p>Filter property : Returns a list of filters.<br>
+Can be set with list of tuple(field, [values]), a <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or …</p></div>
+</dd>
+<dt id="msiempy.event.EventManager.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.text" href="core/types.html#msiempy.event.QueryExecuteManager.text">text</a></code>
+</p>
+<div class="desc inherited"><p>Defaut table string, a shorcut to <code>get_text()</code> with no arguments.</p></div>
+</dd>
+<dt id="msiempy.event.EventManager.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.json" href="core/types.html#msiempy.event.QueryExecuteManager.json">json</a></code>
+</p>
+<div class="desc inherited"><p>JSON list of dicts representing the list.</p></div>
+</dd>
+<dt id="msiempy.event.EventManager.nitro"><code class="name">var <span class="ident">nitro</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.nitro" href="core/types.html#msiempy.event.QueryExecuteManager.nitro">nitro</a></code>
+</p>
+<div class="desc inherited"><p><code><a title="msiempy.core.session.NitroSession" href="core/session.html#msiempy.core.session.NitroSession">NitroSession</a></code> object. Interface to the SIEM.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -2483,7 +2715,7 @@ Acts like there is not filters.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L207-L217" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L207-L217" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
@@ -2519,7 +2751,7 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L219-L287" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L219-L287" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def qry_load_data(self, retry=1, wait_timeout_sec=120):
     &#34;&#34;&#34;
@@ -2624,7 +2856,7 @@ Only works for certain time ranges.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L289-L371" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L289-L371" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
     &#34;&#34;&#34;
@@ -2720,7 +2952,7 @@ The list is loaded from the SIEM.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L383-L388" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L383-L388" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_possible_fields(self):
     &#34;&#34;&#34;
@@ -2739,7 +2971,7 @@ The list is loaded from the SIEM.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L390-L395" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L390-L395" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_possible_filters(self):
     &#34;&#34;&#34;
@@ -2749,29 +2981,533 @@ The list is loaded from the SIEM.</p></div>
     return(self.nitro.request(&#39;get_possible_filters&#39;))</code></pre>
 </details>
 </dd>
+<dt id="msiempy.event.EventManager.add_filter"><code class="name flex">
+<span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.add_filter" href="#msiempy.event.QueryExecuteManager.add_filter">add_filter</a></code>
+</p>
+<div class="desc inherited"><p>Add a filter to the query.<br>
+Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</code> or <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> or …</p></div>
+</dd>
+<dt id="msiempy.event.EventManager.keys"><code class="name flex">
+<span>def <span class="ident">keys</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.keys" href="core/types.html#msiempy.event.QueryExecuteManager.keys">keys</a></code>
+</p>
+<div class="desc inherited"><p>Set of keys for all dict</p></div>
+</dd>
+<dt id="msiempy.event.EventManager.get_text"><code class="name flex">
+<span>def <span class="ident">get_text</span></span>(<span>self, format='prettytable', fields=None, max_column_width=80, get_text_nest_attr={})</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.get_text" href="core/types.html#msiempy.event.QueryExecuteManager.get_text">get_text</a></code>
+</p>
+<div class="desc inherited"><p>Return a csv or table string representation of the list …</p></div>
+</dd>
+<dt id="msiempy.event.EventManager.search"><code class="name flex">
+<span>def <span class="ident">search</span></span>(<span>self, invert=False, match_prop='json', *pattern)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.search" href="core/types.html#msiempy.event.QueryExecuteManager.search">search</a></code>
+</p>
+<div class="desc inherited"><p>Return a list of elements that matches one or more regex patterns.
+Patterns are applied one after another
+Use <code>|</code> inside patterns to search with logic …</p></div>
+</dd>
+<dt id="msiempy.event.EventManager.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.refresh" href="core/types.html#msiempy.event.QueryExecuteManager.refresh">refresh</a></code>
+</p>
+<div class="desc inherited"><p>Execute refresh function on all items.</p></div>
+</dd>
+<dt id="msiempy.event.EventManager.perform"><code class="name flex">
+<span>def <span class="ident">perform</span></span>(<span>self, func, data=None, func_args=None, confirm=False, asynch=False, workers=None, progress=False, message=None)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.perform" href="core/types.html#msiempy.event.QueryExecuteManager.perform">perform</a></code>
+</p>
+<div class="desc inherited"><p>Wrapper arround executable and the a list of elements, typically <code><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></code> object …</p></div>
+</dd>
 </dl>
-<h3>Inherited members</h3>
+</dd>
+<dt id="msiempy.event.GroupedEventManager"><code class="flex name class">
+<span>class <span class="ident">GroupedEventManager</span></span>
+<span>(</span><span>*args, field=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>List-Like object.<br>
+Interface to execute grouped queries.
+</p>
+<p>Arguments:<br>
+- <code>field</code> (<code>str</code>): The field that will be selected when this query is executed.<br>
+- <code>filters</code> (<code>list</code>): list of filters. A filter can be a <code>tuple(field, [values])</code> or it can be a <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> if you wish to use advanced filtering.<br>
+- <code>time_range</code> (<code>str</code>): Query time range. String representation of a time range. Not need to specify 'CUSTOM' if <code>start_time</code> and <code>end_time</code> are set.<br>
+- <code>start_time</code> : Query start time, can be a <code>str</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.<br>
+- <code>end_time</code> : Query end time, can be a <code>str</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L397-L515" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class GroupedEventManager(QueryExecuteManager):
+    &#34;&#34;&#34;
+    List-Like object.  
+    Interface to execute grouped queries.    
+
+    Arguments:  
+    - `field` (`str`): The field that will be selected when this query is executed.  
+    - `filters` (`list`): list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` if you wish to use advanced filtering.  
+    - `time_range` (`str`): Query time range. String representation of a time range. Not need to specify &#39;CUSTOM&#39; if `start_time` and `end_time` are set.  
+    - `start_time` : Query start time, can be a `str` or a `datetime` object. Parsed with `dateutil`.  
+    - `end_time` : Query end time, can be a `str` or a `datetime` object. Parsed with `dateutil`.  
+    
+    &#34;&#34;&#34;
+
+    def __init__(self, *args, field=None, **kwargs):
+        # Calling super constructor : time_range set etc...
+        super().__init__(*args, **kwargs)
+        
+        # Declaring attributes
+        if field:
+            if not isinstance(field, str): 
+                raise TypeError(&#34;Argument field must be a string. Not {}&#34;.format(field))
+            self.field=self.get_field_nickname(field)
+        else:
+            self.field=None
+
+        #Type cast all items in the list &#34;data&#34; to events type objects
+        #Casting all data to Event objects, better way to do it ?
+        collections.UserList.__init__(self, [GroupedEvent(item) for item in self.data if isinstance(item, (dict, NitroDict))])
+
+    def load_data(self, *args, **kwargs):
+        &#34;&#34;&#34;
+        Load the data into the list.  
+
+        Arguments:  
+
+        - `num_rows` (`int`): Maximum number of rows to load.  
+        - `retry` (`int`): number of time the query can be failed and retried.  
+        - `wait_timeout_sec` (`int`): wait timeout in seconds.  
+        
+        Returns `GroupedEventManager`  
+        &#34;&#34;&#34;
+        items, completed = self.qry_load_data(*args, **kwargs)
+        if not completed:
+            log.warning(&#34;The query is not complete... Try to increase the num_rows&#34;)
+        self.data=[GroupedEvent(item) for item in items ]
+        return self
+
+    def clear_filters(self):
+        &#34;&#34;&#34;
+        Replace all filters by a non filtering rule with all datasources IPSIDs (Using `msiempy.device.DevTree`).
+        Acts like there is no filters.  
+        &#34;&#34;&#34; 
+        log.info(&#34;Setting a generic filter to the grouped query with all datasources IPSIDs...&#34;)
+        tree = DevTree()
+        dsids=[d[&#39;ds_id&#39;] for d in tree]
+        self._filters=[{
+            &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+            &#34;field&#34;: {&#34;name&#34;: &#39;IPSID&#39;},
+            &#34;operator&#34;: &#39;IN&#39;,
+            &#34;values&#34;: [{&#39;type&#39;:&#39;EsmCompoundValue&#39;, &#39;values&#39;:dsids}]
+            }]
+
+    def qry_load_data(self, num_rows=500, retry=1, wait_timeout_sec=120):
+        &#34;&#34;&#34;
+        Helper method to execute the grouped query and load the data :  
+            -&gt; Submit the query  
+            -&gt; Wait the query to be executed  
+            -&gt; Get and parse the events  
+
+        Arguments:
+
+        - `num_rows` (`int`): Maximum number of rows to load.  
+        - `retry` (`int`): number of time the query can be failed and retried.  
+        - `wait_timeout_sec` (`int`): wait timeout in seconds.  
+
+        Returns : `tuple` : (( `list`, Query completed? `True/False` ))
+
+        Raises `msiempy.core.session.NitroError` if any unhandled errors.  
+        Raises `TimeoutError` if wait_timeout_sec counter gets to 0.  
+        &#34;&#34;&#34;
+        if not any( [f[&#39;field&#39;][&#39;name&#39;] == &#34;IPSID&#34; for f in self.filters ] ):
+            raise ValueError(&#34;An &#39;IPSID&#39; filter must be specified when issuing a grouped query.  &#34;)
+        try:
+            query_infos=dict()
+
+            #Queries api calls are very different if the time range is custom.
+            if self.time_range == &#39;CUSTOM&#39; :
+                query_infos=self.nitro.request(
+                    &#39;grouped_event_query_custom_time&#39;,
+                    time_range=self.time_range,
+                    start_time=self.start_time,
+                    end_time=self.end_time,
+                    field=self.field,
+                    filters=self.filters
+                    )
+
+            else :
+                query_infos=self.nitro.request(
+                    &#39;grouped_event_query&#39;,
+                    time_range=self.time_range,
+                    field=self.field,
+                    filters=self.filters,
+                    )
+            
+            log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
+        
+            self._wait_for(query_infos[&#39;resultID&#39;], wait_timeout_sec)
+            events_raw = self._get_events(query_infos[&#39;resultID&#39;], numRows=num_rows)
+            self._close_query(query_infos[&#39;resultID&#39;])
+
+        except (NitroError, TimeoutError) as error :
+            if retry &gt; 0:
+                log.warning(&#39;Retring qry_load_data() after error: &#39;+str(error))
+                time.sleep(1)
+                return self.qry_load_data(retry=retry-1)
+            else: raise
+
+        return(events_raw, len(events_raw)&lt;num_rows)</code></pre>
+</details>
+<h3>Ancestors</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.event.QueryExecuteManager.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.add_filter" href="#msiempy.event.QueryExecuteManager.add_filter">add_filter</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.end_time" href="core/query.html#msiempy.core.query.FilteredQueryList.end_time">end_time</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.filters" href="core/query.html#msiempy.core.query.FilteredQueryList.filters">filters</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.get_field_nickname" href="#msiempy.event.QueryExecuteManager.get_field_nickname">get_field_nickname</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.get_text" href="core/types.html#msiempy.core.types.NitroList.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.json" href="core/types.html#msiempy.core.types.NitroList.json">json</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.keys" href="core/types.html#msiempy.core.types.NitroList.keys">keys</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.perform" href="core/types.html#msiempy.core.types.NitroList.perform">perform</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.refresh" href="core/types.html#msiempy.core.types.NitroList.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.search" href="core/types.html#msiempy.core.types.NitroList.search">search</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.start_time" href="core/query.html#msiempy.core.query.FilteredQueryList.start_time">start_time</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.text" href="core/types.html#msiempy.core.types.NitroList.text">text</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.time_range" href="core/query.html#msiempy.core.query.FilteredQueryList.time_range">time_range</a></code></li>
+<li><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></li>
+<li><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></li>
+<li><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></li>
+<li>collections.UserList</li>
+<li>collections.abc.MutableSequence</li>
+<li>collections.abc.Sequence</li>
+<li>collections.abc.Reversible</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.event.GroupedEventManager.NitroJSONEncoder"><code class="name">var <span class="ident">NitroJSONEncoder</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.NitroJSONEncoder" href="core/types.html#msiempy.event.QueryExecuteManager.NitroJSONEncoder">NitroJSONEncoder</a></code>
+</p>
+<div class="desc inherited"><p>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject.<br>
+TODO support json json dumping of QueryFilers, …</p></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="msiempy.event.GroupedEventManager.get_field_nickname"><code class="name flex">
+<span>def <span class="ident">get_field_nickname</span></span>(<span>field)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.get_field_nickname" href="#msiempy.event.QueryExecuteManager.get_field_nickname">get_field_nickname</a></code>
+</p>
+<div class="desc inherited"><p>Resolve SIEM events field nickname base on <code><a title="msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME" href="#msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME">Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</a></code> mapping.<br>
+Returns the valid query field nickname if …</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.event.GroupedEventManager.time_range"><code class="name">var <span class="ident">time_range</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.time_range" href="core/query.html#msiempy.event.QueryExecuteManager.time_range">time_range</a></code>
+</p>
+<div class="desc inherited"><p>Query time range. See <code><a title="msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="core/query.html#msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE">FilteredQueryList.POSSIBLE_TIME_RANGE</a></code>.
+Default to <code><a title="msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE" href="core/query.html#msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE">FilteredQueryList.DEFAULT_TIME_RANGE</a></code> …</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.start_time"><code class="name">var <span class="ident">start_time</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.start_time" href="core/query.html#msiempy.event.QueryExecuteManager.start_time">start_time</a></code>
+</p>
+<div class="desc inherited"><p>Start time of the query in the right SIEM format.<br>
+Use <code>_start_time</code> to get the datetime object. You can set the <code>star_time</code> as a <code>str</code> or a …</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.end_time"><code class="name">var <span class="ident">end_time</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.end_time" href="core/query.html#msiempy.event.QueryExecuteManager.end_time">end_time</a></code>
+</p>
+<div class="desc inherited"><p>End time of the query in the right SIEM format.<br>
+Use <code>_end_time</code> property to get the datetime object. You can set the <code>end_time</code> as a <code>str</code> or a …</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.filters" href="core/query.html#msiempy.event.QueryExecuteManager.filters">filters</a></code>
+</p>
+<div class="desc inherited"><p>Filter property : Returns a list of filters.<br>
+Can be set with list of tuple(field, [values]), a <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or …</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.text" href="core/types.html#msiempy.event.QueryExecuteManager.text">text</a></code>
+</p>
+<div class="desc inherited"><p>Defaut table string, a shorcut to <code>get_text()</code> with no arguments.</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.json" href="core/types.html#msiempy.event.QueryExecuteManager.json">json</a></code>
+</p>
+<div class="desc inherited"><p>JSON list of dicts representing the list.</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.nitro"><code class="name">var <span class="ident">nitro</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.nitro" href="core/types.html#msiempy.event.QueryExecuteManager.nitro">nitro</a></code>
+</p>
+<div class="desc inherited"><p><code><a title="msiempy.core.session.NitroSession" href="core/session.html#msiempy.core.session.NitroSession">NitroSession</a></code> object. Interface to the SIEM.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.event.GroupedEventManager.load_data"><code class="name flex">
+<span>def <span class="ident">load_data</span></span>(<span>self, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load the data into the list.
+</p>
+<p>Arguments:
+</p>
+<ul>
+<li><code>num_rows</code> (<code>int</code>): Maximum number of rows to load.
+</li>
+<li><code>retry</code> (<code>int</code>): number of time the query can be failed and retried.
+</li>
+<li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds.
 </li>
 </ul>
+<p>Returns <code><a title="msiempy.event.GroupedEventManager" href="#msiempy.event.GroupedEventManager">GroupedEventManager</a></code></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L427-L443" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def load_data(self, *args, **kwargs):
+    &#34;&#34;&#34;
+    Load the data into the list.  
+
+    Arguments:  
+
+    - `num_rows` (`int`): Maximum number of rows to load.  
+    - `retry` (`int`): number of time the query can be failed and retried.  
+    - `wait_timeout_sec` (`int`): wait timeout in seconds.  
+    
+    Returns `GroupedEventManager`  
+    &#34;&#34;&#34;
+    items, completed = self.qry_load_data(*args, **kwargs)
+    if not completed:
+        log.warning(&#34;The query is not complete... Try to increase the num_rows&#34;)
+    self.data=[GroupedEvent(item) for item in items ]
+    return self</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.clear_filters"><code class="name flex">
+<span>def <span class="ident">clear_filters</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Replace all filters by a non filtering rule with all datasources IPSIDs (Using <code><a title="msiempy.device.DevTree" href="device.html#msiempy.device.DevTree">DevTree</a></code>).
+Acts like there is no filters.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L445-L458" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def clear_filters(self):
+    &#34;&#34;&#34;
+    Replace all filters by a non filtering rule with all datasources IPSIDs (Using `msiempy.device.DevTree`).
+    Acts like there is no filters.  
+    &#34;&#34;&#34; 
+    log.info(&#34;Setting a generic filter to the grouped query with all datasources IPSIDs...&#34;)
+    tree = DevTree()
+    dsids=[d[&#39;ds_id&#39;] for d in tree]
+    self._filters=[{
+        &#34;type&#34;: &#34;EsmFieldFilter&#34;,
+        &#34;field&#34;: {&#34;name&#34;: &#39;IPSID&#39;},
+        &#34;operator&#34;: &#39;IN&#39;,
+        &#34;values&#34;: [{&#39;type&#39;:&#39;EsmCompoundValue&#39;, &#39;values&#39;:dsids}]
+        }]</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.qry_load_data"><code class="name flex">
+<span>def <span class="ident">qry_load_data</span></span>(<span>self, num_rows=500, retry=1, wait_timeout_sec=120)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper method to execute the grouped query and load the data :<br>
+-&gt; Submit the query<br>
+-&gt; Wait the query to be executed<br>
+-&gt; Get and parse the events
+</p>
+<p>Arguments:</p>
+<ul>
+<li><code>num_rows</code> (<code>int</code>): Maximum number of rows to load.
+</li>
+<li><code>retry</code> (<code>int</code>): number of time the query can be failed and retried.
+</li>
+<li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds.
+</li>
+</ul>
+<p>Returns : <code>tuple</code> : (( <code>list</code>, Query completed? <code>True/False</code> ))</p>
+<p>Raises <code><a title="msiempy.core.session.NitroError" href="core/session.html#msiempy.core.session.NitroError">NitroError</a></code> if any unhandled errors.<br>
+Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L460-L515" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def qry_load_data(self, num_rows=500, retry=1, wait_timeout_sec=120):
+    &#34;&#34;&#34;
+    Helper method to execute the grouped query and load the data :  
+        -&gt; Submit the query  
+        -&gt; Wait the query to be executed  
+        -&gt; Get and parse the events  
+
+    Arguments:
+
+    - `num_rows` (`int`): Maximum number of rows to load.  
+    - `retry` (`int`): number of time the query can be failed and retried.  
+    - `wait_timeout_sec` (`int`): wait timeout in seconds.  
+
+    Returns : `tuple` : (( `list`, Query completed? `True/False` ))
+
+    Raises `msiempy.core.session.NitroError` if any unhandled errors.  
+    Raises `TimeoutError` if wait_timeout_sec counter gets to 0.  
+    &#34;&#34;&#34;
+    if not any( [f[&#39;field&#39;][&#39;name&#39;] == &#34;IPSID&#34; for f in self.filters ] ):
+        raise ValueError(&#34;An &#39;IPSID&#39; filter must be specified when issuing a grouped query.  &#34;)
+    try:
+        query_infos=dict()
+
+        #Queries api calls are very different if the time range is custom.
+        if self.time_range == &#39;CUSTOM&#39; :
+            query_infos=self.nitro.request(
+                &#39;grouped_event_query_custom_time&#39;,
+                time_range=self.time_range,
+                start_time=self.start_time,
+                end_time=self.end_time,
+                field=self.field,
+                filters=self.filters
+                )
+
+        else :
+            query_infos=self.nitro.request(
+                &#39;grouped_event_query&#39;,
+                time_range=self.time_range,
+                field=self.field,
+                filters=self.filters,
+                )
+        
+        log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
+    
+        self._wait_for(query_infos[&#39;resultID&#39;], wait_timeout_sec)
+        events_raw = self._get_events(query_infos[&#39;resultID&#39;], numRows=num_rows)
+        self._close_query(query_infos[&#39;resultID&#39;])
+
+    except (NitroError, TimeoutError) as error :
+        if retry &gt; 0:
+            log.warning(&#39;Retring qry_load_data() after error: &#39;+str(error))
+            time.sleep(1)
+            return self.qry_load_data(retry=retry-1)
+        else: raise
+
+    return(events_raw, len(events_raw)&lt;num_rows)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.add_filter"><code class="name flex">
+<span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.add_filter" href="#msiempy.event.QueryExecuteManager.add_filter">add_filter</a></code>
+</p>
+<div class="desc inherited"><p>Add a filter to the query.<br>
+Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</code> or <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> or …</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.keys"><code class="name flex">
+<span>def <span class="ident">keys</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.keys" href="core/types.html#msiempy.event.QueryExecuteManager.keys">keys</a></code>
+</p>
+<div class="desc inherited"><p>Set of keys for all dict</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.get_text"><code class="name flex">
+<span>def <span class="ident">get_text</span></span>(<span>self, format='prettytable', fields=None, max_column_width=80, get_text_nest_attr={})</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.get_text" href="core/types.html#msiempy.event.QueryExecuteManager.get_text">get_text</a></code>
+</p>
+<div class="desc inherited"><p>Return a csv or table string representation of the list …</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.search"><code class="name flex">
+<span>def <span class="ident">search</span></span>(<span>self, invert=False, match_prop='json', *pattern)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.search" href="core/types.html#msiempy.event.QueryExecuteManager.search">search</a></code>
+</p>
+<div class="desc inherited"><p>Return a list of elements that matches one or more regex patterns.
+Patterns are applied one after another
+Use <code>|</code> inside patterns to search with logic …</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.refresh" href="core/types.html#msiempy.event.QueryExecuteManager.refresh">refresh</a></code>
+</p>
+<div class="desc inherited"><p>Execute refresh function on all items.</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEventManager.perform"><code class="name flex">
+<span>def <span class="ident">perform</span></span>(<span>self, func, data=None, func_args=None, confirm=False, asynch=False, workers=None, progress=False, message=None)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code>.<code><a title="msiempy.event.QueryExecuteManager.perform" href="core/types.html#msiempy.event.QueryExecuteManager.perform">perform</a></code>
+</p>
+<div class="desc inherited"><p>Wrapper arround executable and the a list of elements, typically <code><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></code> object …</p></div>
+</dd>
+</dl>
 </dd>
 <dt id="msiempy.event.Event"><code class="flex name class">
 <span>class <span class="ident">Event</span></span>
@@ -2865,7 +3601,7 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L397-L1267" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L518-L1388" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Event(NitroDict):
     &#34;&#34;&#34;
@@ -3795,6 +4531,42 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
 <dd>
 <div class="desc"><p>Fields name mapping (reversed).</p></div>
 </dd>
+<dt id="msiempy.event.Event.NitroJSONEncoder"><code class="name">var <span class="ident">NitroJSONEncoder</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></code>.<code><a title="msiempy.core.types.NitroDict.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroDict.NitroJSONEncoder">NitroJSONEncoder</a></code>
+</p>
+<div class="desc inherited"><p>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject.<br>
+TODO support json json dumping of QueryFilers, …</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.event.Event.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></code>.<code><a title="msiempy.core.types.NitroDict.json" href="core/types.html#msiempy.core.types.NitroDict.json">json</a></code>
+</p>
+<div class="desc inherited"><p>JSON representation of a item</p></div>
+</dd>
+<dt id="msiempy.event.Event.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></code>.<code><a title="msiempy.core.types.NitroDict.text" href="core/types.html#msiempy.core.types.NitroDict.text">text</a></code>
+</p>
+<div class="desc inherited"><p>Text list of item's values</p></div>
+</dd>
+<dt id="msiempy.event.Event.nitro"><code class="name">var <span class="ident">nitro</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></code>.<code><a title="msiempy.core.types.NitroDict.nitro" href="core/types.html#msiempy.core.types.NitroDict.nitro">nitro</a></code>
+</p>
+<div class="desc inherited"><p><code><a title="msiempy.core.session.NitroSession" href="core/session.html#msiempy.core.session.NitroSession">NitroSession</a></code> object. Interface to the SIEM.</p></div>
+</dd>
 </dl>
 <h3>Methods</h3>
 <dl>
@@ -3807,7 +4579,7 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or conc
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1158-L1169" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L1279-L1290" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_id(self):
     &#34;&#34;&#34;
@@ -3831,7 +4603,7 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or conc
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1171-L1175" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L1292-L1296" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_notes(self):
     &#34;&#34;&#34;
@@ -3848,7 +4620,7 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or conc
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1177-L1200" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L1298-L1321" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def set_note(self, note, no_date=False):
     &#34;&#34;&#34;
@@ -3896,7 +4668,7 @@ Default behaviour will call <code>ipsGetAlertData</code> to retreive the complet
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1202-L1236" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L1323-L1357" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id, use_query=False, extra_fields=[]):
     &#34;&#34;&#34;
@@ -3953,7 +4725,7 @@ else call <code>ipsGetAlertData</code> to get the full details.<br>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1238-L1267" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L1359-L1388" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self, use_query=None, extra_fields=None): 
     &#34;&#34;&#34;
@@ -3988,17 +4760,209 @@ else call <code>ipsGetAlertData</code> to get the full details.<br>
 </details>
 </dd>
 </dl>
-<h3>Inherited members</h3>
+</dd>
+<dt id="msiempy.event.GroupedEvent"><code class="flex name class">
+<span>class <span class="ident">GroupedEvent</span></span>
+<span>(</span><span>adict=None, id=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dict-Like object.<br>
+Grouped event item, represents a row of grouped query results.
+</p>
+<p>Common keys:<br>
+- The requested field<br>
+- <code>COUNT(*)</code>: The number of event for the result row<br>
+- <code>SUM(Alert.EventCount)</code>:
+The sum of their <code>EventCount</code> attribute
+</p>
+<p>The following <code>__getitem__</code> key mapping are added on top of <code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>'s :
+</p>
+<pre><code>"Count":"COUNT(*)", 
+"TotalEventCount":"SUM(Alert.EventCount)"
+</code></pre>
+<p>Meaning that you can use <code>e['TotalEventCount']</code>, it will return <code>e['SUM(Alert.EventCount)']</code>.
+</p>
+<p>Note: <code><a title="msiempy.event.GroupedEvent" href="#msiempy.event.GroupedEvent">GroupedEvent</a></code> is not suitable for <code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>s operations like <code>set_note()</code> or <code>refresh()</code> because there is no ID associated with events records.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L1391-L1414" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class GroupedEvent(Event):
+    &#34;&#34;&#34;
+    Dict-Like object.  
+    Grouped event item, represents a row of grouped query results.  
+
+    Common keys:  
+    - The requested field  
+    - `COUNT(*)`: The number of event for the result row  
+    - `SUM(Alert.EventCount)`:  The sum of their `EventCount` attribute  
+
+    
+    The following `__getitem__` key mapping are added on top of `Event`&#39;s :  
+
+        &#34;Count&#34;:&#34;COUNT(*)&#34;, 
+        &#34;TotalEventCount&#34;:&#34;SUM(Alert.EventCount)&#34;
+
+    Meaning that you can use `e[&#39;TotalEventCount&#39;]`, it will return `e[&#39;SUM(Alert.EventCount)&#39;]`.  
+
+    Note: `GroupedEvent` is not suitable for `Event`s operations like `set_note()` or `refresh()` because there is no ID associated with events records.   
+
+    &#34;&#34;&#34;
+    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME=Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME
+    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[&#39;Count&#39;]=&#39;COUNT(*)&#39;
+    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[&#39;TotalEventCount&#39;]=&#39;SUM(Alert.EventCount)&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
 <ul class="hlist">
-<li><code><b><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.core.types.NitroDict.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.core.types.NitroDict.json" href="core/types.html#msiempy.core.types.NitroDict.json">json</a></code></li>
-<li><code><a title="msiempy.core.types.NitroDict.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.core.types.NitroDict.text" href="core/types.html#msiempy.core.types.NitroDict.text">text</a></code></li>
+<li><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></li>
+<li><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></li>
+<li>collections.UserDict</li>
+<li>collections.abc.MutableMapping</li>
+<li>collections.abc.Mapping</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
+<li>abc.ABC</li>
 </ul>
-</li>
-</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.event.GroupedEvent.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME"><code class="name">var <span class="ident">SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME" href="#msiempy.event.Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME">SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME</a></code>
+</p>
+<div class="desc inherited"><p>Fields name mapping (reversed).</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEvent.FIELDS_TABLES"><code class="name">var <span class="ident">FIELDS_TABLES</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.FIELDS_TABLES" href="#msiempy.event.Event.FIELDS_TABLES">FIELDS_TABLES</a></code>
+</p>
+<div class="desc inherited"><p>List of internal fields table : <code>Rule</code>,<code>Alert</code>,etc.</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEvent.DEFAULTS_EVENT_FIELDS"><code class="name">var <span class="ident">DEFAULTS_EVENT_FIELDS</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.DEFAULTS_EVENT_FIELDS" href="#msiempy.event.Event.DEFAULTS_EVENT_FIELDS">DEFAULTS_EVENT_FIELDS</a></code>
+</p>
+<div class="desc inherited"><p>Always present when using <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code> querying :<br>
+<code>Rule.msg</code><br>
+<code>Alert.LastTime</code><br>
+<code>Alert.IPSIDAlertID</code></p></div>
+</dd>
+<dt id="msiempy.event.GroupedEvent.REGULAR_EVENT_FIELDS"><code class="name">var <span class="ident">REGULAR_EVENT_FIELDS</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS">REGULAR_EVENT_FIELDS</a></code>
+</p>
+<div class="desc inherited"><p>List of regular event fields …</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEvent.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME"><code class="name">var <span class="ident">SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME" href="#msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME">SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</a></code>
+</p>
+<div class="desc inherited"><p>Fields name mapping.</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEvent.NitroJSONEncoder"><code class="name">var <span class="ident">NitroJSONEncoder</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.NitroJSONEncoder" href="core/types.html#msiempy.event.Event.NitroJSONEncoder">NitroJSONEncoder</a></code>
+</p>
+<div class="desc inherited"><p>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject.<br>
+TODO support json json dumping of QueryFilers, …</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.event.GroupedEvent.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.json" href="core/types.html#msiempy.event.Event.json">json</a></code>
+</p>
+<div class="desc inherited"><p>JSON representation of a item</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEvent.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.text" href="core/types.html#msiempy.event.Event.text">text</a></code>
+</p>
+<div class="desc inherited"><p>Text list of item's values</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEvent.nitro"><code class="name">var <span class="ident">nitro</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.nitro" href="core/types.html#msiempy.event.Event.nitro">nitro</a></code>
+</p>
+<div class="desc inherited"><p><code><a title="msiempy.core.session.NitroSession" href="core/session.html#msiempy.core.session.NitroSession">NitroSession</a></code> object. Interface to the SIEM.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="msiempy.event.GroupedEvent.get_id"><code class="name flex">
+<span>def <span class="ident">get_id</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.get_id" href="#msiempy.event.Event.get_id">get_id</a></code>
+</p>
+<div class="desc inherited"><p>Get the event ID.<br>
+Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or concatenate </code>e['ipsId']['id']<code> and </code>e['alertId']` depending of the …</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEvent.clear_notes"><code class="name flex">
+<span>def <span class="ident">clear_notes</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.clear_notes" href="#msiempy.event.Event.clear_notes">clear_notes</a></code>
+</p>
+<div class="desc inherited"><p>Replace the notes by an empty string. Desctructive action.</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEvent.set_note"><code class="name flex">
+<span>def <span class="ident">set_note</span></span>(<span>self, note, no_date=False)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.set_note" href="#msiempy.event.Event.set_note">set_note</a></code>
+</p>
+<div class="desc inherited"><p>Set the event's note. Desctructive action.</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEvent.data_from_id"><code class="name flex">
+<span>def <span class="ident">data_from_id</span></span>(<span>self, id, use_query=False, extra_fields=[])</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.data_from_id" href="#msiempy.event.Event.data_from_id">data_from_id</a></code>
+</p>
+<div class="desc inherited"><p>Load event's data …</p></div>
+</dd>
+<dt id="msiempy.event.GroupedEvent.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self, use_query=None, extra_fields=None)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>.<code><a title="msiempy.event.Event.refresh" href="#msiempy.event.Event.refresh">refresh</a></code>
+</p>
+<div class="desc inherited"><p>Re-load event's data …</p></div>
+</dd>
+</dl>
 </dd>
 <dt id="msiempy.event.GroupFilter"><code class="flex name class">
 <span>class <span class="ident">GroupFilter</span></span>
@@ -4017,7 +4981,7 @@ Used to dump groups of filters in the right format.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1273-L1292" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L1420-L1439" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GroupFilter(_QueryFilter):
     &#34;&#34;&#34;
@@ -4093,7 +5057,7 @@ Exemple to filter by Signature ID.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1294-L1732" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L1441-L1879" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FieldFilter(_QueryFilter):
     &#34;&#34;&#34;
@@ -4570,7 +5534,7 @@ Throws <code>AttributeError</code> if trying to set an unknown operator.</p></di
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1627-L1632" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L1774-L1779" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def operator(self):
@@ -4594,7 +5558,7 @@ Setter iterate trough the list and call : </p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1641-L1654" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L1788-L1801" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def values(self):
@@ -4648,7 +5612,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1679-L1726" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L1826-L1873" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_value(self, type=None, **kwargs):
     &#34;&#34;&#34;
@@ -4708,7 +5672,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1728-L1732" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/event.py#L1875-L1879" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_basic_value(self, value):
     &#34;&#34;&#34;
@@ -4718,409 +5682,6 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 </details>
 </dd>
 </dl>
-</dd>
-<dt id="msiempy.event.GroupedEvent"><code class="flex name class">
-<span>class <span class="ident">GroupedEvent</span></span>
-<span>(</span><span>adict=None, id=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Grouped event item. Just like <code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code> but with the following <code>__getitem__</code> key mapping added:
-</p>
-<pre><code>    {
-        "Count":"COUNT(*)", 
-        "TotalEventCount":"SUM(Alert.EventCount)"
-    }
-</code></pre>
-<p>Meaning that you can use <code>e['TotalEventCount']</code>, it will return <code>e['SUM(Alert.EventCount)']</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1734-L1748" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">class GroupedEvent(Event):
-    &#34;&#34;&#34;
-    Grouped event item. Just like `Event` but with the following `__getitem__` key mapping added:  
-
-            {
-                &#34;Count&#34;:&#34;COUNT(*)&#34;, 
-                &#34;TotalEventCount&#34;:&#34;SUM(Alert.EventCount)&#34;
-            }
-
-    Meaning that you can use `e[&#39;TotalEventCount&#39;]`, it will return `e[&#39;SUM(Alert.EventCount)&#39;]`.  
-
-    &#34;&#34;&#34;
-    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME=Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME
-    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[&#39;Count&#39;]=&#39;COUNT(*)&#39;
-    SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME[&#39;TotalEventCount&#39;]=&#39;SUM(Alert.EventCount)&#39;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></li>
-<li><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></li>
-<li>collections.UserDict</li>
-<li>collections.abc.MutableMapping</li>
-<li>collections.abc.Mapping</li>
-<li>collections.abc.Collection</li>
-<li>collections.abc.Sized</li>
-<li>collections.abc.Iterable</li>
-<li>collections.abc.Container</li>
-<li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.event.Event.DEFAULTS_EVENT_FIELDS" href="#msiempy.event.Event.DEFAULTS_EVENT_FIELDS">DEFAULTS_EVENT_FIELDS</a></code></li>
-<li><code><a title="msiempy.event.Event.FIELDS_TABLES" href="#msiempy.event.Event.FIELDS_TABLES">FIELDS_TABLES</a></code></li>
-<li><code><a title="msiempy.event.Event.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS">REGULAR_EVENT_FIELDS</a></code></li>
-<li><code><a title="msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME" href="#msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME">SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</a></code></li>
-<li><code><a title="msiempy.event.Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME" href="#msiempy.event.Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME">SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME</a></code></li>
-<li><code><a title="msiempy.event.Event.clear_notes" href="#msiempy.event.Event.clear_notes">clear_notes</a></code></li>
-<li><code><a title="msiempy.event.Event.data_from_id" href="#msiempy.event.Event.data_from_id">data_from_id</a></code></li>
-<li><code><a title="msiempy.event.Event.get_id" href="#msiempy.event.Event.get_id">get_id</a></code></li>
-<li><code><a title="msiempy.event.Event.json" href="core/types.html#msiempy.core.types.NitroDict.json">json</a></code></li>
-<li><code><a title="msiempy.event.Event.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.event.Event.refresh" href="#msiempy.event.Event.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.event.Event.set_note" href="#msiempy.event.Event.set_note">set_note</a></code></li>
-<li><code><a title="msiempy.event.Event.text" href="core/types.html#msiempy.core.types.NitroDict.text">text</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="msiempy.event.GroupedEventManager"><code class="flex name class">
-<span>class <span class="ident">GroupedEventManager</span></span>
-<span>(</span><span>*args, field=None, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>List-Like object.<br>
-Interface to execute grouped queries.
-</p>
-<p>Arguments:<br>
-- <code>field</code> (<code>str</code>): The field that will be selected when this query is executed.<br>
-- <code>filters</code> (<code>list</code>): list of filters. A filter can be a <code>tuple(field, [values])</code> or it can be a <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> if you wish to use advanced filtering.
-- <code>time_range</code> (<code>str</code>): Query time range. String representation of a time range. Not need to specify 'CUSTOM' if <code>start_time</code> and <code>end_time</code> are set.<br>
-- <code>start_time</code> : Query start time, can be a <code>str</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.<br>
-- <code>end_time</code> : Query end time, can be a <code>str</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1750-L1868" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">class GroupedEventManager(QueryExecuteManager):
-    &#34;&#34;&#34;
-    List-Like object.  
-    Interface to execute grouped queries.    
-
-    Arguments:  
-    - `field` (`str`): The field that will be selected when this query is executed.  
-    - `filters` (`list`): list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` if you wish to use advanced filtering.
-    - `time_range` (`str`): Query time range. String representation of a time range. Not need to specify &#39;CUSTOM&#39; if `start_time` and `end_time` are set.  
-    - `start_time` : Query start time, can be a `str` or a `datetime` object. Parsed with `dateutil`.  
-    - `end_time` : Query end time, can be a `str` or a `datetime` object. Parsed with `dateutil`.  
-    
-    &#34;&#34;&#34;
-
-    def __init__(self, *args, field=None, **kwargs):
-        # Calling super constructor : time_range set etc...
-        super().__init__(*args, **kwargs)
-        
-        # Declaring attributes
-        if field:
-            if not isinstance(field, str): 
-                raise TypeError(&#34;Argument field must be a string. Not {}&#34;.format(field))
-            self.field=self.get_field_nickname(field)
-        else:
-            self.field=None
-
-        #Type cast all items in the list &#34;data&#34; to events type objects
-        #Casting all data to Event objects, better way to do it ?
-        collections.UserList.__init__(self, [GroupedEvent(item) for item in self.data if isinstance(item, (dict, NitroDict))])
-
-    def load_data(self, *args, **kwargs):
-        &#34;&#34;&#34;
-        Load the data into the list.  
-
-        Arguments:  
-
-        - `num_rows` (`int`): Maximum number of rows to load.  
-        - `retry` (`int`): number of time the query can be failed and retried.  
-        - `wait_timeout_sec` (`int`): wait timeout in seconds.  
-        
-        Returns `GroupedEventManager`  
-        &#34;&#34;&#34;
-        items, completed = self.qry_load_data(*args, **kwargs)
-        if not completed:
-            log.warning(&#34;The query is not complete... Try to increase the num_rows&#34;)
-        self.data=[GroupedEvent(item) for item in items ]
-        return self
-
-    def clear_filters(self):
-        &#34;&#34;&#34;
-        Replace all filters by a non filtering rule with all datasources IPSIDs (Using `msiempy.device.DevTree`).
-        Acts like there is no filters.  
-        &#34;&#34;&#34; 
-        log.info(&#34;Setting a generic filter to the grouped query with all datasources IPSIDs...&#34;)
-        tree = DevTree()
-        dsids=[d[&#39;ds_id&#39;] for d in tree]
-        self._filters=[{
-            &#34;type&#34;: &#34;EsmFieldFilter&#34;,
-            &#34;field&#34;: {&#34;name&#34;: &#39;IPSID&#39;},
-            &#34;operator&#34;: &#39;IN&#39;,
-            &#34;values&#34;: [{&#39;type&#39;:&#39;EsmCompoundValue&#39;, &#39;values&#39;:dsids}]
-            }]
-
-    def qry_load_data(self, num_rows=500, retry=1, wait_timeout_sec=120):
-        &#34;&#34;&#34;
-        Helper method to execute the grouped query and load the data :  
-            -&gt; Submit the query  
-            -&gt; Wait the query to be executed  
-            -&gt; Get and parse the events  
-
-        Arguments:
-
-        - `num_rows` (`int`): Maximum number of rows to load.  
-        - `retry` (`int`): number of time the query can be failed and retried.  
-        - `wait_timeout_sec` (`int`): wait timeout in seconds.  
-
-        Returns : `tuple` : (( `list`, Query completed? `True/False` ))
-
-        Raises `msiempy.core.session.NitroError` if any unhandled errors.  
-        Raises `TimeoutError` if wait_timeout_sec counter gets to 0.  
-        &#34;&#34;&#34;
-        if not any( [f[&#39;field&#39;][&#39;name&#39;] == &#34;IPSID&#34; for f in self.filters ] ):
-            raise ValueError(&#34;An &#39;IPSID&#39; filter must be specified when issuing a grouped query.  &#34;)
-        try:
-            query_infos=dict()
-
-            #Queries api calls are very different if the time range is custom.
-            if self.time_range == &#39;CUSTOM&#39; :
-                query_infos=self.nitro.request(
-                    &#39;grouped_event_query_custom_time&#39;,
-                    time_range=self.time_range,
-                    start_time=self.start_time,
-                    end_time=self.end_time,
-                    field=self.field,
-                    filters=self.filters
-                    )
-
-            else :
-                query_infos=self.nitro.request(
-                    &#39;grouped_event_query&#39;,
-                    time_range=self.time_range,
-                    field=self.field,
-                    filters=self.filters,
-                    )
-            
-            log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
-        
-            self._wait_for(query_infos[&#39;resultID&#39;], wait_timeout_sec)
-            events_raw = self._get_events(query_infos[&#39;resultID&#39;], numRows=num_rows)
-            self._close_query(query_infos[&#39;resultID&#39;])
-
-        except (NitroError, TimeoutError) as error :
-            if retry &gt; 0:
-                log.warning(&#39;Retring qry_load_data() after error: &#39;+str(error))
-                time.sleep(1)
-                return self.qry_load_data(retry=retry-1)
-            else: raise
-
-        return(events_raw, len(events_raw)&lt;num_rows)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></li>
-<li><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></li>
-<li><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></li>
-<li>collections.UserList</li>
-<li>collections.abc.MutableSequence</li>
-<li>collections.abc.Sequence</li>
-<li>collections.abc.Reversible</li>
-<li>collections.abc.Collection</li>
-<li>collections.abc.Sized</li>
-<li>collections.abc.Iterable</li>
-<li>collections.abc.Container</li>
-<li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="msiempy.event.GroupedEventManager.load_data"><code class="name flex">
-<span>def <span class="ident">load_data</span></span>(<span>self, *args, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Load the data into the list.
-</p>
-<p>Arguments:
-</p>
-<ul>
-<li><code>num_rows</code> (<code>int</code>): Maximum number of rows to load.
-</li>
-<li><code>retry</code> (<code>int</code>): number of time the query can be failed and retried.
-</li>
-<li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds.
-</li>
-</ul>
-<p>Returns <code><a title="msiempy.event.GroupedEventManager" href="#msiempy.event.GroupedEventManager">GroupedEventManager</a></code></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1780-L1796" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def load_data(self, *args, **kwargs):
-    &#34;&#34;&#34;
-    Load the data into the list.  
-
-    Arguments:  
-
-    - `num_rows` (`int`): Maximum number of rows to load.  
-    - `retry` (`int`): number of time the query can be failed and retried.  
-    - `wait_timeout_sec` (`int`): wait timeout in seconds.  
-    
-    Returns `GroupedEventManager`  
-    &#34;&#34;&#34;
-    items, completed = self.qry_load_data(*args, **kwargs)
-    if not completed:
-        log.warning(&#34;The query is not complete... Try to increase the num_rows&#34;)
-    self.data=[GroupedEvent(item) for item in items ]
-    return self</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.GroupedEventManager.clear_filters"><code class="name flex">
-<span>def <span class="ident">clear_filters</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Replace all filters by a non filtering rule with all datasources IPSIDs (Using <code><a title="msiempy.device.DevTree" href="device.html#msiempy.device.DevTree">DevTree</a></code>).
-Acts like there is no filters.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1798-L1811" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def clear_filters(self):
-    &#34;&#34;&#34;
-    Replace all filters by a non filtering rule with all datasources IPSIDs (Using `msiempy.device.DevTree`).
-    Acts like there is no filters.  
-    &#34;&#34;&#34; 
-    log.info(&#34;Setting a generic filter to the grouped query with all datasources IPSIDs...&#34;)
-    tree = DevTree()
-    dsids=[d[&#39;ds_id&#39;] for d in tree]
-    self._filters=[{
-        &#34;type&#34;: &#34;EsmFieldFilter&#34;,
-        &#34;field&#34;: {&#34;name&#34;: &#39;IPSID&#39;},
-        &#34;operator&#34;: &#39;IN&#39;,
-        &#34;values&#34;: [{&#39;type&#39;:&#39;EsmCompoundValue&#39;, &#39;values&#39;:dsids}]
-        }]</code></pre>
-</details>
-</dd>
-<dt id="msiempy.event.GroupedEventManager.qry_load_data"><code class="name flex">
-<span>def <span class="ident">qry_load_data</span></span>(<span>self, num_rows=500, retry=1, wait_timeout_sec=120)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Helper method to execute the grouped query and load the data :<br>
--&gt; Submit the query<br>
--&gt; Wait the query to be executed<br>
--&gt; Get and parse the events
-</p>
-<p>Arguments:</p>
-<ul>
-<li><code>num_rows</code> (<code>int</code>): Maximum number of rows to load.
-</li>
-<li><code>retry</code> (<code>int</code>): number of time the query can be failed and retried.
-</li>
-<li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds.
-</li>
-</ul>
-<p>Returns : <code>tuple</code> : (( <code>list</code>, Query completed? <code>True/False</code> ))</p>
-<p>Raises <code><a title="msiempy.core.session.NitroError" href="core/session.html#msiempy.core.session.NitroError">NitroError</a></code> if any unhandled errors.<br>
-Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/event.py#L1813-L1868" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def qry_load_data(self, num_rows=500, retry=1, wait_timeout_sec=120):
-    &#34;&#34;&#34;
-    Helper method to execute the grouped query and load the data :  
-        -&gt; Submit the query  
-        -&gt; Wait the query to be executed  
-        -&gt; Get and parse the events  
-
-    Arguments:
-
-    - `num_rows` (`int`): Maximum number of rows to load.  
-    - `retry` (`int`): number of time the query can be failed and retried.  
-    - `wait_timeout_sec` (`int`): wait timeout in seconds.  
-
-    Returns : `tuple` : (( `list`, Query completed? `True/False` ))
-
-    Raises `msiempy.core.session.NitroError` if any unhandled errors.  
-    Raises `TimeoutError` if wait_timeout_sec counter gets to 0.  
-    &#34;&#34;&#34;
-    if not any( [f[&#39;field&#39;][&#39;name&#39;] == &#34;IPSID&#34; for f in self.filters ] ):
-        raise ValueError(&#34;An &#39;IPSID&#39; filter must be specified when issuing a grouped query.  &#34;)
-    try:
-        query_infos=dict()
-
-        #Queries api calls are very different if the time range is custom.
-        if self.time_range == &#39;CUSTOM&#39; :
-            query_infos=self.nitro.request(
-                &#39;grouped_event_query_custom_time&#39;,
-                time_range=self.time_range,
-                start_time=self.start_time,
-                end_time=self.end_time,
-                field=self.field,
-                filters=self.filters
-                )
-
-        else :
-            query_infos=self.nitro.request(
-                &#39;grouped_event_query&#39;,
-                time_range=self.time_range,
-                field=self.field,
-                filters=self.filters,
-                )
-        
-        log.debug(&#34;Waiting for EsmRunningQuery object : &#34;+str(query_infos))
-    
-        self._wait_for(query_infos[&#39;resultID&#39;], wait_timeout_sec)
-        events_raw = self._get_events(query_infos[&#39;resultID&#39;], numRows=num_rows)
-        self._close_query(query_infos[&#39;resultID&#39;])
-
-    except (NitroError, TimeoutError) as error :
-        if retry &gt; 0:
-            log.warning(&#39;Retring qry_load_data() after error: &#39;+str(error))
-            time.sleep(1)
-            return self.qry_load_data(retry=retry-1)
-        else: raise
-
-    return(events_raw, len(events_raw)&lt;num_rows)</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.event.QueryExecuteManager.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.add_filter" href="#msiempy.event.QueryExecuteManager.add_filter">add_filter</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.end_time" href="core/query.html#msiempy.core.query.FilteredQueryList.end_time">end_time</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.filters" href="core/query.html#msiempy.core.query.FilteredQueryList.filters">filters</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.get_field_nickname" href="#msiempy.event.QueryExecuteManager.get_field_nickname">get_field_nickname</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.get_text" href="core/types.html#msiempy.core.types.NitroList.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.json" href="core/types.html#msiempy.core.types.NitroList.json">json</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.keys" href="core/types.html#msiempy.core.types.NitroList.keys">keys</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.perform" href="core/types.html#msiempy.core.types.NitroList.perform">perform</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.refresh" href="core/types.html#msiempy.core.types.NitroList.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.search" href="core/types.html#msiempy.core.types.NitroList.search">search</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.start_time" href="core/query.html#msiempy.core.query.FilteredQueryList.start_time">start_time</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.text" href="core/types.html#msiempy.core.types.NitroList.text">text</a></code></li>
-<li><code><a title="msiempy.event.QueryExecuteManager.time_range" href="core/query.html#msiempy.core.query.FilteredQueryList.time_range">time_range</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 </dl>
 </section>
@@ -5191,21 +5752,75 @@ setTimeout(() => input.focus(), 100);
 <ul>
 <li>
 <h4><code><a title="msiempy.event.QueryExecuteManager" href="#msiempy.event.QueryExecuteManager">QueryExecuteManager</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="msiempy.event.QueryExecuteManager.get_field_nickname" href="#msiempy.event.QueryExecuteManager.get_field_nickname">get_field_nickname</a></code></li>
 <li><code><a title="msiempy.event.QueryExecuteManager.add_filter" href="#msiempy.event.QueryExecuteManager.add_filter">add_filter</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.clear_filters" href="core/query.html#msiempy.event.QueryExecuteManager.clear_filters">clear_filters</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.qry_load_data" href="core/query.html#msiempy.event.QueryExecuteManager.qry_load_data">qry_load_data</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.load_data" href="core/query.html#msiempy.event.QueryExecuteManager.load_data">load_data</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.keys" href="core/types.html#msiempy.event.QueryExecuteManager.keys">keys</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.get_text" href="core/types.html#msiempy.event.QueryExecuteManager.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.search" href="core/types.html#msiempy.event.QueryExecuteManager.search">search</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.refresh" href="core/types.html#msiempy.event.QueryExecuteManager.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.perform" href="core/types.html#msiempy.event.QueryExecuteManager.perform">perform</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.time_range" href="core/query.html#msiempy.event.QueryExecuteManager.time_range">time_range</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.start_time" href="core/query.html#msiempy.event.QueryExecuteManager.start_time">start_time</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.end_time" href="core/query.html#msiempy.event.QueryExecuteManager.end_time">end_time</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.filters" href="core/query.html#msiempy.event.QueryExecuteManager.filters">filters</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.text" href="core/types.html#msiempy.event.QueryExecuteManager.text">text</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.json" href="core/types.html#msiempy.event.QueryExecuteManager.json">json</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.nitro" href="core/types.html#msiempy.event.QueryExecuteManager.nitro">nitro</a></code></li>
+<li><code><a title="msiempy.event.QueryExecuteManager.NitroJSONEncoder" href="core/types.html#msiempy.event.QueryExecuteManager.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code></h4>
 <ul class="">
+<li><code><a title="msiempy.event.EventManager.get_field_nickname" href="#msiempy.event.EventManager.get_field_nickname">get_field_nickname</a></code></li>
 <li><code><a title="msiempy.event.EventManager.clear_filters" href="#msiempy.event.EventManager.clear_filters">clear_filters</a></code></li>
 <li><code><a title="msiempy.event.EventManager.qry_load_data" href="#msiempy.event.EventManager.qry_load_data">qry_load_data</a></code></li>
 <li><code><a title="msiempy.event.EventManager.load_data" href="#msiempy.event.EventManager.load_data">load_data</a></code></li>
 <li><code><a title="msiempy.event.EventManager.get_possible_fields" href="#msiempy.event.EventManager.get_possible_fields">get_possible_fields</a></code></li>
 <li><code><a title="msiempy.event.EventManager.get_possible_filters" href="#msiempy.event.EventManager.get_possible_filters">get_possible_filters</a></code></li>
+<li><code><a title="msiempy.event.EventManager.add_filter" href="#msiempy.event.EventManager.add_filter">add_filter</a></code></li>
+<li><code><a title="msiempy.event.EventManager.keys" href="core/types.html#msiempy.event.EventManager.keys">keys</a></code></li>
+<li><code><a title="msiempy.event.EventManager.get_text" href="core/types.html#msiempy.event.EventManager.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.event.EventManager.search" href="core/types.html#msiempy.event.EventManager.search">search</a></code></li>
+<li><code><a title="msiempy.event.EventManager.refresh" href="core/types.html#msiempy.event.EventManager.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.event.EventManager.perform" href="core/types.html#msiempy.event.EventManager.perform">perform</a></code></li>
 <li><code><a title="msiempy.event.EventManager.order" href="#msiempy.event.EventManager.order">order</a></code></li>
+<li><code><a title="msiempy.event.EventManager.time_range" href="core/query.html#msiempy.event.EventManager.time_range">time_range</a></code></li>
+<li><code><a title="msiempy.event.EventManager.start_time" href="core/query.html#msiempy.event.EventManager.start_time">start_time</a></code></li>
+<li><code><a title="msiempy.event.EventManager.end_time" href="core/query.html#msiempy.event.EventManager.end_time">end_time</a></code></li>
+<li><code><a title="msiempy.event.EventManager.filters" href="core/query.html#msiempy.event.EventManager.filters">filters</a></code></li>
+<li><code><a title="msiempy.event.EventManager.text" href="core/types.html#msiempy.event.EventManager.text">text</a></code></li>
+<li><code><a title="msiempy.event.EventManager.json" href="core/types.html#msiempy.event.EventManager.json">json</a></code></li>
+<li><code><a title="msiempy.event.EventManager.nitro" href="core/types.html#msiempy.event.EventManager.nitro">nitro</a></code></li>
 <li><code><a title="msiempy.event.EventManager.POSSBILE_ROW_ORDER" href="#msiempy.event.EventManager.POSSBILE_ROW_ORDER">POSSBILE_ROW_ORDER</a></code></li>
+<li><code><a title="msiempy.event.EventManager.NitroJSONEncoder" href="core/types.html#msiempy.event.EventManager.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.event.GroupedEventManager" href="#msiempy.event.GroupedEventManager">GroupedEventManager</a></code></h4>
+<ul class="two-column">
+<li><code><a title="msiempy.event.GroupedEventManager.get_field_nickname" href="#msiempy.event.GroupedEventManager.get_field_nickname">get_field_nickname</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.load_data" href="#msiempy.event.GroupedEventManager.load_data">load_data</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.clear_filters" href="#msiempy.event.GroupedEventManager.clear_filters">clear_filters</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.qry_load_data" href="#msiempy.event.GroupedEventManager.qry_load_data">qry_load_data</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.add_filter" href="#msiempy.event.GroupedEventManager.add_filter">add_filter</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.keys" href="core/types.html#msiempy.event.GroupedEventManager.keys">keys</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.get_text" href="core/types.html#msiempy.event.GroupedEventManager.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.search" href="core/types.html#msiempy.event.GroupedEventManager.search">search</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.refresh" href="core/types.html#msiempy.event.GroupedEventManager.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.perform" href="core/types.html#msiempy.event.GroupedEventManager.perform">perform</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.time_range" href="core/query.html#msiempy.event.GroupedEventManager.time_range">time_range</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.start_time" href="core/query.html#msiempy.event.GroupedEventManager.start_time">start_time</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.end_time" href="core/query.html#msiempy.event.GroupedEventManager.end_time">end_time</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.filters" href="core/query.html#msiempy.event.GroupedEventManager.filters">filters</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.text" href="core/types.html#msiempy.event.GroupedEventManager.text">text</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.json" href="core/types.html#msiempy.event.GroupedEventManager.json">json</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.nitro" href="core/types.html#msiempy.event.GroupedEventManager.nitro">nitro</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.NitroJSONEncoder" href="core/types.html#msiempy.event.GroupedEventManager.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 </ul>
 </li>
 <li>
@@ -5216,11 +5831,34 @@ setTimeout(() => input.focus(), 100);
 <li><code><a title="msiempy.event.Event.set_note" href="#msiempy.event.Event.set_note">set_note</a></code></li>
 <li><code><a title="msiempy.event.Event.data_from_id" href="#msiempy.event.Event.data_from_id">data_from_id</a></code></li>
 <li><code><a title="msiempy.event.Event.refresh" href="#msiempy.event.Event.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.event.Event.json" href="core/types.html#msiempy.event.Event.json">json</a></code></li>
+<li><code><a title="msiempy.event.Event.text" href="core/types.html#msiempy.event.Event.text">text</a></code></li>
+<li><code><a title="msiempy.event.Event.nitro" href="core/types.html#msiempy.event.Event.nitro">nitro</a></code></li>
 <li><code><a title="msiempy.event.Event.FIELDS_TABLES" href="#msiempy.event.Event.FIELDS_TABLES">FIELDS_TABLES</a></code></li>
 <li><code><a title="msiempy.event.Event.DEFAULTS_EVENT_FIELDS" href="#msiempy.event.Event.DEFAULTS_EVENT_FIELDS">DEFAULTS_EVENT_FIELDS</a></code></li>
 <li><code><a title="msiempy.event.Event.REGULAR_EVENT_FIELDS" href="#msiempy.event.Event.REGULAR_EVENT_FIELDS">REGULAR_EVENT_FIELDS</a></code></li>
 <li><code><a title="msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME" href="#msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME">SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</a></code></li>
 <li><code><a title="msiempy.event.Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME" href="#msiempy.event.Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME">SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME</a></code></li>
+<li><code><a title="msiempy.event.Event.NitroJSONEncoder" href="core/types.html#msiempy.event.Event.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="msiempy.event.GroupedEvent" href="#msiempy.event.GroupedEvent">GroupedEvent</a></code></h4>
+<ul class="">
+<li><code><a title="msiempy.event.GroupedEvent.get_id" href="#msiempy.event.GroupedEvent.get_id">get_id</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.clear_notes" href="#msiempy.event.GroupedEvent.clear_notes">clear_notes</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.set_note" href="#msiempy.event.GroupedEvent.set_note">set_note</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.data_from_id" href="#msiempy.event.GroupedEvent.data_from_id">data_from_id</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.refresh" href="#msiempy.event.GroupedEvent.refresh">refresh</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.json" href="core/types.html#msiempy.event.GroupedEvent.json">json</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.text" href="core/types.html#msiempy.event.GroupedEvent.text">text</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.nitro" href="core/types.html#msiempy.event.GroupedEvent.nitro">nitro</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME" href="#msiempy.event.GroupedEvent.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME">SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.FIELDS_TABLES" href="#msiempy.event.GroupedEvent.FIELDS_TABLES">FIELDS_TABLES</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.DEFAULTS_EVENT_FIELDS" href="#msiempy.event.GroupedEvent.DEFAULTS_EVENT_FIELDS">DEFAULTS_EVENT_FIELDS</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.REGULAR_EVENT_FIELDS" href="#msiempy.event.GroupedEvent.REGULAR_EVENT_FIELDS">REGULAR_EVENT_FIELDS</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME" href="#msiempy.event.GroupedEvent.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME">SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</a></code></li>
+<li><code><a title="msiempy.event.GroupedEvent.NitroJSONEncoder" href="core/types.html#msiempy.event.GroupedEvent.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 </ul>
 </li>
 <li>
@@ -5237,17 +5875,6 @@ setTimeout(() => input.focus(), 100);
 <li><code><a title="msiempy.event.FieldFilter.DOCUMENTED_FILTERS" href="#msiempy.event.FieldFilter.DOCUMENTED_FILTERS">DOCUMENTED_FILTERS</a></code></li>
 <li><code><a title="msiempy.event.FieldFilter.POSSIBLE_OPERATORS" href="#msiempy.event.FieldFilter.POSSIBLE_OPERATORS">POSSIBLE_OPERATORS</a></code></li>
 <li><code><a title="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES" href="#msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES">POSSIBLE_VALUE_TYPES</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="msiempy.event.GroupedEvent" href="#msiempy.event.GroupedEvent">GroupedEvent</a></code></h4>
-</li>
-<li>
-<h4><code><a title="msiempy.event.GroupedEventManager" href="#msiempy.event.GroupedEventManager">GroupedEventManager</a></code></h4>
-<ul class="">
-<li><code><a title="msiempy.event.GroupedEventManager.load_data" href="#msiempy.event.GroupedEventManager.load_data">load_data</a></code></li>
-<li><code><a title="msiempy.event.GroupedEventManager.clear_filters" href="#msiempy.event.GroupedEventManager.clear_filters">clear_filters</a></code></li>
-<li><code><a title="msiempy.event.GroupedEventManager.qry_load_data" href="#msiempy.event.GroupedEventManager.qry_load_data">qry_load_data</a></code></li>
 </ul>
 </li>
 </ul>

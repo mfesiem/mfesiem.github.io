@@ -255,218 +255,6 @@ INDEX=[
 "doc":" msiempy.core.session.NitroSession object. Interface to the SIEM."
 },
 {
-"ref":"msiempy.event.Event",
-"url":1,
-"doc":"Dict-Like object. Event interface. This object handles events objects created with  msiempy.event.EventManager (From the  qryGetResults api call) and events objects created with  msiempy.alarm.AlarmManager (From  ipsGetAlertData api call or  notifyGetTriggeredNotificationDetail depending of the value of  load_data(events_details=True/False) ) . Common keys for alert data events (When loading from ID or with  AlarmManager.load_data() : -  ruleName -  srcIp -  destIp -  protocol -  lastTime -  subtype -  destPort -  destMac -  srcMac -  srcPort -  deviceName -  sigId -  normId -  srcUser -  destUser -  normMessage -  normDesc -  host -  domain -  ipsId Common keys for triggered alarms events (When using  AlarmManager.load_data(events_details=False) ) (SIEM v11.x only): -  ruleMessage -  eventId -  severity -  eventCount -  sourceIp -  destIp -  protocol -  lastTime -  eventSubType Common keys for query events (When using  EventManager ): -  Rule.msg -  Alert.LastTime -  Alert.IPSIDAlertID - and any other . You can request more fields by passing a list of fields to the  msiempy.event.EventManager object.  msiempy.event.Event.REGULAR_EVENT_FIELDS offer a base list of regular fields that may be useful. See msiempy/static JSON files to browse complete list : https: github.com/mfesiem/msiempy/blob/master/static/all_fields.json You can also use this script to dinamically print the available fields and filters : https: github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py Arguments: -  adict : Event parameters -  id : The event  IPSIDAlertID to instanciate. Will load informations  For query events : We tried our best effort to match SIEM returned fields with initially requested fields. Prefixes  Alert. ,  Rule. , etc are optionnal, autocompletion is computed in any case.  __getitem__ ,  __contains__ ,  __setitem__ and  __delitem__ method have been rewrote in order to offer more straight-forward  dict usage. For exemple, if the SIEM returns results with keys like  Alert.65613 ,  Alert.BIN(7) or  Alert.SrcIP : you'll be able to use  Event dict with your initial queried keys like  Event['Web_Doamin']  ,  Event['UserIDSrc'] or  Event['SrcIP'] . (You can still use internal keys if you want). Exemple:"
-},
-{
-"ref":"msiempy.event.Event.FIELDS_TABLES",
-"url":1,
-"doc":"List of internal fields table :  Rule , Alert ,etc."
-},
-{
-"ref":"msiempy.event.Event.DEFAULTS_EVENT_FIELDS",
-"url":1,
-"doc":"Always present when using  msiempy.event.EventManager querying :  Rule.msg  Alert.LastTime  Alert.IPSIDAlertID "
-},
-{
-"ref":"msiempy.event.Event.REGULAR_EVENT_FIELDS",
-"url":1,
-"doc":"List of regular event fields.  Rule.msg  Alert.SrcIP  Alert.DstIP  Alert.SrcMac  Alert.DstMac  Rule.NormID  HostID  UserIDSrc  ObjectID  Alert.Severity  Alert.LastTime  Alert.DSIDSigID  Alert.IPSIDAlertID "
-},
-{
-"ref":"msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME",
-"url":1,
-"doc":"Fields name mapping."
-},
-{
-"ref":"msiempy.event.Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME",
-"url":1,
-"doc":"Fields name mapping (reversed)."
-},
-{
-"ref":"msiempy.event.Event.get_id",
-"url":1,
-"doc":"Get the event ID. Try to return  e['Alert.IPSIDAlertID'] or e['eventId'] or concatenate  e['ipsId']['id'] and  e['alertId'] depending of the Event dictionnary keys.",
-"func":1
-},
-{
-"ref":"msiempy.event.Event.clear_notes",
-"url":1,
-"doc":"Replace the notes by an empty string. Desctructive action.",
-"func":1
-},
-{
-"ref":"msiempy.event.Event.set_note",
-"url":1,
-"doc":"Set the event's note. Desctructive action.",
-"func":1
-},
-{
-"ref":"msiempy.event.Event.data_from_id",
-"url":1,
-"doc":"Load event's data. Arguments: -  id : The event ID. (i.e. :  144128388087414784|747122896 ) -  use_query ( bool ): Uses the query module to retreive common event data. Only works with SIEM 11.2 or greater. Default behaviour will call  ipsGetAlertData to retreive the complete event definition. -  extra_fields ( list ): Only when  use_query=True . Additionnal event fields to load in the query.",
-"func":1
-},
-{
-"ref":"msiempy.event.Event.refresh",
-"url":1,
-"doc":"Re-load event's data. Arguments: -  use_query ( bool ): Force the use of the query module to retreive the event data. The default behaviour will use  EventManager query if an 'Alert.IPSIDAlertID' key is present in the event, else call  ipsGetAlertData to get the full details. -  extra_fields ( list ): Only when  use_query=True or the Event is already a query event. Additionnal event fields to load in the query.  Warning Enforce  use_query=True will reset the Events fields to whatever is passed to  extra_fields Raise  AttributeError if the event ID has not been found.",
-"func":1
-},
-{
-"ref":"msiempy.event.Event.json",
-"url":3,
-"doc":"JSON representation of a item"
-},
-{
-"ref":"msiempy.event.Event.text",
-"url":3,
-"doc":"Text list of item's values"
-},
-{
-"ref":"msiempy.event.Event.NitroJSONEncoder",
-"url":3,
-"doc":"Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject. TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict."
-},
-{
-"ref":"msiempy.event.Event.nitro",
-"url":3,
-"doc":" msiempy.core.session.NitroSession object. Interface to the SIEM."
-},
-{
-"ref":"msiempy.event.GroupFilter",
-"url":1,
-"doc":"Based on EsmFilterGroup. See SIEM api doc. Used to dump groups of filters in the right format. Arguments : -  filters : a list of filters. Filters can be  msiempy.event.FieldFilter or  msiempy.event.GroupFilter -  logic : 'AND' or 'OR'"
-},
-{
-"ref":"msiempy.event.FieldFilter",
-"url":1,
-"doc":"Based on EsmFieldFilter SIEM api doc. This class is automatically used when instanciating  EventManager objects to dump filters in the right  dict format if tuples are gave as the  filters argument like:   e = EventManager(time_range='LAST_MINUTE', filters=[ ('SrcIP', ['10.5.0.0/16']) ])   Default operator is  \"IN\" . To change the operator, create a  FieldFilter : Exemple to filter by Signature ID.   e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', [\"49190-4294967295\"], operator='EQUALS') ])    Make sure the filter name is valid by checking the result of  msiempy.event.EventManager.get_possible_filters or use the provided script in the sample folder Arguments: -  name : field name as string. Field name property. Example :  SrcIP . See full list here: https: github.com/mfesiem/msiempy/blob/master/static/all_filters.json -  values : list of values the field is going to be tested againts with the specified orperator. -  orperator :  IN ,  NOT_IN ,  GREATER_THAN ,  LESS_THAN ,  GREATER_OR_EQUALS_THAN ,  LESS_OR_EQUALS_THAN ,  NUMERIC_EQUALS ,  NUMERIC_NOT_EQUALS ,  DOES_NOT_EQUAL ,  EQUALS ,  CONTAINS ,  DOES_NOT_CONTAIN ,  REGEX ."
-},
-{
-"ref":"msiempy.event.FieldFilter.DOCUMENTED_FILTERS",
-"url":1,
-"doc":"List fo documented filter names, show a warning if trying to filter on a unknown filter name"
-},
-{
-"ref":"msiempy.event.FieldFilter.POSSIBLE_OPERATORS",
-"url":1,
-"doc":"List of possibles operators"
-},
-{
-"ref":"msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES",
-"url":1,
-"doc":"List of possible value type. See  msiempy.event.FieldFilter.add_value ."
-},
-{
-"ref":"msiempy.event.FieldFilter.operator",
-"url":1,
-"doc":"Filter operator. Throws  AttributeError if trying to set an unknown operator."
-},
-{
-"ref":"msiempy.event.FieldFilter.values",
-"url":1,
-"doc":"List of values of the filter. Setter iterate trough the list and call : -  msiempy.event.FieldFilter.add_value() if value is a  dict -  msiempy.event.FieldFilter.add_basic_value() if value type is  int ,  float or  str . Values will always be added to the filter. To remove values, handle directly the  _values property. Example :  filter = FieldFilter(name='DstIP',values=[{'type':'EsmWatchlistValue', 'watchlist':42}], operator='IN') "
-},
-{
-"ref":"msiempy.event.FieldFilter.add_value",
-"url":1,
-"doc":"Add a new value to the filter. Arguments ( kwargs depends on the value  type ): -  type ( str ) : Type of the value Dynamic arguments: -  value ( str ) : If  type is  EsmBasicValue -  watchlist ( int ) : if  type is  EsmWatchlistValue -  variable ( int ) if  type is  EsmVariableValue -  values ( list ) if  type is  EsmCompoundValue Raises :  KeyError or  AttributeError if you don't respect the correct type/key/value combo. Note : Filtering query with other type of filter than  EsmBasicValue is not tested.",
-"func":1
-},
-{
-"ref":"msiempy.event.FieldFilter.add_basic_value",
-"url":1,
-"doc":"Wrapper arround  add_value method to simply add a  EsmBasicValue .",
-"func":1
-},
-{
-"ref":"msiempy.event.FieldFilter.name",
-"url":1,
-"doc":"Name of the field"
-},
-{
-"ref":"msiempy.event.GroupedEvent",
-"url":1,
-"doc":"Grouped event item. Just like  Event but with the following  __getitem__ key mapping added: { \"Count\":\"COUNT( )\", \"TotalEventCount\":\"SUM(Alert.EventCount)\" } Meaning that you can use  e['TotalEventCount'] , it will return  e['SUM(Alert.EventCount)'] ."
-},
-{
-"ref":"msiempy.event.GroupedEvent.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME",
-"url":1,
-"doc":"Fields name mapping (reversed)."
-},
-{
-"ref":"msiempy.event.GroupedEvent.FIELDS_TABLES",
-"url":1,
-"doc":"List of internal fields table :  Rule , Alert ,etc."
-},
-{
-"ref":"msiempy.event.GroupedEvent.DEFAULTS_EVENT_FIELDS",
-"url":1,
-"doc":"Always present when using  msiempy.event.EventManager querying :  Rule.msg  Alert.LastTime  Alert.IPSIDAlertID "
-},
-{
-"ref":"msiempy.event.GroupedEvent.REGULAR_EVENT_FIELDS",
-"url":1,
-"doc":"List of regular event fields.  Rule.msg  Alert.SrcIP  Alert.DstIP  Alert.SrcMac  Alert.DstMac  Rule.NormID  HostID  UserIDSrc  ObjectID  Alert.Severity  Alert.LastTime  Alert.DSIDSigID  Alert.IPSIDAlertID "
-},
-{
-"ref":"msiempy.event.GroupedEvent.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME",
-"url":1,
-"doc":"Fields name mapping."
-},
-{
-"ref":"msiempy.event.GroupedEvent.get_id",
-"url":1,
-"doc":"Get the event ID. Try to return  e['Alert.IPSIDAlertID'] or e['eventId'] or concatenate  e['ipsId']['id'] and  e['alertId'] depending of the Event dictionnary keys.",
-"func":1
-},
-{
-"ref":"msiempy.event.GroupedEvent.clear_notes",
-"url":1,
-"doc":"Replace the notes by an empty string. Desctructive action.",
-"func":1
-},
-{
-"ref":"msiempy.event.GroupedEvent.set_note",
-"url":1,
-"doc":"Set the event's note. Desctructive action.",
-"func":1
-},
-{
-"ref":"msiempy.event.GroupedEvent.data_from_id",
-"url":1,
-"doc":"Load event's data. Arguments: -  id : The event ID. (i.e. :  144128388087414784|747122896 ) -  use_query ( bool ): Uses the query module to retreive common event data. Only works with SIEM 11.2 or greater. Default behaviour will call  ipsGetAlertData to retreive the complete event definition. -  extra_fields ( list ): Only when  use_query=True . Additionnal event fields to load in the query.",
-"func":1
-},
-{
-"ref":"msiempy.event.GroupedEvent.refresh",
-"url":1,
-"doc":"Re-load event's data. Arguments: -  use_query ( bool ): Force the use of the query module to retreive the event data. The default behaviour will use  EventManager query if an 'Alert.IPSIDAlertID' key is present in the event, else call  ipsGetAlertData to get the full details. -  extra_fields ( list ): Only when  use_query=True or the Event is already a query event. Additionnal event fields to load in the query.  Warning Enforce  use_query=True will reset the Events fields to whatever is passed to  extra_fields Raise  AttributeError if the event ID has not been found.",
-"func":1
-},
-{
-"ref":"msiempy.event.GroupedEvent.json",
-"url":3,
-"doc":"JSON representation of a item"
-},
-{
-"ref":"msiempy.event.GroupedEvent.text",
-"url":3,
-"doc":"Text list of item's values"
-},
-{
-"ref":"msiempy.event.GroupedEvent.NitroJSONEncoder",
-"url":3,
-"doc":"Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject. TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict."
-},
-{
-"ref":"msiempy.event.GroupedEvent.nitro",
-"url":3,
-"doc":" msiempy.core.session.NitroSession object. Interface to the SIEM."
-},
-{
 "ref":"msiempy.event.GroupedEventManager",
 "url":1,
 "doc":"List-Like object. Interface to execute grouped queries. Arguments: -  field ( str ): The field that will be selected when this query is executed. -  filters ( list ): list of filters. A filter can be a  tuple(field, [values]) or it can be a  msiempy.event.FieldFilter or  msiempy.event.GroupFilter if you wish to use advanced filtering. -  time_range ( str ): Query time range. String representation of a time range. Not need to specify 'CUSTOM' if  start_time and  end_time are set. -  start_time : Query start time, can be a  str or a  datetime object. Parsed with  dateutil . -  end_time : Query end time, can be a  str or a  datetime object. Parsed with  dateutil ."
@@ -570,6 +358,218 @@ INDEX=[
 "ref":"msiempy.event.GroupedEventManager.nitro",
 "url":3,
 "doc":" msiempy.core.session.NitroSession object. Interface to the SIEM."
+},
+{
+"ref":"msiempy.event.Event",
+"url":1,
+"doc":"Dict-Like object. Event interface. This object handles events objects created with  msiempy.event.EventManager (From the  qryGetResults api call) and events objects created with  msiempy.alarm.AlarmManager (From  ipsGetAlertData api call or  notifyGetTriggeredNotificationDetail depending of the value of  load_data(events_details=True/False) ) . Common keys for alert data events (When loading from ID or with  AlarmManager.load_data() : -  ruleName -  srcIp -  destIp -  protocol -  lastTime -  subtype -  destPort -  destMac -  srcMac -  srcPort -  deviceName -  sigId -  normId -  srcUser -  destUser -  normMessage -  normDesc -  host -  domain -  ipsId Common keys for triggered alarms events (When using  AlarmManager.load_data(events_details=False) ) (SIEM v11.x only): -  ruleMessage -  eventId -  severity -  eventCount -  sourceIp -  destIp -  protocol -  lastTime -  eventSubType Common keys for query events (When using  EventManager ): -  Rule.msg -  Alert.LastTime -  Alert.IPSIDAlertID - and any other . You can request more fields by passing a list of fields to the  msiempy.event.EventManager object.  msiempy.event.Event.REGULAR_EVENT_FIELDS offer a base list of regular fields that may be useful. See msiempy/static JSON files to browse complete list : https: github.com/mfesiem/msiempy/blob/master/static/all_fields.json You can also use this script to dinamically print the available fields and filters : https: github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py Arguments: -  adict : Event parameters -  id : The event  IPSIDAlertID to instanciate. Will load informations  For query events : We tried our best effort to match SIEM returned fields with initially requested fields. Prefixes  Alert. ,  Rule. , etc are optionnal, autocompletion is computed in any case.  __getitem__ ,  __contains__ ,  __setitem__ and  __delitem__ method have been rewrote in order to offer more straight-forward  dict usage. For exemple, if the SIEM returns results with keys like  Alert.65613 ,  Alert.BIN(7) or  Alert.SrcIP : you'll be able to use  Event dict with your initial queried keys like  Event['Web_Doamin']  ,  Event['UserIDSrc'] or  Event['SrcIP'] . (You can still use internal keys if you want). Exemple:"
+},
+{
+"ref":"msiempy.event.Event.FIELDS_TABLES",
+"url":1,
+"doc":"List of internal fields table :  Rule , Alert ,etc."
+},
+{
+"ref":"msiempy.event.Event.DEFAULTS_EVENT_FIELDS",
+"url":1,
+"doc":"Always present when using  msiempy.event.EventManager querying :  Rule.msg  Alert.LastTime  Alert.IPSIDAlertID "
+},
+{
+"ref":"msiempy.event.Event.REGULAR_EVENT_FIELDS",
+"url":1,
+"doc":"List of regular event fields.  Rule.msg  Alert.SrcIP  Alert.DstIP  Alert.SrcMac  Alert.DstMac  Rule.NormID  HostID  UserIDSrc  ObjectID  Alert.Severity  Alert.LastTime  Alert.DSIDSigID  Alert.IPSIDAlertID "
+},
+{
+"ref":"msiempy.event.Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME",
+"url":1,
+"doc":"Fields name mapping."
+},
+{
+"ref":"msiempy.event.Event.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME",
+"url":1,
+"doc":"Fields name mapping (reversed)."
+},
+{
+"ref":"msiempy.event.Event.get_id",
+"url":1,
+"doc":"Get the event ID. Try to return  e['Alert.IPSIDAlertID'] or e['eventId'] or concatenate  e['ipsId']['id'] and  e['alertId'] depending of the Event dictionnary keys.",
+"func":1
+},
+{
+"ref":"msiempy.event.Event.clear_notes",
+"url":1,
+"doc":"Replace the notes by an empty string. Desctructive action.",
+"func":1
+},
+{
+"ref":"msiempy.event.Event.set_note",
+"url":1,
+"doc":"Set the event's note. Desctructive action.",
+"func":1
+},
+{
+"ref":"msiempy.event.Event.data_from_id",
+"url":1,
+"doc":"Load event's data. Arguments: -  id : The event ID. (i.e. :  144128388087414784|747122896 ) -  use_query ( bool ): Uses the query module to retreive common event data. Only works with SIEM 11.2 or greater. Default behaviour will call  ipsGetAlertData to retreive the complete event definition. -  extra_fields ( list ): Only when  use_query=True . Additionnal event fields to load in the query.",
+"func":1
+},
+{
+"ref":"msiempy.event.Event.refresh",
+"url":1,
+"doc":"Re-load event's data. Arguments: -  use_query ( bool ): Force the use of the query module to retreive the event data. The default behaviour will use  EventManager query if an 'Alert.IPSIDAlertID' key is present in the event, else call  ipsGetAlertData to get the full details. -  extra_fields ( list ): Only when  use_query=True or the Event is already a query event. Additionnal event fields to load in the query.  Warning Enforce  use_query=True will reset the Events fields to whatever is passed to  extra_fields Raise  AttributeError if the event ID has not been found.",
+"func":1
+},
+{
+"ref":"msiempy.event.Event.json",
+"url":3,
+"doc":"JSON representation of a item"
+},
+{
+"ref":"msiempy.event.Event.text",
+"url":3,
+"doc":"Text list of item's values"
+},
+{
+"ref":"msiempy.event.Event.NitroJSONEncoder",
+"url":3,
+"doc":"Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject. TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict."
+},
+{
+"ref":"msiempy.event.Event.nitro",
+"url":3,
+"doc":" msiempy.core.session.NitroSession object. Interface to the SIEM."
+},
+{
+"ref":"msiempy.event.GroupedEvent",
+"url":1,
+"doc":"Dict-Like object. Grouped event item, represents a row of grouped query results. Common keys: - The requested field -  COUNT( ) : The number of event for the result row -  SUM(Alert.EventCount) : The sum of their  EventCount attribute The following  __getitem__ key mapping are added on top of  Event 's : \"Count\":\"COUNT( )\", \"TotalEventCount\":\"SUM(Alert.EventCount)\" Meaning that you can use  e['TotalEventCount'] , it will return  e['SUM(Alert.EventCount)'] . Note:  GroupedEvent is not suitable for  Event s operations like  set_note() or  refresh() because there is no ID associated with events records."
+},
+{
+"ref":"msiempy.event.GroupedEvent.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME",
+"url":1,
+"doc":"Fields name mapping (reversed)."
+},
+{
+"ref":"msiempy.event.GroupedEvent.FIELDS_TABLES",
+"url":1,
+"doc":"List of internal fields table :  Rule , Alert ,etc."
+},
+{
+"ref":"msiempy.event.GroupedEvent.DEFAULTS_EVENT_FIELDS",
+"url":1,
+"doc":"Always present when using  msiempy.event.EventManager querying :  Rule.msg  Alert.LastTime  Alert.IPSIDAlertID "
+},
+{
+"ref":"msiempy.event.GroupedEvent.REGULAR_EVENT_FIELDS",
+"url":1,
+"doc":"List of regular event fields.  Rule.msg  Alert.SrcIP  Alert.DstIP  Alert.SrcMac  Alert.DstMac  Rule.NormID  HostID  UserIDSrc  ObjectID  Alert.Severity  Alert.LastTime  Alert.DSIDSigID  Alert.IPSIDAlertID "
+},
+{
+"ref":"msiempy.event.GroupedEvent.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME",
+"url":1,
+"doc":"Fields name mapping."
+},
+{
+"ref":"msiempy.event.GroupedEvent.get_id",
+"url":1,
+"doc":"Get the event ID. Try to return  e['Alert.IPSIDAlertID'] or e['eventId'] or concatenate  e['ipsId']['id'] and  e['alertId'] depending of the Event dictionnary keys.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEvent.clear_notes",
+"url":1,
+"doc":"Replace the notes by an empty string. Desctructive action.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEvent.set_note",
+"url":1,
+"doc":"Set the event's note. Desctructive action.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEvent.data_from_id",
+"url":1,
+"doc":"Load event's data. Arguments: -  id : The event ID. (i.e. :  144128388087414784|747122896 ) -  use_query ( bool ): Uses the query module to retreive common event data. Only works with SIEM 11.2 or greater. Default behaviour will call  ipsGetAlertData to retreive the complete event definition. -  extra_fields ( list ): Only when  use_query=True . Additionnal event fields to load in the query.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEvent.refresh",
+"url":1,
+"doc":"Re-load event's data. Arguments: -  use_query ( bool ): Force the use of the query module to retreive the event data. The default behaviour will use  EventManager query if an 'Alert.IPSIDAlertID' key is present in the event, else call  ipsGetAlertData to get the full details. -  extra_fields ( list ): Only when  use_query=True or the Event is already a query event. Additionnal event fields to load in the query.  Warning Enforce  use_query=True will reset the Events fields to whatever is passed to  extra_fields Raise  AttributeError if the event ID has not been found.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEvent.json",
+"url":3,
+"doc":"JSON representation of a item"
+},
+{
+"ref":"msiempy.event.GroupedEvent.text",
+"url":3,
+"doc":"Text list of item's values"
+},
+{
+"ref":"msiempy.event.GroupedEvent.NitroJSONEncoder",
+"url":3,
+"doc":"Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject. TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict."
+},
+{
+"ref":"msiempy.event.GroupedEvent.nitro",
+"url":3,
+"doc":" msiempy.core.session.NitroSession object. Interface to the SIEM."
+},
+{
+"ref":"msiempy.event.GroupFilter",
+"url":1,
+"doc":"Based on EsmFilterGroup. See SIEM api doc. Used to dump groups of filters in the right format. Arguments : -  filters : a list of filters. Filters can be  msiempy.event.FieldFilter or  msiempy.event.GroupFilter -  logic : 'AND' or 'OR'"
+},
+{
+"ref":"msiempy.event.FieldFilter",
+"url":1,
+"doc":"Based on EsmFieldFilter SIEM api doc. This class is automatically used when instanciating  EventManager objects to dump filters in the right  dict format if tuples are gave as the  filters argument like:   e = EventManager(time_range='LAST_MINUTE', filters=[ ('SrcIP', ['10.5.0.0/16']) ])   Default operator is  \"IN\" . To change the operator, create a  FieldFilter : Exemple to filter by Signature ID.   e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', [\"49190-4294967295\"], operator='EQUALS') ])    Make sure the filter name is valid by checking the result of  msiempy.event.EventManager.get_possible_filters or use the provided script in the sample folder Arguments: -  name : field name as string. Field name property. Example :  SrcIP . See full list here: https: github.com/mfesiem/msiempy/blob/master/static/all_filters.json -  values : list of values the field is going to be tested againts with the specified orperator. -  orperator :  IN ,  NOT_IN ,  GREATER_THAN ,  LESS_THAN ,  GREATER_OR_EQUALS_THAN ,  LESS_OR_EQUALS_THAN ,  NUMERIC_EQUALS ,  NUMERIC_NOT_EQUALS ,  DOES_NOT_EQUAL ,  EQUALS ,  CONTAINS ,  DOES_NOT_CONTAIN ,  REGEX ."
+},
+{
+"ref":"msiempy.event.FieldFilter.DOCUMENTED_FILTERS",
+"url":1,
+"doc":"List fo documented filter names, show a warning if trying to filter on a unknown filter name"
+},
+{
+"ref":"msiempy.event.FieldFilter.POSSIBLE_OPERATORS",
+"url":1,
+"doc":"List of possibles operators"
+},
+{
+"ref":"msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES",
+"url":1,
+"doc":"List of possible value type. See  msiempy.event.FieldFilter.add_value ."
+},
+{
+"ref":"msiempy.event.FieldFilter.operator",
+"url":1,
+"doc":"Filter operator. Throws  AttributeError if trying to set an unknown operator."
+},
+{
+"ref":"msiempy.event.FieldFilter.values",
+"url":1,
+"doc":"List of values of the filter. Setter iterate trough the list and call : -  msiempy.event.FieldFilter.add_value() if value is a  dict -  msiempy.event.FieldFilter.add_basic_value() if value type is  int ,  float or  str . Values will always be added to the filter. To remove values, handle directly the  _values property. Example :  filter = FieldFilter(name='DstIP',values=[{'type':'EsmWatchlistValue', 'watchlist':42}], operator='IN') "
+},
+{
+"ref":"msiempy.event.FieldFilter.add_value",
+"url":1,
+"doc":"Add a new value to the filter. Arguments ( kwargs depends on the value  type ): -  type ( str ) : Type of the value Dynamic arguments: -  value ( str ) : If  type is  EsmBasicValue -  watchlist ( int ) : if  type is  EsmWatchlistValue -  variable ( int ) if  type is  EsmVariableValue -  values ( list ) if  type is  EsmCompoundValue Raises :  KeyError or  AttributeError if you don't respect the correct type/key/value combo. Note : Filtering query with other type of filter than  EsmBasicValue is not tested.",
+"func":1
+},
+{
+"ref":"msiempy.event.FieldFilter.add_basic_value",
+"url":1,
+"doc":"Wrapper arround  add_value method to simply add a  EsmBasicValue .",
+"func":1
+},
+{
+"ref":"msiempy.event.FieldFilter.name",
+"url":1,
+"doc":"Name of the field"
 },
 {
 "ref":"msiempy.core",

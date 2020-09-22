@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L0-L1158" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L0-L1158" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Provide ESM, Receiver and Datasource management.
 &#34;&#34;&#34;
@@ -1210,7 +1210,7 @@ class DataSource(NitroDict):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L15-L293" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L15-L293" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ESM(NitroObject):
     &#34;&#34;&#34;Enterprise Security Manager interface&#34;&#34;&#34;
@@ -1497,8 +1497,84 @@ class DataSource(NitroDict):
 <li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.device.ESM.NitroJSONEncoder"><code class="name">var <span class="ident">NitroJSONEncoder</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></code>.<code><a title="msiempy.core.types.NitroObject.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code>
+</p>
+<div class="desc inherited"><p>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject.<br>
+TODO support json json dumping of QueryFilers, …</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.device.ESM.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></code>.<code><a title="msiempy.core.types.NitroObject.text" href="core/types.html#msiempy.core.types.NitroObject.text">text</a></code>
+</p>
+<div class="desc inherited"><p>Returns printable string.<br>
+Abstract declaration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L21-L23" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">@property
+def text(self):
+    return str(&#39;ESM object&#39;)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.ESM.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></code>.<code><a title="msiempy.core.types.NitroObject.json" href="core/types.html#msiempy.core.types.NitroObject.json">json</a></code>
+</p>
+<div class="desc inherited"><p>Returns json string representation.<br>
+Abstract declaration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L25-L26" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">@property
+def json(self): raise NotImplementedError()</code></pre>
+</details>
+</dd>
+<dt id="msiempy.device.ESM.nitro"><code class="name">var <span class="ident">nitro</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></code>.<code><a title="msiempy.core.types.NitroObject.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code>
+</p>
+<div class="desc inherited"><p><code><a title="msiempy.core.session.NitroSession" href="core/session.html#msiempy.core.session.NitroSession">NitroSession</a></code> object. Interface to the SIEM.</p></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
+<dt id="msiempy.device.ESM.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></code>.<code><a title="msiempy.core.types.NitroObject.refresh" href="core/types.html#msiempy.core.types.NitroObject.refresh">refresh</a></code>
+</p>
+<div class="desc inherited"><p>Re-load the object.<br>
+Abstract declaration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L28-L28" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def refresh(self): raise NotImplementedError()</code></pre>
+</details>
+</dd>
 <dt id="msiempy.device.ESM.time"><code class="name flex">
 <span>def <span class="ident">time</span></span>(<span>self)</span>
 </code></dt>
@@ -1508,7 +1584,7 @@ Example: <code>2017-07-06T12:21:59.0+0000</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L30-L34" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L30-L34" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def time(self):
     &#34;&#34;&#34;Returns: string of ESM time (GMT)  
@@ -1526,7 +1602,7 @@ Example: <code>10.0.2 20170516001031</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L36-L40" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L36-L40" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def buildstamp(self):
     &#34;&#34;&#34;Returns: buildstamp string  
@@ -1544,7 +1620,7 @@ Example: <code>10.1.0</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L42-L47" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L42-L47" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def version(self):
     &#34;&#34;&#34;
@@ -1594,7 +1670,7 @@ Other functions exist to return subsets of this data also.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L49-L69" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L49-L69" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def status(self):
     &#34;&#34;&#34;
@@ -1627,7 +1703,7 @@ Other functions exist to return subsets of this data also.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L94-L97" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L94-L97" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def disks(self):
     &#34;&#34;&#34;Returns: `self.status()[&#39;hdd&#39;]`
@@ -1643,7 +1719,7 @@ Other functions exist to return subsets of this data also.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L99-L101" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L99-L101" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def ram(self):
     &#34;&#34;&#34;Returns: `self.status()[&#39;ram&#39;]`&#34;&#34;&#34;
@@ -1664,7 +1740,7 @@ Example :<br>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L103-L121" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L103-L121" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def backup_status(self):
     &#34;&#34;&#34;
@@ -1695,7 +1771,7 @@ Example :<br>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L123-L128" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L123-L128" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def callhome(self):
     &#34;&#34;&#34;
@@ -1717,7 +1793,7 @@ Example:<br>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L130-L144" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L130-L144" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def rules_status(self):
     &#34;&#34;&#34;
@@ -1755,7 +1831,7 @@ Example:<br>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L146-L160" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L146-L160" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_alerts(self, ds_id, flows=False):
     &#34;&#34;&#34;
@@ -1782,7 +1858,7 @@ Example:<br>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L162-L168" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L162-L168" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@lru_cache(maxsize=None)    
 def recs(self):
@@ -1809,7 +1885,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L177-L190" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L177-L190" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tz_offsets(self):
     &#34;&#34;&#34;
@@ -1837,7 +1913,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L193-L200" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L193-L200" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def timezones(self):
     &#34;&#34;&#34;
@@ -1863,7 +1939,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L202-L215" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L202-L215" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tz_name_to_id(self, tz_name):
     &#34;&#34;&#34;
@@ -1895,7 +1971,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L217-L228" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L217-L228" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tz_id_to_name(self, tz_id):
     &#34;&#34;&#34;
@@ -1925,7 +2001,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L230-L242" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L230-L242" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def type_id_to_venmod(self, type_id):
     &#34;&#34;&#34;
@@ -1958,7 +2034,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L244-L256" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L244-L256" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def venmod_to_type_id(self, vendor, model):
     &#34;&#34;&#34;
@@ -1983,7 +2059,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L258-L263" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L258-L263" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def rules_history(self):
     &#34;&#34;&#34;
@@ -1994,18 +2070,6 @@ def recs(self):
 </details>
 </dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.core.types.NitroObject.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.core.types.NitroObject.json" href="core/types.html#msiempy.core.types.NitroObject.json">json</a></code></li>
-<li><code><a title="msiempy.core.types.NitroObject.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.core.types.NitroObject.refresh" href="core/types.html#msiempy.core.types.NitroObject.refresh">refresh</a></code></li>
-<li><code><a title="msiempy.core.types.NitroObject.text" href="core/types.html#msiempy.core.types.NitroObject.text">text</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 <dt id="msiempy.device.DevTree"><code class="flex name class">
 <span>class <span class="ident">DevTree</span></span>
@@ -2024,7 +2088,7 @@ ESM device tree interface.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L295-L1036" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L295-L1036" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DevTree(NitroList):
     &#34;&#34;&#34;
@@ -2783,6 +2847,45 @@ ESM device tree interface.
 <li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.device.DevTree.NitroJSONEncoder"><code class="name">var <span class="ident">NitroJSONEncoder</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></code>.<code><a title="msiempy.core.types.NitroList.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroList.NitroJSONEncoder">NitroJSONEncoder</a></code>
+</p>
+<div class="desc inherited"><p>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject.<br>
+TODO support json json dumping of QueryFilers, …</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.device.DevTree.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></code>.<code><a title="msiempy.core.types.NitroList.text" href="core/types.html#msiempy.core.types.NitroList.text">text</a></code>
+</p>
+<div class="desc inherited"><p>Defaut table string, a shorcut to <code>get_text()</code> with no arguments.</p></div>
+</dd>
+<dt id="msiempy.device.DevTree.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></code>.<code><a title="msiempy.core.types.NitroList.json" href="core/types.html#msiempy.core.types.NitroList.json">json</a></code>
+</p>
+<div class="desc inherited"><p>JSON list of dicts representing the list.</p></div>
+</dd>
+<dt id="msiempy.device.DevTree.nitro"><code class="name">var <span class="ident">nitro</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></code>.<code><a title="msiempy.core.types.NitroList.nitro" href="core/types.html#msiempy.core.types.NitroList.nitro">nitro</a></code>
+</p>
+<div class="desc inherited"><p><code><a title="msiempy.core.session.NitroSession" href="core/session.html#msiempy.core.session.NitroSession">NitroSession</a></code> object. Interface to the SIEM.</p></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="msiempy.device.DevTree.search"><code class="name flex">
@@ -2801,7 +2904,7 @@ ESM device tree interface.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L338-L355" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L338-L355" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def search(self, term, zone_id=&#39;0&#39;):
     &#34;&#34;&#34;
@@ -2863,7 +2966,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L357-L382" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L357-L382" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def search_ds_group(self, field, term, zone_id=&#39;0&#39;):
     &#34;&#34;&#34;
@@ -2901,7 +3004,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L384-L387" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L384-L387" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self):
     &#34;&#34;&#34;Rebuilds the devtree&#34;&#34;&#34;
@@ -2917,7 +3020,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L389-L394" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L389-L394" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def recs(self):
     &#34;&#34;&#34;
@@ -2935,7 +3038,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L396-L416" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L396-L416" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def build_devtree(self):
     &#34;&#34;&#34;Coordinates assembly of the devtree object&#34;&#34;&#34;
@@ -2983,7 +3086,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L775-L797" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L775-L797" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def duplicate_datasource(self, ds_params):
     &#34;&#34;&#34;Check for duplicate dataname name or IP address.
@@ -3048,7 +3151,7 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L799-L860" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L799-L860" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add(self, attr):
     &#34;&#34;&#34;
@@ -3155,7 +3258,7 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L862-L906" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L862-L906" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_client(self, attr):
     &#34;&#34;&#34;Add a datasource client
@@ -3204,21 +3307,37 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32
     return result_id</code></pre>
 </details>
 </dd>
+<dt id="msiempy.device.DevTree.keys"><code class="name flex">
+<span>def <span class="ident">keys</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></code>.<code><a title="msiempy.core.types.NitroList.keys" href="core/types.html#msiempy.core.types.NitroList.keys">keys</a></code>
+</p>
+<div class="desc inherited"><p>Set of keys for all dict</p></div>
+</dd>
+<dt id="msiempy.device.DevTree.get_text"><code class="name flex">
+<span>def <span class="ident">get_text</span></span>(<span>self, format='prettytable', fields=None, max_column_width=80, get_text_nest_attr={})</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></code>.<code><a title="msiempy.core.types.NitroList.get_text" href="core/types.html#msiempy.core.types.NitroList.get_text">get_text</a></code>
+</p>
+<div class="desc inherited"><p>Return a csv or table string representation of the list …</p></div>
+</dd>
+<dt id="msiempy.device.DevTree.perform"><code class="name flex">
+<span>def <span class="ident">perform</span></span>(<span>self, func, data=None, func_args=None, confirm=False, asynch=False, workers=None, progress=False, message=None)</span>
+</code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></code>.<code><a title="msiempy.core.types.NitroList.perform" href="core/types.html#msiempy.core.types.NitroList.perform">perform</a></code>
+</p>
+<div class="desc inherited"><p>Wrapper arround executable and the a list of elements, typically <code><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></code> object …</p></div>
+</dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.core.types.NitroList" href="core/types.html#msiempy.core.types.NitroList">NitroList</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.core.types.NitroList.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.core.types.NitroList.get_text" href="core/types.html#msiempy.core.types.NitroList.get_text">get_text</a></code></li>
-<li><code><a title="msiempy.core.types.NitroList.json" href="core/types.html#msiempy.core.types.NitroList.json">json</a></code></li>
-<li><code><a title="msiempy.core.types.NitroList.keys" href="core/types.html#msiempy.core.types.NitroList.keys">keys</a></code></li>
-<li><code><a title="msiempy.core.types.NitroList.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.core.types.NitroList.perform" href="core/types.html#msiempy.core.types.NitroList.perform">perform</a></code></li>
-<li><code><a title="msiempy.core.types.NitroList.text" href="core/types.html#msiempy.core.types.NitroList.text">text</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 <dt id="msiempy.device.DataSource"><code class="flex name class">
 <span>class <span class="ident">DataSource</span></span>
@@ -3281,7 +3400,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L1038-L1159" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L1038-L1159" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DataSource(NitroDict):
     &#34;&#34;&#34;
@@ -3419,6 +3538,45 @@ or
 <li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="msiempy.device.DataSource.NitroJSONEncoder"><code class="name">var <span class="ident">NitroJSONEncoder</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></code>.<code><a title="msiempy.core.types.NitroDict.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroDict.NitroJSONEncoder">NitroJSONEncoder</a></code>
+</p>
+<div class="desc inherited"><p>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject.<br>
+TODO support json json dumping of QueryFilers, …</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.device.DataSource.json"><code class="name">var <span class="ident">json</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></code>.<code><a title="msiempy.core.types.NitroDict.json" href="core/types.html#msiempy.core.types.NitroDict.json">json</a></code>
+</p>
+<div class="desc inherited"><p>JSON representation of a item</p></div>
+</dd>
+<dt id="msiempy.device.DataSource.text"><code class="name">var <span class="ident">text</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></code>.<code><a title="msiempy.core.types.NitroDict.text" href="core/types.html#msiempy.core.types.NitroDict.text">text</a></code>
+</p>
+<div class="desc inherited"><p>Text list of item's values</p></div>
+</dd>
+<dt id="msiempy.device.DataSource.nitro"><code class="name">var <span class="ident">nitro</span></code></dt>
+<dd>
+<p class="inheritance">
+<em>Inherited from:</em>
+<code><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></code>.<code><a title="msiempy.core.types.NitroDict.nitro" href="core/types.html#msiempy.core.types.NitroDict.nitro">nitro</a></code>
+</p>
+<div class="desc inherited"><p><code><a title="msiempy.core.session.NitroSession" href="core/session.html#msiempy.core.session.NitroSession">NitroSession</a></code> object. Interface to the SIEM.</p></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="msiempy.device.DataSource.data_from_id"><code class="name flex">
@@ -3429,7 +3587,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L1077-L1083" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L1077-L1083" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id):
     &#34;&#34;&#34;Gets full of the DataSource parameters&#34;&#34;&#34;
@@ -3448,7 +3606,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L1085-L1087" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L1085-L1087" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
@@ -3463,7 +3621,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L1089-L1091" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L1089-L1091" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self) : 
     &#34;&#34;&#34;Gets the detailed parameters.&#34;&#34;&#34;
@@ -3478,7 +3636,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L1093-L1106" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L1093-L1106" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def delete(self):
     &#34;&#34;&#34;This deletes the datasource and all the data. Be careful.
@@ -3504,7 +3662,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L1108-L1115" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L1108-L1115" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def delete_client(self):
     &#34;&#34;&#34;This deletes the datasource&#39;s clients and all the data. Be careful.&#34;&#34;&#34;
@@ -3524,7 +3682,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/device.py#L1155-L1159" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/device.py#L1155-L1159" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_id(self):
     &#34;&#34;&#34;
@@ -3534,17 +3692,6 @@ or
 </details>
 </dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="msiempy.core.types.NitroDict" href="core/types.html#msiempy.core.types.NitroDict">NitroDict</a></b></code>:
-<ul class="hlist">
-<li><code><a title="msiempy.core.types.NitroDict.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
-<li><code><a title="msiempy.core.types.NitroDict.json" href="core/types.html#msiempy.core.types.NitroDict.json">json</a></code></li>
-<li><code><a title="msiempy.core.types.NitroDict.nitro" href="core/types.html#msiempy.core.types.NitroObject.nitro">nitro</a></code></li>
-<li><code><a title="msiempy.core.types.NitroDict.text" href="core/types.html#msiempy.core.types.NitroDict.text">text</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 </dl>
 </section>
@@ -3616,6 +3763,7 @@ setTimeout(() => input.focus(), 100);
 <li>
 <h4><code><a title="msiempy.device.ESM" href="#msiempy.device.ESM">ESM</a></code></h4>
 <ul class="two-column">
+<li><code><a title="msiempy.device.ESM.refresh" href="#msiempy.device.ESM.refresh">refresh</a></code></li>
 <li><code><a title="msiempy.device.ESM.time" href="#msiempy.device.ESM.time">time</a></code></li>
 <li><code><a title="msiempy.device.ESM.buildstamp" href="#msiempy.device.ESM.buildstamp">buildstamp</a></code></li>
 <li><code><a title="msiempy.device.ESM.version" href="#msiempy.device.ESM.version">version</a></code></li>
@@ -3634,6 +3782,10 @@ setTimeout(() => input.focus(), 100);
 <li><code><a title="msiempy.device.ESM.type_id_to_venmod" href="#msiempy.device.ESM.type_id_to_venmod">type_id_to_venmod</a></code></li>
 <li><code><a title="msiempy.device.ESM.venmod_to_type_id" href="#msiempy.device.ESM.venmod_to_type_id">venmod_to_type_id</a></code></li>
 <li><code><a title="msiempy.device.ESM.rules_history" href="#msiempy.device.ESM.rules_history">rules_history</a></code></li>
+<li><code><a title="msiempy.device.ESM.text" href="#msiempy.device.ESM.text">text</a></code></li>
+<li><code><a title="msiempy.device.ESM.json" href="#msiempy.device.ESM.json">json</a></code></li>
+<li><code><a title="msiempy.device.ESM.nitro" href="core/types.html#msiempy.device.ESM.nitro">nitro</a></code></li>
+<li><code><a title="msiempy.device.ESM.NitroJSONEncoder" href="core/types.html#msiempy.device.ESM.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 </ul>
 </li>
 <li>
@@ -3647,6 +3799,13 @@ setTimeout(() => input.focus(), 100);
 <li><code><a title="msiempy.device.DevTree.duplicate_datasource" href="#msiempy.device.DevTree.duplicate_datasource">duplicate_datasource</a></code></li>
 <li><code><a title="msiempy.device.DevTree.add" href="#msiempy.device.DevTree.add">add</a></code></li>
 <li><code><a title="msiempy.device.DevTree.add_client" href="#msiempy.device.DevTree.add_client">add_client</a></code></li>
+<li><code><a title="msiempy.device.DevTree.keys" href="core/types.html#msiempy.device.DevTree.keys">keys</a></code></li>
+<li><code><a title="msiempy.device.DevTree.get_text" href="core/types.html#msiempy.device.DevTree.get_text">get_text</a></code></li>
+<li><code><a title="msiempy.device.DevTree.perform" href="core/types.html#msiempy.device.DevTree.perform">perform</a></code></li>
+<li><code><a title="msiempy.device.DevTree.text" href="core/types.html#msiempy.device.DevTree.text">text</a></code></li>
+<li><code><a title="msiempy.device.DevTree.json" href="core/types.html#msiempy.device.DevTree.json">json</a></code></li>
+<li><code><a title="msiempy.device.DevTree.nitro" href="core/types.html#msiempy.device.DevTree.nitro">nitro</a></code></li>
+<li><code><a title="msiempy.device.DevTree.NitroJSONEncoder" href="core/types.html#msiempy.device.DevTree.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 </ul>
 </li>
 <li>
@@ -3658,6 +3817,10 @@ setTimeout(() => input.focus(), 100);
 <li><code><a title="msiempy.device.DataSource.delete" href="#msiempy.device.DataSource.delete">delete</a></code></li>
 <li><code><a title="msiempy.device.DataSource.delete_client" href="#msiempy.device.DataSource.delete_client">delete_client</a></code></li>
 <li><code><a title="msiempy.device.DataSource.get_id" href="#msiempy.device.DataSource.get_id">get_id</a></code></li>
+<li><code><a title="msiempy.device.DataSource.json" href="core/types.html#msiempy.device.DataSource.json">json</a></code></li>
+<li><code><a title="msiempy.device.DataSource.text" href="core/types.html#msiempy.device.DataSource.text">text</a></code></li>
+<li><code><a title="msiempy.device.DataSource.nitro" href="core/types.html#msiempy.device.DataSource.nitro">nitro</a></code></li>
+<li><code><a title="msiempy.device.DataSource.NitroJSONEncoder" href="core/types.html#msiempy.device.DataSource.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 </ul>
 </li>
 </ul>

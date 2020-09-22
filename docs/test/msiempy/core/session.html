@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/session.py#L0-L878" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/core/session.py#L0-L918" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
 HTTP level interface to the ESM API.  
@@ -59,6 +59,8 @@ _PARAMS = {
                 &#34;locale&#34;: &#34;en_US&#34;,
                 &#34;os&#34;: &#34;Win32&#34;}
                 &#34;&#34;&#34;)),
+
+    ### DATASOURCES
 
     &#34;get_devtree&#34;: (&#34;GRP_GETVIRTUALGROUPIPSLISTDATA&#34;,
                     &#34;&#34;&#34;{&#34;ITEMS&#34;: &#34;#{DC1 + DC2}&#34;,
@@ -229,6 +231,7 @@ _PARAMS = {
         &#34;ds_details2&#34;: (&#34;dsGetDataSourceDetail&#34;,
                         Template(&#34;&#34;&#34;{&#34;datasourceId&#34;: {&#34;value&#34;: &#34;$ds_id&#34;}}&#34;&#34;&#34;)),
 
+        ### ALARMS
 
         &#34;get_alarms_custom_time&#34;: (Template(&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=$time_range&amp;customStart=$start_time&amp;customEnd=$end_time&amp;status=$status&amp;pageSize=$page_size&amp;pageNumber=$page_number&#34;&#34;&#34;),
                     None),
@@ -254,21 +257,17 @@ _PARAMS = {
         
         &#34;delete_alarms_11_2_1&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[$ids]}}&#34;&#34;&#34;)),
 
-        &#34;get_possible_filters&#34; : ( &#34;&#34;&#34;qryGetFilterFields&#34;&#34;&#34;, None ),
-
-        &#34;get_possible_fields&#34; : ( Template(&#34;&#34;&#34;qryGetSelectFields?type=$type&amp;groupType=$groupType&#34;&#34;&#34;), None ),
-
-        &#34;get_esm_time&#34; : ( &#34;&#34;&#34;essmgtGetESSTime&#34;&#34;&#34;,None),
-
         &#34;get_alerts_now&#34; : (&#34;&#34;&#34;IPS_GETALERTSNOW&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;IPSID&#34;: &#34;$ds_id&#34;}&#34;&#34;&#34;)),
 
-        &#34;get_flows_now&#34; : (&#34;&#34;&#34;IPS_GETALERTSNOW&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;IPSID&#34;: &#34;$ds_id&#34;}&#34;&#34;&#34;)),
+        &#34;get_flows_now&#34; : (&#34;&#34;&#34;IPS_GETFLOWSNOW&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;IPSID&#34;: &#34;$ds_id&#34;}&#34;&#34;&#34;)),
 
-        &#34;logout&#34; : ( &#34;&#34;&#34;userLogout&#34;&#34;&#34;, None ),
+        ### QUERY MODULE 
 
-        &#34;get_user_locale&#34; : ( &#34;&#34;&#34;getUserLocale&#34;&#34;&#34;, None ),
+        &#34;get_possible_filters&#34; : ( &#34;&#34;&#34;v2/qryGetFilterFields&#34;&#34;&#34;, None ),
 
-        &#34;event_query_custom_time&#34; : (&#34;&#34;&#34;qryExecuteDetail?type=EVENT&amp;reverse=false&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
+        &#34;get_possible_fields&#34; : ( Template(&#34;&#34;&#34;v2/qryGetSelectFields?type=$type&amp;groupType=$groupType&#34;&#34;&#34;), None ),
+
+        &#34;event_query_custom_time&#34; : (&#34;&#34;&#34;v2/qryExecuteDetail?type=EVENT&amp;reverse=false&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
                 &#34;config&#34;: {
                     &#34;timeRange&#34;: &#34;$time_range&#34;,
                     &#34;customStart&#34;: &#34;$start_time&#34;,
@@ -282,7 +281,7 @@ _PARAMS = {
                     }
                     }&#34;&#34;&#34;)),
 
-        &#34;event_query&#34; : (&#34;&#34;&#34;qryExecuteDetail?type=EVENT&amp;reverse=false&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
+        &#34;event_query&#34; : (&#34;&#34;&#34;v2/qryExecuteDetail?type=EVENT&amp;reverse=false&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
                 &#34;config&#34;: {
                     &#34;timeRange&#34;:&#34;$time_range&#34;,
                     &#34;fields&#34;:$fields,
@@ -294,14 +293,34 @@ _PARAMS = {
                     }
                     }&#34;&#34;&#34;)),
 
-        &#34;query_status&#34; : (&#34;&#34;&#34;qryGetStatus&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;resultID&#34;: $resultID}&#34;&#34;&#34;)),
+        &#34;query_status&#34; : (&#34;&#34;&#34;v2/qryGetStatus&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;resultID&#34;: $resultID}&#34;&#34;&#34;)),
 
-        &#34;query_result&#34; : (Template(&#34;&#34;&#34;qryGetResults?startPos=$startPos&amp;numRows=$numRows&amp;reverse=false&#34;&#34;&#34;), Template(&#34;&#34;&#34;{&#34;resultID&#34;: $resultID}&#34;&#34;&#34;)),
+        &#34;query_result&#34; : (Template(&#34;&#34;&#34;v2/qryGetResults?startPos=$startPos&amp;numRows=$numRows&amp;reverse=false&#34;&#34;&#34;), Template(&#34;&#34;&#34;{&#34;resultID&#34;: $resultID}&#34;&#34;&#34;)),
         
-        &#34;time_zones&#34; : (&#34;&#34;&#34;userGetTimeZones&#34;&#34;&#34;, None),
+        &#34;grouped_event_query&#34;: (&#34;&#34;&#34;v2/qryExecuteGrouped?queryType=EVENT&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
+                &#34;config&#34;: { 
+                    &#34;filters&#34;: $filters,
+                    &#34;field&#34;: {&#34;name&#34;: &#34;$field&#34;},
+                    &#34;timeRange&#34;: &#34;$time_range&#34;
+                    }
+        }&#34;&#34;&#34;)),
 
-        &#34;logout&#34; : (&#34;&#34;&#34;logout&#34;&#34;&#34;, None),
-        
+        &#34;grouped_event_query_custom_time&#34;: (&#34;&#34;&#34;v2/qryExecuteGrouped?queryType=EVENT&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
+                &#34;config&#34;: { 
+                    &#34;filters&#34;: $filters,
+                    &#34;field&#34;: {&#34;name&#34;: &#34;$field&#34;},
+                    &#34;timeRange&#34;: &#34;$time_range&#34;,
+                    &#34;customStart&#34;: &#34;$start_time&#34;,
+                    &#34;customEnd&#34;: &#34;$end_time&#34;,
+                    }
+        }&#34;&#34;&#34;)),
+
+        &#34;close_query&#34; : (&#34;&#34;&#34;v2/qryClose&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;resultID&#34;: $resultID}&#34;&#34;&#34;)),
+
+        ### EVENTS OPERATIONS
+
+        &#34;get_alert_data&#34;: (&#34;&#34;&#34;ipsGetAlertData&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;id&#34;: {&#34;value&#34;:&#34;$id&#34;}}&#34;&#34;&#34;)),
+
         &#34;add_note_to_event&#34; : (&#34;&#34;&#34;ipsAddAlertNote&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
             &#34;id&#34;: {&#34;value&#34;: &#34;$id&#34;},
             &#34;note&#34;: {&#34;note&#34;: &#34;$note&#34;}
@@ -309,6 +328,8 @@ _PARAMS = {
 
         &#34;add_note_to_event_int&#34;: (&#34;&#34;&#34;IPS_ADDALERTNOTE&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;AID&#34;: &#34;$id&#34;,
                                                             &#34;NOTE&#34;: &#34;$note&#34;}&#34;&#34;&#34;)),
+
+        ### WATCHLISTS OPERATIONS
 
         &#34;get_wl_types&#34;: (&#34;&#34;&#34;sysGetWatchlistFields&#34;&#34;&#34;, None),
         &#34;get_watchlists_no_filters&#34; : (Template(&#34;&#34;&#34;sysGetWatchlists?hidden=$hidden&amp;dynamic=$dynamic&amp;writeOnly=$writeOnly&amp;indexedOnly=$indexedOnly&#34;&#34;&#34;), 
@@ -356,14 +377,27 @@ _PARAMS = {
             &#34;values&#34;: $values,
             }&#34;&#34;&#34;)),
 
+        &#34;remove_watchlist_values&#34;: (&#34;&#34;&#34;sysRemoveWatchlistValues&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
+            &#34;watchlist&#34;: $watchlist,
+            &#34;values&#34;: $values,
+            }&#34;&#34;&#34;)),
+
         &#34;get_watchlist_values&#34;: (&#34;SYS_GETWATCHLISTDETAILS&#34;,
                                         Template(&#34;&#34;&#34;{&#34;WID&#34;: &#34;$id&#34;, &#34;LIM&#34;: &#34;T&#34;}&#34;&#34;&#34;)),
 
         &#34;remove_watchlists&#34;: (&#34;&#34;&#34;sysRemoveWatchlist&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;ids&#34;: {&#34;watchlistIdList&#34;: [&#34;$wl_id_list&#34;]}}&#34;&#34;&#34;)),
 
-        &#34;get_alert_data&#34;: (&#34;&#34;&#34;ipsGetAlertData&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;id&#34;: {&#34;value&#34;:&#34;$id&#34;}}&#34;&#34;&#34;)),
+        ### MISC
+
+        &#34;get_user_locale&#34; : ( &#34;&#34;&#34;getUserLocale&#34;&#34;&#34;, None ),
+
+        &#34;time_zones&#34; : (&#34;&#34;&#34;userGetTimeZones&#34;&#34;&#34;, None),
+
+        &#34;logout&#34; : (&#34;&#34;&#34;logout&#34;&#34;&#34;, None),
         
         &#34;get_sys_info&#34;  : (&#34;SYS_GETSYSINFO&#34;,&#34;&#34;&#34;{}&#34;&#34;&#34;),
+
+        &#34;get_esm_time&#34; : ( &#34;&#34;&#34;essmgtGetESSTime&#34;&#34;&#34;,None),
         
         &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
 } 
@@ -656,15 +690,20 @@ class NitroSession():
                     log.debug(&#39;{} -&gt; Result ({}): {}&#39;.format(
                         str(response),
                         type(result),
-                        str(result)[:200] + &#39;[...]&#39; if len(str(result))&gt;200 else &#39;&#39;
+                        str(result)[:200]
                     ))
 
                     return result
 
-        #Hard errors, could retry
-        except requests.exceptions.Timeout as e:
-            log.error(e)
-            raise
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+            
+            if retry&gt;0 :
+                log.warning(&#39;An network error occured ({}), retrying api_request()&#39;.format(e))
+                time.sleep(1)
+                return self.api_request(method, data, http, callback, raw, secure, retry=retry-1)
+            else :
+                raise e
+
         except requests.exceptions.TooManyRedirects as e :
             log.error(e)
             raise
@@ -868,6 +907,7 @@ class NitroSession():
             response: requests.Response response object
         Returns a list, a dict or a string
         &#34;&#34;&#34;
+        log.debug(&#34;Unpacking SIEM response: {}&#34;.format(str(response.text)[:200]))
         try :
             data = response.json()
             if isinstance(response.json(), dict):
@@ -939,7 +979,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/session.py#L355-L852" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/core/session.py#L389-L892" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class NitroSession():
     &#34;&#34;&#34;
@@ -1212,15 +1252,20 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
                     log.debug(&#39;{} -&gt; Result ({}): {}&#39;.format(
                         str(response),
                         type(result),
-                        str(result)[:200] + &#39;[...]&#39; if len(str(result))&gt;200 else &#39;&#39;
+                        str(result)[:200]
                     ))
 
                     return result
 
-        #Hard errors, could retry
-        except requests.exceptions.Timeout as e:
-            log.error(e)
-            raise
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+            
+            if retry&gt;0 :
+                log.warning(&#39;An network error occured ({}), retrying api_request()&#39;.format(e))
+                time.sleep(1)
+                return self.api_request(method, data, http, callback, raw, secure, retry=retry-1)
+            else :
+                raise e
+
         except requests.exceptions.TooManyRedirects as e :
             log.error(e)
             raise
@@ -1424,6 +1469,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
             response: requests.Response response object
         Returns a list, a dict or a string
         &#34;&#34;&#34;
+        log.debug(&#34;Unpacking SIEM response: {}&#34;.format(str(response.text)[:200]))
         try :
             data = response.json()
             if isinstance(response.json(), dict):
@@ -1469,7 +1515,7 @@ Throws <code><a title="msiempy.core.session.NitroError" href="#msiempy.core.sess
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/session.py#L439-L488" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/core/session.py#L473-L522" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def login(self, retry=1):
     &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.  
@@ -1531,7 +1577,7 @@ Throws <code><a title="msiempy.core.session.NitroError" href="#msiempy.core.sess
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/session.py#L490-L500" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/core/session.py#L524-L534" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def logout(self):
     &#34;&#34;&#34; 
@@ -1603,7 +1649,7 @@ for a in alarms:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/session.py#L502-L637" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/core/session.py#L536-L676" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def api_request(self, method, data=None, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
     &#34;&#34;&#34;
@@ -1729,15 +1775,20 @@ for a in alarms:
                 log.debug(&#39;{} -&gt; Result ({}): {}&#39;.format(
                     str(response),
                     type(result),
-                    str(result)[:200] + &#39;[...]&#39; if len(str(result))&gt;200 else &#39;&#39;
+                    str(result)[:200]
                 ))
 
                 return result
 
-    #Hard errors, could retry
-    except requests.exceptions.Timeout as e:
-        log.error(e)
-        raise
+    except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+        
+        if retry&gt;0 :
+            log.warning(&#39;An network error occured ({}), retrying api_request()&#39;.format(e))
+            time.sleep(1)
+            return self.api_request(method, data, http, callback, raw, secure, retry=retry-1)
+        else :
+            raise e
+
     except requests.exceptions.TooManyRedirects as e :
         log.error(e)
         raise</code></pre>
@@ -1752,7 +1803,7 @@ Example: '10.0.2'</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/session.py#L643-L648" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/core/session.py#L682-L687" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def version(self):
     &#34;&#34;&#34;
@@ -1771,7 +1822,7 @@ Example: '10.0.2 20170516001031'</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/session.py#L650-L655" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/core/session.py#L689-L694" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def buildstamp(self):
     &#34;&#34;&#34;
@@ -1794,7 +1845,7 @@ Example: '10.0.2 20170516001031'</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/session.py#L657-L686" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/core/session.py#L696-L725" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_internal_file(self, file_token):
     &#34;&#34;&#34;Uses the private API to retrieve, assemble and delete a temp file from the ESM.
@@ -1922,18 +1973,18 @@ request('unack_alarms', ids) # Call alarmUnacknowledgeTriggeredAlarm
 request('unack_alarms_11_2_1', ids) # Call alarmUnacknowledgeTriggeredAlarm  
 request('delete_alarms', ids) # Call alarmDeleteTriggeredAlarm  
 request('delete_alarms_11_2_1', ids) # Call alarmDeleteTriggeredAlarm  
-request('get_possible_filters', ) # Call qryGetFilterFields  
-request('get_possible_fields', type, groupType) # Call qryGetSelectFields  
-request('get_esm_time', ) # Call essmgtGetESSTime  
 request('get_alerts_now', ds_id) # Call IPS_GETALERTSNOW  
-request('get_flows_now', ds_id) # Call IPS_GETALERTSNOW  
-request('logout', ) # Call logout  
-request('get_user_locale', ) # Call getUserLocale  
-request('event_query_custom_time', time_range, start_time, end_time, fields, filters, limit, offset, order_field, order_direction) # Call qryExecuteDetail  
-request('event_query', time_range, fields, filters, limit, offset, order_field, order_direction) # Call qryExecuteDetail  
-request('query_status', resultID) # Call qryGetStatus  
-request('query_result', startPos, numRows, resultID) # Call qryGetResults  
-request('time_zones', ) # Call userGetTimeZones  
+request('get_flows_now', ds_id) # Call IPS_GETFLOWSNOW  
+request('get_possible_filters', ) # Call v2/qryGetFilterFields  
+request('get_possible_fields', type, groupType) # Call v2/qryGetSelectFields  
+request('event_query_custom_time', time_range, start_time, end_time, fields, filters, limit, offset, order_field, order_direction) # Call v2/qryExecuteDetail  
+request('event_query', time_range, fields, filters, limit, offset, order_field, order_direction) # Call v2/qryExecuteDetail  
+request('query_status', resultID) # Call v2/qryGetStatus  
+request('query_result', startPos, numRows, resultID) # Call v2/qryGetResults  
+request('grouped_event_query', filters, field, time_range) # Call v2/qryExecuteGrouped  
+request('grouped_event_query_custom_time', filters, field, time_range, start_time, end_time) # Call v2/qryExecuteGrouped  
+request('close_query', resultID) # Call v2/qryClose  
+request('get_alert_data', id) # Call ipsGetAlertData  
 request('add_note_to_event', id, note) # Call ipsAddAlertNote  
 request('add_note_to_event_int', id, note) # Call IPS_ADDALERTNOTE  
 request('get_wl_types', ) # Call sysGetWatchlistFields  
@@ -1941,16 +1992,20 @@ request('get_watchlists_no_filters', hidden, dynamic, writeOnly, indexedOnly) # 
 request('get_watchlist_details', id) # Call sysGetWatchlistDetails  
 request('add_watchlist', name, wl_type) # Call sysAddWatchlist  
 request('add_watchlist_values', watchlist, values) # Call sysAddWatchlistValues  
+request('remove_watchlist_values', watchlist, values) # Call sysRemoveWatchlistValues  
 request('get_watchlist_values', id) # Call SYS_GETWATCHLISTDETAILS  
 request('remove_watchlists', wl_id_list) # Call sysRemoveWatchlist  
-request('get_alert_data', id) # Call ipsGetAlertData  
+request('get_user_locale', ) # Call getUserLocale  
+request('time_zones', ) # Call userGetTimeZones  
+request('logout', ) # Call logout  
 request('get_sys_info', ) # Call SYS_GETSYSINFO  
+request('get_esm_time', ) # Call essmgtGetESSTime  
 request('build_stamp', ) # Call essmgtGetBuildStamp
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/session.py#L688-L757" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/core/session.py#L727-L796" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def request(self, request, **kwargs):
     &#34;&#34;&#34;
@@ -2036,7 +2091,7 @@ It's used when the user/passwd is incorrect and other HTTP errors.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/core/session.py#L874-L879" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/core/session.py#L914-L919" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class NitroError(Exception):
     &#34;&#34;&#34;

@@ -35,11 +35,11 @@ Head out to one of the sub-modules to see objects definitions or scroll down for
 <p>Links : <a href="https://github.com/mfesiem/msiempy">GitHub</a>, <a href="https://pypi.org/project/msiempy/">PyPI</a>, <a href="https://mfesiem.github.io/docs/msiempy/classes.png">Class diagram</a>, <a href="https://mfesiem.github.io/docs/msiempy/packages.png">Packages diagram</a>, <a href="https://mfesiem.github.io">SIEM API documentation</a> (generated PDFs)
 </p>
 <hr>
-<p>Installation </p>
+<h2 id="installation">Installation</h2>
 <pre><code>python3 -m pip install msiempy
 </code></pre>
-<p>Authentication and configuration setup
-The module offers a single point of authentication against your SIEM, so you don't have to worry about authentication when writting your scripts. This means that you need to preconfigure the authentication using the configuration file.</p>
+<h2 id="authentication-and-configuration-setup">Authentication and configuration setup</h2>
+<p>The module offers a single point of authentication against your SIEM, so you don't have to worry about authentication when writting your scripts. This means that you need to preconfigure the authentication using the configuration file.</p>
 <p>The configuration file is located (by default) securely in your user directory since it contains credentials.<br>
 - For Windows:
 <code>%APPDATA%\.msiem\conf.ini</code><br>
@@ -76,7 +76,7 @@ UEBhc3NXMHJk
 Then acknowledge the alarms and make sure they are all acknowledged.
 </p>
 <p>The number of alarms retreived is defined by the <code>page_size</code> property.</p>
-<pre><code class="python">from msiempy.alarm import AlarmManager, Alarm
+<pre><code class="python">from msiempy import AlarmManager, Alarm
 # Make an alarm query
 alarms=AlarmManager(
         time_range='CURRENT_YEAR',
@@ -100,7 +100,7 @@ for alarm in alarms:
 <h3 id="query-events">Query events</h3>
 <p>See objects: <code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code>, <code><a title="msiempy.event.FieldFilter" href="event.html#msiempy.event.FieldFilter">FieldFilter</a></code>, <code><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></code><br>
 Query events according to destination IP and hostname filters, sorted by AlertID. </p>
-<pre><code class="python">from  msiempy.event import EventManager, FieldFilter
+<pre><code class="python">from  msiempy import EventManager, FieldFilter
 
 print('Simple event query sorted by AlertID')
 events = EventManager(
@@ -119,7 +119,7 @@ print(events.get_text(fields=['AlertID','LastTime','SrcIP', 'Rule.msg']))
 <h3 id="add-a-note-to-events">Add a note to events</h3>
 <p>Setting the note of an event, retreiving the genuine event from IPSIDAlertID and checking the note is well set. See <a href="https://github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py"><code>add_wpsan_note.py</code></a> script to see more how to add note to event that triggered alarms !
 </p>
-<pre><code class="python">from  msiempy.event import EventManager, Event
+<pre><code class="python">from  msiempy import EventManager, Event
 events = EventManager(
         time_range='CURRENT_YEAR',
         limit=2
@@ -135,16 +135,14 @@ for event in events :
 <p><code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code> have other arguments: <code>order</code>, <code>start_time</code> and <code>end_time</code> or <code>time_rage</code>
 </p>
 <p><code><a title="msiempy.event.EventManager.load_data" href="event.html#msiempy.event.EventManager.load_data">EventManager.load_data()</a></code> method accept also several parameters. It controls the query's division time range into slots of <code>delta</code> duration, then the query would be divided into the specified number of <code>slots</code>. Control also the number of asyncronous jobs using <code>workers</code> parameter. <code>max_query_depth</code> parameter specify the number of sub-divisions the query can take at most (zero by default). The query is divided only if it hasn't completed with the current query settings. <br>
-See
-module documentation for more infos.
+See method documentation for more infos.
 </p>
 <p>See <a href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py"><code>dump_all_fields.py</code></a> script to have full list of <code>fields</code> you can request and fields you can use with <code>FieldFilter</code> .</p>
 <h3 id="print-esm-infos">Print ESM infos</h3>
 <p>See object: <code><a title="msiempy.device.ESM" href="device.html#msiempy.device.ESM">ESM</a></code></p>
 <p>Print a few esm infos. ESM object has not state for it self, it's a simple interface to data structures / values returned by the SIEM.
 </p>
-<pre><code class="python">&gt;&gt;&gt; from msiempy.device import ESM
-
+<pre><code class="python">&gt;&gt;&gt; from msiempy import ESM
 &gt;&gt;&gt; esm=ESM()
 &gt;&gt;&gt; esm.version()
 '11.2.1'
@@ -157,7 +155,7 @@ module documentation for more infos.
 <p>See objects: <code><a title="msiempy.device.DevTree" href="device.html#msiempy.device.DevTree">DevTree</a></code>, <code><a title="msiempy.device.DataSource" href="device.html#msiempy.device.DataSource">DataSource</a></code></p>
 <p>Load all datasources and write all infos in a CSV file.
 </p>
-<pre><code class="python">from msiempy.device import DevTree
+<pre><code class="python">from msiempy import DevTree
 
 devtree = DevTree()
 
@@ -167,7 +165,7 @@ with open('all-datasources.csv', 'w') as f:
 <h3 id="dump-watchlists-definitions">Dump Watchlists definitions</h3>
 <p>See objects: <code><a title="msiempy.watchlist.WatchlistManager" href="watchlist.html#msiempy.watchlist.WatchlistManager">WatchlistManager</a></code>, <code><a title="msiempy.watchlist.Watchlist" href="watchlist.html#msiempy.watchlist.Watchlist">Watchlist</a></code></p>
 <p>Print whatchlist list.</p>
-<pre><code class="python">from msiempy.watchlist import WatchlistManager
+<pre><code class="python">from msiempy import WatchlistManager
 watchlists=WatchlistManager()
 print(watchlists)
 </code></pre>
@@ -217,11 +215,10 @@ Useful shell command to get simple list of errors:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/__init__.py#L0-L234" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/__init__.py#L0-L258" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;
-
 Welcome to the **msiempy** library documentation.  
 The pythonic way to deal with McAfee SIEM API.  
 Head out to one of the sub-modules to see objects definitions or scroll down for general documentation.  
@@ -232,13 +229,14 @@ Links : [GitHub](https://github.com/mfesiem/msiempy), [PyPI](https://pypi.org/pr
 
 ***
 
- Installation 
+## Installation 
 
 ```
 python3 -m pip install msiempy
 ```
 
-Authentication and configuration setup
+## Authentication and configuration setup  
+
 The module offers a single point of authentication against your SIEM, so you don&#39;t have to worry about authentication when writting your scripts. This means that you need to preconfigure the authentication using the configuration file.
 
 The configuration file is located (by default) securely in your user directory since it contains credentials.  
@@ -280,7 +278,7 @@ Then acknowledge the alarms and make sure they are all acknowledged.
 The number of alarms retreived is defined by the `page_size` property.
 
 ```python
-from msiempy.alarm import AlarmManager, Alarm
+from msiempy import AlarmManager, Alarm
 # Make an alarm query
 alarms=AlarmManager(
         time_range=&#39;CURRENT_YEAR&#39;,
@@ -308,7 +306,7 @@ See objects: `msiempy.event.EventManager`, `msiempy.event.FieldFilter`, `msiempy
 
 Query events according to destination IP and hostname filters, sorted by AlertID. 
 ```python
-from  msiempy.event import EventManager, FieldFilter
+from  msiempy import EventManager, FieldFilter
 
 print(&#39;Simple event query sorted by AlertID&#39;)
 events = EventManager(
@@ -329,7 +327,7 @@ print(events.get_text(fields=[&#39;AlertID&#39;,&#39;LastTime&#39;,&#39;SrcIP&#3
 
 Setting the note of an event, retreiving the genuine event from IPSIDAlertID and checking the note is well set. See [`add_wpsan_note.py`](https://github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py) script to see more how to add note to event that triggered alarms !  
 ```python
-from  msiempy.event import EventManager, Event
+from  msiempy import EventManager, Event
 events = EventManager(
         time_range=&#39;CURRENT_YEAR&#39;,
         limit=2
@@ -345,7 +343,7 @@ for event in events :
 `msiempy.event.EventManager()` have other arguments: `order`, `start_time` and `end_time` or `time_rage`  
 
 `msiempy.event.EventManager.load_data()` method accept also several parameters. It controls the query&#39;s division time range into slots of `delta` duration, then the query would be divided into the specified number of `slots`. Control also the number of asyncronous jobs using `workers` parameter. `max_query_depth` parameter specify the number of sub-divisions the query can take at most (zero by default). The query is divided only if it hasn&#39;t completed with the current query settings.   
-See  module documentation for more infos.  
+See method documentation for more infos.  
  
 See [`dump_all_fields.py`](https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py) script to have full list of `fields` you can request and fields you can use with `FieldFilter` .
 
@@ -355,8 +353,7 @@ See object: `msiempy.device.ESM`
 
 Print a few esm infos. ESM object has not state for it self, it&#39;s a simple interface to data structures / values returned by the SIEM.  
 ```python
-&gt;&gt;&gt; from msiempy.device import ESM
-
+&gt;&gt;&gt; from msiempy import ESM
 &gt;&gt;&gt; esm=ESM()
 &gt;&gt;&gt; esm.version()
 &#39;11.2.1&#39;
@@ -372,7 +369,7 @@ See objects: `msiempy.device.DevTree`, `msiempy.device.DataSource`
 
 Load all datasources and write all infos in a CSV file.  
 ```python
-from msiempy.device import DevTree
+from msiempy import DevTree
 
 devtree = DevTree()
 
@@ -386,7 +383,7 @@ See objects: `msiempy.watchlist.WatchlistManager`, `msiempy.watchlist.Watchlist`
 
 Print whatchlist list.
 ```python
-from msiempy.watchlist import WatchlistManager
+from msiempy import WatchlistManager
 watchlists=WatchlistManager()
 print(watchlists)
 ```
@@ -448,11 +445,36 @@ cat /path/to/your/log/file | grep -i error | sort | uniq
 
 &#34;&#34;&#34;
 
-# &#34;Public&#34; API imports 
+# List all library objects that the user might need
+
 from .core import (
     NitroConfig,
     NitroError,
-    NitroSession
+    NitroSession,
+    FilteredQueryList,
+    NitroList
+)
+from .alarm import (
+    Alarm,
+    AlarmManager
+)
+from .device import (
+    ESM,
+    DevTree,
+    DataSource
+)
+from .event import (
+    QueryExecuteManager,
+    Event,
+    EventManager,
+    GroupFilter,
+    FieldFilter,
+    GroupedEventManager,
+    GroupedEvent,
+)
+from .watchlist import (
+    Watchlist,
+    WatchlistManager
 )</code></pre>
 </details>
 </section>
@@ -543,6 +565,8 @@ setTimeout(() => input.focus(), 100);
 <h1>Index</h1>
 <div class="toc">
 <ul>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#authentication-and-configuration-setup">Authentication and configuration setup</a></li>
 <li><a href="#examples">Examples</a><ul>
 <li><a href="#acknowledge-alarms">Acknowledge alarms</a></li>
 <li><a href="#query-events">Query events</a></li>

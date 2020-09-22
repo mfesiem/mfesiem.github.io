@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L0-L184" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L0-L194" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;Provide watchlist management.&#34;&#34;&#34;
@@ -175,6 +175,16 @@ class Watchlist(NitroDict):
         &#34;&#34;&#34;
         self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)
 
+    def remove_values(self, values):
+        &#34;&#34;&#34;
+        Remove values from static watchlist.
+
+        Arguments:  
+
+        - `values` (`list`): list of values
+        &#34;&#34;&#34;
+        self.nitro.request(&#39;remove_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)
+
     def data_from_id(self, id):
         &#34;&#34;&#34;
         Retrieve watchlist details for ID.
@@ -245,7 +255,7 @@ wl.add_values(['1.1.1.2', '2.2.2.1', '3.3.3.1'])
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L10-L102" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L10-L102" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class WatchlistManager(NitroList):
     &#34;&#34;&#34;
@@ -365,7 +375,7 @@ wl.add_values(['1.1.1.2', '2.2.2.1', '3.3.3.1'])
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L32-L42" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L32-L42" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_watchlist_summary(self):
     &#34;&#34;&#34;
@@ -388,7 +398,7 @@ wl.add_values(['1.1.1.2', '2.2.2.1', '3.3.3.1'])
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L44-L48" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L44-L48" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;
@@ -405,7 +415,7 @@ wl.add_values(['1.1.1.2', '2.2.2.1', '3.3.3.1'])
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L50-L54" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L50-L54" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self):
     &#34;&#34;&#34;
@@ -443,7 +453,7 @@ Most common types are: <code>IPAddress</code>,
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L56-L85" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L56-L85" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add(self, name, wl_type):
     &#34;&#34;&#34;
@@ -491,7 +501,7 @@ Most common types are: <code>IPAddress</code>,
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L87-L95" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L87-L95" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def remove(self, wl_id_list):
     &#34;&#34;&#34;
@@ -513,7 +523,7 @@ Returns: <code>list</code> of watchlist types.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L97-L102" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L97-L102" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_wl_types(self):
     &#34;&#34;&#34;
@@ -572,7 +582,7 @@ Whether this watchlist is hidden</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L104-L185" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L104-L195" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Watchlist(NitroDict):
     &#34;&#34;&#34;
@@ -614,6 +624,16 @@ Whether this watchlist is hidden</li>
         - `values` (`list`): list of values
         &#34;&#34;&#34;
         self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)
+
+    def remove_values(self, values):
+        &#34;&#34;&#34;
+        Remove values from static watchlist.
+
+        Arguments:  
+
+        - `values` (`list`): list of values
+        &#34;&#34;&#34;
+        self.nitro.request(&#39;remove_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)
 
     def data_from_id(self, id):
         &#34;&#34;&#34;
@@ -685,7 +705,7 @@ Whether this watchlist is hidden</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L135-L143" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L135-L143" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_values(self, values):
     &#34;&#34;&#34;
@@ -696,6 +716,32 @@ Whether this watchlist is hidden</li>
     - `values` (`list`): list of values
     &#34;&#34;&#34;
     self.nitro.request(&#39;add_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)</code></pre>
+</details>
+</dd>
+<dt id="msiempy.watchlist.Watchlist.remove_values"><code class="name flex">
+<span>def <span class="ident">remove_values</span></span>(<span>self, values)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Remove values from static watchlist.</p>
+<p>Arguments:
+</p>
+<ul>
+<li><code>values</code> (<code>list</code>): list of values</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L145-L153" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def remove_values(self, values):
+    &#34;&#34;&#34;
+    Remove values from static watchlist.
+
+    Arguments:  
+
+    - `values` (`list`): list of values
+    &#34;&#34;&#34;
+    self.nitro.request(&#39;remove_watchlist_values&#39;, watchlist=self[&#39;id&#39;], values=values)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.watchlist.Watchlist.data_from_id"><code class="name flex">
@@ -711,7 +757,7 @@ Whether this watchlist is hidden</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L145-L154" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L155-L164" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id):
     &#34;&#34;&#34;
@@ -733,7 +779,7 @@ Whether this watchlist is hidden</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L156-L160" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L166-L170" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;
@@ -750,7 +796,7 @@ Whether this watchlist is hidden</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L162-L164" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L172-L174" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self):
     &#34;&#34;&#34;Load Watchlist details.&#34;&#34;&#34;
@@ -766,7 +812,7 @@ Raises: <code>KeyError</code> if watchlist invalid.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L166-L179" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L176-L189" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_values(self):
     &#34;&#34;&#34;
@@ -792,7 +838,7 @@ Raises: <code>KeyError</code> if watchlist invalid.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/2ad5162ccd8e4fe048598ef7d229b00fd8b93774/msiempy/watchlist.py#L181-L185" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/df5e69d2e30e042fce5fbc240aee32ce0fc25cd1/msiempy/watchlist.py#L191-L195" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_id(self):
     &#34;&#34;&#34;
@@ -896,6 +942,7 @@ setTimeout(() => input.focus(), 100);
 <h4><code><a title="msiempy.watchlist.Watchlist" href="#msiempy.watchlist.Watchlist">Watchlist</a></code></h4>
 <ul class="two-column">
 <li><code><a title="msiempy.watchlist.Watchlist.add_values" href="#msiempy.watchlist.Watchlist.add_values">add_values</a></code></li>
+<li><code><a title="msiempy.watchlist.Watchlist.remove_values" href="#msiempy.watchlist.Watchlist.remove_values">remove_values</a></code></li>
 <li><code><a title="msiempy.watchlist.Watchlist.data_from_id" href="#msiempy.watchlist.Watchlist.data_from_id">data_from_id</a></code></li>
 <li><code><a title="msiempy.watchlist.Watchlist.load_details" href="#msiempy.watchlist.Watchlist.load_details">load_details</a></code></li>
 <li><code><a title="msiempy.watchlist.Watchlist.refresh" href="#msiempy.watchlist.Watchlist.refresh">refresh</a></code></li>

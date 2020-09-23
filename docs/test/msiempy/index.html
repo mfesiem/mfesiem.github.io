@@ -97,7 +97,7 @@ print(&quot;Acknowledge alarms...&quot;)
 for alarm in alarms:
     alarm.acknowledge()
 </code></pre>
-<h3 id="query-events">Query events</h3>
+<h3 id="execute-an-event-query">Execute an Event query</h3>
 <p>See objects: <code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code>, <code><a title="msiempy.event.FieldFilter" href="event.html#msiempy.event.FieldFilter">FieldFilter</a></code>, <code><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></code><br>
 Query events according to destination IP and hostname filters, sorted by AlertID. </p>
 <pre><code class="python">from  msiempy import EventManager, FieldFilter
@@ -138,6 +138,26 @@ for event in events :
 See method documentation for more infos.
 </p>
 <p>See <a href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py"><code>dump_all_fields.py</code></a> script to have full list of <code>fields</code> you can request and fields you can use with <code>FieldFilter</code> .</p>
+<h3 id="execute-an-grouped-event-query">Execute an grouped Event query</h3>
+<p>Query the curent day events grouped by <code>ScrIP</code>.
+</p>
+<p>See objects: <code><a title="msiempy.event.GroupedEventManager" href="event.html#msiempy.event.GroupedEventManager">GroupedEventManager</a></code> and <code><a title="msiempy.event.GroupedEvent" href="event.html#msiempy.event.GroupedEvent">GroupedEvent</a></code>.
+</p>
+<pre><code class="python">from msiempy import GroupedEventManager
+import pandas
+query = GroupedEventManager(
+    time_range='LAST_3_DAYS', 
+    field='SrcIP', 
+    filters=[('IPSID', '144116287587483648')]) 
+query.load_data()
+# Sort the results by total count
+results = list(reversed(sorted(query, key=lambda k: int(k['SUM(Alert.EventCount)']))))
+# Display top 10 in a panda frame
+frame=pandas.DataFrame(results[:10])
+print(frame.to_string(index=False))
+</code></pre>
+<p>Tip: <a href="https://github.com/mfesiem/msiempy/blob/master/samples/all_dev.py"><code>all_dev.py</code> script</a> can help you list all your datasources IDs (for the required <code>IPSID</code> filter).
+</p>
 <h3 id="print-esm-infos">Print ESM infos</h3>
 <p>See object: <code><a title="msiempy.device.ESM" href="device.html#msiempy.device.ESM">ESM</a></code></p>
 <p>Print a few esm infos. ESM object has not state for it self, it's a simple interface to data structures / values returned by the SIEM.
@@ -215,7 +235,7 @@ Useful shell command to get simple list of errors:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/006c374e0bd714d90a4c6307d738032cdf2d410d/msiempy/__init__.py#L0-L258" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/e28d849c82601b197a80e471b0fefa9464e6392f/msiempy/__init__.py#L0-L280" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;
@@ -300,7 +320,7 @@ for alarm in alarms:
     alarm.acknowledge()
 ```  
 
-### Query events
+### Execute an Event query 
 
 See objects: `msiempy.event.EventManager`, `msiempy.event.FieldFilter`, `msiempy.event.Event`  \
 
@@ -346,6 +366,29 @@ for event in events :
 See method documentation for more infos.  
  
 See [`dump_all_fields.py`](https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py) script to have full list of `fields` you can request and fields you can use with `FieldFilter` .
+
+### Execute an grouped Event query
+
+Query the curent day events grouped by `ScrIP`.  
+
+See objects: `msiempy.event.GroupedEventManager` and `msiempy.event.GroupedEvent`.  
+
+```python
+from msiempy import GroupedEventManager
+import pandas
+query = GroupedEventManager(
+    time_range=&#39;LAST_3_DAYS&#39;, 
+    field=&#39;SrcIP&#39;, 
+    filters=[(&#39;IPSID&#39;, &#39;144116287587483648&#39;)]) 
+query.load_data()
+# Sort the results by total count
+results = list(reversed(sorted(query, key=lambda k: int(k[&#39;SUM(Alert.EventCount)&#39;]))))
+# Display top 10 in a panda frame
+frame=pandas.DataFrame(results[:10])
+print(frame.to_string(index=False))
+```
+
+Tip: [`all_dev.py` script](https://github.com/mfesiem/msiempy/blob/master/samples/all_dev.py) can help you list all your datasources IDs (for the required `IPSID` filter).  
 
 ### Print ESM infos
 
@@ -464,7 +507,6 @@ from .device import (
     DataSource
 )
 from .event import (
-    QueryExecuteManager,
     Event,
     EventManager,
     GroupFilter,
@@ -569,8 +611,9 @@ setTimeout(() => input.focus(), 100);
 <li><a href="#authentication-and-configuration-setup">Authentication and configuration setup</a></li>
 <li><a href="#examples">Examples</a><ul>
 <li><a href="#acknowledge-alarms">Acknowledge alarms</a></li>
-<li><a href="#query-events">Query events</a></li>
+<li><a href="#execute-an-event-query">Execute an Event query</a></li>
 <li><a href="#add-a-note-to-events">Add a note to events</a></li>
+<li><a href="#execute-an-grouped-event-query">Execute an grouped Event query</a></li>
 <li><a href="#print-esm-infos">Print ESM infos</a></li>
 <li><a href="#dump-datasources">Dump Datasources</a></li>
 <li><a href="#dump-watchlists-definitions">Dump Watchlists definitions</a></li>

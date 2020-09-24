@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L0-L2027" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L0-L2034" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Provide event management.   
 &#34;&#34;&#34;
@@ -209,6 +209,10 @@ class EventManager(_QueryExecuteManager):
         self.__parent__ = __parent__
 
         # Setting the default fields Adds the specified fields, make sure there is no duplicates and delete TABLE identifiers
+        self.fields=[]
+        &#34;&#34;&#34;
+        Query fields
+        &#34;&#34;&#34;
         if fields and len(fields) &gt; 0:
             all_keys = Event.DEFAULTS_EVENT_FIELDS + list(fields)
             uniquekeys = set()
@@ -219,10 +223,13 @@ class EventManager(_QueryExecuteManager):
             self.fields = Event.DEFAULTS_EVENT_FIELDS
         # log.debug(&#39;{}\nFIELDS : {}&#39;.format(locals(), self.fields))
 
-        # Setting limit according to config or limit argument
+        # Setting limit according to limit argument
         # TODO Try to load queries with a limit of 10k and get result as chucks of 500 with starPost nbRows
         #   and compare efficiency
         self.limit = int(limit)
+        &#34;&#34;&#34;
+        Maximum number of rows per query.  
+        &#34;&#34;&#34;
 
         # Save order
         self.order = order
@@ -496,12 +503,14 @@ class GroupedEventManager(_QueryExecuteManager):
         super().__init__(*args, **kwargs)
 
         # Declaring attributes
+        self.field = None
+        &#34;&#34;&#34;
+        Grouped query field
+        &#34;&#34;&#34;
         if field:
             if not isinstance(field, str):
                 raise TypeError(&#34;Argument field must be a string. Not {}&#34;.format(field))
             self.field = self.get_field_nickname(field)
-        else:
-            self.field = None
 
         # Type cast all items in the list &#34;data&#34; to events type objects
         # Casting all data to Event objects, better way to do it ?
@@ -568,6 +577,7 @@ class GroupedEventManager(_QueryExecuteManager):
 
         Raises `msiempy.core.session.NitroError` if any unhandled errors.
         Raises `TimeoutError` if wait_timeout_sec counter gets to 0.
+        Raises `ValueError` if an `IPSID` filter is not present.  
         &#34;&#34;&#34;
         if not any([f[&#34;field&#34;][&#34;name&#34;] == &#34;IPSID&#34; for f in self.filters]):
             raise ValueError(
@@ -677,10 +687,6 @@ class Event(NitroDict):
     `__getitem__`, `__contains__`, `__setitem__` and `__delitem__` method have been rewrote in order to offer more straight-forward `dict` usage.
     For exemple, if the SIEM returns results with keys like  `Alert.65613`, `Alert.BIN(7)` or `Alert.SrcIP`: you&#39;ll be able to use `Event` dict with your initial
     queried keys like `Event[&#39;Web_Doamin&#39;] `, `Event[&#39;UserIDSrc&#39;]` or `Event[&#39;SrcIP&#39;]`. (You can still use internal keys if you want).
-
-    Exemple:
-
-
 
     &#34;&#34;&#34;
 
@@ -1541,6 +1547,7 @@ class GroupedEvent(Event):
     Grouped event item, represents a row of grouped query results.
 
     Common keys:
+
     - The requested field
     - `COUNT(*)`: The number of event for the result row
     - `SUM(Alert.EventCount)`:  The sum of their `EventCount` attribute
@@ -1553,7 +1560,7 @@ class GroupedEvent(Event):
 
     Meaning that you can use `e[&#39;TotalEventCount&#39;]`, it will return `e[&#39;SUM(Alert.EventCount)&#39;]`.
 
-    Note: `GroupedEvent` is not suitable for `Event`s operations like `set_note()` or `refresh()` because there is no ID associated with events records.
+    .. note:: `GroupedEvent` is NOT suitable for `Event`s operations like `set_note()` or `refresh()` because there is no ID associated with events records.
 
     &#34;&#34;&#34;
 
@@ -1611,7 +1618,7 @@ class FieldFilter(_QueryFilter):
     e = EventManager(time_range=&#39;LAST_24_HOURS&#39;, filters=[ FieldFilter(&#39;DSIDSigID&#39;, [&#34;49190-4294967295&#34;], operator=&#39;EQUALS&#39;) ])
     ```
 
-    *Make sure the filter name is valid by checking the result of `msiempy.event.EventManager.get_possible_filters` or use the provided script in the sample folder*
+    .. note:: Make sure the filter name is valid by checking the result of `msiempy.event.EventManager.get_possible_filters` or use the provided script in the sample folder
 
     Arguments:
 
@@ -2092,7 +2099,7 @@ Some default fields will be present.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L145-L443" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L145-L450" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class EventManager(_QueryExecuteManager):
     &#34;&#34;&#34;
@@ -2128,6 +2135,10 @@ Some default fields will be present.</li>
         self.__parent__ = __parent__
 
         # Setting the default fields Adds the specified fields, make sure there is no duplicates and delete TABLE identifiers
+        self.fields=[]
+        &#34;&#34;&#34;
+        Query fields
+        &#34;&#34;&#34;
         if fields and len(fields) &gt; 0:
             all_keys = Event.DEFAULTS_EVENT_FIELDS + list(fields)
             uniquekeys = set()
@@ -2138,10 +2149,13 @@ Some default fields will be present.</li>
             self.fields = Event.DEFAULTS_EVENT_FIELDS
         # log.debug(&#39;{}\nFIELDS : {}&#39;.format(locals(), self.fields))
 
-        # Setting limit according to config or limit argument
+        # Setting limit according to limit argument
         # TODO Try to load queries with a limit of 10k and get result as chucks of 500 with starPost nbRows
         #   and compare efficiency
         self.limit = int(limit)
+        &#34;&#34;&#34;
+        Maximum number of rows per query.  
+        &#34;&#34;&#34;
 
         # Save order
         self.order = order
@@ -2426,7 +2440,7 @@ Default value is <code>(DESCENDING, LastTime)</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L208-L214" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L215-L221" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def order(self):
@@ -2436,6 +2450,14 @@ def order(self):
     &#34;&#34;&#34;
     return (self._order_direction, self._order_field)</code></pre>
 </details>
+</dd>
+<dt id="msiempy.event.EventManager.fields"><code class="name">var <span class="ident">fields</span></code></dt>
+<dd>
+<div class="desc"><p>List of query fields</p></div>
+</dd>
+<dt id="msiempy.event.EventManager.limit"><code class="name">var <span class="ident">limit</span></code></dt>
+<dd>
+<div class="desc"><p>Max number of rows per query</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -2449,7 +2471,7 @@ Acts like there is not filters.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L233-L245" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L240-L252" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
@@ -2485,7 +2507,7 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L247-L316" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L254-L323" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def qry_load_data(self, retry=1, wait_timeout_sec=120):
     &#34;&#34;&#34;
@@ -2585,7 +2607,7 @@ Only works for certain time ranges.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L318-L417" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L325-L424" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
     &#34;&#34;&#34;
@@ -2698,7 +2720,7 @@ The list is loaded from the SIEM.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L429-L436" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L436-L443" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_possible_fields(self):
     &#34;&#34;&#34;
@@ -2719,7 +2741,7 @@ The list is loaded from the SIEM.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L438-L443" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L445-L450" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_possible_filters(self):
     &#34;&#34;&#34;
@@ -2775,7 +2797,7 @@ Interface to execute a grouped event query.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L446-L579" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L453-L589" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GroupedEventManager(_QueryExecuteManager):
     &#34;&#34;&#34;
@@ -2797,12 +2819,14 @@ Interface to execute a grouped event query.
         super().__init__(*args, **kwargs)
 
         # Declaring attributes
+        self.field = None
+        &#34;&#34;&#34;
+        Grouped query field
+        &#34;&#34;&#34;
         if field:
             if not isinstance(field, str):
                 raise TypeError(&#34;Argument field must be a string. Not {}&#34;.format(field))
             self.field = self.get_field_nickname(field)
-        else:
-            self.field = None
 
         # Type cast all items in the list &#34;data&#34; to events type objects
         # Casting all data to Event objects, better way to do it ?
@@ -2869,6 +2893,7 @@ Interface to execute a grouped event query.
 
         Raises `msiempy.core.session.NitroError` if any unhandled errors.
         Raises `TimeoutError` if wait_timeout_sec counter gets to 0.
+        Raises `ValueError` if an `IPSID` filter is not present.  
         &#34;&#34;&#34;
         if not any([f[&#34;field&#34;][&#34;name&#34;] == &#34;IPSID&#34; for f in self.filters]):
             raise ValueError(
@@ -2928,6 +2953,13 @@ Interface to execute a grouped event query.
 <li><a title="msiempy.core.types.NitroObject" href="core/types.html#msiempy.core.types.NitroObject">NitroObject</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="msiempy.event.GroupedEventManager.field"><code class="name">var <span class="ident">field</span></code></dt>
+<dd>
+<div class="desc"><p>Grouped query field</p></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="msiempy.event.GroupedEventManager.load_data"><code class="name flex">
@@ -2945,7 +2977,7 @@ Interface to execute a grouped event query.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L484-L500" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L493-L509" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_data(self, *args, **kwargs):
     &#34;&#34;&#34;
@@ -2975,7 +3007,7 @@ Acts like there is no filters.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L502-L519" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L511-L528" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
@@ -3013,11 +3045,12 @@ Acts like there is no filters.</p></div>
 </ul>
 <p>Returns : <code>tuple</code> : (( <code>list</code>, Query completed? <code>True/False</code> ))</p>
 <p>Raises <code><a title="msiempy.core.session.NitroError" href="core/session.html#msiempy.core.session.NitroError">NitroError</a></code> if any unhandled errors.
-Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div>
+Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.
+Raises <code>ValueError</code> if an <code>IPSID</code> filter is not present.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L521-L579" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L530-L589" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def qry_load_data(self, num_rows=500, retry=1, wait_timeout_sec=120):
     &#34;&#34;&#34;
@@ -3036,6 +3069,7 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div
 
     Raises `msiempy.core.session.NitroError` if any unhandled errors.
     Raises `TimeoutError` if wait_timeout_sec counter gets to 0.
+    Raises `ValueError` if an `IPSID` filter is not present.  
     &#34;&#34;&#34;
     if not any([f[&#34;field&#34;][&#34;name&#34;] == &#34;IPSID&#34; for f in self.filters]):
         raise ValueError(
@@ -3169,12 +3203,11 @@ Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, autocomplet
 <code>__getitem__</code>, <code>__contains__</code>, <code>__setitem__</code> and <code>__delitem__</code> method have been rewrote in order to offer more straight-forward <code>dict</code> usage.
 For exemple, if the SIEM returns results with keys like
 <code>Alert.65613</code>, <code>Alert.BIN(7)</code> or <code>Alert.SrcIP</code>: you'll be able to use <code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code> dict with your initial
-queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</code> or <code>Event['SrcIP']</code>. (You can still use internal keys if you want).</p>
-<p>Exemple:</p></div>
+queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</code> or <code>Event['SrcIP']</code>. (You can still use internal keys if you want).</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L582-L1502" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L592-L1508" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Event(NitroDict):
     &#34;&#34;&#34;
@@ -3241,10 +3274,6 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
     `__getitem__`, `__contains__`, `__setitem__` and `__delitem__` method have been rewrote in order to offer more straight-forward `dict` usage.
     For exemple, if the SIEM returns results with keys like  `Alert.65613`, `Alert.BIN(7)` or `Alert.SrcIP`: you&#39;ll be able to use `Event` dict with your initial
     queried keys like `Event[&#39;Web_Doamin&#39;] `, `Event[&#39;UserIDSrc&#39;]` or `Event[&#39;SrcIP&#39;]`. (You can still use internal keys if you want).
-
-    Exemple:
-
-
 
     &#34;&#34;&#34;
 
@@ -4166,7 +4195,7 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or conc
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L1360-L1377" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L1366-L1383" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_id(self):
     &#34;&#34;&#34;
@@ -4196,7 +4225,7 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or conc
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L1379-L1383" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L1385-L1389" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_notes(self):
     &#34;&#34;&#34;
@@ -4213,7 +4242,7 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or conc
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L1385-L1412" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L1391-L1418" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def set_note(self, note, no_date=False):
     &#34;&#34;&#34;
@@ -4260,7 +4289,7 @@ Default behaviour will call <code>ipsGetAlertData</code> to retreive the complet
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L1414-L1457" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L1420-L1463" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id, use_query=False, extra_fields=[]):
     &#34;&#34;&#34;
@@ -4325,7 +4354,7 @@ else call <code>ipsGetAlertData</code> to get the full details.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L1459-L1502" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L1465-L1508" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self, use_query=None, extra_fields=None):
     &#34;&#34;&#34;
@@ -4393,21 +4422,25 @@ else call <code>ipsGetAlertData</code> to get the full details.
 <dd>
 <div class="desc"><p>Dict-Like object.
 Grouped event item, represents a row of grouped query results.</p>
-<p>Common keys:
-- The requested field
-- <code>COUNT(*)</code>: The number of event for the result row
-- <code>SUM(Alert.EventCount)</code>:
-The sum of their <code>EventCount</code> attribute</p>
+<p>Common keys:</p>
+<ul>
+<li>The requested field</li>
+<li><code>COUNT(*)</code>: The number of event for the result row</li>
+<li><code>SUM(Alert.EventCount)</code>:
+The sum of their <code>EventCount</code> attribute</li>
+</ul>
 <p>The following <code>__getitem__</code> key mapping are added on top of <code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>'s :</p>
 <pre><code>"Count":"COUNT(*)",
 "TotalEventCount":"SUM(Alert.EventCount)"
 </code></pre>
 <p>Meaning that you can use <code>e['TotalEventCount']</code>, it will return <code>e['SUM(Alert.EventCount)']</code>.</p>
-<p>Note: <code><a title="msiempy.event.GroupedEvent" href="#msiempy.event.GroupedEvent">GroupedEvent</a></code> is not suitable for <code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>s operations like <code>set_note()</code> or <code>refresh()</code> because there is no ID associated with events records.</p></div>
+<div class="admonition note">
+<p class="admonition-title">Note:&ensp;<code><a title="msiempy.event.GroupedEvent" href="#msiempy.event.GroupedEvent">GroupedEvent</a></code> is NOT suitable for <code><a title="msiempy.event.Event" href="#msiempy.event.Event">Event</a></code>s operations like <code>set_note()</code> or <code>refresh()</code> because there is no ID associated with events records.</p>
+</div></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L1505-L1533" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L1511-L1540" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GroupedEvent(Event):
     &#34;&#34;&#34;
@@ -4415,6 +4448,7 @@ The sum of their <code>EventCount</code> attribute</p>
     Grouped event item, represents a row of grouped query results.
 
     Common keys:
+
     - The requested field
     - `COUNT(*)`: The number of event for the result row
     - `SUM(Alert.EventCount)`:  The sum of their `EventCount` attribute
@@ -4427,7 +4461,7 @@ The sum of their <code>EventCount</code> attribute</p>
 
     Meaning that you can use `e[&#39;TotalEventCount&#39;]`, it will return `e[&#39;SUM(Alert.EventCount)&#39;]`.
 
-    Note: `GroupedEvent` is not suitable for `Event`s operations like `set_note()` or `refresh()` because there is no ID associated with events records.
+    .. note:: `GroupedEvent` is NOT suitable for `Event`s operations like `set_note()` or `refresh()` because there is no ID associated with events records.
 
     &#34;&#34;&#34;
 
@@ -4490,7 +4524,7 @@ Used to dump groups of filters in the right format.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L1540-L1559" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L1547-L1566" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GroupFilter(_QueryFilter):
     &#34;&#34;&#34;
@@ -4539,7 +4573,9 @@ Used to dump groups of filters in the right format.</p>
 Exemple to filter by Signature ID.</p>
 <pre><code>e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', [&quot;49190-4294967295&quot;], operator='EQUALS') ])
 </code></pre>
-<p><em>Make sure the filter name is valid by checking the result of <code><a title="msiempy.event.EventManager.get_possible_filters" href="#msiempy.event.EventManager.get_possible_filters">EventManager.get_possible_filters()</a></code> or use the provided script in the sample folder</em></p>
+<div class="admonition note">
+<p class="admonition-title">Note:&ensp;Make sure the filter name is valid by checking the result of <code><a title="msiempy.event.EventManager.get_possible_filters" href="#msiempy.event.EventManager.get_possible_filters">EventManager.get_possible_filters()</a></code> or use the provided script in the sample folder</p>
+</div>
 <h2 id="arguments">Arguments</h2>
 <ul>
 <li><code>name</code> : field name as string. Field name property. Example : <code>SrcIP</code>. See full list here: <a href="https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json">https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json</a></li>
@@ -4561,7 +4597,7 @@ Exemple to filter by Signature ID.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L1562-L2028" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L1569-L2035" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FieldFilter(_QueryFilter):
     &#34;&#34;&#34;
@@ -4582,7 +4618,7 @@ Exemple to filter by Signature ID.</p>
     e = EventManager(time_range=&#39;LAST_24_HOURS&#39;, filters=[ FieldFilter(&#39;DSIDSigID&#39;, [&#34;49190-4294967295&#34;], operator=&#39;EQUALS&#39;) ])
     ```
 
-    *Make sure the filter name is valid by checking the result of `msiempy.event.EventManager.get_possible_filters` or use the provided script in the sample folder*
+    .. note:: Make sure the filter name is valid by checking the result of `msiempy.event.EventManager.get_possible_filters` or use the provided script in the sample folder
 
     Arguments:
 
@@ -5066,7 +5102,7 @@ Throws <code>AttributeError</code> if trying to set an unknown operator.</p></di
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L1903-L1908" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L1910-L1915" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def operator(self):
@@ -5090,7 +5126,7 @@ Setter iterate trough the list and call :</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L1922-L1935" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L1929-L1942" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def values(self):
@@ -5136,7 +5172,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L1962-L2022" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L1969-L2029" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_value(self, type=None, **kwargs):
     &#34;&#34;&#34;
@@ -5209,7 +5245,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/90883af9a098bdb5ad7bfe7144c701d516bfa563/msiempy/event.py#L2024-L2028" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/35854c9210d60f5db839db9aa47aaebffb16d474/msiempy/event.py#L2031-L2035" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_basic_value(self, value):
     &#34;&#34;&#34;
@@ -5296,6 +5332,8 @@ setTimeout(() => input.focus(), 100);
 <li><code><a title="msiempy.event.EventManager.get_possible_fields" href="#msiempy.event.EventManager.get_possible_fields">get_possible_fields</a></code></li>
 <li><code><a title="msiempy.event.EventManager.get_possible_filters" href="#msiempy.event.EventManager.get_possible_filters">get_possible_filters</a></code></li>
 <li><code><a title="msiempy.event.EventManager.order" href="#msiempy.event.EventManager.order">order</a></code></li>
+<li><code><a title="msiempy.event.EventManager.fields" href="#msiempy.event.EventManager.fields">fields</a></code></li>
+<li><code><a title="msiempy.event.EventManager.limit" href="#msiempy.event.EventManager.limit">limit</a></code></li>
 <li><code><a title="msiempy.event.EventManager.POSSBILE_ROW_ORDER" href="#msiempy.event.EventManager.POSSBILE_ROW_ORDER">POSSBILE_ROW_ORDER</a></code></li>
 </ul>
 </li>
@@ -5305,6 +5343,7 @@ setTimeout(() => input.focus(), 100);
 <li><code><a title="msiempy.event.GroupedEventManager.load_data" href="#msiempy.event.GroupedEventManager.load_data">load_data</a></code></li>
 <li><code><a title="msiempy.event.GroupedEventManager.clear_filters" href="#msiempy.event.GroupedEventManager.clear_filters">clear_filters</a></code></li>
 <li><code><a title="msiempy.event.GroupedEventManager.qry_load_data" href="#msiempy.event.GroupedEventManager.qry_load_data">qry_load_data</a></code></li>
+<li><code><a title="msiempy.event.GroupedEventManager.field" href="#msiempy.event.GroupedEventManager.field">field</a></code></li>
 </ul>
 </li>
 <li>

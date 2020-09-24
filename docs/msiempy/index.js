@@ -15,7 +15,7 @@ INDEX=[
 {
 "ref":"msiempy",
 "url":0,
-"doc":"Welcome to the  msiempy library documentation. The pythonic way to deal with McAfee SIEM API. Head out to one of the sub-modules to see objects definitions or scroll down for general documentation.  Links : [GitHub](https: github.com/mfesiem/msiempy), [PyPI](https: pypi.org/project/msiempy/), [Class diagram](https: mfesiem.github.io/docs/msiempy/classes.png), [Packages diagram](https: mfesiem.github.io/docs/msiempy/packages.png), [SIEM API documentation](https: mfesiem.github.io) (generated PDFs)   Installation   python3 -m pip install msiempy    Authentication and configuration setup The module offers a single point of authentication against your SIEM, so you don't have to worry about authentication when writting your scripts. This means that you need to preconfigure the authentication using the configuration file. The configuration file is located (by default) securely in your user directory since it contains credentials. - For Windows:  %APPDATA%\\.msiem\\conf.ini - For Mac :  $HOME/.msiem/conf.ini - For Linux :  $XDG_CONFIG_HOME/.msiem/conf.ini or :  $HOME/.msiem/conf.ini   [esm] host = HOST user = USER passwd = PASSWORD's BASE64 [general] verbose = no quiet = no logfile = /var/log/msiempy/log.txt timeout = 60 ssl_verify = no   To set the password, you can use the [ msiempy_setup.py ](https: github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py) script. You can also directly paste the password's base64 in the config file by doing:   >>> import base64 >>> passwd = 'P@assW0rd' >>> print(base64.b64encode(passwd.encode('utf-8' .decode( UEBhc3NXMHJk    Examples  Acknowledge alarms See objects:  msiempy.alarm.AlarmManager and  msiempy.alarm.Alarm Print all  unacknowledged alarms of the year who's name  match  'Test alarm' and triggering event message match  'Wordpress' . Then acknowledge the alarms and make sure they are all acknowledged. The number of alarms retreived is defined by the  page_size property.   from msiempy import AlarmManager, Alarm  Make an alarm query alarms=AlarmManager( time_range='CURRENT_YEAR', status_filter='unacknowledged',  This filter is computed on the server side filters=[('alarmName', 'Test alarm')],  Other filters are applied as regex event_filters=[('ruleName','Wordpress')], page_size=5  Will only load 5 alarms (per query), increase limit to 500 or 1000 for better performance )  Load the data into the list alarms.load_data()  Print results print(\"Alarm list: \") print(alarms) print(alarms.get_text( fields=['id','triggeredDate','acknowledgedDate', 'alarmName', 'acknowledgedUsername']  Acknowledge alarms print(\"Acknowledge alarms .\") for alarm in alarms: alarm.acknowledge()   Query events See objects:  msiempy.event.EventManager ,  msiempy.event.FieldFilter ,  msiempy.event.Event Query events according to destination IP and hostname filters, sorted by AlertID.   from msiempy import EventManager, FieldFilter print('Simple event query sorted by AlertID') events = EventManager( time_range='CURRENT_YEAR', fields=['SrcIP', 'AlertID'],  SrcIP and AlertID are not queried by default filters=[ FieldFilter('DstIP', ['0.0.0.0/0',]), FieldFilter('HostID', ['mail'], operator='CONTAINS')],  Please replace \"mail\" by a test hostname order= 'ASCENDING', 'AlertID' , limit=10)  Will only load 10 events (per query), increase limit to 500 or 1000 once finish testing for better performance events.load_data() print(events) print(events.get_text(fields=['AlertID','LastTime','SrcIP', 'Rule.msg']    Add a note to events Setting the note of an event, retreiving the genuine event from IPSIDAlertID and checking the note is well set. See [ add_wpsan_note.py ](https: github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py) script to see more how to add note to event that triggered alarms !   from msiempy import EventManager, Event events = EventManager( time_range='CURRENT_YEAR', limit=2 ) events.load_data() for event in events : event.set_note(\"Test note\") genuine_event = Event(id=event['IPSIDAlertID'])  Event data will be loaded with ipsGetAlertData assert \"Test note\" in genuine_event['note'], \"The note doesn't seem to have been added to the event {}\".format(event)    msiempy.event.EventManager() have other arguments:  order ,  start_time and  end_time or  time_rage  msiempy.event.EventManager.load_data() method accept also several parameters. It controls the query's division time range into slots of  delta duration, then the query would be divided into the specified number of  slots . Control also the number of asyncronous jobs using  workers parameter.  max_query_depth parameter specify the number of sub-divisions the query can take at most (zero by default). The query is divided only if it hasn't completed with the current query settings. See method documentation for more infos. See [ dump_all_fields.py ](https: github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py) script to have full list of  fields you can request and fields you can use with  FieldFilter .  Print ESM infos See object:  msiempy.device.ESM Print a few esm infos. ESM object has not state for it self, it's a simple interface to data structures / values returned by the SIEM.   >>> from msiempy import ESM >>> esm=ESM() >>> esm.version() '11.2.1' >>> esm.recs() [('ERC-1', 144116287587483648)] >>> esm.buildstamp() '11.2.1 20190725050014'    Dump Datasources See objects:  msiempy.device.DevTree ,  msiempy.device.DataSource Load all datasources and write all infos in a CSV file.   from msiempy import DevTree devtree = DevTree() with open('all-datasources.csv', 'w') as f: f.write(devtree.get_text(format='csv'    Dump Watchlists definitions See objects:  msiempy.watchlist.WatchlistManager ,  msiempy.watchlist.Watchlist Print whatchlist list.   from msiempy import WatchlistManager watchlists=WatchlistManager() print(watchlists)    Use the Session object See object:  msiempy.core.session.NitroSession You can choose not to use wrapper ojects like  AlarmManager and use directly the Session object to make any API calls with any data. The Session object will handle intermittent SIEM errors.   from msiempy import NitroSession s = NitroSession() s.login()  Get all last 24h alarms details with ESM API v2 (not supported by other objects yet) alarms = s.api_request('v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&status=&pageSize=500&pageNumber=1') for a in alarms: a.update(s.api_request('v2/notifyGetTriggeredNotificationDetail', {'id':a['id']}    And more . See the [samples folder](https: github.com/mfesiem/msiempy/tree/master/samples) for more detailed uses ! You can also review the [tests](https: github.com/mfesiem/msiempy/tree/master/tests).  Changelog Please refer to the [releases](https: github.com/mfesiem/msiempy/releases) github page.  Contribute Pull requests are welcome! Please read the [contributing](https: github.com/mfesiem/msiempy/blob/master/CONTRIBUTING.md) file.  Run tests Run all tests, sometimes the tests have to be reruns.   pytest  reruns 3   You might also want to run per-file tests   pytest tests/auth/test_device.py   Or per-method test   python3 -m unittest tests.auth.test_event.T.test_add_note    Code analysis [![Codacy Badge](https: app.codacy.com/project/badge/Grade/114821fcf6e14b8eb0f927e0112488c8)](https: www.codacy.com/gh/mfesiem/msiempy?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mfesiem/msiempy&amp;utm_campaign=Badge_Grade) [![Maintainability](https: api.codeclimate.com/v1/badges/0cc21ba8f82394cb05f3/maintainability)](https: codeclimate.com/github/mfesiem/msiempy/maintainability)  Error report Configure log file reporting in the configuration file and and look for  \"ERROR\" . Useful shell command to get simple list of errors:   cat /path/to/your/log/file | grep -i error | sort | uniq  "
+"doc":"Welcome to the  msiempy library documentation. The pythonic way to deal with McAfee SIEM API. Head out to one of the sub-modules to see objects definitions or scroll down for general documentation.  Links : [GitHub](https: github.com/mfesiem/msiempy), [PyPI](https: pypi.org/project/msiempy/), [Class diagram](https: mfesiem.github.io/docs/msiempy/classes.png), [Packages diagram](https: mfesiem.github.io/docs/msiempy/packages.png), [SIEM API documentation](https: mfesiem.github.io) (generated PDFs)   Installation   python3 -m pip install msiempy    Authentication and configuration setup The module offers a single point of authentication against your SIEM, so you don't have to worry about authentication when writting your scripts. This means that you need to preconfigure the authentication using the configuration file. The configuration file is located (by default) securely in your user directory since it contains credentials. - For Windows:  %APPDATA%\\.msiem\\conf.ini - For Mac :  $HOME/.msiem/conf.ini - For Linux :  $XDG_CONFIG_HOME/.msiem/conf.ini or :  $HOME/.msiem/conf.ini   [esm] host = HOST user = USER passwd = PASSWORD's BASE64 [general] verbose = no quiet = no logfile = /var/log/msiempy/log.txt timeout = 60 ssl_verify = no   To set the password, you can use the [ msiempy_setup.py ](https: github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py) script. You can also directly paste the password's base64 in the config file by doing:   >>> import base64 >>> passwd = 'P@assW0rd' >>> print(base64.b64encode(passwd.encode('utf-8' .decode( UEBhc3NXMHJk    Examples  Acknowledge alarms See objects:  msiempy.alarm.AlarmManager and  msiempy.alarm.Alarm Print all  unacknowledged alarms of the year who's name  match  'Test alarm' and triggering event message match  'Wordpress' . Then acknowledge the alarms and make sure they are all acknowledged. The number of alarms retreived is defined by the  page_size property.   from msiempy import AlarmManager, Alarm  Make an alarm query alarms=AlarmManager( time_range='CURRENT_YEAR', status_filter='unacknowledged',  This filter is computed on the server side filters=[('alarmName', 'Test alarm')],  Other filters are applied as regex event_filters=[('ruleName','Wordpress')], page_size=5  Will only load 5 alarms (per query), increase limit to 500 or 1000 for better performance )  Load the data into the list alarms.load_data()  Print results print(\"Alarm list: \") print(alarms) print(alarms.get_text( fields=['id','triggeredDate','acknowledgedDate', 'alarmName', 'acknowledgedUsername']  Acknowledge alarms print(\"Acknowledge alarms .\") for alarm in alarms: alarm.acknowledge()   Execute an event query See objects:  msiempy.event.EventManager ,  msiempy.event.FieldFilter ,  msiempy.event.Event Query events according to destination IP and hostname filters, sorted by AlertID.   from msiempy import EventManager, FieldFilter print('Simple event query sorted by AlertID') events = EventManager( time_range='CURRENT_YEAR', fields=['SrcIP', 'AlertID'],  SrcIP and AlertID are not queried by default filters=[ FieldFilter('DstIP', ['0.0.0.0/0',]), FieldFilter('HostID', ['mail'], operator='CONTAINS')],  Please replace \"mail\" by a test hostname order= 'ASCENDING', 'AlertID' , limit=10)  Will only load 10 events (per query), increase limit to 500 or 1000 once finish testing for better performance events.load_data() print(events) print(events.get_text(fields=['AlertID','LastTime','SrcIP', 'Rule.msg']    Add a note to events Setting the note of an event, retreiving the genuine event from IPSIDAlertID and checking the note is well set. See [ add_wpsan_note.py ](https: github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py) script to see more how to add note to event that triggered alarms !   from msiempy import EventManager, Event events = EventManager( time_range='CURRENT_YEAR', limit=2 ) events.load_data() for event in events : event.set_note(\"Test note\") genuine_event = Event(id=event['IPSIDAlertID'])  Event data will be loaded with ipsGetAlertData assert \"Test note\" in genuine_event['note'], \"The note doesn't seem to have been added to the event {}\".format(event)    msiempy.event.EventManager() have other arguments:  order ,  start_time and  end_time or  time_rage  msiempy.event.EventManager.load_data() method accept also several parameters. It controls the query's division time range into slots of  delta duration, then the query would be divided into the specified number of  slots . Control also the number of asyncronous jobs using  workers parameter.  max_query_depth parameter specify the number of sub-divisions the query can take at most (zero by default). The query is divided only if it hasn't completed with the current query settings. See method documentation for more infos. See [ dump_all_fields.py ](https: github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py) script to have full list of  fields you can request and fields you can use with  FieldFilter .  Execute a grouped event query Query the curent day events filtered by  IPSID grouped by  ScrIP . See objects:  msiempy.event.GroupedEventManager and  msiempy.event.GroupedEvent .   from msiempy import GroupedEventManager import pandas query = GroupedEventManager( time_range='LAST_3_DAYS', field='SrcIP', filters=[('IPSID', '144116287587483648')]) query.load_data()  Sort the results by total count results = list(reversed(sorted(query, key=lambda k: int(k['SUM(Alert.EventCount)']   Display top 10 in a panda frame frame=pandas.DataFrame(results[:10]) print(frame.to_string(index=False   Tip: [ all_dev.py script](https: github.com/mfesiem/msiempy/blob/master/samples/all_dev.py) can help you list all your datasources IDs (for the required  IPSID filter).  Print ESM infos See object:  msiempy.device.ESM Print a few esm infos. ESM object has not state for it self, it's a simple interface to data structures / values returned by the SIEM.   >>> from msiempy import ESM >>> esm=ESM() >>> esm.version() '11.2.1' >>> esm.recs() [('ERC-1', 144116287587483648)] >>> esm.buildstamp() '11.2.1 20190725050014'    Dump Datasources See objects:  msiempy.device.DevTree ,  msiempy.device.DataSource Load all datasources and write all infos in a CSV file.   from msiempy import DevTree devtree = DevTree() with open('all-datasources.csv', 'w') as f: f.write(devtree.get_text(format='csv'    Dump Watchlists definitions See objects:  msiempy.watchlist.WatchlistManager ,  msiempy.watchlist.Watchlist Print whatchlist list.   from msiempy import WatchlistManager watchlists=WatchlistManager() print(watchlists)    Use the Session object See object:  msiempy.core.session.NitroSession You can choose not to use wrapper ojects like  AlarmManager and use directly the Session object to make any API calls with any data. The Session object will handle intermittent SIEM errors.   from msiempy import NitroSession s = NitroSession() s.login()  Get all last 24h alarms details with ESM API v2 (not supported by other objects yet) alarms = s.api_request('v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&status=&pageSize=500&pageNumber=1') for a in alarms: a.update(s.api_request('v2/notifyGetTriggeredNotificationDetail', {'id':a['id']}    And more . See the [samples folder](https: github.com/mfesiem/msiempy/tree/master/samples) for more detailed uses ! You can also review the [tests](https: github.com/mfesiem/msiempy/tree/master/tests).  Changelog Please refer to the [releases](https: github.com/mfesiem/msiempy/releases) github page.  Contribute Pull requests are welcome! Please read the [contributing](https: github.com/mfesiem/msiempy/blob/master/CONTRIBUTING.md) file.  Run tests Run all tests, sometimes the tests have to be reruns.   pytest  reruns 3   You might also want to run per-file tests   pytest tests/auth/test_device.py   Or per-method test   python3 -m unittest tests.auth.test_event.T.test_add_note    Code analysis [![Codacy Badge](https: app.codacy.com/project/badge/Grade/114821fcf6e14b8eb0f927e0112488c8)](https: www.codacy.com/gh/mfesiem/msiempy?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mfesiem/msiempy&amp;utm_campaign=Badge_Grade) [![Maintainability](https: api.codeclimate.com/v1/badges/0cc21ba8f82394cb05f3/maintainability)](https: codeclimate.com/github/mfesiem/msiempy/maintainability)  Error report Configure log file reporting in the configuration file and and look for  \"ERROR\" . Useful shell command to get simple list of errors:   cat /path/to/your/log/file | grep -i error | sort | uniq  "
 },
 {
 "ref":"msiempy.event",
@@ -25,7 +25,7 @@ INDEX=[
 {
 "ref":"msiempy.event.EventManager",
 "url":1,
-"doc":"List-Like object. Interface to query and manage events. Inherits from  msiempy.core.query.FilteredQueryList . Arguments: -  fields : list of strings representing all fields you want to apprear in the Events records. Get the list of possible fields by calling  msiempy.event.EventManager.get_possible_fields() method or see  msiempy.event.Event . Some default fields will be present. -  order :  tuple  direction, field  . Direction can be 'ASCENDING' or 'DESCENDING'. -  limit : max number of rows per query. -  filters : list of filters. A filter can be a  tuple(field, [values]) or it can be a  msiempy.event.FieldFilter or  msiempy.event.GroupFilter if you wish to use advanced filtering. -  time_range : Query time range. String representation of a time range. Not need to specify 'CUSTOM' if  start_time and  end_time are set. -  start_time : Query start time, can be a  string or a  datetime object. Parsed with  dateutil . -  end_time : Query end time, can be a  string or a  datetime object. Parsed with  dateutil ."
+"doc":"List-Like object. Interface to execute a event query. Arguments: -  fields : list of strings representing all fields you want to apprear in the Events records. Get the list of possible fields by calling  msiempy.event.EventManager.get_possible_fields() method or see  msiempy.event.Event . Some default fields will be present. -  order :  tuple  direction, field  . Direction can be 'ASCENDING' or 'DESCENDING'. -  limit : max number of rows per query. -  filters : list of filters. A filter can be a  tuple(field, [values]) or it can be a  msiempy.event.FieldFilter or  msiempy.event.GroupFilter if you wish to use advanced filtering. -  time_range : Query time range. String representation of a time range. Not need to specify 'CUSTOM' if  start_time and  end_time are set. -  start_time : Query start time, can be a  string or a  datetime object. Parsed with  dateutil . -  end_time : Query end time, can be a  string or a  datetime object. Parsed with  dateutil ."
 },
 {
 "ref":"msiempy.event.EventManager.POSSBILE_ROW_ORDER",
@@ -38,17 +38,6 @@ INDEX=[
 "doc":"The  order is a  tuple (direction, field) . Default value is  (DESCENDING, LastTime) ."
 },
 {
-"ref":"msiempy.event.EventManager.filters",
-"url":1,
-"doc":"Returns SIEM formatted filters for the query structured from  msiempy.event.GroupFilter and/or  msiempy.event.FieldFilter See  msiempy.core.query.FilteredQueryList.filters ."
-},
-{
-"ref":"msiempy.event.EventManager.add_filter",
-"url":1,
-"doc":"Add a filter to the query. Argument must be a  tuple(field, [values]) or  (field, value) or  msiempy.event.GroupFilter or  msiempy.event.FieldFilter .",
-"func":1
-},
-{
 "ref":"msiempy.event.EventManager.clear_filters",
 "url":1,
 "doc":"Replace all filters by a non filtering rule. Acts like there is not filters.",
@@ -57,7 +46,7 @@ INDEX=[
 {
 "ref":"msiempy.event.EventManager.qry_load_data",
 "url":1,
-"doc":"Helper method to execute the query and load the data : -> Submit the query -> Wait the query to be executed -> Get and parse the events Arguments: -  retry ( int ): number of time the query can be failed and retried. Retries only when 'ResultUnavailable','UnknownList' or 'JobEngine_GetQueryResults_QueryNotFound_Unrecoverable' errors. -  wait_timeout_sec ( int ): wait timeout in seconds Returns :  tuple :   msiempy.event.EventManager , Query completed?  True/False  Raises  msiempy.core.session.NitroError if any unhandled errors. Raises  TimeoutError if wait_timeout_sec counter gets to 0.",
+"doc":"Helper method to execute the query and load the data : -> Submit the query -> Wait the query to be executed -> Get and parse the events Arguments: -  retry ( int ): number of time the query can be failed and retried. -  wait_timeout_sec ( int ): wait timeout in seconds Returns :  tuple :   msiempy.event.EventManager , Query completed?  True/False  Raises  msiempy.core.session.NitroError if any unhandled errors. Raises  TimeoutError if wait_timeout_sec counter gets to 0.",
 "func":1
 },
 {
@@ -69,7 +58,7 @@ INDEX=[
 {
 "ref":"msiempy.event.EventManager.get_possible_fields",
 "url":1,
-"doc":"Return the list of possible fields that you can request in a query. The list is loaded from the SIEM.",
+"doc":"Return the list of possible fields that you can request in a Events query. The list is loaded from the SIEM.",
 "func":1
 },
 {
@@ -92,6 +81,17 @@ INDEX=[
 "ref":"msiempy.event.EventManager.end_time",
 "url":2,
 "doc":"End time of the query in the right SIEM format. Use  _end_time property to get the datetime object. You can set the  end_time as a  str or a  datetime . If  None , equivalent CURRENT_DAY. Raises  ValueError if not the right type."
+},
+{
+"ref":"msiempy.event.EventManager.filters",
+"url":2,
+"doc":"Filter property : Returns a list of filters. Can be set with list of tuple(field, [values]), a  msiempy.event.FieldFilter or  msiempy.event.GroupFilter in the case of a  msiempy.event.EventManager query. A single tuple is also accepted. Filters will always be added to the list, use  clear_filters() to remove all filters from a query. Raises :  AttributeError if type not supported. Abstract declaration."
+},
+{
+"ref":"msiempy.event.EventManager.add_filter",
+"url":2,
+"doc":"Add a filter to the query. Abstract declaration.",
+"func":1
 },
 {
 "ref":"msiempy.event.EventManager.keys",
@@ -140,6 +140,105 @@ INDEX=[
 },
 {
 "ref":"msiempy.event.EventManager.nitro",
+"url":3,
+"doc":" msiempy.core.session.NitroSession object. Interface to the SIEM."
+},
+{
+"ref":"msiempy.event.GroupedEventManager",
+"url":1,
+"doc":"List-Like object. Interface to execute a grouped event query. Arguments: -  field ( str ): The field that will be selected when this query is executed. -  filters ( list ): list of filters. A filter can be a  tuple(field, [values]) or it can be a  msiempy.event.FieldFilter or  msiempy.event.GroupFilter if you wish to use advanced filtering. -  time_range ( str ): Query time range. String representation of a time range. Not need to specify 'CUSTOM' if  start_time and  end_time are set. -  start_time : Query start time, can be a  str or a  datetime object. Parsed with  dateutil . -  end_time : Query end time, can be a  str or a  datetime object. Parsed with  dateutil ."
+},
+{
+"ref":"msiempy.event.GroupedEventManager.load_data",
+"url":1,
+"doc":"Load the data into the list. Arguments: -  num_rows ( int ): Maximum number of rows to load. -  retry ( int ): number of time the query can be failed and retried. -  wait_timeout_sec ( int ): wait timeout in seconds. Returns  GroupedEventManager ",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEventManager.clear_filters",
+"url":1,
+"doc":"Replace all filters by a non filtering rule with all datasources IPSIDs (Using  msiempy.device.DevTree ). Acts like there is no filters.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEventManager.qry_load_data",
+"url":1,
+"doc":"Helper method to execute the grouped query and load the data : -> Submit the query -> Wait the query to be executed -> Get and parse the events Arguments: -  num_rows ( int ): Maximum number of rows to load. -  retry ( int ): number of time the query can be failed and retried. -  wait_timeout_sec ( int ): wait timeout in seconds. Returns :  tuple :   list , Query completed?  True/False  Raises  msiempy.core.session.NitroError if any unhandled errors. Raises  TimeoutError if wait_timeout_sec counter gets to 0.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEventManager.time_range",
+"url":2,
+"doc":"Query time range. See  msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE . Default to  msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE (CURRENT_DAY). Note that the time range is upper cased automatically. Raises  VallueError if unrecognized time range is set and  AttributeError if not the right type."
+},
+{
+"ref":"msiempy.event.GroupedEventManager.start_time",
+"url":2,
+"doc":"Start time of the query in the right SIEM format. Use  _start_time to get the datetime object. You can set the  star_time as a  str or a  datetime . If  None , equivalent CURRENT_DAY start 00:00:00. Raises:  ValueError if not the right type."
+},
+{
+"ref":"msiempy.event.GroupedEventManager.end_time",
+"url":2,
+"doc":"End time of the query in the right SIEM format. Use  _end_time property to get the datetime object. You can set the  end_time as a  str or a  datetime . If  None , equivalent CURRENT_DAY. Raises  ValueError if not the right type."
+},
+{
+"ref":"msiempy.event.GroupedEventManager.filters",
+"url":2,
+"doc":"Filter property : Returns a list of filters. Can be set with list of tuple(field, [values]), a  msiempy.event.FieldFilter or  msiempy.event.GroupFilter in the case of a  msiempy.event.EventManager query. A single tuple is also accepted. Filters will always be added to the list, use  clear_filters() to remove all filters from a query. Raises :  AttributeError if type not supported. Abstract declaration."
+},
+{
+"ref":"msiempy.event.GroupedEventManager.add_filter",
+"url":2,
+"doc":"Add a filter to the query. Abstract declaration.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEventManager.keys",
+"url":3,
+"doc":"Set of keys for all dict",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEventManager.get_text",
+"url":3,
+"doc":"Return a csv or table string representation of the list Arguments: -  format : prettytable: Returns a table generated by prettytable csv: Returns data with header and comma separated values. -  fields : list of fields you want in the table. If  None : default fields are returned by .keys attribute and sorted. -  max_column_width : when using prettytable only -  get_text_nest_attr : attributes passed to the nested  msiempy.core.types.NitroList.get_text elements if any. Useful to control events appearence.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEventManager.text",
+"url":3,
+"doc":"Defaut table string, a shorcut to  get_text() with no arguments."
+},
+{
+"ref":"msiempy.event.GroupedEventManager.json",
+"url":3,
+"doc":"JSON list of dicts representing the list."
+},
+{
+"ref":"msiempy.event.GroupedEventManager.search",
+"url":3,
+"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new NitroList with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern : List or string regex patterns to look for. Each -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  match_prop : Propertie that is going to be called to search. Could be  text or  json . If you wish to apply more specific filters to NitroList list, please use filter(), list comprehension, or other filtering method. i.e. :  [item for item in list if item['cost'] > 50] More on regex https: docs.python.org/3/library/re.html re.Pattern.search",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEventManager.refresh",
+"url":3,
+"doc":"Execute refresh function on all items.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEventManager.perform",
+"url":3,
+"doc":"Wrapper arround executable and the a list of elements, typically  msiempy.core.types.NitroList object. Arguments: -  func : callable function.  func is going to be called like  func(item,  func_args) on all items in data. This function can be stateless (static) or statefull (first argument is  self ), it doesn't really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not set/delete/change any global variable, as a result, you'll see your varible beeing potentially corrupted or chalenged with conccurent accesses. -  data : if stays  None , will perform the action on itself ( list(self) ) else it will perfom the action on the  data list. -  func_args : arguments that will be passed by default to  func in all calls. -  confirm : will ask interactively confirmation. -  asynch : execute the task asynchronously with  concurrent.futures.ThreadPoolExecutor . It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother, it will be a mess. -  workers : number of parrallel tasks, mandatory if asynch is true. -  progress : to show progress bar with ETA (tqdm). -  message : To show to the user. This method is where the core of asynchronous tasks resides.  func will be executed on all  data elements. Basically, if  asynch True , will return : returned=list(concurrent.futures.ThreadPoolExecutor( max_workers=workers ).map( func, data if  asynch False , will iterate and return : for index_or_item in data: returned.append(func(index_or_item Returns a list of returned results.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEventManager.NitroJSONEncoder",
+"url":3,
+"doc":"Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject. TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict."
+},
+{
+"ref":"msiempy.event.GroupedEventManager.nitro",
 "url":3,
 "doc":" msiempy.core.session.NitroSession object. Interface to the SIEM."
 },
@@ -220,6 +319,86 @@ INDEX=[
 },
 {
 "ref":"msiempy.event.Event.nitro",
+"url":3,
+"doc":" msiempy.core.session.NitroSession object. Interface to the SIEM."
+},
+{
+"ref":"msiempy.event.GroupedEvent",
+"url":1,
+"doc":"Dict-Like object. Grouped event item, represents a row of grouped query results. Common keys: - The requested field -  COUNT( ) : The number of event for the result row -  SUM(Alert.EventCount) : The sum of their  EventCount attribute The following  __getitem__ key mapping are added on top of  Event 's : \"Count\":\"COUNT( )\", \"TotalEventCount\":\"SUM(Alert.EventCount)\" Meaning that you can use  e['TotalEventCount'] , it will return  e['SUM(Alert.EventCount)'] . Note:  GroupedEvent is not suitable for  Event s operations like  set_note() or  refresh() because there is no ID associated with events records."
+},
+{
+"ref":"msiempy.event.GroupedEvent.SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME",
+"url":1,
+"doc":"Fields name mapping (reversed)."
+},
+{
+"ref":"msiempy.event.GroupedEvent.FIELDS_TABLES",
+"url":1,
+"doc":"List of internal fields table :  Rule , Alert ,etc."
+},
+{
+"ref":"msiempy.event.GroupedEvent.DEFAULTS_EVENT_FIELDS",
+"url":1,
+"doc":"Always present when using  msiempy.event.EventManager querying :  Rule.msg  Alert.LastTime  Alert.IPSIDAlertID "
+},
+{
+"ref":"msiempy.event.GroupedEvent.REGULAR_EVENT_FIELDS",
+"url":1,
+"doc":"List of regular event fields.  Rule.msg  Alert.SrcIP  Alert.DstIP  Alert.SrcMac  Alert.DstMac  Rule.NormID  HostID  UserIDSrc  ObjectID  Alert.Severity  Alert.LastTime  Alert.DSIDSigID  Alert.IPSIDAlertID "
+},
+{
+"ref":"msiempy.event.GroupedEvent.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME",
+"url":1,
+"doc":"Fields name mapping."
+},
+{
+"ref":"msiempy.event.GroupedEvent.get_id",
+"url":1,
+"doc":"Get the event ID. Try to return  e['Alert.IPSIDAlertID'] or e['eventId'] or concatenate  e['ipsId']['id'] and  e['alertId'] depending of the Event dictionnary keys.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEvent.clear_notes",
+"url":1,
+"doc":"Replace the notes by an empty string. Desctructive action.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEvent.set_note",
+"url":1,
+"doc":"Set the event's note. Desctructive action.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEvent.data_from_id",
+"url":1,
+"doc":"Load event's data. Arguments: -  id : The event ID. (i.e. :  144128388087414784|747122896 ) -  use_query ( bool ): Uses the query module to retreive common event data. Only works with SIEM 11.2 or greater. Default behaviour will call  ipsGetAlertData to retreive the complete event definition. -  extra_fields ( list ): Only when  use_query=True . Additionnal event fields to load in the query.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEvent.refresh",
+"url":1,
+"doc":"Re-load event's data. Arguments: -  use_query ( bool ): Force the use of the query module to retreive the event data. The default behaviour will use  EventManager query if an 'Alert.IPSIDAlertID' key is present in the event, else call  ipsGetAlertData to get the full details. -  extra_fields ( list ): Only when  use_query=True or the Event is already a query event. Additionnal event fields to load in the query.  Warning Enforce  use_query=True will reset the Events fields to whatever is passed to  extra_fields Raise  AttributeError if the event ID has not been found.",
+"func":1
+},
+{
+"ref":"msiempy.event.GroupedEvent.json",
+"url":3,
+"doc":"JSON representation of a item"
+},
+{
+"ref":"msiempy.event.GroupedEvent.text",
+"url":3,
+"doc":"Text list of item's values"
+},
+{
+"ref":"msiempy.event.GroupedEvent.NitroJSONEncoder",
+"url":3,
+"doc":"Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject. TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict."
+},
+{
+"ref":"msiempy.event.GroupedEvent.nitro",
 "url":3,
 "doc":" msiempy.core.session.NitroSession object. Interface to the SIEM."
 },
@@ -401,7 +580,7 @@ INDEX=[
 {
 "ref":"msiempy.core.query.FilteredQueryList.filters",
 "url":2,
-"doc":"Filter property : Returns a list of filters. Can be set with list of tuple(field, [values]), a  msiempy.event.FieldFilter or  msiempy.event.GroupFilter in the case of a  msiempy.event.EventManager query. A single tuple is also accepted.  None value will trigger  msiempy.core.query.FilteredQueryList.clear_filters() . Raises :  AttributeError if type not supported. Abstract declaration. TODO find a better solution to integrate the filter property"
+"doc":"Filter property : Returns a list of filters. Can be set with list of tuple(field, [values]), a  msiempy.event.FieldFilter or  msiempy.event.GroupFilter in the case of a  msiempy.event.EventManager query. A single tuple is also accepted. Filters will always be added to the list, use  clear_filters() to remove all filters from a query. Raises :  AttributeError if type not supported. Abstract declaration."
 },
 {
 "ref":"msiempy.core.query.FilteredQueryList.add_filter",
@@ -541,7 +720,7 @@ INDEX=[
 {
 "ref":"msiempy.core.session.NitroSession.request",
 "url":6,
-"doc":"Interface to make ESM API calls more simple by interpolating  kwargs arguments with  msiempy.core.session.NitroSession.PARAMS docstrings and build a valid datastructure for the HTTP data. Then call the  msiempy.core.session.NitroSession.api_request method with the built data. Also handles auto-login. Arguments: -  request : Name keyword corresponding to the request name in  msiempy.core.session.NitroSession.PARAMS mapping. -  http : HTTP method. -  callback : function to apply afterwards -  raw : If true will return the Response object from requests module. -  secure : If true will not log the content of the request. -  retry : Number of time the request can be retried Interpolation parameters : -  kwargs : Interpolation parameters that will be match to  msiempy.core.session.NitroSession.PARAMS templates. Dynamic keyword arguments. Returns: - a  dict ,  list or  str object - the  resquest.Response object if raw=True -  result.text if  requests.HTTPError , -  None if Timeout or TooManyRedirects if raw=False Exemple: from msiempy import NitroSession s = NitroSession() s.login()  Get all last 24h alarms details alarms = s.request('get_alarms', time_range='LAST_24_HOURS', status= , page_size=500, page_number=0) for a in alarms: a.update(s.request('get_notification_detail', id=a['id'] If you're reading this thom an IDE, all possible requests are listed on the documentation webpage: https: mfesiem.github.io/docs/msiempy/core/session.html msiempy.core.session.NitroSession.request All requests: (  All upper cases method names signals to use the private API methods. ) request('login', username, password)  Call login request('get_devtree', )  Call GRP_GETVIRTUALGROUPIPSLISTDATA request('get_zones_devtree', )  Call GRP_GETVIRTUALGROUPIPSLISTDATA request('req_client_str', ds_id)  Call DS_GETDSCLIENTLIST request('get_rfile', ftoken)  Call MISC_READFILE request('del_rfile', ftoken)  Call ESSMGT_DELETEFILE request('get_rfile2', ftoken, pos, nbytes)  Call MISC_READFILE request('get_wfile', ds_id)  Call MISC_WRITEFILE request('get_rule_history', )  Call PLCY_GETRULECHANGEINFO request('add_ds_11_1_3', parent_id, name, ds_ip, type_id, zone_id, enabled, url, ds_id, child_enabled, child_count, child_type, idm_id, parameters)  Call dsAddDataSource request('add_ds_11_2_1', parent_id, name, ds_ip, type_id, zone_id, enabled, url, parameters)  Call dsAddDataSources request('add_client1', parent_id, name, enabled, ds_ip, hostname, type_id, tz_id, dorder, maskflag, port, require_tls)  Call DS_ADDDSCLIENT request('get_recs', )  Call devGetDeviceList request('get_dstypes', rec_id)  Call dsGetDataSourceTypes request('del_ds1', parent_id, ds_id)  Call dsDeleteDataSource request('del_ds2', parent_id, ds_id)  Call dsDeleteDataSources request('del_client', parent_id, ftoken)  Call DS_DELETEDSCLIENTS request('get_job_status', job_id)  Call MISC_JOBSTATUS request('ds_last_times', )  Call QRY_GETDEVICELASTALERTTIME request('zonetree', )  Call zoneGetZoneTree request('ds_by_type', )  Call QRY_GETDEVICECOUNTBYTYPE request('ds_details1', ds_id)  Call dsGetDataSourceDetail request('ds_details2', ds_id)  Call dsGetDataSourceDetail request('get_alarms_custom_time', time_range, start_time, end_time, status, page_size, page_number)  Call alarmGetTriggeredAlarms request('get_alarms', time_range, status, page_size, page_number)  Call alarmGetTriggeredAlarms request('get_notification_detail', id)  Call notifyGetTriggeredNotificationDetail request('get_alarm_details', id)  Call notifyGetTriggeredNotification request('get_alarm_details_int', id)  Call NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL request('ack_alarms', ids)  Call alarmAcknowledgeTriggeredAlarm request('ack_alarms_11_2_1', ids)  Call alarmAcknowledgeTriggeredAlarm request('unack_alarms', ids)  Call alarmUnacknowledgeTriggeredAlarm request('unack_alarms_11_2_1', ids)  Call alarmUnacknowledgeTriggeredAlarm request('delete_alarms', ids)  Call alarmDeleteTriggeredAlarm request('delete_alarms_11_2_1', ids)  Call alarmDeleteTriggeredAlarm request('get_possible_filters', )  Call qryGetFilterFields request('get_possible_fields', type, groupType)  Call qryGetSelectFields request('get_esm_time', )  Call essmgtGetESSTime request('get_alerts_now', ds_id)  Call IPS_GETALERTSNOW request('get_flows_now', ds_id)  Call IPS_GETFLOWSNOW request('logout', )  Call logout request('get_user_locale', )  Call getUserLocale request('event_query_custom_time', time_range, start_time, end_time, fields, filters, limit, offset, order_field, order_direction)  Call qryExecuteDetail request('event_query', time_range, fields, filters, limit, offset, order_field, order_direction)  Call qryExecuteDetail request('query_status', resultID)  Call qryGetStatus request('query_result', startPos, numRows, resultID)  Call qryGetResults request('time_zones', )  Call userGetTimeZones request('add_note_to_event', id, note)  Call ipsAddAlertNote request('add_note_to_event_int', id, note)  Call IPS_ADDALERTNOTE request('get_wl_types', )  Call sysGetWatchlistFields request('get_watchlists_no_filters', hidden, dynamic, writeOnly, indexedOnly)  Call sysGetWatchlists request('get_watchlist_details', id)  Call sysGetWatchlistDetails request('add_watchlist', name, wl_type)  Call sysAddWatchlist request('add_watchlist_values', watchlist, values)  Call sysAddWatchlistValues request('get_watchlist_values', id)  Call SYS_GETWATCHLISTDETAILS request('remove_watchlists', wl_id_list)  Call sysRemoveWatchlist request('get_alert_data', id)  Call ipsGetAlertData request('get_sys_info', )  Call SYS_GETSYSINFO request('build_stamp', )  Call essmgtGetBuildStamp ",
+"doc":"Interface to make ESM API calls more simple by interpolating  kwargs arguments with  msiempy.core.session.NitroSession.PARAMS docstrings and build a valid datastructure for the HTTP data. Then call the  msiempy.core.session.NitroSession.api_request method with the built data. Also handles auto-login. Arguments: -  request : Name keyword corresponding to the request name in  msiempy.core.session.NitroSession.PARAMS mapping. -  http : HTTP method. -  callback : function to apply afterwards -  raw : If true will return the Response object from requests module. -  secure : If true will not log the content of the request. -  retry : Number of time the request can be retried Interpolation parameters : -  kwargs : Interpolation parameters that will be match to  msiempy.core.session.NitroSession.PARAMS templates. Dynamic keyword arguments. Returns: - a  dict ,  list or  str object - the  resquest.Response object if raw=True -  result.text if  requests.HTTPError , -  None if Timeout or TooManyRedirects if raw=False Exemple: from msiempy import NitroSession s = NitroSession() s.login()  Get all last 24h alarms details alarms = s.request('get_alarms', time_range='LAST_24_HOURS', status= , page_size=500, page_number=0) for a in alarms: a.update(s.request('get_notification_detail', id=a['id'] If you're reading this thom an IDE, all possible requests are listed on the documentation webpage: https: mfesiem.github.io/docs/msiempy/core/session.html msiempy.core.session.NitroSession.request All requests: (  All upper cases method names signals to use the private API methods. ) request('login', username, password)  Call login request('get_devtree', )  Call GRP_GETVIRTUALGROUPIPSLISTDATA request('get_zones_devtree', )  Call GRP_GETVIRTUALGROUPIPSLISTDATA request('req_client_str', ds_id)  Call DS_GETDSCLIENTLIST request('get_rfile', ftoken)  Call MISC_READFILE request('del_rfile', ftoken)  Call ESSMGT_DELETEFILE request('get_rfile2', ftoken, pos, nbytes)  Call MISC_READFILE request('get_wfile', ds_id)  Call MISC_WRITEFILE request('get_rule_history', )  Call PLCY_GETRULECHANGEINFO request('add_ds_11_1_3', parent_id, name, ds_ip, type_id, zone_id, enabled, url, ds_id, child_enabled, child_count, child_type, idm_id, parameters)  Call dsAddDataSource request('add_ds_11_2_1', parent_id, name, ds_ip, type_id, zone_id, enabled, url, parameters)  Call dsAddDataSources request('add_client1', parent_id, name, enabled, ds_ip, hostname, type_id, tz_id, dorder, maskflag, port, require_tls)  Call DS_ADDDSCLIENT request('get_recs', )  Call devGetDeviceList request('get_dstypes', rec_id)  Call dsGetDataSourceTypes request('del_ds1', parent_id, ds_id)  Call dsDeleteDataSource request('del_ds2', parent_id, ds_id)  Call dsDeleteDataSources request('del_client', parent_id, ftoken)  Call DS_DELETEDSCLIENTS request('get_job_status', job_id)  Call MISC_JOBSTATUS request('ds_last_times', )  Call QRY_GETDEVICELASTALERTTIME request('zonetree', )  Call zoneGetZoneTree request('ds_by_type', )  Call QRY_GETDEVICECOUNTBYTYPE request('ds_details1', ds_id)  Call dsGetDataSourceDetail request('ds_details2', ds_id)  Call dsGetDataSourceDetail request('get_alarms_custom_time', time_range, start_time, end_time, status, page_size, page_number)  Call alarmGetTriggeredAlarms request('get_alarms', time_range, status, page_size, page_number)  Call alarmGetTriggeredAlarms request('get_notification_detail', id)  Call notifyGetTriggeredNotificationDetail request('get_alarm_details', id)  Call notifyGetTriggeredNotification request('get_alarm_details_int', id)  Call NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL request('ack_alarms', ids)  Call alarmAcknowledgeTriggeredAlarm request('ack_alarms_11_2_1', ids)  Call alarmAcknowledgeTriggeredAlarm request('unack_alarms', ids)  Call alarmUnacknowledgeTriggeredAlarm request('unack_alarms_11_2_1', ids)  Call alarmUnacknowledgeTriggeredAlarm request('delete_alarms', ids)  Call alarmDeleteTriggeredAlarm request('delete_alarms_11_2_1', ids)  Call alarmDeleteTriggeredAlarm request('get_alerts_now', ds_id)  Call IPS_GETALERTSNOW request('get_flows_now', ds_id)  Call IPS_GETFLOWSNOW request('get_possible_filters', )  Call v2/qryGetFilterFields request('get_possible_fields', type, groupType)  Call v2/qryGetSelectFields request('event_query_custom_time', time_range, start_time, end_time, fields, filters, limit, offset, order_field, order_direction)  Call v2/qryExecuteDetail request('event_query', time_range, fields, filters, limit, offset, order_field, order_direction)  Call v2/qryExecuteDetail request('query_status', resultID)  Call v2/qryGetStatus request('query_result', startPos, numRows, resultID)  Call v2/qryGetResults request('grouped_event_query', filters, field, time_range)  Call v2/qryExecuteGrouped request('grouped_event_query_custom_time', filters, field, time_range, start_time, end_time)  Call v2/qryExecuteGrouped request('close_query', resultID)  Call v2/qryClose request('get_alert_data', id)  Call ipsGetAlertData request('add_note_to_event', id, note)  Call ipsAddAlertNote request('add_note_to_event_int', id, note)  Call IPS_ADDALERTNOTE request('get_wl_types', )  Call sysGetWatchlistFields request('get_watchlists_no_filters', hidden, dynamic, writeOnly, indexedOnly)  Call sysGetWatchlists request('get_watchlist_details', id)  Call sysGetWatchlistDetails request('add_watchlist', name, wl_type)  Call sysAddWatchlist request('add_watchlist_values', watchlist, values)  Call sysAddWatchlistValues request('remove_watchlist_values', watchlist, values)  Call sysRemoveWatchlistValues request('get_watchlist_values', id)  Call SYS_GETWATCHLISTDETAILS request('remove_watchlists', wl_id_list)  Call sysRemoveWatchlist request('get_user_locale', )  Call getUserLocale request('time_zones', )  Call userGetTimeZones request('logout', )  Call logout request('get_sys_info', )  Call SYS_GETSYSINFO request('get_esm_time', )  Call essmgtGetESSTime request('build_stamp', )  Call essmgtGetBuildStamp ",
 "func":1
 },
 {
@@ -739,7 +918,7 @@ INDEX=[
 {
 "ref":"msiempy.core.utils.parse_query_result",
 "url":7,
-"doc":"For input : columns = ['key1','name','password'] rows = [ ['67','bob','b08b'], ['68','mike','kaas'], ['69','jean','p992'], ] Returns : [ {key1=67, name=bob, password=b08b}, { .}, {}, ]",
+"doc":"For input : columns = [{'name': 'Alert.LastTime'}, {'name': 'Rule.msg'}, {'name': 'Alert.DstIP'}, {'name': 'Alert.IPSIDAlertID'}] rows = [ {'values': ['09/22/2020 15:51:14', 'Postfix Disconnect from host', ' ', '144116287604260864|547123']}, {'values': ['09/22/2020 15:51:14', 'Postfix Lost connection from host', ' ', '144116287604260864|547122']} } Returns : [ { \"Alert.LastTime\":\"09/22/2020 15:51:14\", \"Rule.msg\":\"Postfix Disconnect from host\", \"Alert.DstIP\":\" \", \"Alert.IPSIDAlertID\":\"144116287604260864|547123\" }, {  . }, ]",
 "func":1
 },
 {
@@ -1067,11 +1246,6 @@ INDEX=[
 "doc":"Interface to query and manage Alarms. Inherits from  msiempy.core.query.FilteredQueryList . Arguments: -  status_filter : status of the alarms to query.  status_filter is not a filter like other cause it's computed on the SIEM side. Accepted values :  acknowledged ,  unacknowledged ,  all ,  or  None (default is  ).  filters are computed locally - Unlike  msiempy.event.EventManager filters. -  page_size : max number of rows per query. -  page_number : defaulted to 1. -  filters :  [(field, [values]), (field, [values])] Filters applied to  msiempy.alarm.Alarm objects. A single  tuple is also accepted. -  event_filters :  [(field, [values]), (field, [values])] Filters applied to  msiempy.event.Event objects. A single  tuple is also accepted. -  time_range : Query time range. String representation of a time range. -  start_time : Query starting time, can be a  string or a  datetime object. Parsed with  dateutil . -  end_time : Query endding time, can be a  string or a  datetime object. Parsed with  dateutil .  Unlike  EventManager , filters are computed after the data loaded with regex matching. "
 },
 {
-"ref":"msiempy.alarm.AlarmManager.filters",
-"url":9,
-"doc":"The alarm related filters"
-},
-{
 "ref":"msiempy.alarm.AlarmManager.status_filter",
 "url":9,
 "doc":"\" Alarms status filter"
@@ -1130,6 +1304,11 @@ INDEX=[
 "ref":"msiempy.alarm.AlarmManager.end_time",
 "url":2,
 "doc":"End time of the query in the right SIEM format. Use  _end_time property to get the datetime object. You can set the  end_time as a  str or a  datetime . If  None , equivalent CURRENT_DAY. Raises  ValueError if not the right type."
+},
+{
+"ref":"msiempy.alarm.AlarmManager.filters",
+"url":2,
+"doc":"Filter property : Returns a list of filters. Can be set with list of tuple(field, [values]), a  msiempy.event.FieldFilter or  msiempy.event.GroupFilter in the case of a  msiempy.event.EventManager query. A single tuple is also accepted. Filters will always be added to the list, use  clear_filters() to remove all filters from a query. Raises :  AttributeError if type not supported. Abstract declaration."
 },
 {
 "ref":"msiempy.alarm.AlarmManager.keys",
@@ -1385,6 +1564,12 @@ INDEX=[
 "ref":"msiempy.watchlist.Watchlist.add_values",
 "url":10,
 "doc":"Add values to static watchlist. Arguments: -  values ( list ): list of values",
+"func":1
+},
+{
+"ref":"msiempy.watchlist.Watchlist.remove_values",
+"url":10,
+"doc":"Remove values from static watchlist. Arguments: -  values ( list ): list of values",
 "func":1
 },
 {

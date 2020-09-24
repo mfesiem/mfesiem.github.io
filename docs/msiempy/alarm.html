@@ -29,129 +29,152 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L0-L563" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L0-L650" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Provide alarm management.  
 &#34;&#34;&#34;
 import collections
 import logging
-log = logging.getLogger(&#39;msiempy&#39;)
+
+log = logging.getLogger(&#34;msiempy&#34;)
 
 from .core import NitroDict, FilteredQueryList
 from .event import Event, EventManager
 from .core.utils import regex_match, dehexify
 
-__pdoc__={}
+__pdoc__ = {}
+
 
 class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
-    Interface to query and manage Alarms.  
+    Interface to query and manage Alarms.
     Inherits from `msiempy.core.query.FilteredQueryList`.
 
-    Arguments:  
+    Arguments:
 
-    - `status_filter` : status of the alarms to query. `status_filter` is not a filter like other cause it&#39;s computed on the SIEM side.  
+    - `status_filter` : status of the alarms to query. `status_filter` is not a filter like other cause it&#39;s computed on the SIEM side.
     Accepted values : `acknowledged`, `unacknowledged`, `all`, `` or `None` (default is ``).
-    `filters` are computed locally - Unlike `msiempy.event.EventManager` filters.  
-    - `page_size` : max number of rows per query.  
+    `filters` are computed locally - Unlike `msiempy.event.EventManager` filters.
+    - `page_size` : max number of rows per query.
     - `page_number` : defaulted to 1.
-    - `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted.  
-    - `event_filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.event.Event` objects. A single `tuple` is also accepted.   
-    - `time_range` : Query time range. String representation of a time range.  
-    - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
-    - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
+    - `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted.
+    - `event_filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.event.Event` objects. A single `tuple` is also accepted.
+    - `time_range` : Query time range. String representation of a time range.
+    - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.
+    - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.
 
-    **Unlike `EventManager`, filters are computed after the data loaded with regex matching.**  
-    
+    **Unlike `EventManager`, filters are computed after the data loaded with regex matching.**
+
     &#34;&#34;&#34;
-    def __init__(self, *args, status_filter=&#39;all&#39;, page_size=200, filters=None, event_filters=None, **kwargs):
+
+    def __init__(
+        self, *args, status_filter=&#34;all&#34;, page_size=200, event_filters=None, **kwargs
+    ):
+
+        # Declaring attributes before calling super() because it would overwrite values
+        self._alarm_filters = []
+        self._event_filters = []
+
         super().__init__(*args, **kwargs)
 
-        #Declaring attributes
-        self._alarm_filters = list(tuple())
-        self._event_filters = list(tuple())
         self._status_filter = str()
 
-        #Setting attributes
-        self.status_filter=status_filter
+        # Setting attributes
+        self.status_filter = status_filter
         &#34;&#34;&#34;&#34;
         Alarms status filter
         &#34;&#34;&#34;
 
-        self.page_size=page_size
+        self.page_size = page_size
         &#34;&#34;&#34;&#34;
         Max number of alarms per query
         &#34;&#34;&#34;
 
-        #uses the parent filter setter
-        #TODO : find a soltuion not to use this
-        #calling super().filters=filters #https://bugs.python.org/issue14965
-        super(self.__class__, self.__class__).filters.__set__(self, filters)
+        # uses the parent filter setter
+        # TODO : find a soltuion not to use this
+        # calling super().filters=filters #https://bugs.python.org/issue14965
+        # super(self.__class__, self.__class__).filters.__set__(self, filters)
 
-        #Seeting events filters after alarms filters cause it would overwrite it
-        self.event_filters=event_filters
+        # Seeting events filters after alarms filters cause it would overwrite it
+        self.event_filters = event_filters
 
-        #Casting all data to Alarms objects, better way to do it ?
-        collections.UserList.__init__(self, [Alarm(adict=item) for item in self.data if isinstance(item, (dict, NitroDict))])
+        # Casting all data to Alarms objects, better way to do it ?
+        collections.UserList.__init__(
+            self,
+            [
+                Alarm(adict=item)
+                for item in self.data
+                if isinstance(item, (dict, NitroDict))
+            ],
+        )
 
-    @property
-    def filters(self):
+    def _get_filters(self):
         &#34;&#34;&#34;
         The alarm related filters
         &#34;&#34;&#34;
         return self._alarm_filters
-    
+
     @property
     def status_filter(self):
         &#34;&#34;&#34;
-        Status of the alarms in the query.  
+        Status of the alarms in the query.
         &#34;&#34;&#34;
         return self._status_filter
 
     @status_filter.setter
     def status_filter(self, status_filter):
-        status_found=False
-        if type(status_filter) is str : 
-            for synonims in Alarm.POSSIBLE_ALARM_STATUS :
+        status_found = False
+        if type(status_filter) is str:
+            for synonims in Alarm.POSSIBLE_ALARM_STATUS:
                 if status_filter in synonims:
-                    self._status_filter=synonims[0]
-                    status_found=True
+                    self._status_filter = synonims[0]
+                    status_found = True
 
         if not status_found:
-            raise AttributeError(&#34;Illegal value of status filter. The status must be in &#34;+str(Alarm.POSSIBLE_ALARM_STATUS)+&#39; not :&#39;+str(status_filter))
+            raise AttributeError(
+                &#34;Illegal value of status filter. The status must be in &#34;
+                + str(Alarm.POSSIBLE_ALARM_STATUS)
+                + &#34; not :&#34;
+                + str(status_filter)
+            )
 
     def add_filter(self, afilter):
         &#34;&#34;&#34;
-        Add a filter to the query.  
-        
-        Arguments :  
+        Add a filter to the query.
+
+        Arguments :
 
         - `afilter` : Can be a a tuple `(field, [values])` or `(field, value)` or `str` &#39;field=value&#39;
 
-        Filters format is `tuple(field, [values])`.  
+        Filters format is `tuple(field, [values])`.
         &#34;&#34;&#34;
 
-        if isinstance(afilter,str): afilter = afilter.split(&#39;=&#39;,1)
-        
+        if isinstance(afilter, str):
+            afilter = afilter.split(&#34;=&#34;, 1)
+
         values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
         values = [str(v) for v in values]
-        added=False
+        added = False
 
-        for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
-            if afilter[0] in synonims :
-                log.warning(&#39;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+        for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS:
+            if afilter[0] in synonims:
+                log.warning(
+                    &#34;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You&#39;ll be able to use more filters dynamically.&#34;
+                )
                 self._event_filters.append((synonims[0], values))
-                added=True
+                added = True
 
-        #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
-        if len(afilter[0].split(&#39;.&#39;)) == 2 :
+        # support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
+        if len(afilter[0].split(&#34;.&#34;)) == 2:
             self._event_filters.append((afilter[0], values))
-            log.warning(&#39;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
-            added=True
+            log.warning(
+                &#34;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You&#39;ll be able to use more filters dynamically.&#34;
+            )
+            added = True
 
-        if added==False:
+        if added == False:
             self._alarm_filters.append((afilter[0], values))
-            added=True
+            added = True
 
     @property
     def event_filters(self):
@@ -161,440 +184,504 @@ class AlarmManager(FilteredQueryList):
     @event_filters.setter
     def event_filters(self, filters):
         if isinstance(filters, list):
-            for f in filters :
+            for f in filters:
                 self.add_event_filter(f)
 
         elif isinstance(filters, tuple):
             self.add_event_filter(filters)
 
-        elif filters == None :
-            self._event_filters=list(tuple())
-        
-        else :
-            raise AttributeError(&#34;Illegal type for the filter object, it must be a list, a tuple or None.&#34;)
+        elif filters == None:
+            self._event_filters = list(tuple())
+
+        else:
+            raise AttributeError(
+                &#34;Illegal type for the filter object, it must be a list, a tuple or None.&#34;
+            )
 
     def add_event_filter(self, afilter):
         &#34;&#34;&#34;
-        Add a event filter to the query.  
-        
-        Arguments :  
+        Add a event filter to the query.
+
+        Arguments :
 
         - `afilter` : Can be a a tuple `(field, [values])` or `(field, value)` or `str` &#39;field=value&#39;
 
-        Filters format is `tuple(field, [values])`.  
+        Filters format is `tuple(field, [values])`.
         &#34;&#34;&#34;
 
-        if isinstance(afilter,str):
-            afilter = afilter.split(&#39;=&#39;,1)
-       
+        if isinstance(afilter, str):
+            afilter = afilter.split(&#34;=&#34;, 1)
+
         values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
-        values = [str(v) for v in values] 
+        values = [str(v) for v in values]
         self._event_filters.append((afilter[0], values))
 
     def clear_filters(self):
         &#34;&#34;&#34;
         Reset local alarm and event filters.
         &#34;&#34;&#34;
-        self._alarm_filters = list(tuple())
-        self._event_filters = list(tuple())
+        self._alarm_filters = []
+        self._event_filters = []
 
     def load_data(self, pages=1, **kwargs):
         &#34;&#34;&#34;
-        Load the data into the list.  
-        Implements automatic paging over `msiempy.alarm.AlarmManager.qry_load_data`.  
-        Default behaviour is to load all alarms informations. Meaning that foreach alarms, 
-        the full details is loaded, then the trigerring event details is loaded.  
-        
-        Arguments :  
+        Load the data into the list.
+        Implements automatic paging over `msiempy.alarm.AlarmManager.qry_load_data`.
+        Default behaviour is to load all alarms informations. Meaning that foreach alarms,
+        the full details is loaded, then the trigerring event details is loaded.
 
-        - `pages` : Number of pages to load (not asynchronous).   
+        Arguments :
 
-        Arguments passed to `msiempy.alarm.AlarmManager.qry_load_data` :  
+        - `pages` : Number of pages to load (not asynchronous).
 
-        - `workers` : Number of asynchronous workers   
-        - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.  
-        - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded. Only `str` representation for SIEM 10.x and minimal events records from SIEM 11.x.  
-        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
-        Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.    
-        - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter  
+        Arguments passed to `msiempy.alarm.AlarmManager.qry_load_data` :
+
+        - `workers` : Number of asynchronous workers
+        - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
+        - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded. Only `str` representation for SIEM 10.x and minimal events records from SIEM 11.x.
+        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.
+        Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.
+        - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`
+        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter
 
         Returns : `msiempy.alarm.AlarmManager`
         &#34;&#34;&#34;
 
         items, completed = self.qry_load_data(**kwargs)
-        #Casting items to Alarms
-        alarms=[Alarm(adict=item) for item in items]
+        # Casting items to Alarms
+        alarms = [Alarm(adict=item) for item in items]
 
-        #Iterative automatic paging (not asynchronous)
-        if not completed and pages&gt;1 :
-            next_kwargs={**kwargs}
-            if &#39;page_number&#39; in kwargs : next_kwargs[&#39;page_number&#39;]=kwargs[&#39;page_number&#39;]+1
-            else: next_kwargs[&#39;page_number&#39;]=2
+        # Iterative automatic paging (not asynchronous)
+        if not completed and pages &gt; 1:
+            next_kwargs = {**kwargs}
+            if &#34;page_number&#34; in kwargs:
+                next_kwargs[&#34;page_number&#34;] = kwargs[&#34;page_number&#34;] + 1
+            else:
+                next_kwargs[&#34;page_number&#34;] = 2
 
-            log.info(&#39;Loading pages... ({})&#39;.format(next_kwargs[&#39;page_number&#39;]))
-            alarms=alarms+list(self.load_data(pages=pages-1, **next_kwargs))
+            log.info(&#34;Loading pages... ({})&#34;.format(next_kwargs[&#34;page_number&#34;]))
+            alarms = alarms + list(self.load_data(pages=pages - 1, **next_kwargs))
 
-        if &#39;page_number&#39; not in kwargs:
+        if &#34;page_number&#34; not in kwargs:
             log.info(str(len(alarms)) + &#34; alarms are matching your filter(s)&#34;)
-        
-        self.data=alarms
-        return(self)
 
-    def qry_load_data(self, workers=10,
-        alarms_details=True, events_details=True,
-        use_query=False, extra_fields=[], page_number=1):
+        self.data = alarms
+        return self
+
+    def qry_load_data(
+        self,
+        workers=10,
+        alarms_details=True,
+        events_details=True,
+        use_query=False,
+        extra_fields=[],
+        page_number=1,
+    ):
         &#34;&#34;&#34;
-        Method that query, filter and return the alarms data :  
-        -&gt; Fetch the list of alarms and load alarms details  
-        -&gt; Filter depending on alarms related filters  
-        -&gt; Load the events details  
-        -&gt; Filter depending on event related filters  
+        Method that query, filter and return the alarms data :
+        -&gt; Fetch the list of alarms and load alarms details
+        -&gt; Filter depending on alarms related filters
+        -&gt; Load the events details
+        -&gt; Filter depending on event related filters
 
-        Arguments :  
+        Arguments :
 
-        - `workers` : Number of asynchronous workers  
+        - `workers` : Number of asynchronous workers
         - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
         - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded only `str` representation.
-        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
-        - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter  
-        
+        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.
+        - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`
+        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter
+
         Returns : `tuple` : ( Results : `list` , Status of the query : `completed` )
 
         &#34;&#34;&#34;
 
-        if self.time_range == &#39;CUSTOM&#39; :
-            no_filtered_alarms=self.nitro.request(
-                &#39;get_alarms_custom_time&#39;,
+        if self.time_range == &#34;CUSTOM&#34;:
+            no_filtered_alarms = self.nitro.request(
+                &#34;get_alarms_custom_time&#34;,
                 time_range=self.time_range,
                 start_time=self.start_time,
                 end_time=self.end_time,
                 status=self.status_filter,
                 page_size=self.page_size,
-                page_number=page_number
-                )
+                page_number=page_number,
+            )
 
-        else :
-            no_filtered_alarms=self.nitro.request(
-                &#39;get_alarms&#39;,
+        else:
+            no_filtered_alarms = self.nitro.request(
+                &#34;get_alarms&#34;,
                 time_range=self.time_range,
                 status=self.status_filter,
                 page_size=self.page_size,
-                page_number=page_number
-                )
+                page_number=page_number,
+            )
 
-        #Casting to list of Alarms to be able to call load_details etc...        
-        alarm_based_filtered = AlarmManager([a for a in no_filtered_alarms if self._alarm_match(a)])
+        # Casting to list of Alarms to be able to call load_details etc...
+        alarm_based_filtered = AlarmManager(
+            [a for a in no_filtered_alarms if self._alarm_match(a)]
+        )
 
-        if alarms_details :
+        if alarms_details:
 
             log.info(&#34;Getting alarms infos...&#34;)
-            alarm_based_filtered.perform(Alarm.load_details,
-                asynch=True,
-                progress=True,
-                workers=workers)
+            alarm_based_filtered.perform(
+                Alarm.load_details, asynch=True, progress=True, workers=workers
+            )
 
-            #Casting to list of Alarms to be able to call load_details etc...        
-            detailed_alarm_based_filtered = AlarmManager([ a for a in alarm_based_filtered if self._alarm_match(a) ])
+            # Casting to list of Alarms to be able to call load_details etc...
+            detailed_alarm_based_filtered = AlarmManager(
+                [a for a in alarm_based_filtered if self._alarm_match(a)]
+            )
 
-            if events_details :
+            if events_details:
                 log.info(&#34;Getting full events infos...&#34;)
-                detailed_alarm_based_filtered.perform(Alarm.load_events, 
+                detailed_alarm_based_filtered.perform(
+                    Alarm.load_events,
                     func_args=dict(use_query=use_query, extra_fields=extra_fields),
-                    asynch=True, 
-                    progress=True, 
-                    workers=workers)
+                    asynch=True,
+                    progress=True,
+                    workers=workers,
+                )
 
-            filtered_alarms = AlarmManager([ a for a in detailed_alarm_based_filtered if self._event_match(a)]) 
-        else :
+            filtered_alarms = AlarmManager(
+                [a for a in detailed_alarm_based_filtered if self._event_match(a)]
+            )
+        else:
             filtered_alarms = alarm_based_filtered
-            log.warning(&#39;Event filters and some Alarm filters are ignored when `alarms_details is False`&#39;)
+            log.warning(
+                &#34;Event filters and some Alarm filters are ignored when `alarms_details is False`&#34;
+            )
 
-        return (( filtered_alarms , len(no_filtered_alarms) &lt; int(self.page_size) ))
+        return (filtered_alarms, len(no_filtered_alarms) &lt; int(self.page_size))
 
     def _alarm_match(self, alarm):
         &#34;&#34;&#34;
         Internal filter method that is going to return True if the passed alarm match all alarm related filters.
         &#34;&#34;&#34;
-        match=True
-        for alarm_filter in self._alarm_filters :
-            match=False
-            try: value = str(alarm[alarm_filter[0]]) #Can only match strings
-            except KeyError: break
+        match = True
+        for alarm_filter in self._alarm_filters:
+            match = False
+            try:
+                value = str(alarm[alarm_filter[0]])  # Can only match strings
+            except KeyError:
+                break
             for filter_value in alarm_filter[1]:
                 if regex_match(filter_value.lower(), value.lower()):
-                    match=True
+                    match = True
                     break
-            if not match :
+            if not match:
                 break
         return match
-        
+
     def _event_match(self, alarm):
         &#34;&#34;&#34;
         Internal filter method that is going to return True if the passed alarm match all event related filters.
         &#34;&#34;&#34;
-        match=True
-        for event_filter in self._event_filters :
-            match=False
-            try: value = str(alarm[&#39;events&#39;][0][event_filter[0]])
-            except KeyError: break
+        match = True
+        for event_filter in self._event_filters:
+            match = False
+            try:
+                value = str(alarm[&#34;events&#34;][0][event_filter[0]])
+            except KeyError:
+                break
             for filter_value in event_filter[1]:
-                if regex_match(filter_value.lower(), value.lower()) :
-                    match=True
+                if regex_match(filter_value.lower(), value.lower()):
+                    match = True
                     break
-            if not match :
+            if not match:
                 break
         return match
 
+
 class Alarm(NitroDict):
     &#34;&#34;&#34;
-    Dict-Like object.  
+    Dict-Like object.
 
-    Common keys :  
+    Common keys :
 
-    - `id` : The ID of the triggered alarm  
-    - `summary`  : The summary of the triggered alarm  
-    - `assignee` : The assignee for this triggered alarm  
-    - `severity` : The severity for this triggered alarm  
-    - `triggeredDate` : The date this alarm was triggered  
-    - `acknowledgedDate` : The date this triggered alarm was acknowledged  
-    - `acknowledgedUsername` : The user that acknowledged this triggered alarm  
-    - `alarmName` : The name of the alarm that was triggered  
-    - `events` : The events that triggered the alarm    
-    - And others...   
-    
+    - `id` : The ID of the triggered alarm
+    - `summary`  : The summary of the triggered alarm
+    - `assignee` : The assignee for this triggered alarm
+    - `severity` : The severity for this triggered alarm
+    - `triggeredDate` : The date this alarm was triggered
+    - `acknowledgedDate` : The date this triggered alarm was acknowledged
+    - `acknowledgedUsername` : The user that acknowledged this triggered alarm
+    - `alarmName` : The name of the alarm that was triggered
+    - `events` : The events that triggered the alarm
+    - And others...
+
     Arguments:
 
-    - `adict`: Alarm parameters  
+    - `adict`: Alarm parameters
     - `id`: The alarm ID to instanciate. Will load informations
     &#34;&#34;&#34;
 
     def __init__(self, *arg, **kwargs):
-        &#34;&#34;&#34;Creates a empty Alarm.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Creates a empty Alarm.&#34;&#34;&#34;
         super().__init__(*arg, **kwargs)
 
-        #Keep the id in the dict when instanciating an Alarm directly from its id.
-        if &#39;id&#39; in kwargs :
-            self.data[&#39;id&#39;] = {&#39;value&#39;:str(kwargs[&#39;id&#39;])}
+        # Keep the id in the dict when instanciating an Alarm directly from its id.
+        if &#34;id&#34; in kwargs:
+            self.data[&#34;id&#34;] = {&#34;value&#34;: str(kwargs[&#34;id&#34;])}
         # Casting all events to Event object
-        if &#39;events&#39; in self.data and isinstance(self.data[&#39;events&#39;], list):
-            self[&#39;events&#39;]=EventManager(self.data[&#39;events&#39;])
+        if &#34;events&#34; in self.data and isinstance(self.data[&#34;events&#34;], list):
+            self[&#34;events&#34;] = EventManager(self.data[&#34;events&#34;])
 
-    POSSIBLE_ALARM_STATUS=[
-        [&#39;acknowledged&#39;, &#39;ack&#39;,],
-        [&#39;unacknowledged&#39;, &#39;unack&#39;,],
-        [&#39;&#39;, &#39;all&#39;, &#39;both&#39;]
+    POSSIBLE_ALARM_STATUS = [
+        [
+            &#34;acknowledged&#34;,
+            &#34;ack&#34;,
+        ],
+        [
+            &#34;unacknowledged&#34;,
+            &#34;unack&#34;,
+        ],
+        [&#34;&#34;, &#34;all&#34;, &#34;both&#34;],
     ]
-    __pdoc__[&#39;Alarm.POSSIBLE_ALARM_STATUS&#39;]=&#34;&#34;&#34;Possible alarm statuses : ```%(statuses)s```&#34;&#34;&#34; % dict(statuses=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in POSSIBLE_ALARM_STATUS]))
+    __pdoc__[
+        &#34;Alarm.POSSIBLE_ALARM_STATUS&#34;
+    ] = &#34;&#34;&#34;Possible alarm statuses : ```%(statuses)s```&#34;&#34;&#34; % dict(
+        statuses=&#34;, &#34;.join([&#34;/&#34;.join(synonims) for synonims in POSSIBLE_ALARM_STATUS])
+    )
 
-    ALARM_EVENT_FILTER_FIELDS=[
-    (&#34;ruleName&#34;,),
-    (&#34;srcIp&#34;,),
-    (&#34;destIp&#34;,),
-    (&#34;protocol&#34;,),
-    (&#34;lastTime&#34;,),
-    (&#34;subtype&#34;,),
-    (&#34;destPort&#34;,),
-    (&#34;destMac&#34;,),
-    (&#34;srcMac&#34;,),
-    (&#34;srcPort&#34;,),
-    (&#34;deviceName&#34;,),
-    (&#34;sigId&#34;,),
-    (&#34;normId&#34;,),
-    (&#34;srcUser&#34;,),
-    (&#34;destUser&#34;,),
-    (&#34;normMessage&#34;,),
-    (&#34;normDesc&#34;,),
-    (&#34;host&#34;,),
-    (&#34;domain&#34;,),
-    (&#34;ipsId&#34;,),
+    ALARM_EVENT_FILTER_FIELDS = [
+        (&#34;ruleName&#34;,),
+        (&#34;srcIp&#34;,),
+        (&#34;destIp&#34;,),
+        (&#34;protocol&#34;,),
+        (&#34;lastTime&#34;,),
+        (&#34;subtype&#34;,),
+        (&#34;destPort&#34;,),
+        (&#34;destMac&#34;,),
+        (&#34;srcMac&#34;,),
+        (&#34;srcPort&#34;,),
+        (&#34;deviceName&#34;,),
+        (&#34;sigId&#34;,),
+        (&#34;normId&#34;,),
+        (&#34;srcUser&#34;,),
+        (&#34;destUser&#34;,),
+        (&#34;normMessage&#34;,),
+        (&#34;normDesc&#34;,),
+        (&#34;host&#34;,),
+        (&#34;domain&#34;,),
+        (&#34;ipsId&#34;,),
     ]
 
-    ALARM_DEFAULT_FIELDS=[&#39;id&#39;,&#39;alarmName&#39;, &#39;summary&#39;,&#39;triggeredDate&#39;, &#39;acknowledgedUsername&#39;]
-    __pdoc__[&#39;Alarm.ALARM_DEFAULT_FIELDS&#39;]=&#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
-    (not used in library, can bu useful for printing with `get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join(ALARM_DEFAULT_FIELDS))
-
+    ALARM_DEFAULT_FIELDS = [
+        &#34;id&#34;,
+        &#34;alarmName&#34;,
+        &#34;summary&#34;,
+        &#34;triggeredDate&#34;,
+        &#34;acknowledgedUsername&#34;,
+    ]
+    __pdoc__[
+        &#34;Alarm.ALARM_DEFAULT_FIELDS&#34;
+    ] = &#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
+    (not used in library, can bu useful for printing with `get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(
+        fields=&#34;, &#34;.join(ALARM_DEFAULT_FIELDS)
+    )
 
     def acknowledge(self):
-        &#34;&#34;&#34;Mark the alarm as acknowledged.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Mark the alarm as acknowledged.&#34;&#34;&#34;
         if self.nitro.api_v == 1:
-            self.nitro.request(&#39;ack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+            self.nitro.request(&#34;ack_alarms&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
         else:
-            self.nitro.request(&#39;ack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+            self.nitro.request(&#34;ack_alarms_11_2_1&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
 
     def unacknowledge(self):
-        &#34;&#34;&#34;Mark the alarm as unacknowledge.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Mark the alarm as unacknowledge.&#34;&#34;&#34;
         if self.nitro.api_v == 1:
-            self.nitro.request(&#39;unack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+            self.nitro.request(&#34;unack_alarms&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
         else:
-            self.nitro.request(&#39;unack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-
+            self.nitro.request(&#34;unack_alarms_11_2_1&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
 
     def delete(self):
         &#34;&#34;&#34;Destructive action!
         Delete the alarm.
         &#34;&#34;&#34;
         if self.nitro.api_v == 1:
-            self.nitro.request(&#39;delete_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+            self.nitro.request(&#34;delete_alarms&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
         else:
-            self.nitro.request(&#39;delete_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+            self.nitro.request(&#34;delete_alarms_11_2_1&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
 
     def ceate_case(self):
-        &#34;&#34;&#34;Not implemented : TODO
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Not implemented : TODO&#34;&#34;&#34;
         raise NotImplementedError()
 
     def load_details(self):
-        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
-        &#34;&#34;&#34;
-        the_id = self.data[&#39;id&#39;][&#39;value&#39;]
+        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.&#34;&#34;&#34;
+        the_id = self.data[&#34;id&#34;][&#34;value&#34;]
         self.data.update(self.data_from_id(the_id))
-        if isinstance(self.data[&#39;events&#39;], (list)):
-            self[&#39;events&#39;]=EventManager(self.data[&#39;events&#39;])
-        self.data[&#39;id&#39;][&#39;value&#39;]=the_id
-        
+        if isinstance(self.data[&#34;events&#34;], (list)):
+            self[&#34;events&#34;] = EventManager(self.data[&#34;events&#34;])
+        self.data[&#34;id&#34;][&#34;value&#34;] = the_id
+
         return self
 
     def refresh(self):
-        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.  
-        &#34;&#34;&#34;        
+        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.&#34;&#34;&#34;
         self.load_details()
 
     def load_events(self, use_query=False, extra_fields=[], workers=1):
         &#34;&#34;&#34;
-        Retreive the complete trigerring Event(s) objects from an Alarm.  
-        This methos is automatically called automatically by default when calling `load_data()`.   
-        Arguments:  
+        Retreive the complete trigerring Event(s) objects from an Alarm.
+        This methos is automatically called automatically by default when calling `load_data()`.
+        Arguments:
 
-        - `use_query` : Uses the query module to retreive the event(s) data. Only works with SIEM v 11.2 or greater.    
-        Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.  
-        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-        - `workers`: The number of asynchronous workers.  
+        - `use_query` : Uses the query module to retreive the event(s) data. Only works with SIEM v 11.2 or greater.
+        Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.
+        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`
+        - `workers`: The number of asynchronous workers.
 
-        .. Warning:: On SIEM v10.X This method will only load the details of the first triggering event.  
+        .. Warning:: On SIEM v10.X This method will only load the details of the first triggering event.
         &#34;&#34;&#34;
-        if isinstance(self.data[&#39;events&#39;], str):
+        if isinstance(self.data[&#34;events&#34;], str):
 
-            #Retreive the alert id from the event&#39;s string
-            events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
-            the_id = events_data[0]+&#39;|&#39;+events_data[1]
+            # Retreive the alert id from the event&#39;s string
+            events_data = self.data[&#34;events&#34;].split(&#34;|&#34;)
+            the_id = events_data[0] + &#34;|&#34; + events_data[1]
 
-            #instanciate the event
-            the_first_event=Event()
-            the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
+            # instanciate the event
+            the_first_event = Event()
+            the_first_event.data = Event().data_from_id(
+                id=the_id, use_query=use_query, extra_fields=extra_fields
+            )
 
-            #set it as the only item of the event list
-            self.data[&#39;events&#39;]= [ the_first_event ]
+            # set it as the only item of the event list
+            self.data[&#34;events&#34;] = [the_first_event]
 
-        elif isinstance(self.data[&#39;events&#39;], (EventManager)):
+        elif isinstance(self.data[&#34;events&#34;], (EventManager)):
             # The list has been loaded from notifyGetTriggeredNotificationDetail
-            self.data[&#39;events&#39;].perform(Event.refresh, asynch=True, workers=workers, func_args=dict(use_query=use_query, extra_fields=extra_fields))
+            self.data[&#34;events&#34;].perform(
+                Event.refresh,
+                asynch=True,
+                workers=workers,
+                func_args=dict(use_query=use_query, extra_fields=extra_fields),
+            )
         else:
-            log.info(&#39;The alarm {} ({}) has no events associated&#39;.format(self.data[&#39;alarmName&#39;], self.data[&#39;triggeredDate&#39;]))
-            self.data[&#39;events&#39;]= [ Event() ]
+            log.info(
+                &#34;The alarm {} ({}) has no events associated&#34;.format(
+                    self.data[&#34;alarmName&#34;], self.data[&#34;triggeredDate&#34;]
+                )
+            )
+            self.data[&#34;events&#34;] = [Event()]
 
         return self
 
-    ALARM_FIELDS_MAP={&#39;EC&#39;: None,
-                &#39;SMRY&#39;: &#39;summary&#39;,
-                &#39;NAME&#39;: &#39;alarmName&#39;,
-                &#39;FILTERS&#39;: &#39;filters&#39;,
-                &#39;CTYPE&#39;: None,
-                &#39;QID&#39;: &#39;queryId&#39;,
-                &#39;ARM&#39;: &#39;alretRateMin&#39;,
-                &#39;ARC&#39;: &#39;alertRateCount&#39;,
-                &#39;PCTA&#39;: &#39;percentAbove&#39;,
-                &#39;PCTB&#39;: &#39;percentBelow&#39;,
-                &#39;OFFSETMIN&#39;: &#39;offsetMinutes&#39;,
-                &#39;TIMEF&#39;: &#39;maximumConditionTriggerFrequency&#39;,
-                &#39;XMIN&#39;: None,
-                &#39;USEW&#39;: &#39;useWatchlist&#39;,
-                &#39;MFLD&#39;: &#39;matchField&#39;,
-                &#39;MVAL&#39;: &#39;matchValue&#39;,
-                &#39;SVRTY&#39;: &#39;severity&#39;,
-                &#39;ASNID&#39;: &#39;assigneeId&#39;,
-                &#39;ASNNAME&#39;: &#39;assignee&#39;,
-                &#39;TRGDATE&#39;: &#39;triggeredDate&#39;,
-                &#39;ACKDATE&#39;: &#39;acknowledgedDate&#39;,
-                &#39;ESCDATE&#39;: &#39;escalatedDate&#39;,
-                &#39;CASEID&#39;: &#39;caseId&#39;,
-                &#39;CASENAME&#39;: &#39;caseName&#39;,
-                &#39;IOCNAME&#39;: &#39;iocName&#39;,
-                &#39;IOCID&#39;: &#39;iocId&#39;,
-                &#39;DESC&#39;: &#39;description&#39;,
-                &#39;NID&#39;: None,
-                &#39;ACTIONS&#39;: &#39;actions&#39;,
-                &#39;NE&#39;: None,
-                &#39;EVENTS&#39;: &#39;events&#39;,
-                &#39;DCHNG&#39;: None}
+    ALARM_FIELDS_MAP = {
+        &#34;EC&#34;: None,
+        &#34;SMRY&#34;: &#34;summary&#34;,
+        &#34;NAME&#34;: &#34;alarmName&#34;,
+        &#34;FILTERS&#34;: &#34;filters&#34;,
+        &#34;CTYPE&#34;: None,
+        &#34;QID&#34;: &#34;queryId&#34;,
+        &#34;ARM&#34;: &#34;alretRateMin&#34;,
+        &#34;ARC&#34;: &#34;alertRateCount&#34;,
+        &#34;PCTA&#34;: &#34;percentAbove&#34;,
+        &#34;PCTB&#34;: &#34;percentBelow&#34;,
+        &#34;OFFSETMIN&#34;: &#34;offsetMinutes&#34;,
+        &#34;TIMEF&#34;: &#34;maximumConditionTriggerFrequency&#34;,
+        &#34;XMIN&#34;: None,
+        &#34;USEW&#34;: &#34;useWatchlist&#34;,
+        &#34;MFLD&#34;: &#34;matchField&#34;,
+        &#34;MVAL&#34;: &#34;matchValue&#34;,
+        &#34;SVRTY&#34;: &#34;severity&#34;,
+        &#34;ASNID&#34;: &#34;assigneeId&#34;,
+        &#34;ASNNAME&#34;: &#34;assignee&#34;,
+        &#34;TRGDATE&#34;: &#34;triggeredDate&#34;,
+        &#34;ACKDATE&#34;: &#34;acknowledgedDate&#34;,
+        &#34;ESCDATE&#34;: &#34;escalatedDate&#34;,
+        &#34;CASEID&#34;: &#34;caseId&#34;,
+        &#34;CASENAME&#34;: &#34;caseName&#34;,
+        &#34;IOCNAME&#34;: &#34;iocName&#34;,
+        &#34;IOCID&#34;: &#34;iocId&#34;,
+        &#34;DESC&#34;: &#34;description&#34;,
+        &#34;NID&#34;: None,
+        &#34;ACTIONS&#34;: &#34;actions&#34;,
+        &#34;NE&#34;: None,
+        &#34;EVENTS&#34;: &#34;events&#34;,
+        &#34;DCHNG&#34;: None,
+    }
     &#34;&#34;&#34;
     List of all `Alarm` possible fields.  
     This is used only when the private API is used to retreive Alarm infos.  
     To change genuine (UPPERCASE) key names to more explicit ones matching public API names.  
 
-    &#34;&#34;&#34; 
+    &#34;&#34;&#34;
 
     def map_alarm_int_fields(self, alarm_details):
         &#34;&#34;&#34;
-        Map the internal ESM field names to msiempy style with `msiempy.alarm.Alarm.ALARM_FIELDS_MAP`.  
-        Converts &#34;T&#34; and &#34;F&#34; to `True` and `False` and handle None values.  
+        Map the internal ESM field names to msiempy style with `msiempy.alarm.Alarm.ALARM_FIELDS_MAP`.
+        Converts &#34;T&#34; and &#34;F&#34; to `True` and `False` and handle None values.
         &#34;&#34;&#34;
 
         for key, val in alarm_details.items():
             if alarm_details[key] == key:
                 alarm_details[key] = None
-            elif alarm_details[key] in [&#39;f&#39;, &#39;F&#39;]:
+            elif alarm_details[key] in [&#34;f&#34;, &#34;F&#34;]:
                 alarm_details[key] = False
-            elif alarm_details[key] in [&#39;t&#39;, &#39;T&#39;]:
+            elif alarm_details[key] in [&#34;t&#34;, &#34;T&#34;]:
                 alarm_details[key] = True
             else:
                 alarm_details[key] = val
 
         new_alarm = {}
 
-        for priv_key in self.ALARM_FIELDS_MAP: new_alarm.__setitem__(
-            self.ALARM_FIELDS_MAP[priv_key] or priv_key, alarm_details.get(priv_key) or None )
+        for priv_key in self.ALARM_FIELDS_MAP:
+            new_alarm.__setitem__(
+                self.ALARM_FIELDS_MAP[priv_key] or priv_key,
+                alarm_details.get(priv_key) or None,
+            )
 
-        log.debug(&#39;NEW FULL alarm_details: &#39;+str(new_alarm))
+        log.debug(&#34;NEW FULL alarm_details: &#34; + str(new_alarm))
 
         return new_alarm
-                                                                                       
+
     def data_from_id(self, id, use_priv=False):
         &#34;&#34;&#34;
-        Gets the alarm parameters based on an ID.  
-        Will still use private method if SIEM if v10.X because it&#39;s the only way to get the trigerring event ID.   
+        Gets the alarm parameters based on an ID.
+        Will still use private method if SIEM if v10.X because it&#39;s the only way to get the trigerring event ID.
 
-        Arguments:  
-        - `use_priv`: (`bool`): Use the private API methods to retreive the INFO, will use it anyway with ESM v10.x.  
-        Will only load the details of the first triggering event.  
+        Arguments:
+        - `use_priv`: (`bool`): Use the private API methods to retreive the INFO, will use it anyway with ESM v10.x.
+        Will only load the details of the first triggering event.
 
         &#34;&#34;&#34;
-        if self.nitro.esm_v.startswith((&#39;10&#39;)) or use_priv:
+        if self.nitro.esm_v.startswith((&#34;10&#34;)) or use_priv:
             try:
-                alarm = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
+                alarm = self.nitro.request(&#34;get_alarm_details_int&#34;, id=str(id))
                 # Wrap arround private api call
-                alarm = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarm.items()} 
-                alarm = self.map_alarm_int_fields(alarm)     
+                alarm = {
+                    key: dehexify(val).replace(&#34;\n&#34;, &#34;|&#34;) for key, val in alarm.items()
+                }
+                alarm = self.map_alarm_int_fields(alarm)
             except Exception as e:
-                log.warning(&#34;Impossible to get the alarm data from the private API, trying with get_notification_detail call. Error: {}&#34;.format(e))
-                alarm = self.nitro.request(&#39;get_notification_detail&#39;, id=str(id))
+                log.warning(
+                    &#34;Impossible to get the alarm data from the private API, trying with get_notification_detail call. Error: {}&#34;.format(
+                        e
+                    )
+                )
+                alarm = self.nitro.request(&#34;get_notification_detail&#34;, id=str(id))
                 # Replace empty strings by None
-                alarm = {k:(v if v else None if isinstance(v, str) else v) for k, v in alarm.items()}
+                alarm = {
+                    k: (v if v else None if isinstance(v, str) else v)
+                    for k, v in alarm.items()
+                }
         else:
-            alarm = self.nitro.request(&#39;get_notification_detail&#39;, id=str(id))
+            alarm = self.nitro.request(&#34;get_notification_detail&#34;, id=str(id))
             # Replace empty strings by None
-            alarm = {k:(v if v else None if isinstance(v, str) else v) for k, v in alarm.items()}
+            alarm = {
+                k: (v if v else None if isinstance(v, str) else v)
+                for k, v in alarm.items()
+            }
         return alarm
 
     def get_id(self):
         &#34;&#34;&#34;
-        Return the alarm ID.  
+        Return the alarm ID.
         &#34;&#34;&#34;
-        return self.data[&#39;id&#39;][&#39;value&#39;]</code></pre>
+        return self.data[&#34;id&#34;][&#34;value&#34;]</code></pre>
 </details>
 </section>
 <section>
@@ -608,147 +695,160 @@ class Alarm(NitroDict):
 <dl>
 <dt id="msiempy.alarm.AlarmManager"><code class="flex name class">
 <span>class <span class="ident">AlarmManager</span></span>
-<span>(</span><span>*args, status_filter='all', page_size=200, filters=None, event_filters=None, **kwargs)</span>
+<span>(</span><span>*args, status_filter='all', page_size=200, event_filters=None, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Interface to query and manage Alarms.<br>
+<div class="desc"><p>Interface to query and manage Alarms.
 Inherits from <code><a title="msiempy.core.query.FilteredQueryList" href="core/query.html#msiempy.core.query.FilteredQueryList">FilteredQueryList</a></code>.</p>
-<p>Arguments:
-</p>
+<p>Arguments:</p>
 <ul>
-<li><code>status_filter</code> : status of the alarms to query. <code>status_filter</code> is not a filter like other cause it's computed on the SIEM side.<br>
+<li><code>status_filter</code> : status of the alarms to query. <code>status_filter</code> is not a filter like other cause it's computed on the SIEM side.
 Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>all</code>, <code> or <code>None</code> (default is </code>).
-<code>filters</code> are computed locally - Unlike <code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code> filters.
-</li>
-<li><code>page_size</code> : max number of rows per query.
-</li>
+<code>filters</code> are computed locally - Unlike <code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code> filters.</li>
+<li><code>page_size</code> : max number of rows per query.</li>
 <li><code>page_number</code> : defaulted to 1.</li>
-<li><code>filters</code> : <code>[(field, [values]), (field, [values])]</code> Filters applied to <code><a title="msiempy.alarm.Alarm" href="#msiempy.alarm.Alarm">Alarm</a></code> objects. A single <code>tuple</code> is also accepted.
-</li>
-<li><code>event_filters</code> : <code>[(field, [values]), (field, [values])]</code> Filters applied to <code><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></code> objects. A single <code>tuple</code> is also accepted.
-</li>
-<li><code>time_range</code> : Query time range. String representation of a time range.
-</li>
-<li><code>start_time</code> : Query starting time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
-</li>
-<li><code>end_time</code> : Query endding time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
-</li>
+<li><code>filters</code> : <code>[(field, [values]), (field, [values])]</code> Filters applied to <code><a title="msiempy.alarm.Alarm" href="#msiempy.alarm.Alarm">Alarm</a></code> objects. A single <code>tuple</code> is also accepted.</li>
+<li><code>event_filters</code> : <code>[(field, [values]), (field, [values])]</code> Filters applied to <code><a title="msiempy.event.Event" href="event.html#msiempy.event.Event">Event</a></code> objects. A single <code>tuple</code> is also accepted.</li>
+<li><code>time_range</code> : Query time range. String representation of a time range.</li>
+<li><code>start_time</code> : Query starting time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.</li>
+<li><code>end_time</code> : Query endding time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.</li>
 </ul>
 <p><strong>Unlike <code>EventManager</code>, filters are computed after the data loaded with regex matching.</strong></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L13-L315" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L15-L361" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
-    Interface to query and manage Alarms.  
+    Interface to query and manage Alarms.
     Inherits from `msiempy.core.query.FilteredQueryList`.
 
-    Arguments:  
+    Arguments:
 
-    - `status_filter` : status of the alarms to query. `status_filter` is not a filter like other cause it&#39;s computed on the SIEM side.  
+    - `status_filter` : status of the alarms to query. `status_filter` is not a filter like other cause it&#39;s computed on the SIEM side.
     Accepted values : `acknowledged`, `unacknowledged`, `all`, `` or `None` (default is ``).
-    `filters` are computed locally - Unlike `msiempy.event.EventManager` filters.  
-    - `page_size` : max number of rows per query.  
+    `filters` are computed locally - Unlike `msiempy.event.EventManager` filters.
+    - `page_size` : max number of rows per query.
     - `page_number` : defaulted to 1.
-    - `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted.  
-    - `event_filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.event.Event` objects. A single `tuple` is also accepted.   
-    - `time_range` : Query time range. String representation of a time range.  
-    - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
-    - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
+    - `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted.
+    - `event_filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.event.Event` objects. A single `tuple` is also accepted.
+    - `time_range` : Query time range. String representation of a time range.
+    - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.
+    - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.
 
-    **Unlike `EventManager`, filters are computed after the data loaded with regex matching.**  
-    
+    **Unlike `EventManager`, filters are computed after the data loaded with regex matching.**
+
     &#34;&#34;&#34;
-    def __init__(self, *args, status_filter=&#39;all&#39;, page_size=200, filters=None, event_filters=None, **kwargs):
+
+    def __init__(
+        self, *args, status_filter=&#34;all&#34;, page_size=200, event_filters=None, **kwargs
+    ):
+
+        # Declaring attributes before calling super() because it would overwrite values
+        self._alarm_filters = []
+        self._event_filters = []
+
         super().__init__(*args, **kwargs)
 
-        #Declaring attributes
-        self._alarm_filters = list(tuple())
-        self._event_filters = list(tuple())
         self._status_filter = str()
 
-        #Setting attributes
-        self.status_filter=status_filter
+        # Setting attributes
+        self.status_filter = status_filter
         &#34;&#34;&#34;&#34;
         Alarms status filter
         &#34;&#34;&#34;
 
-        self.page_size=page_size
+        self.page_size = page_size
         &#34;&#34;&#34;&#34;
         Max number of alarms per query
         &#34;&#34;&#34;
 
-        #uses the parent filter setter
-        #TODO : find a soltuion not to use this
-        #calling super().filters=filters #https://bugs.python.org/issue14965
-        super(self.__class__, self.__class__).filters.__set__(self, filters)
+        # uses the parent filter setter
+        # TODO : find a soltuion not to use this
+        # calling super().filters=filters #https://bugs.python.org/issue14965
+        # super(self.__class__, self.__class__).filters.__set__(self, filters)
 
-        #Seeting events filters after alarms filters cause it would overwrite it
-        self.event_filters=event_filters
+        # Seeting events filters after alarms filters cause it would overwrite it
+        self.event_filters = event_filters
 
-        #Casting all data to Alarms objects, better way to do it ?
-        collections.UserList.__init__(self, [Alarm(adict=item) for item in self.data if isinstance(item, (dict, NitroDict))])
+        # Casting all data to Alarms objects, better way to do it ?
+        collections.UserList.__init__(
+            self,
+            [
+                Alarm(adict=item)
+                for item in self.data
+                if isinstance(item, (dict, NitroDict))
+            ],
+        )
 
-    @property
-    def filters(self):
+    def _get_filters(self):
         &#34;&#34;&#34;
         The alarm related filters
         &#34;&#34;&#34;
         return self._alarm_filters
-    
+
     @property
     def status_filter(self):
         &#34;&#34;&#34;
-        Status of the alarms in the query.  
+        Status of the alarms in the query.
         &#34;&#34;&#34;
         return self._status_filter
 
     @status_filter.setter
     def status_filter(self, status_filter):
-        status_found=False
-        if type(status_filter) is str : 
-            for synonims in Alarm.POSSIBLE_ALARM_STATUS :
+        status_found = False
+        if type(status_filter) is str:
+            for synonims in Alarm.POSSIBLE_ALARM_STATUS:
                 if status_filter in synonims:
-                    self._status_filter=synonims[0]
-                    status_found=True
+                    self._status_filter = synonims[0]
+                    status_found = True
 
         if not status_found:
-            raise AttributeError(&#34;Illegal value of status filter. The status must be in &#34;+str(Alarm.POSSIBLE_ALARM_STATUS)+&#39; not :&#39;+str(status_filter))
+            raise AttributeError(
+                &#34;Illegal value of status filter. The status must be in &#34;
+                + str(Alarm.POSSIBLE_ALARM_STATUS)
+                + &#34; not :&#34;
+                + str(status_filter)
+            )
 
     def add_filter(self, afilter):
         &#34;&#34;&#34;
-        Add a filter to the query.  
-        
-        Arguments :  
+        Add a filter to the query.
+
+        Arguments :
 
         - `afilter` : Can be a a tuple `(field, [values])` or `(field, value)` or `str` &#39;field=value&#39;
 
-        Filters format is `tuple(field, [values])`.  
+        Filters format is `tuple(field, [values])`.
         &#34;&#34;&#34;
 
-        if isinstance(afilter,str): afilter = afilter.split(&#39;=&#39;,1)
-        
+        if isinstance(afilter, str):
+            afilter = afilter.split(&#34;=&#34;, 1)
+
         values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
         values = [str(v) for v in values]
-        added=False
+        added = False
 
-        for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
-            if afilter[0] in synonims :
-                log.warning(&#39;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+        for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS:
+            if afilter[0] in synonims:
+                log.warning(
+                    &#34;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You&#39;ll be able to use more filters dynamically.&#34;
+                )
                 self._event_filters.append((synonims[0], values))
-                added=True
+                added = True
 
-        #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
-        if len(afilter[0].split(&#39;.&#39;)) == 2 :
+        # support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
+        if len(afilter[0].split(&#34;.&#34;)) == 2:
             self._event_filters.append((afilter[0], values))
-            log.warning(&#39;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
-            added=True
+            log.warning(
+                &#34;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You&#39;ll be able to use more filters dynamically.&#34;
+            )
+            added = True
 
-        if added==False:
+        if added == False:
             self._alarm_filters.append((afilter[0], values))
-            added=True
+            added = True
 
     @property
     def event_filters(self):
@@ -758,189 +858,212 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
     @event_filters.setter
     def event_filters(self, filters):
         if isinstance(filters, list):
-            for f in filters :
+            for f in filters:
                 self.add_event_filter(f)
 
         elif isinstance(filters, tuple):
             self.add_event_filter(filters)
 
-        elif filters == None :
-            self._event_filters=list(tuple())
-        
-        else :
-            raise AttributeError(&#34;Illegal type for the filter object, it must be a list, a tuple or None.&#34;)
+        elif filters == None:
+            self._event_filters = list(tuple())
+
+        else:
+            raise AttributeError(
+                &#34;Illegal type for the filter object, it must be a list, a tuple or None.&#34;
+            )
 
     def add_event_filter(self, afilter):
         &#34;&#34;&#34;
-        Add a event filter to the query.  
-        
-        Arguments :  
+        Add a event filter to the query.
+
+        Arguments :
 
         - `afilter` : Can be a a tuple `(field, [values])` or `(field, value)` or `str` &#39;field=value&#39;
 
-        Filters format is `tuple(field, [values])`.  
+        Filters format is `tuple(field, [values])`.
         &#34;&#34;&#34;
 
-        if isinstance(afilter,str):
-            afilter = afilter.split(&#39;=&#39;,1)
-       
+        if isinstance(afilter, str):
+            afilter = afilter.split(&#34;=&#34;, 1)
+
         values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
-        values = [str(v) for v in values] 
+        values = [str(v) for v in values]
         self._event_filters.append((afilter[0], values))
 
     def clear_filters(self):
         &#34;&#34;&#34;
         Reset local alarm and event filters.
         &#34;&#34;&#34;
-        self._alarm_filters = list(tuple())
-        self._event_filters = list(tuple())
+        self._alarm_filters = []
+        self._event_filters = []
 
     def load_data(self, pages=1, **kwargs):
         &#34;&#34;&#34;
-        Load the data into the list.  
-        Implements automatic paging over `msiempy.alarm.AlarmManager.qry_load_data`.  
-        Default behaviour is to load all alarms informations. Meaning that foreach alarms, 
-        the full details is loaded, then the trigerring event details is loaded.  
-        
-        Arguments :  
+        Load the data into the list.
+        Implements automatic paging over `msiempy.alarm.AlarmManager.qry_load_data`.
+        Default behaviour is to load all alarms informations. Meaning that foreach alarms,
+        the full details is loaded, then the trigerring event details is loaded.
 
-        - `pages` : Number of pages to load (not asynchronous).   
+        Arguments :
 
-        Arguments passed to `msiempy.alarm.AlarmManager.qry_load_data` :  
+        - `pages` : Number of pages to load (not asynchronous).
 
-        - `workers` : Number of asynchronous workers   
-        - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.  
-        - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded. Only `str` representation for SIEM 10.x and minimal events records from SIEM 11.x.  
-        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
-        Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.    
-        - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter  
+        Arguments passed to `msiempy.alarm.AlarmManager.qry_load_data` :
+
+        - `workers` : Number of asynchronous workers
+        - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
+        - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded. Only `str` representation for SIEM 10.x and minimal events records from SIEM 11.x.
+        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.
+        Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.
+        - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`
+        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter
 
         Returns : `msiempy.alarm.AlarmManager`
         &#34;&#34;&#34;
 
         items, completed = self.qry_load_data(**kwargs)
-        #Casting items to Alarms
-        alarms=[Alarm(adict=item) for item in items]
+        # Casting items to Alarms
+        alarms = [Alarm(adict=item) for item in items]
 
-        #Iterative automatic paging (not asynchronous)
-        if not completed and pages&gt;1 :
-            next_kwargs={**kwargs}
-            if &#39;page_number&#39; in kwargs : next_kwargs[&#39;page_number&#39;]=kwargs[&#39;page_number&#39;]+1
-            else: next_kwargs[&#39;page_number&#39;]=2
+        # Iterative automatic paging (not asynchronous)
+        if not completed and pages &gt; 1:
+            next_kwargs = {**kwargs}
+            if &#34;page_number&#34; in kwargs:
+                next_kwargs[&#34;page_number&#34;] = kwargs[&#34;page_number&#34;] + 1
+            else:
+                next_kwargs[&#34;page_number&#34;] = 2
 
-            log.info(&#39;Loading pages... ({})&#39;.format(next_kwargs[&#39;page_number&#39;]))
-            alarms=alarms+list(self.load_data(pages=pages-1, **next_kwargs))
+            log.info(&#34;Loading pages... ({})&#34;.format(next_kwargs[&#34;page_number&#34;]))
+            alarms = alarms + list(self.load_data(pages=pages - 1, **next_kwargs))
 
-        if &#39;page_number&#39; not in kwargs:
+        if &#34;page_number&#34; not in kwargs:
             log.info(str(len(alarms)) + &#34; alarms are matching your filter(s)&#34;)
-        
-        self.data=alarms
-        return(self)
 
-    def qry_load_data(self, workers=10,
-        alarms_details=True, events_details=True,
-        use_query=False, extra_fields=[], page_number=1):
+        self.data = alarms
+        return self
+
+    def qry_load_data(
+        self,
+        workers=10,
+        alarms_details=True,
+        events_details=True,
+        use_query=False,
+        extra_fields=[],
+        page_number=1,
+    ):
         &#34;&#34;&#34;
-        Method that query, filter and return the alarms data :  
-        -&gt; Fetch the list of alarms and load alarms details  
-        -&gt; Filter depending on alarms related filters  
-        -&gt; Load the events details  
-        -&gt; Filter depending on event related filters  
+        Method that query, filter and return the alarms data :
+        -&gt; Fetch the list of alarms and load alarms details
+        -&gt; Filter depending on alarms related filters
+        -&gt; Load the events details
+        -&gt; Filter depending on event related filters
 
-        Arguments :  
+        Arguments :
 
-        - `workers` : Number of asynchronous workers  
+        - `workers` : Number of asynchronous workers
         - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
         - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded only `str` representation.
-        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
-        - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter  
-        
+        - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.
+        - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`
+        - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter
+
         Returns : `tuple` : ( Results : `list` , Status of the query : `completed` )
 
         &#34;&#34;&#34;
 
-        if self.time_range == &#39;CUSTOM&#39; :
-            no_filtered_alarms=self.nitro.request(
-                &#39;get_alarms_custom_time&#39;,
+        if self.time_range == &#34;CUSTOM&#34;:
+            no_filtered_alarms = self.nitro.request(
+                &#34;get_alarms_custom_time&#34;,
                 time_range=self.time_range,
                 start_time=self.start_time,
                 end_time=self.end_time,
                 status=self.status_filter,
                 page_size=self.page_size,
-                page_number=page_number
-                )
+                page_number=page_number,
+            )
 
-        else :
-            no_filtered_alarms=self.nitro.request(
-                &#39;get_alarms&#39;,
+        else:
+            no_filtered_alarms = self.nitro.request(
+                &#34;get_alarms&#34;,
                 time_range=self.time_range,
                 status=self.status_filter,
                 page_size=self.page_size,
-                page_number=page_number
-                )
+                page_number=page_number,
+            )
 
-        #Casting to list of Alarms to be able to call load_details etc...        
-        alarm_based_filtered = AlarmManager([a for a in no_filtered_alarms if self._alarm_match(a)])
+        # Casting to list of Alarms to be able to call load_details etc...
+        alarm_based_filtered = AlarmManager(
+            [a for a in no_filtered_alarms if self._alarm_match(a)]
+        )
 
-        if alarms_details :
+        if alarms_details:
 
             log.info(&#34;Getting alarms infos...&#34;)
-            alarm_based_filtered.perform(Alarm.load_details,
-                asynch=True,
-                progress=True,
-                workers=workers)
+            alarm_based_filtered.perform(
+                Alarm.load_details, asynch=True, progress=True, workers=workers
+            )
 
-            #Casting to list of Alarms to be able to call load_details etc...        
-            detailed_alarm_based_filtered = AlarmManager([ a for a in alarm_based_filtered if self._alarm_match(a) ])
+            # Casting to list of Alarms to be able to call load_details etc...
+            detailed_alarm_based_filtered = AlarmManager(
+                [a for a in alarm_based_filtered if self._alarm_match(a)]
+            )
 
-            if events_details :
+            if events_details:
                 log.info(&#34;Getting full events infos...&#34;)
-                detailed_alarm_based_filtered.perform(Alarm.load_events, 
+                detailed_alarm_based_filtered.perform(
+                    Alarm.load_events,
                     func_args=dict(use_query=use_query, extra_fields=extra_fields),
-                    asynch=True, 
-                    progress=True, 
-                    workers=workers)
+                    asynch=True,
+                    progress=True,
+                    workers=workers,
+                )
 
-            filtered_alarms = AlarmManager([ a for a in detailed_alarm_based_filtered if self._event_match(a)]) 
-        else :
+            filtered_alarms = AlarmManager(
+                [a for a in detailed_alarm_based_filtered if self._event_match(a)]
+            )
+        else:
             filtered_alarms = alarm_based_filtered
-            log.warning(&#39;Event filters and some Alarm filters are ignored when `alarms_details is False`&#39;)
+            log.warning(
+                &#34;Event filters and some Alarm filters are ignored when `alarms_details is False`&#34;
+            )
 
-        return (( filtered_alarms , len(no_filtered_alarms) &lt; int(self.page_size) ))
+        return (filtered_alarms, len(no_filtered_alarms) &lt; int(self.page_size))
 
     def _alarm_match(self, alarm):
         &#34;&#34;&#34;
         Internal filter method that is going to return True if the passed alarm match all alarm related filters.
         &#34;&#34;&#34;
-        match=True
-        for alarm_filter in self._alarm_filters :
-            match=False
-            try: value = str(alarm[alarm_filter[0]]) #Can only match strings
-            except KeyError: break
+        match = True
+        for alarm_filter in self._alarm_filters:
+            match = False
+            try:
+                value = str(alarm[alarm_filter[0]])  # Can only match strings
+            except KeyError:
+                break
             for filter_value in alarm_filter[1]:
                 if regex_match(filter_value.lower(), value.lower()):
-                    match=True
+                    match = True
                     break
-            if not match :
+            if not match:
                 break
         return match
-        
+
     def _event_match(self, alarm):
         &#34;&#34;&#34;
         Internal filter method that is going to return True if the passed alarm match all event related filters.
         &#34;&#34;&#34;
-        match=True
-        for event_filter in self._event_filters :
-            match=False
-            try: value = str(alarm[&#39;events&#39;][0][event_filter[0]])
-            except KeyError: break
+        match = True
+        for event_filter in self._event_filters:
+            match = False
+            try:
+                value = str(alarm[&#34;events&#34;][0][event_filter[0]])
+            except KeyError:
+                break
             for filter_value in event_filter[1]:
-                if regex_match(filter_value.lower(), value.lower()) :
-                    match=True
+                if regex_match(filter_value.lower(), value.lower()):
+                    match = True
                     break
-            if not match :
+            if not match:
                 break
         return match</code></pre>
 </details>
@@ -961,22 +1084,6 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="msiempy.alarm.AlarmManager.filters"><code class="name">var <span class="ident">filters</span></code></dt>
-<dd>
-<div class="desc"><p>The alarm related filters</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L64-L69" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">@property
-def filters(self):
-    &#34;&#34;&#34;
-    The alarm related filters
-    &#34;&#34;&#34;
-    return self._alarm_filters</code></pre>
-</details>
-</dd>
 <dt id="msiempy.alarm.AlarmManager.status_filter"><code class="name">var <span class="ident">status_filter</span></code></dt>
 <dd>
 <div class="desc"><p>"
@@ -988,7 +1095,7 @@ Alarms status filter</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L123-L126" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L146-L149" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def event_filters(self):
@@ -1008,10 +1115,8 @@ Max number of alarms per query</p></div>
 <span>def <span class="ident">add_filter</span></span>(<span>self, afilter)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Add a filter to the query.
-</p>
-<p>Arguments :
-</p>
+<div class="desc"><p>Add a filter to the query.</p>
+<p>Arguments :</p>
 <ul>
 <li><code>afilter</code> : Can be a a tuple <code>(field, [values])</code> or <code>(field, value)</code> or <code>str</code> 'field=value'</li>
 </ul>
@@ -1019,50 +1124,53 @@ Max number of alarms per query</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L90-L121" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L108-L144" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_filter(self, afilter):
     &#34;&#34;&#34;
-    Add a filter to the query.  
-    
-    Arguments :  
+    Add a filter to the query.
+
+    Arguments :
 
     - `afilter` : Can be a a tuple `(field, [values])` or `(field, value)` or `str` &#39;field=value&#39;
 
-    Filters format is `tuple(field, [values])`.  
+    Filters format is `tuple(field, [values])`.
     &#34;&#34;&#34;
 
-    if isinstance(afilter,str): afilter = afilter.split(&#39;=&#39;,1)
-    
+    if isinstance(afilter, str):
+        afilter = afilter.split(&#34;=&#34;, 1)
+
     values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
     values = [str(v) for v in values]
-    added=False
+    added = False
 
-    for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS :
-        if afilter[0] in synonims :
-            log.warning(&#39;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
+    for synonims in Alarm.ALARM_EVENT_FILTER_FIELDS:
+        if afilter[0] in synonims:
+            log.warning(
+                &#34;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You&#39;ll be able to use more filters dynamically.&#34;
+            )
             self._event_filters.append((synonims[0], values))
-            added=True
+            added = True
 
-    #support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
-    if len(afilter[0].split(&#39;.&#39;)) == 2 :
+    # support query related filtering if the filter&#39;s field is composed by a table name then a field name separated by a dot.
+    if len(afilter[0].split(&#34;.&#34;)) == 2:
         self._event_filters.append((afilter[0], values))
-        log.warning(&#39;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You\&#39;ll be able to use more filters dynamically.&#39;)
-        added=True
+        log.warning(
+            &#34;Passing event related filters in `filters` argument is deprecated, consider using `event_filters` argument. You&#39;ll be able to use more filters dynamically.&#34;
+        )
+        added = True
 
-    if added==False:
+    if added == False:
         self._alarm_filters.append((afilter[0], values))
-        added=True</code></pre>
+        added = True</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.AlarmManager.add_event_filter"><code class="name flex">
 <span>def <span class="ident">add_event_filter</span></span>(<span>self, afilter)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Add a event filter to the query.
-</p>
-<p>Arguments :
-</p>
+<div class="desc"><p>Add a event filter to the query.</p>
+<p>Arguments :</p>
 <ul>
 <li><code>afilter</code> : Can be a a tuple <code>(field, [values])</code> or <code>(field, value)</code> or <code>str</code> 'field=value'</li>
 </ul>
@@ -1070,24 +1178,24 @@ Max number of alarms per query</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L143-L159" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L168-L184" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_event_filter(self, afilter):
     &#34;&#34;&#34;
-    Add a event filter to the query.  
-    
-    Arguments :  
+    Add a event filter to the query.
+
+    Arguments :
 
     - `afilter` : Can be a a tuple `(field, [values])` or `(field, value)` or `str` &#39;field=value&#39;
 
-    Filters format is `tuple(field, [values])`.  
+    Filters format is `tuple(field, [values])`.
     &#34;&#34;&#34;
 
-    if isinstance(afilter,str):
-        afilter = afilter.split(&#39;=&#39;,1)
-   
+    if isinstance(afilter, str):
+        afilter = afilter.split(&#34;=&#34;, 1)
+
     values = afilter[1] if isinstance(afilter[1], list) else [afilter[1]]
-    values = [str(v) for v in values] 
+    values = [str(v) for v in values]
     self._event_filters.append((afilter[0], values))</code></pre>
 </details>
 </dd>
@@ -1099,201 +1207,202 @@ Max number of alarms per query</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L161-L166" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L186-L191" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
     Reset local alarm and event filters.
     &#34;&#34;&#34;
-    self._alarm_filters = list(tuple())
-    self._event_filters = list(tuple())</code></pre>
+    self._alarm_filters = []
+    self._event_filters = []</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.AlarmManager.load_data"><code class="name flex">
 <span>def <span class="ident">load_data</span></span>(<span>self, pages=1, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Load the data into the list.<br>
-Implements automatic paging over <code><a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data">AlarmManager.qry_load_data()</a></code>.<br>
+<div class="desc"><p>Load the data into the list.
+Implements automatic paging over <code><a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data">AlarmManager.qry_load_data()</a></code>.
 Default behaviour is to load all alarms informations. Meaning that foreach alarms,
-the full details is loaded, then the trigerring event details is loaded.
-</p>
-<p>Arguments :
-</p>
+the full details is loaded, then the trigerring event details is loaded.</p>
+<p>Arguments :</p>
 <ul>
-<li><code>pages</code> : Number of pages to load (not asynchronous).
-</li>
+<li><code>pages</code> : Number of pages to load (not asynchronous).</li>
 </ul>
-<p>Arguments passed to <code><a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data">AlarmManager.qry_load_data()</a></code> :
-</p>
+<p>Arguments passed to <code><a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data">AlarmManager.qry_load_data()</a></code> :</p>
 <ul>
-<li><code>workers</code> : Number of asynchronous workers
-</li>
-<li><code>alarms_details</code> : Load detailed alarms infos. If <code>False</code>, only a couple values are loaded, no <code>events</code> infos.
-</li>
-<li><code>events_details</code> : Load detailed events infos. If <code>False</code>, no detailed <code>events</code> will be loaded. Only <code>str</code> representation for SIEM 10.x and minimal events records from SIEM 11.x.
-</li>
-<li><code>use_query</code> : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.<br>
-Default behaviour will call <code>ipsGetAlertData</code> to retreive the complete event definition.
-</li>
+<li><code>workers</code> : Number of asynchronous workers</li>
+<li><code>alarms_details</code> : Load detailed alarms infos. If <code>False</code>, only a couple values are loaded, no <code>events</code> infos.</li>
+<li><code>events_details</code> : Load detailed events infos. If <code>False</code>, no detailed <code>events</code> will be loaded. Only <code>str</code> representation for SIEM 10.x and minimal events records from SIEM 11.x.</li>
+<li><code>use_query</code> : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.
+Default behaviour will call <code>ipsGetAlertData</code> to retreive the complete event definition.</li>
 <li><code>extra_fields</code> :
-Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code>
-</li>
-<li><code>page_number</code> : Page number, default to 1. Do not touch if you're using <code>pages</code> parameter
-</li>
+Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code></li>
+<li><code>page_number</code> : Page number, default to 1. Do not touch if you're using <code>pages</code> parameter</li>
 </ul>
 <p>Returns : <code><a title="msiempy.alarm.AlarmManager" href="#msiempy.alarm.AlarmManager">AlarmManager</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L168-L209" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L193-L236" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_data(self, pages=1, **kwargs):
     &#34;&#34;&#34;
-    Load the data into the list.  
-    Implements automatic paging over `msiempy.alarm.AlarmManager.qry_load_data`.  
-    Default behaviour is to load all alarms informations. Meaning that foreach alarms, 
-    the full details is loaded, then the trigerring event details is loaded.  
-    
-    Arguments :  
+    Load the data into the list.
+    Implements automatic paging over `msiempy.alarm.AlarmManager.qry_load_data`.
+    Default behaviour is to load all alarms informations. Meaning that foreach alarms,
+    the full details is loaded, then the trigerring event details is loaded.
 
-    - `pages` : Number of pages to load (not asynchronous).   
+    Arguments :
 
-    Arguments passed to `msiempy.alarm.AlarmManager.qry_load_data` :  
+    - `pages` : Number of pages to load (not asynchronous).
 
-    - `workers` : Number of asynchronous workers   
-    - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.  
-    - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded. Only `str` representation for SIEM 10.x and minimal events records from SIEM 11.x.  
-    - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
-    Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.    
-    - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-    - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter  
+    Arguments passed to `msiempy.alarm.AlarmManager.qry_load_data` :
+
+    - `workers` : Number of asynchronous workers
+    - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
+    - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded. Only `str` representation for SIEM 10.x and minimal events records from SIEM 11.x.
+    - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.
+    Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.
+    - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`
+    - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter
 
     Returns : `msiempy.alarm.AlarmManager`
     &#34;&#34;&#34;
 
     items, completed = self.qry_load_data(**kwargs)
-    #Casting items to Alarms
-    alarms=[Alarm(adict=item) for item in items]
+    # Casting items to Alarms
+    alarms = [Alarm(adict=item) for item in items]
 
-    #Iterative automatic paging (not asynchronous)
-    if not completed and pages&gt;1 :
-        next_kwargs={**kwargs}
-        if &#39;page_number&#39; in kwargs : next_kwargs[&#39;page_number&#39;]=kwargs[&#39;page_number&#39;]+1
-        else: next_kwargs[&#39;page_number&#39;]=2
+    # Iterative automatic paging (not asynchronous)
+    if not completed and pages &gt; 1:
+        next_kwargs = {**kwargs}
+        if &#34;page_number&#34; in kwargs:
+            next_kwargs[&#34;page_number&#34;] = kwargs[&#34;page_number&#34;] + 1
+        else:
+            next_kwargs[&#34;page_number&#34;] = 2
 
-        log.info(&#39;Loading pages... ({})&#39;.format(next_kwargs[&#39;page_number&#39;]))
-        alarms=alarms+list(self.load_data(pages=pages-1, **next_kwargs))
+        log.info(&#34;Loading pages... ({})&#34;.format(next_kwargs[&#34;page_number&#34;]))
+        alarms = alarms + list(self.load_data(pages=pages - 1, **next_kwargs))
 
-    if &#39;page_number&#39; not in kwargs:
+    if &#34;page_number&#34; not in kwargs:
         log.info(str(len(alarms)) + &#34; alarms are matching your filter(s)&#34;)
-    
-    self.data=alarms
-    return(self)</code></pre>
+
+    self.data = alarms
+    return self</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.AlarmManager.qry_load_data"><code class="name flex">
 <span>def <span class="ident">qry_load_data</span></span>(<span>self, workers=10, alarms_details=True, events_details=True, use_query=False, extra_fields=[], page_number=1)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Method that query, filter and return the alarms data :<br>
--&gt; Fetch the list of alarms and load alarms details<br>
--&gt; Filter depending on alarms related filters<br>
--&gt; Load the events details<br>
--&gt; Filter depending on event related filters
-</p>
-<p>Arguments :
-</p>
+<div class="desc"><p>Method that query, filter and return the alarms data :
+-&gt; Fetch the list of alarms and load alarms details
+-&gt; Filter depending on alarms related filters
+-&gt; Load the events details
+-&gt; Filter depending on event related filters</p>
+<p>Arguments :</p>
 <ul>
-<li><code>workers</code> : Number of asynchronous workers
-</li>
+<li><code>workers</code> : Number of asynchronous workers</li>
 <li><code>alarms_details</code> : Load detailed alarms infos. If <code>False</code>, only a couple values are loaded, no <code>events</code> infos.</li>
 <li><code>events_details</code> : Load detailed events infos. If <code>False</code>, no detailed <code>events</code> will be loaded only <code>str</code> representation.</li>
-<li><code>use_query</code> : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.
-</li>
+<li><code>use_query</code> : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.</li>
 <li><code>extra_fields</code> :
-Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code>
-</li>
-<li><code>page_number</code> : Page number, default to 1. Do not touch if you're using <code>pages</code> parameter
-</li>
+Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code></li>
+<li><code>page_number</code> : Page number, default to 1. Do not touch if you're using <code>pages</code> parameter</li>
 </ul>
 <p>Returns : <code>tuple</code> : ( Results : <code>list</code> , Status of the query : <code>completed</code> )</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L211-L281" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L238-L323" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">def qry_load_data(self, workers=10,
-    alarms_details=True, events_details=True,
-    use_query=False, extra_fields=[], page_number=1):
+<pre><code class="python">def qry_load_data(
+    self,
+    workers=10,
+    alarms_details=True,
+    events_details=True,
+    use_query=False,
+    extra_fields=[],
+    page_number=1,
+):
     &#34;&#34;&#34;
-    Method that query, filter and return the alarms data :  
-    -&gt; Fetch the list of alarms and load alarms details  
-    -&gt; Filter depending on alarms related filters  
-    -&gt; Load the events details  
-    -&gt; Filter depending on event related filters  
+    Method that query, filter and return the alarms data :
+    -&gt; Fetch the list of alarms and load alarms details
+    -&gt; Filter depending on alarms related filters
+    -&gt; Load the events details
+    -&gt; Filter depending on event related filters
 
-    Arguments :  
+    Arguments :
 
-    - `workers` : Number of asynchronous workers  
+    - `workers` : Number of asynchronous workers
     - `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
     - `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded only `str` representation.
-    - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.  
-    - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-    - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter  
-    
+    - `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.
+    - `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`
+    - `page_number` : Page number, default to 1. Do not touch if you&#39;re using `pages` parameter
+
     Returns : `tuple` : ( Results : `list` , Status of the query : `completed` )
 
     &#34;&#34;&#34;
 
-    if self.time_range == &#39;CUSTOM&#39; :
-        no_filtered_alarms=self.nitro.request(
-            &#39;get_alarms_custom_time&#39;,
+    if self.time_range == &#34;CUSTOM&#34;:
+        no_filtered_alarms = self.nitro.request(
+            &#34;get_alarms_custom_time&#34;,
             time_range=self.time_range,
             start_time=self.start_time,
             end_time=self.end_time,
             status=self.status_filter,
             page_size=self.page_size,
-            page_number=page_number
-            )
+            page_number=page_number,
+        )
 
-    else :
-        no_filtered_alarms=self.nitro.request(
-            &#39;get_alarms&#39;,
+    else:
+        no_filtered_alarms = self.nitro.request(
+            &#34;get_alarms&#34;,
             time_range=self.time_range,
             status=self.status_filter,
             page_size=self.page_size,
-            page_number=page_number
-            )
+            page_number=page_number,
+        )
 
-    #Casting to list of Alarms to be able to call load_details etc...        
-    alarm_based_filtered = AlarmManager([a for a in no_filtered_alarms if self._alarm_match(a)])
+    # Casting to list of Alarms to be able to call load_details etc...
+    alarm_based_filtered = AlarmManager(
+        [a for a in no_filtered_alarms if self._alarm_match(a)]
+    )
 
-    if alarms_details :
+    if alarms_details:
 
         log.info(&#34;Getting alarms infos...&#34;)
-        alarm_based_filtered.perform(Alarm.load_details,
-            asynch=True,
-            progress=True,
-            workers=workers)
+        alarm_based_filtered.perform(
+            Alarm.load_details, asynch=True, progress=True, workers=workers
+        )
 
-        #Casting to list of Alarms to be able to call load_details etc...        
-        detailed_alarm_based_filtered = AlarmManager([ a for a in alarm_based_filtered if self._alarm_match(a) ])
+        # Casting to list of Alarms to be able to call load_details etc...
+        detailed_alarm_based_filtered = AlarmManager(
+            [a for a in alarm_based_filtered if self._alarm_match(a)]
+        )
 
-        if events_details :
+        if events_details:
             log.info(&#34;Getting full events infos...&#34;)
-            detailed_alarm_based_filtered.perform(Alarm.load_events, 
+            detailed_alarm_based_filtered.perform(
+                Alarm.load_events,
                 func_args=dict(use_query=use_query, extra_fields=extra_fields),
-                asynch=True, 
-                progress=True, 
-                workers=workers)
+                asynch=True,
+                progress=True,
+                workers=workers,
+            )
 
-        filtered_alarms = AlarmManager([ a for a in detailed_alarm_based_filtered if self._event_match(a)]) 
-    else :
+        filtered_alarms = AlarmManager(
+            [a for a in detailed_alarm_based_filtered if self._event_match(a)]
+        )
+    else:
         filtered_alarms = alarm_based_filtered
-        log.warning(&#39;Event filters and some Alarm filters are ignored when `alarms_details is False`&#39;)
+        log.warning(
+            &#34;Event filters and some Alarm filters are ignored when `alarms_details is False`&#34;
+        )
 
-    return (( filtered_alarms , len(no_filtered_alarms) &lt; int(self.page_size) ))</code></pre>
+    return (filtered_alarms, len(no_filtered_alarms) &lt; int(self.page_size))</code></pre>
 </details>
 </dd>
 </dl>
@@ -1303,6 +1412,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <ul class="hlist">
 <li><code><a title="msiempy.core.query.FilteredQueryList.NitroJSONEncoder" href="core/types.html#msiempy.core.types.NitroObject.NitroJSONEncoder">NitroJSONEncoder</a></code></li>
 <li><code><a title="msiempy.core.query.FilteredQueryList.end_time" href="core/query.html#msiempy.core.query.FilteredQueryList.end_time">end_time</a></code></li>
+<li><code><a title="msiempy.core.query.FilteredQueryList.filters" href="core/query.html#msiempy.core.query.FilteredQueryList.filters">filters</a></code></li>
 <li><code><a title="msiempy.core.query.FilteredQueryList.get_text" href="core/types.html#msiempy.core.types.NitroList.get_text">get_text</a></code></li>
 <li><code><a title="msiempy.core.query.FilteredQueryList.json" href="core/types.html#msiempy.core.types.NitroList.json">json</a></code></li>
 <li><code><a title="msiempy.core.query.FilteredQueryList.keys" href="core/types.html#msiempy.core.types.NitroList.keys">keys</a></code></li>
@@ -1322,293 +1432,320 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <span>(</span><span>*arg, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Dict-Like object.
-</p>
-<p>Common keys :
-</p>
+<div class="desc"><p>Dict-Like object.</p>
+<p>Common keys :</p>
 <ul>
-<li><code>id</code> : The ID of the triggered alarm
-</li>
+<li><code>id</code> : The ID of the triggered alarm</li>
 <li><code>summary</code>
-: The summary of the triggered alarm
-</li>
-<li><code>assignee</code> : The assignee for this triggered alarm
-</li>
-<li><code>severity</code> : The severity for this triggered alarm
-</li>
-<li><code>triggeredDate</code> : The date this alarm was triggered
-</li>
-<li><code>acknowledgedDate</code> : The date this triggered alarm was acknowledged
-</li>
-<li><code>acknowledgedUsername</code> : The user that acknowledged this triggered alarm
-</li>
-<li><code>alarmName</code> : The name of the alarm that was triggered
-</li>
-<li><code>events</code> : The events that triggered the alarm
-</li>
-<li>And others&hellip;
-</li>
+: The summary of the triggered alarm</li>
+<li><code>assignee</code> : The assignee for this triggered alarm</li>
+<li><code>severity</code> : The severity for this triggered alarm</li>
+<li><code>triggeredDate</code> : The date this alarm was triggered</li>
+<li><code>acknowledgedDate</code> : The date this triggered alarm was acknowledged</li>
+<li><code>acknowledgedUsername</code> : The user that acknowledged this triggered alarm</li>
+<li><code>alarmName</code> : The name of the alarm that was triggered</li>
+<li><code>events</code> : The events that triggered the alarm</li>
+<li>And others&hellip;</li>
 </ul>
 <p>Arguments:</p>
 <ul>
-<li><code>adict</code>: Alarm parameters
-</li>
+<li><code>adict</code>: Alarm parameters</li>
 <li><code>id</code>: The alarm ID to instanciate. Will load informations</li>
 </ul>
 <p>Creates a empty Alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L317-L564" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L364-L651" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Alarm(NitroDict):
     &#34;&#34;&#34;
-    Dict-Like object.  
+    Dict-Like object.
 
-    Common keys :  
+    Common keys :
 
-    - `id` : The ID of the triggered alarm  
-    - `summary`  : The summary of the triggered alarm  
-    - `assignee` : The assignee for this triggered alarm  
-    - `severity` : The severity for this triggered alarm  
-    - `triggeredDate` : The date this alarm was triggered  
-    - `acknowledgedDate` : The date this triggered alarm was acknowledged  
-    - `acknowledgedUsername` : The user that acknowledged this triggered alarm  
-    - `alarmName` : The name of the alarm that was triggered  
-    - `events` : The events that triggered the alarm    
-    - And others...   
-    
+    - `id` : The ID of the triggered alarm
+    - `summary`  : The summary of the triggered alarm
+    - `assignee` : The assignee for this triggered alarm
+    - `severity` : The severity for this triggered alarm
+    - `triggeredDate` : The date this alarm was triggered
+    - `acknowledgedDate` : The date this triggered alarm was acknowledged
+    - `acknowledgedUsername` : The user that acknowledged this triggered alarm
+    - `alarmName` : The name of the alarm that was triggered
+    - `events` : The events that triggered the alarm
+    - And others...
+
     Arguments:
 
-    - `adict`: Alarm parameters  
+    - `adict`: Alarm parameters
     - `id`: The alarm ID to instanciate. Will load informations
     &#34;&#34;&#34;
 
     def __init__(self, *arg, **kwargs):
-        &#34;&#34;&#34;Creates a empty Alarm.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Creates a empty Alarm.&#34;&#34;&#34;
         super().__init__(*arg, **kwargs)
 
-        #Keep the id in the dict when instanciating an Alarm directly from its id.
-        if &#39;id&#39; in kwargs :
-            self.data[&#39;id&#39;] = {&#39;value&#39;:str(kwargs[&#39;id&#39;])}
+        # Keep the id in the dict when instanciating an Alarm directly from its id.
+        if &#34;id&#34; in kwargs:
+            self.data[&#34;id&#34;] = {&#34;value&#34;: str(kwargs[&#34;id&#34;])}
         # Casting all events to Event object
-        if &#39;events&#39; in self.data and isinstance(self.data[&#39;events&#39;], list):
-            self[&#39;events&#39;]=EventManager(self.data[&#39;events&#39;])
+        if &#34;events&#34; in self.data and isinstance(self.data[&#34;events&#34;], list):
+            self[&#34;events&#34;] = EventManager(self.data[&#34;events&#34;])
 
-    POSSIBLE_ALARM_STATUS=[
-        [&#39;acknowledged&#39;, &#39;ack&#39;,],
-        [&#39;unacknowledged&#39;, &#39;unack&#39;,],
-        [&#39;&#39;, &#39;all&#39;, &#39;both&#39;]
+    POSSIBLE_ALARM_STATUS = [
+        [
+            &#34;acknowledged&#34;,
+            &#34;ack&#34;,
+        ],
+        [
+            &#34;unacknowledged&#34;,
+            &#34;unack&#34;,
+        ],
+        [&#34;&#34;, &#34;all&#34;, &#34;both&#34;],
     ]
-    __pdoc__[&#39;Alarm.POSSIBLE_ALARM_STATUS&#39;]=&#34;&#34;&#34;Possible alarm statuses : ```%(statuses)s```&#34;&#34;&#34; % dict(statuses=&#39;, &#39;.join([ &#39;/&#39;.join(synonims) for synonims in POSSIBLE_ALARM_STATUS]))
+    __pdoc__[
+        &#34;Alarm.POSSIBLE_ALARM_STATUS&#34;
+    ] = &#34;&#34;&#34;Possible alarm statuses : ```%(statuses)s```&#34;&#34;&#34; % dict(
+        statuses=&#34;, &#34;.join([&#34;/&#34;.join(synonims) for synonims in POSSIBLE_ALARM_STATUS])
+    )
 
-    ALARM_EVENT_FILTER_FIELDS=[
-    (&#34;ruleName&#34;,),
-    (&#34;srcIp&#34;,),
-    (&#34;destIp&#34;,),
-    (&#34;protocol&#34;,),
-    (&#34;lastTime&#34;,),
-    (&#34;subtype&#34;,),
-    (&#34;destPort&#34;,),
-    (&#34;destMac&#34;,),
-    (&#34;srcMac&#34;,),
-    (&#34;srcPort&#34;,),
-    (&#34;deviceName&#34;,),
-    (&#34;sigId&#34;,),
-    (&#34;normId&#34;,),
-    (&#34;srcUser&#34;,),
-    (&#34;destUser&#34;,),
-    (&#34;normMessage&#34;,),
-    (&#34;normDesc&#34;,),
-    (&#34;host&#34;,),
-    (&#34;domain&#34;,),
-    (&#34;ipsId&#34;,),
+    ALARM_EVENT_FILTER_FIELDS = [
+        (&#34;ruleName&#34;,),
+        (&#34;srcIp&#34;,),
+        (&#34;destIp&#34;,),
+        (&#34;protocol&#34;,),
+        (&#34;lastTime&#34;,),
+        (&#34;subtype&#34;,),
+        (&#34;destPort&#34;,),
+        (&#34;destMac&#34;,),
+        (&#34;srcMac&#34;,),
+        (&#34;srcPort&#34;,),
+        (&#34;deviceName&#34;,),
+        (&#34;sigId&#34;,),
+        (&#34;normId&#34;,),
+        (&#34;srcUser&#34;,),
+        (&#34;destUser&#34;,),
+        (&#34;normMessage&#34;,),
+        (&#34;normDesc&#34;,),
+        (&#34;host&#34;,),
+        (&#34;domain&#34;,),
+        (&#34;ipsId&#34;,),
     ]
 
-    ALARM_DEFAULT_FIELDS=[&#39;id&#39;,&#39;alarmName&#39;, &#39;summary&#39;,&#39;triggeredDate&#39;, &#39;acknowledgedUsername&#39;]
-    __pdoc__[&#39;Alarm.ALARM_DEFAULT_FIELDS&#39;]=&#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
-    (not used in library, can bu useful for printing with `get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(fields=&#39;, &#39;.join(ALARM_DEFAULT_FIELDS))
-
+    ALARM_DEFAULT_FIELDS = [
+        &#34;id&#34;,
+        &#34;alarmName&#34;,
+        &#34;summary&#34;,
+        &#34;triggeredDate&#34;,
+        &#34;acknowledgedUsername&#34;,
+    ]
+    __pdoc__[
+        &#34;Alarm.ALARM_DEFAULT_FIELDS&#34;
+    ] = &#34;&#34;&#34;Defaulfs fields : `%(fields)s` 
+    (not used in library, can bu useful for printing with `get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS)`)&#34;&#34;&#34; % dict(
+        fields=&#34;, &#34;.join(ALARM_DEFAULT_FIELDS)
+    )
 
     def acknowledge(self):
-        &#34;&#34;&#34;Mark the alarm as acknowledged.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Mark the alarm as acknowledged.&#34;&#34;&#34;
         if self.nitro.api_v == 1:
-            self.nitro.request(&#39;ack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+            self.nitro.request(&#34;ack_alarms&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
         else:
-            self.nitro.request(&#39;ack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+            self.nitro.request(&#34;ack_alarms_11_2_1&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
 
     def unacknowledge(self):
-        &#34;&#34;&#34;Mark the alarm as unacknowledge.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Mark the alarm as unacknowledge.&#34;&#34;&#34;
         if self.nitro.api_v == 1:
-            self.nitro.request(&#39;unack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+            self.nitro.request(&#34;unack_alarms&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
         else:
-            self.nitro.request(&#39;unack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
-
+            self.nitro.request(&#34;unack_alarms_11_2_1&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
 
     def delete(self):
         &#34;&#34;&#34;Destructive action!
         Delete the alarm.
         &#34;&#34;&#34;
         if self.nitro.api_v == 1:
-            self.nitro.request(&#39;delete_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+            self.nitro.request(&#34;delete_alarms&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
         else:
-            self.nitro.request(&#39;delete_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+            self.nitro.request(&#34;delete_alarms_11_2_1&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
 
     def ceate_case(self):
-        &#34;&#34;&#34;Not implemented : TODO
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Not implemented : TODO&#34;&#34;&#34;
         raise NotImplementedError()
 
     def load_details(self):
-        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
-        &#34;&#34;&#34;
-        the_id = self.data[&#39;id&#39;][&#39;value&#39;]
+        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.&#34;&#34;&#34;
+        the_id = self.data[&#34;id&#34;][&#34;value&#34;]
         self.data.update(self.data_from_id(the_id))
-        if isinstance(self.data[&#39;events&#39;], (list)):
-            self[&#39;events&#39;]=EventManager(self.data[&#39;events&#39;])
-        self.data[&#39;id&#39;][&#39;value&#39;]=the_id
-        
+        if isinstance(self.data[&#34;events&#34;], (list)):
+            self[&#34;events&#34;] = EventManager(self.data[&#34;events&#34;])
+        self.data[&#34;id&#34;][&#34;value&#34;] = the_id
+
         return self
 
     def refresh(self):
-        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.  
-        &#34;&#34;&#34;        
+        &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.&#34;&#34;&#34;
         self.load_details()
 
     def load_events(self, use_query=False, extra_fields=[], workers=1):
         &#34;&#34;&#34;
-        Retreive the complete trigerring Event(s) objects from an Alarm.  
-        This methos is automatically called automatically by default when calling `load_data()`.   
-        Arguments:  
+        Retreive the complete trigerring Event(s) objects from an Alarm.
+        This methos is automatically called automatically by default when calling `load_data()`.
+        Arguments:
 
-        - `use_query` : Uses the query module to retreive the event(s) data. Only works with SIEM v 11.2 or greater.    
-        Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.  
-        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-        - `workers`: The number of asynchronous workers.  
+        - `use_query` : Uses the query module to retreive the event(s) data. Only works with SIEM v 11.2 or greater.
+        Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.
+        - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`
+        - `workers`: The number of asynchronous workers.
 
-        .. Warning:: On SIEM v10.X This method will only load the details of the first triggering event.  
+        .. Warning:: On SIEM v10.X This method will only load the details of the first triggering event.
         &#34;&#34;&#34;
-        if isinstance(self.data[&#39;events&#39;], str):
+        if isinstance(self.data[&#34;events&#34;], str):
 
-            #Retreive the alert id from the event&#39;s string
-            events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
-            the_id = events_data[0]+&#39;|&#39;+events_data[1]
+            # Retreive the alert id from the event&#39;s string
+            events_data = self.data[&#34;events&#34;].split(&#34;|&#34;)
+            the_id = events_data[0] + &#34;|&#34; + events_data[1]
 
-            #instanciate the event
-            the_first_event=Event()
-            the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
+            # instanciate the event
+            the_first_event = Event()
+            the_first_event.data = Event().data_from_id(
+                id=the_id, use_query=use_query, extra_fields=extra_fields
+            )
 
-            #set it as the only item of the event list
-            self.data[&#39;events&#39;]= [ the_first_event ]
+            # set it as the only item of the event list
+            self.data[&#34;events&#34;] = [the_first_event]
 
-        elif isinstance(self.data[&#39;events&#39;], (EventManager)):
+        elif isinstance(self.data[&#34;events&#34;], (EventManager)):
             # The list has been loaded from notifyGetTriggeredNotificationDetail
-            self.data[&#39;events&#39;].perform(Event.refresh, asynch=True, workers=workers, func_args=dict(use_query=use_query, extra_fields=extra_fields))
+            self.data[&#34;events&#34;].perform(
+                Event.refresh,
+                asynch=True,
+                workers=workers,
+                func_args=dict(use_query=use_query, extra_fields=extra_fields),
+            )
         else:
-            log.info(&#39;The alarm {} ({}) has no events associated&#39;.format(self.data[&#39;alarmName&#39;], self.data[&#39;triggeredDate&#39;]))
-            self.data[&#39;events&#39;]= [ Event() ]
+            log.info(
+                &#34;The alarm {} ({}) has no events associated&#34;.format(
+                    self.data[&#34;alarmName&#34;], self.data[&#34;triggeredDate&#34;]
+                )
+            )
+            self.data[&#34;events&#34;] = [Event()]
 
         return self
 
-    ALARM_FIELDS_MAP={&#39;EC&#39;: None,
-                &#39;SMRY&#39;: &#39;summary&#39;,
-                &#39;NAME&#39;: &#39;alarmName&#39;,
-                &#39;FILTERS&#39;: &#39;filters&#39;,
-                &#39;CTYPE&#39;: None,
-                &#39;QID&#39;: &#39;queryId&#39;,
-                &#39;ARM&#39;: &#39;alretRateMin&#39;,
-                &#39;ARC&#39;: &#39;alertRateCount&#39;,
-                &#39;PCTA&#39;: &#39;percentAbove&#39;,
-                &#39;PCTB&#39;: &#39;percentBelow&#39;,
-                &#39;OFFSETMIN&#39;: &#39;offsetMinutes&#39;,
-                &#39;TIMEF&#39;: &#39;maximumConditionTriggerFrequency&#39;,
-                &#39;XMIN&#39;: None,
-                &#39;USEW&#39;: &#39;useWatchlist&#39;,
-                &#39;MFLD&#39;: &#39;matchField&#39;,
-                &#39;MVAL&#39;: &#39;matchValue&#39;,
-                &#39;SVRTY&#39;: &#39;severity&#39;,
-                &#39;ASNID&#39;: &#39;assigneeId&#39;,
-                &#39;ASNNAME&#39;: &#39;assignee&#39;,
-                &#39;TRGDATE&#39;: &#39;triggeredDate&#39;,
-                &#39;ACKDATE&#39;: &#39;acknowledgedDate&#39;,
-                &#39;ESCDATE&#39;: &#39;escalatedDate&#39;,
-                &#39;CASEID&#39;: &#39;caseId&#39;,
-                &#39;CASENAME&#39;: &#39;caseName&#39;,
-                &#39;IOCNAME&#39;: &#39;iocName&#39;,
-                &#39;IOCID&#39;: &#39;iocId&#39;,
-                &#39;DESC&#39;: &#39;description&#39;,
-                &#39;NID&#39;: None,
-                &#39;ACTIONS&#39;: &#39;actions&#39;,
-                &#39;NE&#39;: None,
-                &#39;EVENTS&#39;: &#39;events&#39;,
-                &#39;DCHNG&#39;: None}
+    ALARM_FIELDS_MAP = {
+        &#34;EC&#34;: None,
+        &#34;SMRY&#34;: &#34;summary&#34;,
+        &#34;NAME&#34;: &#34;alarmName&#34;,
+        &#34;FILTERS&#34;: &#34;filters&#34;,
+        &#34;CTYPE&#34;: None,
+        &#34;QID&#34;: &#34;queryId&#34;,
+        &#34;ARM&#34;: &#34;alretRateMin&#34;,
+        &#34;ARC&#34;: &#34;alertRateCount&#34;,
+        &#34;PCTA&#34;: &#34;percentAbove&#34;,
+        &#34;PCTB&#34;: &#34;percentBelow&#34;,
+        &#34;OFFSETMIN&#34;: &#34;offsetMinutes&#34;,
+        &#34;TIMEF&#34;: &#34;maximumConditionTriggerFrequency&#34;,
+        &#34;XMIN&#34;: None,
+        &#34;USEW&#34;: &#34;useWatchlist&#34;,
+        &#34;MFLD&#34;: &#34;matchField&#34;,
+        &#34;MVAL&#34;: &#34;matchValue&#34;,
+        &#34;SVRTY&#34;: &#34;severity&#34;,
+        &#34;ASNID&#34;: &#34;assigneeId&#34;,
+        &#34;ASNNAME&#34;: &#34;assignee&#34;,
+        &#34;TRGDATE&#34;: &#34;triggeredDate&#34;,
+        &#34;ACKDATE&#34;: &#34;acknowledgedDate&#34;,
+        &#34;ESCDATE&#34;: &#34;escalatedDate&#34;,
+        &#34;CASEID&#34;: &#34;caseId&#34;,
+        &#34;CASENAME&#34;: &#34;caseName&#34;,
+        &#34;IOCNAME&#34;: &#34;iocName&#34;,
+        &#34;IOCID&#34;: &#34;iocId&#34;,
+        &#34;DESC&#34;: &#34;description&#34;,
+        &#34;NID&#34;: None,
+        &#34;ACTIONS&#34;: &#34;actions&#34;,
+        &#34;NE&#34;: None,
+        &#34;EVENTS&#34;: &#34;events&#34;,
+        &#34;DCHNG&#34;: None,
+    }
     &#34;&#34;&#34;
     List of all `Alarm` possible fields.  
     This is used only when the private API is used to retreive Alarm infos.  
     To change genuine (UPPERCASE) key names to more explicit ones matching public API names.  
 
-    &#34;&#34;&#34; 
+    &#34;&#34;&#34;
 
     def map_alarm_int_fields(self, alarm_details):
         &#34;&#34;&#34;
-        Map the internal ESM field names to msiempy style with `msiempy.alarm.Alarm.ALARM_FIELDS_MAP`.  
-        Converts &#34;T&#34; and &#34;F&#34; to `True` and `False` and handle None values.  
+        Map the internal ESM field names to msiempy style with `msiempy.alarm.Alarm.ALARM_FIELDS_MAP`.
+        Converts &#34;T&#34; and &#34;F&#34; to `True` and `False` and handle None values.
         &#34;&#34;&#34;
 
         for key, val in alarm_details.items():
             if alarm_details[key] == key:
                 alarm_details[key] = None
-            elif alarm_details[key] in [&#39;f&#39;, &#39;F&#39;]:
+            elif alarm_details[key] in [&#34;f&#34;, &#34;F&#34;]:
                 alarm_details[key] = False
-            elif alarm_details[key] in [&#39;t&#39;, &#39;T&#39;]:
+            elif alarm_details[key] in [&#34;t&#34;, &#34;T&#34;]:
                 alarm_details[key] = True
             else:
                 alarm_details[key] = val
 
         new_alarm = {}
 
-        for priv_key in self.ALARM_FIELDS_MAP: new_alarm.__setitem__(
-            self.ALARM_FIELDS_MAP[priv_key] or priv_key, alarm_details.get(priv_key) or None )
+        for priv_key in self.ALARM_FIELDS_MAP:
+            new_alarm.__setitem__(
+                self.ALARM_FIELDS_MAP[priv_key] or priv_key,
+                alarm_details.get(priv_key) or None,
+            )
 
-        log.debug(&#39;NEW FULL alarm_details: &#39;+str(new_alarm))
+        log.debug(&#34;NEW FULL alarm_details: &#34; + str(new_alarm))
 
         return new_alarm
-                                                                                       
+
     def data_from_id(self, id, use_priv=False):
         &#34;&#34;&#34;
-        Gets the alarm parameters based on an ID.  
-        Will still use private method if SIEM if v10.X because it&#39;s the only way to get the trigerring event ID.   
+        Gets the alarm parameters based on an ID.
+        Will still use private method if SIEM if v10.X because it&#39;s the only way to get the trigerring event ID.
 
-        Arguments:  
-        - `use_priv`: (`bool`): Use the private API methods to retreive the INFO, will use it anyway with ESM v10.x.  
-        Will only load the details of the first triggering event.  
+        Arguments:
+        - `use_priv`: (`bool`): Use the private API methods to retreive the INFO, will use it anyway with ESM v10.x.
+        Will only load the details of the first triggering event.
 
         &#34;&#34;&#34;
-        if self.nitro.esm_v.startswith((&#39;10&#39;)) or use_priv:
+        if self.nitro.esm_v.startswith((&#34;10&#34;)) or use_priv:
             try:
-                alarm = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
+                alarm = self.nitro.request(&#34;get_alarm_details_int&#34;, id=str(id))
                 # Wrap arround private api call
-                alarm = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarm.items()} 
-                alarm = self.map_alarm_int_fields(alarm)     
+                alarm = {
+                    key: dehexify(val).replace(&#34;\n&#34;, &#34;|&#34;) for key, val in alarm.items()
+                }
+                alarm = self.map_alarm_int_fields(alarm)
             except Exception as e:
-                log.warning(&#34;Impossible to get the alarm data from the private API, trying with get_notification_detail call. Error: {}&#34;.format(e))
-                alarm = self.nitro.request(&#39;get_notification_detail&#39;, id=str(id))
+                log.warning(
+                    &#34;Impossible to get the alarm data from the private API, trying with get_notification_detail call. Error: {}&#34;.format(
+                        e
+                    )
+                )
+                alarm = self.nitro.request(&#34;get_notification_detail&#34;, id=str(id))
                 # Replace empty strings by None
-                alarm = {k:(v if v else None if isinstance(v, str) else v) for k, v in alarm.items()}
+                alarm = {
+                    k: (v if v else None if isinstance(v, str) else v)
+                    for k, v in alarm.items()
+                }
         else:
-            alarm = self.nitro.request(&#39;get_notification_detail&#39;, id=str(id))
+            alarm = self.nitro.request(&#34;get_notification_detail&#34;, id=str(id))
             # Replace empty strings by None
-            alarm = {k:(v if v else None if isinstance(v, str) else v) for k, v in alarm.items()}
+            alarm = {
+                k: (v if v else None if isinstance(v, str) else v)
+                for k, v in alarm.items()
+            }
         return alarm
 
     def get_id(self):
         &#34;&#34;&#34;
-        Return the alarm ID.  
+        Return the alarm ID.
         &#34;&#34;&#34;
-        return self.data[&#39;id&#39;][&#39;value&#39;]</code></pre>
+        return self.data[&#34;id&#34;][&#34;value&#34;]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1655,15 +1792,14 @@ To change genuine (UPPERCASE) key names to more explicit ones matching public AP
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L387-L393" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L452-L457" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def acknowledge(self):
-    &#34;&#34;&#34;Mark the alarm as acknowledged.
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Mark the alarm as acknowledged.&#34;&#34;&#34;
     if self.nitro.api_v == 1:
-        self.nitro.request(&#39;ack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+        self.nitro.request(&#34;ack_alarms&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
     else:
-        self.nitro.request(&#39;ack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
+        self.nitro.request(&#34;ack_alarms_11_2_1&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.Alarm.unacknowledge"><code class="name flex">
@@ -1674,15 +1810,14 @@ To change genuine (UPPERCASE) key names to more explicit ones matching public AP
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L395-L401" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L459-L464" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def unacknowledge(self):
-    &#34;&#34;&#34;Mark the alarm as unacknowledge.
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Mark the alarm as unacknowledge.&#34;&#34;&#34;
     if self.nitro.api_v == 1:
-        self.nitro.request(&#39;unack_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+        self.nitro.request(&#34;unack_alarms&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
     else:
-        self.nitro.request(&#39;unack_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
+        self.nitro.request(&#34;unack_alarms_11_2_1&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.Alarm.delete"><code class="name flex">
@@ -1694,16 +1829,16 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L404-L411" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L466-L473" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def delete(self):
     &#34;&#34;&#34;Destructive action!
     Delete the alarm.
     &#34;&#34;&#34;
     if self.nitro.api_v == 1:
-        self.nitro.request(&#39;delete_alarms&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])
+        self.nitro.request(&#34;delete_alarms&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])
     else:
-        self.nitro.request(&#39;delete_alarms_11_2_1&#39;, ids=self.data[&#39;id&#39;][&#39;value&#39;])</code></pre>
+        self.nitro.request(&#34;delete_alarms_11_2_1&#34;, ids=self.data[&#34;id&#34;][&#34;value&#34;])</code></pre>
 </details>
 </dd>
 <dt id="msiempy.alarm.Alarm.ceate_case"><code class="name flex">
@@ -1714,11 +1849,10 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L413-L416" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L475-L477" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def ceate_case(self):
-    &#34;&#34;&#34;Not implemented : TODO
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Not implemented : TODO&#34;&#34;&#34;
     raise NotImplementedError()</code></pre>
 </details>
 </dd>
@@ -1730,17 +1864,16 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L418-L427" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L479-L487" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_details(self):
-    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.
-    &#34;&#34;&#34;
-    the_id = self.data[&#39;id&#39;][&#39;value&#39;]
+    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.&#34;&#34;&#34;
+    the_id = self.data[&#34;id&#34;][&#34;value&#34;]
     self.data.update(self.data_from_id(the_id))
-    if isinstance(self.data[&#39;events&#39;], (list)):
-        self[&#39;events&#39;]=EventManager(self.data[&#39;events&#39;])
-    self.data[&#39;id&#39;][&#39;value&#39;]=the_id
-    
+    if isinstance(self.data[&#34;events&#34;], (list)):
+        self[&#34;events&#34;] = EventManager(self.data[&#34;events&#34;])
+    self.data[&#34;id&#34;][&#34;value&#34;] = the_id
+
     return self</code></pre>
 </details>
 </dd>
@@ -1752,11 +1885,10 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L429-L432" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L489-L491" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self):
-    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.  
-    &#34;&#34;&#34;        
+    &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.&#34;&#34;&#34;
     self.load_details()</code></pre>
 </details>
 </dd>
@@ -1764,19 +1896,14 @@ Delete the alarm.</p></div>
 <span>def <span class="ident">load_events</span></span>(<span>self, use_query=False, extra_fields=[], workers=1)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Retreive the complete trigerring Event(s) objects from an Alarm.<br>
-This methos is automatically called automatically by default when calling <code>load_data()</code>. <br>
-Arguments:
-</p>
+<div class="desc"><p>Retreive the complete trigerring Event(s) objects from an Alarm.
+This methos is automatically called automatically by default when calling <code>load_data()</code>.
+Arguments:</p>
 <ul>
 <li><code>use_query</code> : Uses the query module to retreive the event(s) data. Only works with SIEM v 11.2 or greater.
-<br>
-Default behaviour will call <code>ipsGetAlertData</code> to retreive the complete event definition.
-</li>
-<li><code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code>
-</li>
-<li><code>workers</code>: The number of asynchronous workers.
-</li>
+Default behaviour will call <code>ipsGetAlertData</code> to retreive the complete event definition.</li>
+<li><code>extra_fields</code> : Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <code><a title="msiempy.event.EventManager" href="event.html#msiempy.event.EventManager">EventManager</a></code></li>
+<li><code>workers</code>: The number of asynchronous workers.</li>
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning:&ensp;On SIEM v10.X This method will only load the details of the first triggering event.</p>
@@ -1784,40 +1911,51 @@ Default behaviour will call <code>ipsGetAlertData</code> to retreive the complet
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L434-L467" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L493-L537" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_events(self, use_query=False, extra_fields=[], workers=1):
     &#34;&#34;&#34;
-    Retreive the complete trigerring Event(s) objects from an Alarm.  
-    This methos is automatically called automatically by default when calling `load_data()`.   
-    Arguments:  
+    Retreive the complete trigerring Event(s) objects from an Alarm.
+    This methos is automatically called automatically by default when calling `load_data()`.
+    Arguments:
 
-    - `use_query` : Uses the query module to retreive the event(s) data. Only works with SIEM v 11.2 or greater.    
-    Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.  
-    - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`  
-    - `workers`: The number of asynchronous workers.  
+    - `use_query` : Uses the query module to retreive the event(s) data. Only works with SIEM v 11.2 or greater.
+    Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.
+    - `extra_fields` : Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`
+    - `workers`: The number of asynchronous workers.
 
-    .. Warning:: On SIEM v10.X This method will only load the details of the first triggering event.  
+    .. Warning:: On SIEM v10.X This method will only load the details of the first triggering event.
     &#34;&#34;&#34;
-    if isinstance(self.data[&#39;events&#39;], str):
+    if isinstance(self.data[&#34;events&#34;], str):
 
-        #Retreive the alert id from the event&#39;s string
-        events_data=self.data[&#39;events&#39;].split(&#39;|&#39;)
-        the_id = events_data[0]+&#39;|&#39;+events_data[1]
+        # Retreive the alert id from the event&#39;s string
+        events_data = self.data[&#34;events&#34;].split(&#34;|&#34;)
+        the_id = events_data[0] + &#34;|&#34; + events_data[1]
 
-        #instanciate the event
-        the_first_event=Event()
-        the_first_event.data = Event().data_from_id(id=the_id, use_query=use_query, extra_fields=extra_fields)
+        # instanciate the event
+        the_first_event = Event()
+        the_first_event.data = Event().data_from_id(
+            id=the_id, use_query=use_query, extra_fields=extra_fields
+        )
 
-        #set it as the only item of the event list
-        self.data[&#39;events&#39;]= [ the_first_event ]
+        # set it as the only item of the event list
+        self.data[&#34;events&#34;] = [the_first_event]
 
-    elif isinstance(self.data[&#39;events&#39;], (EventManager)):
+    elif isinstance(self.data[&#34;events&#34;], (EventManager)):
         # The list has been loaded from notifyGetTriggeredNotificationDetail
-        self.data[&#39;events&#39;].perform(Event.refresh, asynch=True, workers=workers, func_args=dict(use_query=use_query, extra_fields=extra_fields))
+        self.data[&#34;events&#34;].perform(
+            Event.refresh,
+            asynch=True,
+            workers=workers,
+            func_args=dict(use_query=use_query, extra_fields=extra_fields),
+        )
     else:
-        log.info(&#39;The alarm {} ({}) has no events associated&#39;.format(self.data[&#39;alarmName&#39;], self.data[&#39;triggeredDate&#39;]))
-        self.data[&#39;events&#39;]= [ Event() ]
+        log.info(
+            &#34;The alarm {} ({}) has no events associated&#34;.format(
+                self.data[&#34;alarmName&#34;], self.data[&#34;triggeredDate&#34;]
+            )
+        )
+        self.data[&#34;events&#34;] = [Event()]
 
     return self</code></pre>
 </details>
@@ -1826,35 +1964,38 @@ Default behaviour will call <code>ipsGetAlertData</code> to retreive the complet
 <span>def <span class="ident">map_alarm_int_fields</span></span>(<span>self, alarm_details)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Map the internal ESM field names to msiempy style with <code><a title="msiempy.alarm.Alarm.ALARM_FIELDS_MAP" href="#msiempy.alarm.Alarm.ALARM_FIELDS_MAP">Alarm.ALARM_FIELDS_MAP</a></code>.<br>
+<div class="desc"><p>Map the internal ESM field names to msiempy style with <code><a title="msiempy.alarm.Alarm.ALARM_FIELDS_MAP" href="#msiempy.alarm.Alarm.ALARM_FIELDS_MAP">Alarm.ALARM_FIELDS_MAP</a></code>.
 Converts "T" and "F" to <code>True</code> and <code>False</code> and handle None values.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L508-L531" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L580-L606" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def map_alarm_int_fields(self, alarm_details):
     &#34;&#34;&#34;
-    Map the internal ESM field names to msiempy style with `msiempy.alarm.Alarm.ALARM_FIELDS_MAP`.  
-    Converts &#34;T&#34; and &#34;F&#34; to `True` and `False` and handle None values.  
+    Map the internal ESM field names to msiempy style with `msiempy.alarm.Alarm.ALARM_FIELDS_MAP`.
+    Converts &#34;T&#34; and &#34;F&#34; to `True` and `False` and handle None values.
     &#34;&#34;&#34;
 
     for key, val in alarm_details.items():
         if alarm_details[key] == key:
             alarm_details[key] = None
-        elif alarm_details[key] in [&#39;f&#39;, &#39;F&#39;]:
+        elif alarm_details[key] in [&#34;f&#34;, &#34;F&#34;]:
             alarm_details[key] = False
-        elif alarm_details[key] in [&#39;t&#39;, &#39;T&#39;]:
+        elif alarm_details[key] in [&#34;t&#34;, &#34;T&#34;]:
             alarm_details[key] = True
         else:
             alarm_details[key] = val
 
     new_alarm = {}
 
-    for priv_key in self.ALARM_FIELDS_MAP: new_alarm.__setitem__(
-        self.ALARM_FIELDS_MAP[priv_key] or priv_key, alarm_details.get(priv_key) or None )
+    for priv_key in self.ALARM_FIELDS_MAP:
+        new_alarm.__setitem__(
+            self.ALARM_FIELDS_MAP[priv_key] or priv_key,
+            alarm_details.get(priv_key) or None,
+        )
 
-    log.debug(&#39;NEW FULL alarm_details: &#39;+str(new_alarm))
+    log.debug(&#34;NEW FULL alarm_details: &#34; + str(new_alarm))
 
     return new_alarm</code></pre>
 </details>
@@ -1863,42 +2004,53 @@ Converts "T" and "F" to <code>True</code> and <code>False</code> and handle None
 <span>def <span class="ident">data_from_id</span></span>(<span>self, id, use_priv=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Gets the alarm parameters based on an ID.<br>
-Will still use private method if SIEM if v10.X because it's the only way to get the trigerring event ID.
-</p>
-<p>Arguments:<br>
-- <code>use_priv</code>: (<code>bool</code>): Use the private API methods to retreive the INFO, will use it anyway with ESM v10.x.<br>
+<div class="desc"><p>Gets the alarm parameters based on an ID.
+Will still use private method if SIEM if v10.X because it's the only way to get the trigerring event ID.</p>
+<p>Arguments:
+- <code>use_priv</code>: (<code>bool</code>): Use the private API methods to retreive the INFO, will use it anyway with ESM v10.x.
 Will only load the details of the first triggering event.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L533-L558" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L608-L645" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id, use_priv=False):
     &#34;&#34;&#34;
-    Gets the alarm parameters based on an ID.  
-    Will still use private method if SIEM if v10.X because it&#39;s the only way to get the trigerring event ID.   
+    Gets the alarm parameters based on an ID.
+    Will still use private method if SIEM if v10.X because it&#39;s the only way to get the trigerring event ID.
 
-    Arguments:  
-    - `use_priv`: (`bool`): Use the private API methods to retreive the INFO, will use it anyway with ESM v10.x.  
-    Will only load the details of the first triggering event.  
+    Arguments:
+    - `use_priv`: (`bool`): Use the private API methods to retreive the INFO, will use it anyway with ESM v10.x.
+    Will only load the details of the first triggering event.
 
     &#34;&#34;&#34;
-    if self.nitro.esm_v.startswith((&#39;10&#39;)) or use_priv:
+    if self.nitro.esm_v.startswith((&#34;10&#34;)) or use_priv:
         try:
-            alarm = self.nitro.request(&#39;get_alarm_details_int&#39;, id=str(id))
+            alarm = self.nitro.request(&#34;get_alarm_details_int&#34;, id=str(id))
             # Wrap arround private api call
-            alarm = {key: dehexify(val).replace(&#39;\n&#39;, &#39;|&#39;) for key, val in alarm.items()} 
-            alarm = self.map_alarm_int_fields(alarm)     
+            alarm = {
+                key: dehexify(val).replace(&#34;\n&#34;, &#34;|&#34;) for key, val in alarm.items()
+            }
+            alarm = self.map_alarm_int_fields(alarm)
         except Exception as e:
-            log.warning(&#34;Impossible to get the alarm data from the private API, trying with get_notification_detail call. Error: {}&#34;.format(e))
-            alarm = self.nitro.request(&#39;get_notification_detail&#39;, id=str(id))
+            log.warning(
+                &#34;Impossible to get the alarm data from the private API, trying with get_notification_detail call. Error: {}&#34;.format(
+                    e
+                )
+            )
+            alarm = self.nitro.request(&#34;get_notification_detail&#34;, id=str(id))
             # Replace empty strings by None
-            alarm = {k:(v if v else None if isinstance(v, str) else v) for k, v in alarm.items()}
+            alarm = {
+                k: (v if v else None if isinstance(v, str) else v)
+                for k, v in alarm.items()
+            }
     else:
-        alarm = self.nitro.request(&#39;get_notification_detail&#39;, id=str(id))
+        alarm = self.nitro.request(&#34;get_notification_detail&#34;, id=str(id))
         # Replace empty strings by None
-        alarm = {k:(v if v else None if isinstance(v, str) else v) for k, v in alarm.items()}
+        alarm = {
+            k: (v if v else None if isinstance(v, str) else v)
+            for k, v in alarm.items()
+        }
     return alarm</code></pre>
 </details>
 </dd>
@@ -1910,13 +2062,13 @@ Will only load the details of the first triggering event.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/alarm.py#L560-L564" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/alarm.py#L647-L651" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_id(self):
     &#34;&#34;&#34;
-    Return the alarm ID.  
+    Return the alarm ID.
     &#34;&#34;&#34;
-    return self.data[&#39;id&#39;][&#39;value&#39;]</code></pre>
+    return self.data[&#34;id&#34;][&#34;value&#34;]</code></pre>
 </details>
 </dd>
 </dl>
@@ -2007,7 +2159,6 @@ setTimeout(() => input.focus(), 100);
 <li><code><a title="msiempy.alarm.AlarmManager.clear_filters" href="#msiempy.alarm.AlarmManager.clear_filters">clear_filters</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.load_data" href="#msiempy.alarm.AlarmManager.load_data">load_data</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.qry_load_data" href="#msiempy.alarm.AlarmManager.qry_load_data">qry_load_data</a></code></li>
-<li><code><a title="msiempy.alarm.AlarmManager.filters" href="#msiempy.alarm.AlarmManager.filters">filters</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.status_filter" href="#msiempy.alarm.AlarmManager.status_filter">status_filter</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.event_filters" href="#msiempy.alarm.AlarmManager.event_filters">event_filters</a></code></li>
 <li><code><a title="msiempy.alarm.AlarmManager.page_size" href="#msiempy.alarm.AlarmManager.page_size">page_size</a></code></li>

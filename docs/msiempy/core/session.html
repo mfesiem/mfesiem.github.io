@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L0-L883" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/core/session.py#L0-L1095" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
 HTTP level interface to the ESM API.  
@@ -48,59 +48,74 @@ from string import Template
 from .utils import tob64
 from .config import NitroConfig
 
-log = logging.getLogger(&#39;msiempy&#39;)
+log = logging.getLogger(&#34;msiempy&#34;)
 
-__pdoc__ = {} # Init pdoc to document dynamically
+__pdoc__ = {}  # Init pdoc to document dynamically
 
 _PARAMS = {
-    &#34;login&#34;: (&#34;login&#34;,
-            Template(&#34;&#34;&#34;{&#34;username&#34;: &#34;$username&#34;,
+    &#34;login&#34;: (
+        &#34;login&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;username&#34;: &#34;$username&#34;,
                 &#34;password&#34; : &#34;$password&#34;,
                 &#34;locale&#34;: &#34;en_US&#34;,
                 &#34;os&#34;: &#34;Win32&#34;}
-                &#34;&#34;&#34;)),
-
-    &#34;get_devtree&#34;: (&#34;GRP_GETVIRTUALGROUPIPSLISTDATA&#34;,
-                    &#34;&#34;&#34;{&#34;ITEMS&#34;: &#34;#{DC1 + DC2}&#34;,
+                &#34;&#34;&#34;
+        ),
+    ),
+    ### DATASOURCES
+    &#34;get_devtree&#34;: (
+        &#34;GRP_GETVIRTUALGROUPIPSLISTDATA&#34;,
+        &#34;&#34;&#34;{&#34;ITEMS&#34;: &#34;#{DC1 + DC2}&#34;,
                         &#34;DID&#34;: &#34;1&#34;,
                         &#34;HD&#34;: &#34;F&#34;,
                         &#34;NS&#34;: &#34;0&#34;}
-                    &#34;&#34;&#34;),
-
-    &#34;get_zones_devtree&#34;: (&#34;GRP_GETVIRTUALGROUPIPSLISTDATA&#34;,
-                    &#34;&#34;&#34;{&#34;ITEMS&#34;: &#34;#{DC1 + DC2}&#34;,
+                    &#34;&#34;&#34;,
+    ),
+    &#34;get_zones_devtree&#34;: (
+        &#34;GRP_GETVIRTUALGROUPIPSLISTDATA&#34;,
+        &#34;&#34;&#34;{&#34;ITEMS&#34;: &#34;#{DC1 + DC2}&#34;,
                         &#34;DID&#34;: &#34;3&#34;,
                         &#34;HD&#34;: &#34;F&#34;,
                         &#34;NS&#34;: &#34;0&#34;}
-                    &#34;&#34;&#34;),
-
-    &#34;req_client_str&#34;: (&#34;DS_GETDSCLIENTLIST&#34;,
-                        Template(&#34;&#34;&#34;{&#34;DSID&#34;: &#34;$ds_id&#34;,
+                    &#34;&#34;&#34;,
+    ),
+    &#34;req_client_str&#34;: (
+        &#34;DS_GETDSCLIENTLIST&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;DSID&#34;: &#34;$ds_id&#34;,
                             &#34;SEARCH&#34;: &#34;&#34;}
-                        &#34;&#34;&#34;)),
-
-    &#34;get_rfile&#34;: (&#34;MISC_READFILE&#34;,
-                Template(&#34;&#34;&#34;{&#34;FNAME&#34;: &#34;$ftoken&#34;,
+                        &#34;&#34;&#34;
+        ),
+    ),
+    &#34;get_rfile&#34;: (
+        &#34;MISC_READFILE&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;FNAME&#34;: &#34;$ftoken&#34;,
                 &#34;SPOS&#34;: &#34;0&#34;,
                 &#34;NBYTES&#34;: &#34;0&#34;}
-                &#34;&#34;&#34;)),
-
-    &#34;del_rfile&#34;: (&#34;ESSMGT_DELETEFILE&#34;,
-                Template(&#34;&#34;&#34;{&#34;FN&#34;: &#34;$ftoken&#34;}&#34;&#34;&#34;)),
-
-    &#34;get_rfile2&#34;: (&#34;MISC_READFILE&#34;,
-                Template(&#34;&#34;&#34;{&#34;FNAME&#34;: &#34;$ftoken&#34;,
+                &#34;&#34;&#34;
+        ),
+    ),
+    &#34;del_rfile&#34;: (&#34;ESSMGT_DELETEFILE&#34;, Template(&#34;&#34;&#34;{&#34;FN&#34;: &#34;$ftoken&#34;}&#34;&#34;&#34;)),
+    &#34;get_rfile2&#34;: (
+        &#34;MISC_READFILE&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;FNAME&#34;: &#34;$ftoken&#34;,
                 &#34;SPOS&#34;: &#34;$pos&#34;,
                 &#34;NBYTES&#34;: &#34;$nbytes&#34;}
-                &#34;&#34;&#34;)),
-
-    &#34;get_wfile&#34;: (&#34;MISC_WRITEFILE&#34;,
-                Template(&#34;&#34;&#34;{&#34;DATA1&#34;: &#34;$ds_id&#34;,
+                &#34;&#34;&#34;
+        ),
+    ),
+    &#34;get_wfile&#34;: (
+        &#34;MISC_WRITEFILE&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;DATA1&#34;: &#34;$ds_id&#34;,
                         &#34;PATH&#34;: &#34;21&#34;,
-                        &#34;ND&#34;: &#34;1&#34;} &#34;&#34;&#34;)),
-    
-    &#34;get_rule_history&#34;: (&#34;PLCY_GETRULECHANGEINFO&#34;, 
-                        &#34;&#34;&#34;{&#34;SHOW&#34;: &#34;F&#34;}&#34;&#34;&#34;),
+                        &#34;ND&#34;: &#34;1&#34;} &#34;&#34;&#34;
+        ),
+    ),
+    &#34;get_rule_history&#34;: (&#34;PLCY_GETRULECHANGEINFO&#34;, &#34;&#34;&#34;{&#34;SHOW&#34;: &#34;F&#34;}&#34;&#34;&#34;),
     # DO NOT DELETE
     # &#34;map_dtree&#34;: (&#34;map_dtree&#34;,
     #             Template(&#34;&#34;&#34;{&#34;dev_type&#34;: &#34;$dev_type&#34;,
@@ -119,9 +134,10 @@ _PARAMS = {
     #             &#34;client_groups&#34;: &#34;$client_groups&#34;
     #             }
     #             &#34;&#34;&#34;)),
-
-    &#34;add_ds_11_1_3&#34;: (&#34;dsAddDataSource&#34;, 
-                Template(&#34;&#34;&#34;{&#34;datasource&#34;: {
+    &#34;add_ds_11_1_3&#34;: (
+        &#34;dsAddDataSource&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;datasource&#34;: {
                         &#34;parentId&#34;: {&#34;id&#34;: &#34;$parent_id&#34;},
                         &#34;name&#34;: &#34;$name&#34;,
                         &#34;ipAddress&#34;: &#34;$ds_ip&#34;,
@@ -135,10 +151,13 @@ _PARAMS = {
                         &#34;childType&#34;: &#34;$child_type&#34;,
                         &#34;idmId&#34;: &#34;$idm_id&#34;,
                         &#34;parameters&#34;: $parameters
-                    }}&#34;&#34;&#34;)),
-
-    &#34;add_ds_11_2_1&#34;: (&#34;dsAddDataSources&#34;, 
-                    Template(&#34;&#34;&#34;{&#34;receiverId&#34;: &#34;$parent_id&#34;,
+                    }}&#34;&#34;&#34;
+        ),
+    ),
+    &#34;add_ds_11_2_1&#34;: (
+        &#34;dsAddDataSources&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;receiverId&#34;: &#34;$parent_id&#34;,
                         &#34;datasources&#34;: [{
                             &#34;name&#34;: &#34;$name&#34;,
                             &#34;ipAddress&#34;: &#34;$ds_ip&#34;,
@@ -147,10 +166,13 @@ _PARAMS = {
                             &#34;enabled&#34;: &#34;$enabled&#34;,
                             &#34;url&#34;: &#34;$url&#34;,
                             &#34;parameters&#34;: $parameters
-                            }]}&#34;&#34;&#34;)),
-
-    &#34;add_client1&#34;: (&#34;DS_ADDDSCLIENT&#34;, 
-                    Template(&#34;&#34;&#34;{&#34;PID&#34;: &#34;$parent_id&#34;,
+                            }]}&#34;&#34;&#34;
+        ),
+    ),
+    &#34;add_client1&#34;: (
+        &#34;DS_ADDDSCLIENT&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;PID&#34;: &#34;$parent_id&#34;,
                     &#34;NAME&#34;: &#34;$name&#34;,
                     &#34;ENABLED&#34;: &#34;$enabled&#34;,
                     &#34;IP&#34;: &#34;$ds_ip&#34;,
@@ -161,41 +183,50 @@ _PARAMS = {
                     &#34;MASKFLAG&#34;: &#34;$maskflag&#34;,
                     &#34;PORT&#34;: &#34;$port&#34;,
                     &#34;USETLS&#34;: &#34;$require_tls&#34;
-                    }&#34;&#34;&#34;)),
-                    
-    &#34;get_recs&#34;: (&#34;devGetDeviceList?filterByRights=false&#34;,
-                    &#34;&#34;&#34;{&#34;types&#34;: [&#34;RECEIVER&#34;]}
-                    &#34;&#34;&#34;),
-
-    &#34;get_dstypes&#34;: (&#34;dsGetDataSourceTypes&#34;,
-                    Template(&#34;&#34;&#34;{&#34;receiverId&#34;: {&#34;id&#34;: &#34;$rec_id&#34;}
+                    }&#34;&#34;&#34;
+        ),
+    ),
+    &#34;get_recs&#34;: (
+        &#34;devGetDeviceList?filterByRights=false&#34;,
+        &#34;&#34;&#34;{&#34;types&#34;: [&#34;RECEIVER&#34;]}
+                    &#34;&#34;&#34;,
+    ),
+    &#34;get_dstypes&#34;: (
+        &#34;dsGetDataSourceTypes&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;receiverId&#34;: {&#34;id&#34;: &#34;$rec_id&#34;}
                         }
-                    &#34;&#34;&#34;)),
-                    
-    &#34;del_ds1&#34;: (&#34;dsDeleteDataSource&#34;,
-                Template(&#34;&#34;&#34;{&#34;receiverId&#34;: {&#34;id&#34;: &#34;$parent_id&#34;},
+                    &#34;&#34;&#34;
+        ),
+    ),
+    &#34;del_ds1&#34;: (
+        &#34;dsDeleteDataSource&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;receiverId&#34;: {&#34;id&#34;: &#34;$parent_id&#34;},
                     &#34;datasourceId&#34;: {&#34;id&#34;: &#34;$ds_id&#34;}}
-                &#34;&#34;&#34;)),
-
-    &#34;del_ds2&#34;: (&#34;dsDeleteDataSources&#34;,
-                Template(&#34;&#34;&#34;{&#34;receiverId&#34;: {&#34;value&#34;: &#34;$parent_id&#34;},
+                &#34;&#34;&#34;
+        ),
+    ),
+    &#34;del_ds2&#34;: (
+        &#34;dsDeleteDataSources&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;receiverId&#34;: {&#34;value&#34;: &#34;$parent_id&#34;},
                     &#34;datasourceIds&#34;: [{&#34;value&#34;: &#34;$ds_id&#34;}]}
-                &#34;&#34;&#34;)),
-
-    &#34;del_client&#34;: (&#34;DS_DELETEDSCLIENTS&#34;, 
-                    Template(&#34;&#34;&#34;{&#34;DID&#34;: &#34;$parent_id&#34;,
+                &#34;&#34;&#34;
+        ),
+    ),
+    &#34;del_client&#34;: (
+        &#34;DS_DELETEDSCLIENTS&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;DID&#34;: &#34;$parent_id&#34;,
                             &#34;FTOKEN&#34;: &#34;$ftoken&#34;}
-                    &#34;&#34;&#34;)),
-
-    &#34;get_job_status&#34;: (&#34;MISC_JOBSTATUS&#34;,
-                        Template(&#34;&#34;&#34;{&#34;JID&#34;: &#34;$job_id&#34;}&#34;&#34;&#34;)),
-
-    &#34;ds_last_times&#34;: (&#34;QRY_GETDEVICELASTALERTTIME&#34;,&#34;&#34;&#34;{}&#34;&#34;&#34;),
-                    
-    &#34;zonetree&#34;: (&#34;zoneGetZoneTree&#34;,None),
-                    
-    &#34;ds_by_type&#34;: (&#34;QRY_GETDEVICECOUNTBYTYPE&#34;,None),
-
+                    &#34;&#34;&#34;
+        ),
+    ),
+    &#34;get_job_status&#34;: (&#34;MISC_JOBSTATUS&#34;, Template(&#34;&#34;&#34;{&#34;JID&#34;: &#34;$job_id&#34;}&#34;&#34;&#34;)),
+    &#34;ds_last_times&#34;: (&#34;QRY_GETDEVICELASTALERTTIME&#34;, &#34;&#34;&#34;{}&#34;&#34;&#34;),
+    &#34;zonetree&#34;: (&#34;zoneGetZoneTree&#34;, None),
+    &#34;ds_by_type&#34;: (&#34;QRY_GETDEVICECOUNTBYTYPE&#34;, None),
     # DO NOT DELETE
     # &#34;_dev_types&#34;:  (&#34;dev_type_map&#34;,
     #                     &#34;&#34;&#34;{&#34;1&#34;: &#34;zone&#34;,
@@ -220,55 +251,79 @@ _PARAMS = {
     #                         &#34;254&#34;: &#34;client_group&#34;,
     #                         &#34;256&#34;: &#34;client&#34;}
     #                     &#34;&#34;&#34;),
-                        
-        &#34;ds_details1&#34;: (&#34;dsGetDataSourceDetail&#34;,
-                        Template(&#34;&#34;&#34;{&#34;datasourceId&#34;: 
+    &#34;ds_details1&#34;: (
+        &#34;dsGetDataSourceDetail&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;datasourceId&#34;: 
                             {&#34;id&#34;: &#34;$ds_id&#34;}}
-                        &#34;&#34;&#34;)),
-
-        &#34;ds_details2&#34;: (&#34;dsGetDataSourceDetail&#34;,
-                        Template(&#34;&#34;&#34;{&#34;datasourceId&#34;: {&#34;value&#34;: &#34;$ds_id&#34;}}&#34;&#34;&#34;)),
-
-
-        &#34;get_alarms_custom_time&#34;: (Template(&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=$time_range&amp;customStart=$start_time&amp;customEnd=$end_time&amp;status=$status&amp;pageSize=$page_size&amp;pageNumber=$page_number&#34;&#34;&#34;),
-                    None),
-
-        &#34;get_alarms&#34;: (Template(&#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=$time_range&amp;status=$status&amp;pageSize=$page_size&amp;pageNumber=$page_number&#34;&#34;&#34;), None),
-
-        &#34;get_notification_detail&#34;: (&#34;&#34;&#34;notifyGetTriggeredNotificationDetail&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;id&#34;:$id}&#34;&#34;&#34;)),
-
-        &#34;get_alarm_details&#34;: (&#34;&#34;&#34;notifyGetTriggeredNotification&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;id&#34;:$id}&#34;&#34;&#34;)),
-
-        &#34;get_alarm_details_int&#34;: (&#34;NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL&#34;, 
-                                    Template(&#34;&#34;&#34;{&#34;TID&#34;: &#34;$id&#34;}&#34;&#34;&#34;)),
-
-        &#34;ack_alarms&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:[{&#34;value&#34;:$ids}]}&#34;&#34;&#34;)),
-
-        &#34;ack_alarms_11_2_1&#34;: (&#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[$ids]}}&#34;&#34;&#34;)),
-
-        &#34;unack_alarms&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:[{&#34;value&#34;:$ids}]}&#34;&#34;&#34;)),
-
-        &#34;unack_alarms_11_2_1&#34;: (&#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[$ids]}}&#34;&#34;&#34;)),
-
-        &#34;delete_alarms&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:[{&#34;value&#34;:$ids}]}&#34;&#34;&#34;)),
-        
-        &#34;delete_alarms_11_2_1&#34;: (&#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[$ids]}}&#34;&#34;&#34;)),
-
-        &#34;get_possible_filters&#34; : ( &#34;&#34;&#34;qryGetFilterFields&#34;&#34;&#34;, None ),
-
-        &#34;get_possible_fields&#34; : ( Template(&#34;&#34;&#34;qryGetSelectFields?type=$type&amp;groupType=$groupType&#34;&#34;&#34;), None ),
-
-        &#34;get_esm_time&#34; : ( &#34;&#34;&#34;essmgtGetESSTime&#34;&#34;&#34;,None),
-
-        &#34;get_alerts_now&#34; : (&#34;&#34;&#34;IPS_GETALERTSNOW&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;IPSID&#34;: &#34;$ds_id&#34;}&#34;&#34;&#34;)),
-
-        &#34;get_flows_now&#34; : (&#34;&#34;&#34;IPS_GETFLOWSNOW&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;IPSID&#34;: &#34;$ds_id&#34;}&#34;&#34;&#34;)),
-
-        &#34;logout&#34; : ( &#34;&#34;&#34;userLogout&#34;&#34;&#34;, None ),
-
-        &#34;get_user_locale&#34; : ( &#34;&#34;&#34;getUserLocale&#34;&#34;&#34;, None ),
-
-        &#34;event_query_custom_time&#34; : (&#34;&#34;&#34;qryExecuteDetail?type=EVENT&amp;reverse=false&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
+                        &#34;&#34;&#34;
+        ),
+    ),
+    &#34;ds_details2&#34;: (
+        &#34;dsGetDataSourceDetail&#34;,
+        Template(&#34;&#34;&#34;{&#34;datasourceId&#34;: {&#34;value&#34;: &#34;$ds_id&#34;}}&#34;&#34;&#34;),
+    ),
+    ### ALARMS
+    &#34;get_alarms_custom_time&#34;: (
+        Template(
+            &#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=$time_range&amp;customStart=$start_time&amp;customEnd=$end_time&amp;status=$status&amp;pageSize=$page_size&amp;pageNumber=$page_number&#34;&#34;&#34;
+        ),
+        None,
+    ),
+    &#34;get_alarms&#34;: (
+        Template(
+            &#34;&#34;&#34;alarmGetTriggeredAlarms?triggeredTimeRange=$time_range&amp;status=$status&amp;pageSize=$page_size&amp;pageNumber=$page_number&#34;&#34;&#34;
+        ),
+        None,
+    ),
+    &#34;get_notification_detail&#34;: (
+        &#34;&#34;&#34;notifyGetTriggeredNotificationDetail&#34;&#34;&#34;,
+        Template(&#34;&#34;&#34;{&#34;id&#34;:$id}&#34;&#34;&#34;),
+    ),
+    &#34;get_alarm_details&#34;: (
+        &#34;&#34;&#34;notifyGetTriggeredNotification&#34;&#34;&#34;,
+        Template(&#34;&#34;&#34;{&#34;id&#34;:$id}&#34;&#34;&#34;),
+    ),
+    &#34;get_alarm_details_int&#34;: (
+        &#34;NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL&#34;,
+        Template(&#34;&#34;&#34;{&#34;TID&#34;: &#34;$id&#34;}&#34;&#34;&#34;),
+    ),
+    &#34;ack_alarms&#34;: (
+        &#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;,
+        Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:[{&#34;value&#34;:$ids}]}&#34;&#34;&#34;),
+    ),
+    &#34;ack_alarms_11_2_1&#34;: (
+        &#34;&#34;&#34;alarmAcknowledgeTriggeredAlarm&#34;&#34;&#34;,
+        Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[$ids]}}&#34;&#34;&#34;),
+    ),
+    &#34;unack_alarms&#34;: (
+        &#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;,
+        Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:[{&#34;value&#34;:$ids}]}&#34;&#34;&#34;),
+    ),
+    &#34;unack_alarms_11_2_1&#34;: (
+        &#34;&#34;&#34;alarmUnacknowledgeTriggeredAlarm&#34;&#34;&#34;,
+        Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[$ids]}}&#34;&#34;&#34;),
+    ),
+    &#34;delete_alarms&#34;: (
+        &#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;,
+        Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:[{&#34;value&#34;:$ids}]}&#34;&#34;&#34;),
+    ),
+    &#34;delete_alarms_11_2_1&#34;: (
+        &#34;&#34;&#34;alarmDeleteTriggeredAlarm&#34;&#34;&#34;,
+        Template(&#34;&#34;&#34;{&#34;triggeredIds&#34;:{&#34;alarmIdList&#34;:[$ids]}}&#34;&#34;&#34;),
+    ),
+    &#34;get_alerts_now&#34;: (&#34;&#34;&#34;IPS_GETALERTSNOW&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;IPSID&#34;: &#34;$ds_id&#34;}&#34;&#34;&#34;)),
+    &#34;get_flows_now&#34;: (&#34;&#34;&#34;IPS_GETFLOWSNOW&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;IPSID&#34;: &#34;$ds_id&#34;}&#34;&#34;&#34;)),
+    ### QUERY MODULE
+    &#34;get_possible_filters&#34;: (&#34;&#34;&#34;v2/qryGetFilterFields&#34;&#34;&#34;, None),
+    &#34;get_possible_fields&#34;: (
+        Template(&#34;&#34;&#34;v2/qryGetSelectFields?type=$type&amp;groupType=$groupType&#34;&#34;&#34;),
+        None,
+    ),
+    &#34;event_query_custom_time&#34;: (
+        &#34;&#34;&#34;v2/qryExecuteDetail?type=EVENT&amp;reverse=false&#34;&#34;&#34;,
+        Template(
+            &#34;&#34;&#34;{
                 &#34;config&#34;: {
                     &#34;timeRange&#34;: &#34;$time_range&#34;,
                     &#34;customStart&#34;: &#34;$start_time&#34;,
@@ -280,9 +335,13 @@ _PARAMS = {
                     &#34;order&#34;: [{&#34;field&#34;: {&#34;name&#34;: &#34;$order_field&#34;},
                                             &#34;direction&#34;: &#34;$order_direction&#34;}]
                     }
-                    }&#34;&#34;&#34;)),
-
-        &#34;event_query&#34; : (&#34;&#34;&#34;qryExecuteDetail?type=EVENT&amp;reverse=false&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
+                    }&#34;&#34;&#34;
+        ),
+    ),
+    &#34;event_query&#34;: (
+        &#34;&#34;&#34;v2/qryExecuteDetail?type=EVENT&amp;reverse=false&#34;&#34;&#34;,
+        Template(
+            &#34;&#34;&#34;{
                 &#34;config&#34;: {
                     &#34;timeRange&#34;:&#34;$time_range&#34;,
                     &#34;fields&#34;:$fields,
@@ -292,31 +351,77 @@ _PARAMS = {
                     &#34;order&#34;: [{&#34;field&#34;: {&#34;name&#34;: &#34;$order_field&#34;},
                                             &#34;direction&#34;: &#34;$order_direction&#34;}]
                     }
-                    }&#34;&#34;&#34;)),
-
-        &#34;query_status&#34; : (&#34;&#34;&#34;qryGetStatus&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;resultID&#34;: $resultID}&#34;&#34;&#34;)),
-
-        &#34;query_result&#34; : (Template(&#34;&#34;&#34;qryGetResults?startPos=$startPos&amp;numRows=$numRows&amp;reverse=false&#34;&#34;&#34;), Template(&#34;&#34;&#34;{&#34;resultID&#34;: $resultID}&#34;&#34;&#34;)),
-        
-        &#34;time_zones&#34; : (&#34;&#34;&#34;userGetTimeZones&#34;&#34;&#34;, None),
-
-        &#34;logout&#34; : (&#34;&#34;&#34;logout&#34;&#34;&#34;, None),
-        
-        &#34;add_note_to_event&#34; : (&#34;&#34;&#34;ipsAddAlertNote&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
+                    }&#34;&#34;&#34;
+        ),
+    ),
+    &#34;query_status&#34;: (&#34;&#34;&#34;v2/qryGetStatus&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;resultID&#34;: $resultID}&#34;&#34;&#34;)),
+    &#34;query_result&#34;: (
+        Template(
+            &#34;&#34;&#34;v2/qryGetResults?startPos=$startPos&amp;numRows=$numRows&amp;reverse=false&#34;&#34;&#34;
+        ),
+        Template(&#34;&#34;&#34;{&#34;resultID&#34;: $resultID}&#34;&#34;&#34;),
+    ),
+    &#34;grouped_event_query&#34;: (
+        &#34;&#34;&#34;v2/qryExecuteGrouped?queryType=EVENT&#34;&#34;&#34;,
+        Template(
+            &#34;&#34;&#34;{
+                &#34;config&#34;: { 
+                    &#34;filters&#34;: $filters,
+                    &#34;field&#34;: {&#34;name&#34;: &#34;$field&#34;},
+                    &#34;timeRange&#34;: &#34;$time_range&#34;
+                    }
+        }&#34;&#34;&#34;
+        ),
+    ),
+    &#34;grouped_event_query_custom_time&#34;: (
+        &#34;&#34;&#34;v2/qryExecuteGrouped?queryType=EVENT&#34;&#34;&#34;,
+        Template(
+            &#34;&#34;&#34;{
+                &#34;config&#34;: { 
+                    &#34;filters&#34;: $filters,
+                    &#34;field&#34;: {&#34;name&#34;: &#34;$field&#34;},
+                    &#34;timeRange&#34;: &#34;$time_range&#34;,
+                    &#34;customStart&#34;: &#34;$start_time&#34;,
+                    &#34;customEnd&#34;: &#34;$end_time&#34;,
+                    }
+        }&#34;&#34;&#34;
+        ),
+    ),
+    &#34;close_query&#34;: (&#34;&#34;&#34;v2/qryClose&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;resultID&#34;: $resultID}&#34;&#34;&#34;)),
+    ### EVENTS OPERATIONS
+    &#34;get_alert_data&#34;: (&#34;&#34;&#34;ipsGetAlertData&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;id&#34;: {&#34;value&#34;:&#34;$id&#34;}}&#34;&#34;&#34;)),
+    &#34;add_note_to_event&#34;: (
+        &#34;&#34;&#34;ipsAddAlertNote&#34;&#34;&#34;,
+        Template(
+            &#34;&#34;&#34;{
             &#34;id&#34;: {&#34;value&#34;: &#34;$id&#34;},
             &#34;note&#34;: {&#34;note&#34;: &#34;$note&#34;}
-        }&#34;&#34;&#34;)),
-
-        &#34;add_note_to_event_int&#34;: (&#34;&#34;&#34;IPS_ADDALERTNOTE&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;AID&#34;: &#34;$id&#34;,
-                                                            &#34;NOTE&#34;: &#34;$note&#34;}&#34;&#34;&#34;)),
-
-        &#34;get_wl_types&#34;: (&#34;&#34;&#34;sysGetWatchlistFields&#34;&#34;&#34;, None),
-        &#34;get_watchlists_no_filters&#34; : (Template(&#34;&#34;&#34;sysGetWatchlists?hidden=$hidden&amp;dynamic=$dynamic&amp;writeOnly=$writeOnly&amp;indexedOnly=$indexedOnly&#34;&#34;&#34;), 
-            None),
-
-        &#34;get_watchlist_details&#34;: (&#34;&#34;&#34;sysGetWatchlistDetails&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;id&#34;: $id}&#34;&#34;&#34;)),
-
-        &#34;add_watchlist&#34;: (&#34;&#34;&#34;sysAddWatchlist&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
+        }&#34;&#34;&#34;
+        ),
+    ),
+    &#34;add_note_to_event_int&#34;: (
+        &#34;&#34;&#34;IPS_ADDALERTNOTE&#34;&#34;&#34;,
+        Template(
+            &#34;&#34;&#34;{&#34;AID&#34;: &#34;$id&#34;,
+                                                            &#34;NOTE&#34;: &#34;$note&#34;}&#34;&#34;&#34;
+        ),
+    ),
+    ### WATCHLISTS OPERATIONS
+    &#34;get_wl_types&#34;: (&#34;&#34;&#34;sysGetWatchlistFields&#34;&#34;&#34;, None),
+    &#34;get_watchlists_no_filters&#34;: (
+        Template(
+            &#34;&#34;&#34;sysGetWatchlists?hidden=$hidden&amp;dynamic=$dynamic&amp;writeOnly=$writeOnly&amp;indexedOnly=$indexedOnly&#34;&#34;&#34;
+        ),
+        None,
+    ),
+    &#34;get_watchlist_details&#34;: (
+        &#34;&#34;&#34;sysGetWatchlistDetails&#34;&#34;&#34;,
+        Template(&#34;&#34;&#34;{&#34;id&#34;: $id}&#34;&#34;&#34;),
+    ),
+    &#34;add_watchlist&#34;: (
+        &#34;&#34;&#34;sysAddWatchlist&#34;&#34;&#34;,
+        Template(
+            &#34;&#34;&#34;{
             &#34;watchlist&#34;: {
                 &#34;name&#34;: &#34;$name&#34;,
                 &#34;type&#34;: {&#34;name&#34;: &#34;$wl_type&#34;,
@@ -349,24 +454,43 @@ _PARAMS = {
                 &#34;lineSkip&#34;: 0,
                 &#34;delimitRegex&#34;: &#34;&#34;,
                 &#34;groups&#34;: 1
-                            }}&#34;&#34;&#34;)),
-                                                        
-        &#34;add_watchlist_values&#34;: (&#34;&#34;&#34;sysAddWatchlistValues&#34;&#34;&#34;, Template(&#34;&#34;&#34;{
+                            }}&#34;&#34;&#34;
+        ),
+    ),
+    &#34;add_watchlist_values&#34;: (
+        &#34;&#34;&#34;sysAddWatchlistValues&#34;&#34;&#34;,
+        Template(
+            &#34;&#34;&#34;{
             &#34;watchlist&#34;: $watchlist,
             &#34;values&#34;: $values,
-            }&#34;&#34;&#34;)),
-
-        &#34;get_watchlist_values&#34;: (&#34;SYS_GETWATCHLISTDETAILS&#34;,
-                                        Template(&#34;&#34;&#34;{&#34;WID&#34;: &#34;$id&#34;, &#34;LIM&#34;: &#34;T&#34;}&#34;&#34;&#34;)),
-
-        &#34;remove_watchlists&#34;: (&#34;&#34;&#34;sysRemoveWatchlist&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;ids&#34;: {&#34;watchlistIdList&#34;: [&#34;$wl_id_list&#34;]}}&#34;&#34;&#34;)),
-
-        &#34;get_alert_data&#34;: (&#34;&#34;&#34;ipsGetAlertData&#34;&#34;&#34;, Template(&#34;&#34;&#34;{&#34;id&#34;: {&#34;value&#34;:&#34;$id&#34;}}&#34;&#34;&#34;)),
-        
-        &#34;get_sys_info&#34;  : (&#34;SYS_GETSYSINFO&#34;,&#34;&#34;&#34;{}&#34;&#34;&#34;),
-        
-        &#34;build_stamp&#34; : (&#34;essmgtGetBuildStamp&#34;,None)
-} 
+            }&#34;&#34;&#34;
+        ),
+    ),
+    &#34;remove_watchlist_values&#34;: (
+        &#34;&#34;&#34;sysRemoveWatchlistValues&#34;&#34;&#34;,
+        Template(
+            &#34;&#34;&#34;{
+            &#34;watchlist&#34;: $watchlist,
+            &#34;values&#34;: $values,
+            }&#34;&#34;&#34;
+        ),
+    ),
+    &#34;get_watchlist_values&#34;: (
+        &#34;SYS_GETWATCHLISTDETAILS&#34;,
+        Template(&#34;&#34;&#34;{&#34;WID&#34;: &#34;$id&#34;, &#34;LIM&#34;: &#34;T&#34;}&#34;&#34;&#34;),
+    ),
+    &#34;remove_watchlists&#34;: (
+        &#34;&#34;&#34;sysRemoveWatchlist&#34;&#34;&#34;,
+        Template(&#34;&#34;&#34;{&#34;ids&#34;: {&#34;watchlistIdList&#34;: [&#34;$wl_id_list&#34;]}}&#34;&#34;&#34;),
+    ),
+    ### MISC
+    &#34;get_user_locale&#34;: (&#34;&#34;&#34;getUserLocale&#34;&#34;&#34;, None),
+    &#34;time_zones&#34;: (&#34;&#34;&#34;userGetTimeZones&#34;&#34;&#34;, None),
+    &#34;logout&#34;: (&#34;&#34;&#34;logout&#34;&#34;&#34;, None),
+    &#34;get_sys_info&#34;: (&#34;SYS_GETSYSINFO&#34;, &#34;&#34;&#34;{}&#34;&#34;&#34;),
+    &#34;get_esm_time&#34;: (&#34;&#34;&#34;essmgtGetESSTime&#34;&#34;&#34;, None),
+    &#34;build_stamp&#34;: (&#34;essmgtGetBuildStamp&#34;, None),
+}
 &#34;&#34;&#34;
 Args:  
     - `method` (str): Dict key associated with desired function
@@ -383,70 +507,77 @@ Important note :
 &#34;&#34;&#34;
 
 # Do not document esm_request() it&#39;s been replaced by api_request()
-__pdoc__[&#39;NitroSession.esm_request&#39;]=False
+__pdoc__[&#34;NitroSession.esm_request&#34;] = False
 
-class NitroSession():
+
+class NitroSession:
     &#34;&#34;&#34;
-    `msiempy.core.session.NitroSession` is the point of convergence of every requests that goes to the ESM.  
-    It provides easier dialogue with the ESM by doing argument interpolation with `msiempy.core.session.NitroSession.PARAMS`.  
+    `msiempy.core.session.NitroSession` is the point of convergence of every requests that goes to the ESM.
+    It provides easier dialogue with the ESM by doing argument interpolation with `msiempy.core.session.NitroSession.PARAMS`.
 
-    Arguments:  
+    Arguments:
 
-    - `config` : `msiempy.core.config.NitroConfig` object, find default config if missing.  
+    - `config` : `msiempy.core.config.NitroConfig` object, find default config if missing.
 
-    See `msiempy.core.session.NitroSession.api_request` and `msiempy.core.session.NitroSession.request` for usage.  
+    See `msiempy.core.session.NitroSession.api_request` and `msiempy.core.session.NitroSession.request` for usage.
 
     &#34;&#34;&#34;
+
     def __init__(self, config=None):
 
         self.__dict__ = NitroSession.__unique_state__
-        
-        #Init properties only once
-        if NitroSession.__initiated__ == False :
+
+        # Init properties only once
+        if NitroSession.__initiated__ == False:
             NitroSession.__initiated__ = True
-            
-            #Private attributes
+
+            # Private attributes
             # self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
-            
-            #Config parsing
-            self.config=None
+
+            # Config parsing
+            self.config = None
             &#34;&#34;&#34;
             `msiempy.core.config.NitroConfig` object.  
             &#34;&#34;&#34;
 
-            if config==None:
+            if config == None:
                 self.config = NitroConfig()
             else:
                 if isinstance(config, NitroConfig):
                     self.config = config
                 else:
-                    raise TypeError(&#39;config must be a NitroConfig or None. Not {}&#39;.format(config))
+                    raise TypeError(
+                        &#34;config must be a NitroConfig or None. Not {}&#34;.format(config)
+                    )
 
-            #Set the logging configuration
-            self._init_log(verbose=self.config.verbose,
+            # Set the logging configuration
+            self._init_log(
+                verbose=self.config.verbose,
                 quiet=self.config.quiet,
-                logfile=self.config.logfile)
+                logfile=self.config.logfile,
+            )
 
             self.api_v = 0
-            self.logged_in=False
+            self.logged_in = False
 
-            self.login_info=dict()
+            self.login_info = dict()
             &#34;&#34;&#34;Login user infos as returned by `login` API method.&#34;&#34;&#34;
 
             self.session = requests.Session()
             &#34;&#34;&#34;Underlying `requests.Session` object. &#34;&#34;&#34;
 
-            try :
-                requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+            try:
+                requests.packages.urllib3.disable_warnings(
+                    requests.packages.urllib3.exceptions.InsecureRequestWarning
+                )
                 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-            except : 
+            except:
                 pass
 
-
-    BASE_URL = &#39;https://{}/rs/esm/&#39;
+    BASE_URL = &#34;https://{}/rs/esm/&#34;
     &#34;&#34;&#34;API base url: `&#39;https://{}/rs/esm/&#39;`&#34;&#34;&#34;
 
-    BASE_URL_PRIV = &#39;https://{}/ess/&#39;
+    BASE_URL_PRIV = &#34;https://{}/ess/&#34;
     &#34;&#34;&#34;Private API base URL: `&#39;https://{}/ess/&#39;`&#34;&#34;&#34;
 
     __initiated__ = False
@@ -457,7 +588,7 @@ class NitroSession():
     &#34;&#34;&#34;
     The singleton unique state.
     &#34;&#34;&#34;
-    
+
     PARAMS = _PARAMS
     &#34;&#34;&#34;
     SIEM API methos/parameters mapping.  
@@ -465,293 +596,342 @@ class NitroSession():
 
     See `msiempy.core.session.NitroSession.request` for a list of all possible calls.  
     &#34;&#34;&#34;
-        
+
     def __str__(self):
-        return repr(self.__unique_state__) 
+        return repr(self.__unique_state__)
 
     def login(self, retry=1):
-        &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.  
-        Throws `msiempy.core.session.NitroError` if login fails.  
+        &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.
+        Throws `msiempy.core.session.NitroError` if login fails.
         &#34;&#34;&#34;
         userb64 = tob64(self.config.user)
         passb64 = self.config.passwd
-        
-        self.session.headers = {&#39;Content-Type&#39;: &#39;application/json&#39;}
 
-        resp = self.request(&#39;login&#39;, username=userb64, password=passb64, raw=True, secure=True)
-        
-        if resp != None :
+        self.session.headers = {&#34;Content-Type&#34;: &#34;application/json&#34;}
+
+        resp = self.request(
+            &#34;login&#34;, username=userb64, password=passb64, raw=True, secure=True
+        )
+
+        if resp != None:
             try:
                 resp.raise_for_status()
-            except requests.HTTPError as e :
-                if retry&gt;0:
+            except requests.HTTPError as e:
+                if retry &gt; 0:
                     time.sleep(1)
-                    return self.login(retry=retry-1)
+                    return self.login(retry=retry - 1)
                 else:
-                    raise NitroError(&#39;ESM Login Error: &#39;, resp.text) from e
-       
-            self.session.headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
-            self.session.headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
-            
-            self.user_tz_id = dict(resp.json())[&#39;tzId&#39;]
+                    raise NitroError(&#34;ESM Login Error: &#34;, resp.text) from e
+
+            self.session.headers[&#34;Cookie&#34;] = resp.headers.get(&#34;Set-Cookie&#34;)
+            self.session.headers[&#34;X-Xsrf-Token&#34;] = resp.headers.get(&#34;Xsrf-Token&#34;)
+
+            self.user_tz_id = dict(resp.json())[&#34;tzId&#34;]
             self.logged_in = True
-            self.login_info=self._unpack_resp(resp)
+            self.login_info = self._unpack_resp(resp)
 
             # Saving version number
-            self.esm_v=self.version()
-            # Shorthanding the 2019 API major changes  
+            self.esm_v = self.version()
+            # Shorthanding the 2019 API major changes
             # 10.4.x Release Notes: https://docs.mcafee.com/bundle/enterprise-security-manager-10.4.x-release-notes/page/GUID-53A62E21-F256-4D39-9B33-EDB3955FF7F2.html
             # 11.2.x Release Notes: https://docs.mcafee.com/bundle/enterprise-security-manager-11.2.x-release-notes/page/GUID-DD551A43-13A2-4649-B9C2-D618C291C9C2.html
             # 1 for pre 11.2.1, 2 for 11.2.1 and later
             # Not be confused with the ESM API v1 and v2 which are different.
-            if self.esm_v.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+            if self.esm_v.startswith((&#34;9&#34;, &#34;10&#34;, &#34;11.0&#34;, &#34;11.1&#34;)):
                 self.api_v = 1
             else:
                 self.api_v = 2
 
-            
-
-            log.info(&#39;Logged into ESM {} with username {}. Last login {}&#39;.format(
-                str(self.config.host),
-                self.login_info[&#39;userName&#39;],
-                self.login_info[&#39;lastLoginDate&#39;]))
+            log.info(
+                &#34;Logged into ESM {} with username {}. Last login {}&#34;.format(
+                    str(self.config.host),
+                    self.login_info[&#34;userName&#34;],
+                    self.login_info[&#34;lastLoginDate&#34;],
+                )
+            )
 
             return True
         else:
-            raise NitroError(&#39;ESM Login Error: Response empty&#39;)
+            raise NitroError(&#34;ESM Login Error: Response empty&#34;)
 
     def logout(self):
-        &#34;&#34;&#34; 
+        &#34;&#34;&#34;
         This method will logout the session.
         &#34;&#34;&#34;
         self.api_v = 0
-        self.esm_v = &#39;0&#39;
-        self.request(&#39;logout&#39;, http=&#39;delete&#39;)
-        self.logged_in=False
-        self.login_info=dict()
-        self.session=requests.Session()
+        self.esm_v = &#34;0&#34;
+        self.request(&#34;logout&#34;, http=&#34;delete&#34;)
+        self.logged_in = False
+        self.login_info = dict()
+        self.session = requests.Session()
         self.user_tz_id = None
-    
-    def api_request(self, method, data=None, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
+
+    def api_request(
+        self,
+        method,
+        data=None,
+        http=&#34;post&#34;,
+        callback=None,
+        raw=False,
+        secure=False,
+        retry=1,
+    ):
         &#34;&#34;&#34;
-        Handle a lower level HTTP request to ESM API endpoints.  
+        Handle a lower level HTTP request to ESM API endpoints.
 
-        Format the request, handle the basic parsing of the SIEM result as well as other errors.  
+        Format the request, handle the basic parsing of the SIEM result as well as other errors.
 
-        All upper cases method names signals to use the private API methods. 
+        All upper cases method names signals to use the private API methods.
 
-        Arguments:   
+        Arguments:
 
-        - `method` : ESM API enpoint name and url formatted parameters  
-        - `http`: HTTP method.  
-        - `data` : dict data to send  
-        - `callback` : function to apply afterwards  
-        - `raw` : If true will return the Response object from requests module. No retry when raw=True.     
-        - `secure` : If true will not log the content of the request.   
-        - `retry` : Number of time the request can be retried  
+        - `method` : ESM API enpoint name and url formatted parameters
+        - `http`: HTTP method.
+        - `data` : dict data to send
+        - `callback` : function to apply afterwards
+        - `raw` : If true will return the Response object from requests module. No retry when raw=True.
+        - `secure` : If true will not log the content of the request.
+        - `retry` : Number of time the request can be retried
 
-        Returns:   
+        Returns:
 
-        - a `dict`, `list` or `str` object. 
-        - the `resquest.Response` object if raw=True  
-        - `None` if Timeout or TooManyRedirects if raw=False  
+        - a `dict`, `list` or `str` object.
+        - the `resquest.Response` object if raw=True
+        - `None` if Timeout or TooManyRedirects if raw=False
 
         Raises:
 
         - `msiempy.core.session.NitroError` if any `HTTPError`
 
-        Note : Private API is under /ess/ and public api is under /rs/esm  
+        Note : Private API is under /ess/ and public api is under /rs/esm
 
-        Exemple:  
+        Exemple:
 
             from msiempy import NitroSession
             s = NitroSession()
             s.login()
-            # qryGetFilterFields 
+            # qryGetFilterFields
             s.api_request(&#39;qryGetFilterFields&#39;)
-            # Get all last 24h alarms details with ESM API v2.  
+            # Get all last 24h alarms details with ESM API v2.
             alarms = s.api_request(&#39;v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1&#39;, None)
             for a in alarms:
                 a.update(s.api_request(&#39;v2/notifyGetTriggeredNotificationDetail&#39;, {&#39;id&#39;:a[&#39;id&#39;]}))
 
         &#34;&#34;&#34;
 
-        url=&#39;&#39;
-        privateApiCall=False
-        result=None
+        url = &#34;&#34;
+        privateApiCall = False
+        result = None
 
-        #Logging the data request if not secure | Logs anyway the method
-        log.debug(&#39;Requesting HTTP &#39;+str(http)+&#39; &#39;+ str(method) + 
-            (&#39; with data &#39;+str(data) if not secure else &#39; ***&#39;) )
-        
-        http_data=&#39;&#39;
+        # Logging the data request if not secure | Logs anyway the method
+        log.debug(
+            &#34;Requesting HTTP &#34;
+            + str(http)
+            + &#34; &#34;
+            + str(method)
+            + (&#34; with data &#34; + str(data) if not secure else &#34; ***&#34;)
+        )
 
-        #Handling private API calls formatting
+        http_data = &#34;&#34;
+
+        # Handling private API calls formatting
         if method == method.upper():
-            privateApiCall=True
+            privateApiCall = True
             url = self.BASE_URL_PRIV
             http_data = self._format_params(method, **data)
-            log.debug(&#39;Private API call : &#39;+str(method)+&#39; Formatted params : &#39;+str(http_data))
-        
-        #Normal API calls
+            log.debug(
+                &#34;Private API call : &#34;
+                + str(method)
+                + &#34; Formatted params : &#34;
+                + str(http_data)
+            )
+
+        # Normal API calls
         else:
             url = self.BASE_URL
-            if data :
+            if data:
                 http_data = json.dumps(data)
 
-        try :
+        try:
             result = self.session.request(
                 http,
                 urllib.parse.urljoin(url.format(self.config.host), method),
-                data=http_data, 
+                data=http_data,
                 verify=self.config.ssl_verify,
                 timeout=self.config.timeout,
                 # Uncomment for debugging.
                 # proxies={&#34;http&#34;: &#34;http://127.0.0.1:8888&#34;, &#34;https&#34;:&#34;http:127.0.0.1:8888&#34;}
             )
 
-            if raw :
-                log.debug(&#39;Returning raw requests Response object : &#39;+str(result))
+            if raw:
+                log.debug(&#34;Returning raw requests Response object : &#34; + str(result))
                 return result
 
             else:
                 try:
                     result.raise_for_status()
 
-                except requests.HTTPError as e :
-                    error=None
+                except requests.HTTPError as e:
+                    error = None
 
-                    if retry&gt;0 :
+                    if retry &gt; 0:
                         # Invalid session handler -&gt; re-login
-                        if any([match in result.text for match in [&#39;ERROR_InvalidSession&#39;, &#39;ERROR_INVALID_SESSION&#39;,
-                            &#39;Not Authorized User&#39;, &#39;Invalid Session&#39;, &#39;Username and password cannot be null&#39;]]):
-                            error = NitroError(&#39;Authentication error with method ({}) and data : {} logging in and retrying api_request(). From requests.HTTPError {} {}&#39;.format(
-                                method, data, e, result.text))
+                        if any(
+                            [
+                                match in result.text
+                                for match in [
+                                    &#34;ERROR_InvalidSession&#34;,
+                                    &#34;ERROR_INVALID_SESSION&#34;,
+                                    &#34;Not Authorized User&#34;,
+                                    &#34;Invalid Session&#34;,
+                                    &#34;Username and password cannot be null&#34;,
+                                ]
+                            ]
+                        ):
+                            error = NitroError(
+                                &#34;Authentication error with method ({}) and data : {} logging in and retrying api_request(). From requests.HTTPError {} {}&#34;.format(
+                                    method, data, e, result.text
+                                )
+                            )
                             log.warning(error)
-                            self.logged_in=False
+                            self.logged_in = False
                             self.login()
-                        
-                        else: log.warning(&#39;An HTTP error occured ({} {}), retrying api_request()&#39;.format(e, result.text))
-                        
+
+                        else:
+                            log.warning(
+                                &#34;An HTTP error occured ({} {}), retrying api_request()&#34;.format(
+                                    e, result.text
+                                )
+                            )
+
                         # Retry request
                         time.sleep(1)
-                        return self.api_request(method, data, http, callback, raw, secure, retry=retry-1)
-                    
-                    else :
-                        error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
-                            method, data, e, result.text))
+                        return self.api_request(
+                            method, data, http, callback, raw, secure, retry=retry - 1
+                        )
+
+                    else:
+                        error = NitroError(
+                            &#34;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#34;.format(
+                                method, data, e, result.text
+                            )
+                        )
                         log.error(error)
                         raise error from e
 
-                else: # The result is not an HTTP Error
+                else:  # The result is not an HTTP Error
                     response = result
                     result = self._unpack_resp(result)
 
-                    if privateApiCall :
+                    if privateApiCall:
                         result = self._format_priv_resp(result)
 
                     if callback:
                         result = callback(result)
 
-                    log.debug(&#39;{} -&gt; Result ({}): {}&#39;.format(
-                        str(response),
-                        type(result),
-                        str(result)[:200] + &#39;[...]&#39; if len(str(result))&gt;200 else &#39;&#39;
-                    ))
+                    log.debug(
+                        &#34;{} -&gt; Result ({}): {}&#34;.format(
+                            str(response), type(result), str(result)[:200]
+                        )
+                    )
 
                     return result
 
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
-            
-            if retry&gt;0 :
-                log.warning(&#39;An network error occured ({}), retrying api_request()&#39;.format(e))
+
+            if retry &gt; 0:
+                log.warning(
+                    &#34;An network error occured ({}), retrying api_request()&#34;.format(e)
+                )
                 time.sleep(1)
-                return self.api_request(method, data, http, callback, raw, secure, retry=retry-1)
-            else :
+                return self.api_request(
+                    method, data, http, callback, raw, secure, retry=retry - 1
+                )
+            else:
                 raise e
 
-        except requests.exceptions.TooManyRedirects as e :
+        except requests.exceptions.TooManyRedirects as e:
             log.error(e)
             raise
-    
+
     def esm_request(self, *args, **kwargs):
         &#34;&#34;&#34;Same as `msiempy.core.session.NitroSession.api_request`&#34;&#34;&#34;
         return self.api_request(*args, **kwargs)
 
     def version(self):
         &#34;&#34;&#34;
-        Returns: `str` ESM short version.  
+        Returns: `str` ESM short version.
         Example: &#39;10.0.2&#39;
         &#34;&#34;&#34;
         return self.buildstamp().split()[0]
 
     def buildstamp(self):
         &#34;&#34;&#34;
-        Returns: `str` ESM buildstamp.  
+        Returns: `str` ESM buildstamp.
         Example: &#39;10.0.2 20170516001031&#39;
         &#34;&#34;&#34;
-        return self.request(&#39;build_stamp&#39;)[&#39;buildStamp&#39;]
+        return self.request(&#34;build_stamp&#34;)[&#34;buildStamp&#34;]
 
     def get_internal_file(self, file_token):
         &#34;&#34;&#34;Uses the private API to retrieve, assemble and delete a temp file from the ESM.
-        
-        Arguments:  
+
+        Arguments:
 
         - `file_token` (`str`): File token ID
         &#34;&#34;&#34;
         pos = 0
         nbytes = 0
-        resp = self.request(&#39;get_rfile2&#39;, ftoken=file_token, pos=pos, nbytes=nbytes)
+        resp = self.request(&#34;get_rfile2&#34;, ftoken=file_token, pos=pos, nbytes=nbytes)
 
-        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-            data = resp[&#39;DATA&#39;]
-            self.request(&#39;del_rfile&#39;, ftoken=file_token)
+        if resp[&#34;FSIZE&#34;] == resp[&#34;BREAD&#34;]:
+            data = resp[&#34;DATA&#34;]
+            self.request(&#34;del_rfile&#34;, ftoken=file_token)
             return data
-        
+
         data = []
-        data.append(resp[&#39;DATA&#39;])
-        file_size = int(resp[&#39;FSIZE&#39;])
-        collected = int(resp[&#39;BREAD&#39;])
+        data.append(resp[&#34;DATA&#34;])
+        file_size = int(resp[&#34;FSIZE&#34;])
+        collected = int(resp[&#34;BREAD&#34;])
 
         while file_size &gt; collected:
-            pos += int(resp[&#39;BREAD&#39;])
+            pos += int(resp[&#34;BREAD&#34;])
             nbytes = file_size - collected
-            resp = self.request(&#39;get_rfile2&#39;, ftoken=file_token, pos=pos, nbytes=nbytes)
-            collected += int(resp[&#39;BREAD&#39;])
-            data.append(resp[&#39;DATA&#39;])
+            resp = self.request(&#34;get_rfile2&#34;, ftoken=file_token, pos=pos, nbytes=nbytes)
+            collected += int(resp[&#34;BREAD&#34;])
+            data.append(resp[&#34;DATA&#34;])
 
-        resp = self.request(&#39;del_rfile&#39;, ftoken=file_token)
-        return &#39;&#39;.join(data)
+        resp = self.request(&#34;del_rfile&#34;, ftoken=file_token)
+        return &#34;&#34;.join(data)
 
     def request(self, request, **kwargs):
         &#34;&#34;&#34;
-        Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with `msiempy.core.session.NitroSession.PARAMS` docstrings and build a valid datastructure for the HTTP data.  
+        Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with `msiempy.core.session.NitroSession.PARAMS` docstrings and build a valid datastructure for the HTTP data.
 
-        Then call the `msiempy.core.session.NitroSession.api_request` method with the built data.  
+        Then call the `msiempy.core.session.NitroSession.api_request` method with the built data.
 
-        Also handles auto-login.  
+        Also handles auto-login.
 
-        Arguments:  
+        Arguments:
 
-        - `request`: Name keyword corresponding to the request name in `msiempy.core.session.NitroSession.PARAMS` mapping.  
-        - `http`: HTTP method.  
-        - `callback` : function to apply afterwards  
-        - `raw` : If true will return the Response object from requests module.   
-        - `secure` : If true will not log the content of the request.   
+        - `request`: Name keyword corresponding to the request name in `msiempy.core.session.NitroSession.PARAMS` mapping.
+        - `http`: HTTP method.
+        - `callback` : function to apply afterwards
+        - `raw` : If true will return the Response object from requests module.
+        - `secure` : If true will not log the content of the request.
         - `retry` : Number of time the request can be retried
-        
-        Interpolation parameters :  
-        
-        - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.session.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
 
-        Returns:   
+        Interpolation parameters :
 
-        - a `dict`, `list` or `str` object  
-        - the `resquest.Response` object if raw=True  
-        - `result.text` if `requests.HTTPError`,   
-        - `None` if Timeout or TooManyRedirects if raw=False  
+        - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.session.NitroSession.PARAMS` templates. Dynamic keyword arguments.
 
-        Exemple:  
+        Returns:
+
+        - a `dict`, `list` or `str` object
+        - the `resquest.Response` object if raw=True
+        - `result.text` if `requests.HTTPError`,
+        - `None` if Timeout or TooManyRedirects if raw=False
+
+        Exemple:
 
             from msiempy import NitroSession
             s = NitroSession()
@@ -761,37 +941,45 @@ class NitroSession():
             for a in alarms:
                 a.update(s.request(&#39;get_notification_detail&#39;, id=a[&#39;id&#39;]))
 
-        If you&#39;re reading this thom an IDE, all possible requests are listed on the documentation webpage:   
-        https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request  
+        If you&#39;re reading this thom an IDE, all possible requests are listed on the documentation webpage:
+        https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request
         &#34;&#34;&#34;
-        
-        log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
-            str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
+
+        log.debug(
+            &#34;Calling nitro request : {} kwargs={}&#34;.format(
+                str(request),
+                &#34;***&#34;
+                if &#34;secure&#34; in kwargs and kwargs[&#34;secure&#34;] == True
+                else str(kwargs),
+            )
+        )
 
         method, data = self.PARAMS.get(request)
 
-        if data != None :
-            if isinstance(data, Template) :
-                data =  data.substitute(**kwargs)
-            data = ast.literal_eval(data.replace(&#39;\n&#39;,&#39;&#39;).replace(&#39;\t&#39;,&#39;&#39;))
-           
-        if method != None and isinstance(method, Template) :
-            try :
-                method = method.substitute(**kwargs)
-            except TypeError as err :
-                if (&#39;must be real number, not dict&#39; in str(err)):
-                    log.warning(&#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;)
+        if data != None:
+            if isinstance(data, Template):
+                data = data.substitute(**kwargs)
+            data = ast.literal_eval(data.replace(&#34;\n&#34;, &#34;&#34;).replace(&#34;\t&#34;, &#34;&#34;))
 
-        if not self.logged_in and method != &#39;login&#39;:
+        if method != None and isinstance(method, Template):
+            try:
+                method = method.substitute(**kwargs)
+            except TypeError as err:
+                if &#34;must be real number, not dict&#34; in str(err):
+                    log.warning(
+                        &#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;
+                    )
+
+        if not self.logged_in and method != &#34;login&#34;:
             # Autologin
             self.login()
-    
-        # Dynamically checking the esm_request arguments so additionnal parameters can be passed.  
+
+        # Dynamically checking the esm_request arguments so additionnal parameters can be passed.
         esm_request_args = inspect.getfullargspec(self.api_request)[0]
-        params={}
-        for arg in kwargs :
+        params = {}
+        for arg in kwargs:
             if arg in esm_request_args:
-                params[arg]=kwargs[arg]
+                params[arg] = kwargs[arg]
         return self.api_request(method=method, data=data, **params)
 
     @staticmethod
@@ -801,64 +989,68 @@ class NitroSession():
         All objects should be able to log stuff, so the logger is globaly accessible
         &#34;&#34;&#34;
 
-        log = logging.getLogger(&#39;msiempy&#39;)
+        log = logging.getLogger(&#34;msiempy&#34;)
 
         log.setLevel(logging.DEBUG)
 
         std = logging.StreamHandler()
         std.setLevel(logging.DEBUG)
-        std.setFormatter(logging.Formatter(&#39;%(levelname)s - %(message)s&#39;))
+        std.setFormatter(logging.Formatter(&#34;%(levelname)s - %(message)s&#34;))
 
-        if verbose :
+        if verbose:
             std.setLevel(logging.DEBUG)
-        elif quiet :
+        elif quiet:
             std.setLevel(logging.CRITICAL)
-        else :
+        else:
             std.setLevel(logging.INFO)
 
-        log.handlers=[]
-        
+        log.handlers = []
+
         log.addHandler(std)
 
-        if logfile :
+        if logfile:
             fh = logging.FileHandler(logfile)
             fh.setLevel(logging.DEBUG)
-            fh.setFormatter(logging.Formatter(&#39;%(asctime)s - %(levelname)s - %(message)s&#39;))
+            fh.setFormatter(
+                logging.Formatter(&#34;%(asctime)s - %(levelname)s - %(message)s&#34;)
+            )
             log.addHandler(fh)
 
-        if verbose and quiet :
-            log.warning(&#34;Verbose and quiet values are both set to True. By default, output will be verbose.&#34;)
+        if verbose and quiet:
+            log.warning(
+                &#34;Verbose and quiet values are both set to True. By default, output will be verbose.&#34;
+            )
 
-        return (log)
+        return log
 
     @staticmethod
     def _format_params(cmd, **params):
         &#34;&#34;&#34;
-        Format private API call.  
+        Format private API call.
         &#34;&#34;&#34;
         params = {k: v for k, v in params.items() if v != None}
-        params = &#39;%14&#39;.join([k + &#39;%13&#39; + v + &#39;%13&#39; for (k, v) in params.items()])
-        
+        params = &#34;%14&#34;.join([k + &#34;%13&#34; + v + &#34;%13&#34; for (k, v) in params.items()])
+
         if params:
-            params = &#39;Request=API%13&#39; + cmd + &#39;%13%14&#39; + params + &#39;%14&#39;
+            params = &#34;Request=API%13&#34; + cmd + &#34;%13%14&#34; + params + &#34;%14&#34;
         else:
-            params = &#39;Request=API%13&#39; + cmd + &#39;%13%14&#39;
+            params = &#34;Request=API%13&#34; + cmd + &#34;%13%14&#34;
         return params
 
     @staticmethod
     def _format_priv_resp(resp):
         &#34;&#34;&#34;
-        Format response from private API.  
+        Format response from private API.
         &#34;&#34;&#34;
-        resp = re.search(&#39;Response=(.*)&#39;, resp).group(1)
-        resp = resp.replace(&#39;%14&#39;, &#39; &#39;)
+        resp = re.search(&#34;Response=(.*)&#34;, resp).group(1)
+        resp = resp.replace(&#34;%14&#34;, &#34; &#34;)
         pairs = resp.split()
         formatted = {}
         for pair in pairs:
-            pair = pair.replace(&#39;%13&#39;, &#39; &#39;)
+            pair = pair.replace(&#34;%13&#34;, &#34; &#34;)
             pair = pair.split()
             key = pair[0]
-            if key == &#39;ITEMS&#39;:
+            if key == &#34;ITEMS&#34;:
                 value = pair[-1]
             else:
                 value = urllib.parse.unquote(pair[-1])
@@ -866,54 +1058,74 @@ class NitroSession():
         return formatted
 
     @staticmethod
-    def _unpack_resp(response) :
-        &#34;&#34;&#34;Unpack data from response.  
-        Should not be necessary with API v2.  
-        Args: 
+    def _unpack_resp(response):
+        &#34;&#34;&#34;Unpack data from response.
+        Should not be necessary with API v2.
+        Args:
             response: requests.Response response object
         Returns a list, a dict or a string
         &#34;&#34;&#34;
-        try :
+        log.debug(&#34;Unpacking SIEM response: {}&#34;.format(str(response.text)[:200]))
+        try:
             data = response.json()
             if isinstance(response.json(), dict):
                 try:
-                    data = data[&#39;value&#39;]
+                    data = data[&#34;value&#34;]
                 except KeyError:
                     try:
-                        data = data[&#39;return&#39;]
+                        data = data[&#34;return&#34;]
                     except KeyError:
                         pass
-            
-        except ValueError :
+
+        except ValueError:
             data = response.text
 
         return data
 
-# Dynamically document all PARAMS requests
-_PARAMS_DOCS=&#34;&#34;
-for k,v in _PARAMS.items():
-    name=&#39;{}&#39;.format(k)
-    keywords=[]
-    params=&#39;&#39;
-    endpoint=&#39;{}&#39;.format(urlparse(v[0] if not isinstance(v[0], Template) else v[0].template).path)
-    if isinstance(v[0], Template):
-        keywords += [s[1] or s[2] for s in Template.pattern.findall(v[0].template) if s[1] or s[2]]
-    if isinstance(v[1], Template):
-        keywords += [s[1] or s[2] for s in Template.pattern.findall(v[1].template) if s[1] or s[2]]
-    params=&#39;, &#39;.join([&#39;{}&#39;.format(k) for k in keywords])
-    _PARAMS_DOCS+=&#34;            request(&#39;{}&#39;, {}) # Call {}  \n&#34;.format(name, params, endpoint)
 
-__pdoc__[&#39;NitroSession.request&#39;] = NitroSession.request.__doc__+&#39;&#39;&#39;
+# Dynamically document all PARAMS requests
+_PARAMS_DOCS = &#34;&#34;
+for k, v in _PARAMS.items():
+    name = &#34;{}&#34;.format(k)
+    keywords = []
+    params = &#34;&#34;
+    endpoint = &#34;{}&#34;.format(
+        urlparse(v[0] if not isinstance(v[0], Template) else v[0].template).path
+    )
+    if isinstance(v[0], Template):
+        keywords += [
+            s[1] or s[2]
+            for s in Template.pattern.findall(v[0].template)
+            if s[1] or s[2]
+        ]
+    if isinstance(v[1], Template):
+        keywords += [
+            s[1] or s[2]
+            for s in Template.pattern.findall(v[1].template)
+            if s[1] or s[2]
+        ]
+    params = &#34;, &#34;.join([&#34;{}&#34;.format(k) for k in keywords])
+    _PARAMS_DOCS += &#34;            request(&#39;{}&#39;, {}) # Call {}  \n&#34;.format(
+        name, params, endpoint
+    )
+
+__pdoc__[&#34;NitroSession.request&#34;] = (
+    NitroSession.request.__doc__
+    + &#34;&#34;&#34;
         All requests:    
         ( *All upper cases method names signals to use the private API methods.* )  
 
-&#39;&#39;&#39;+_PARAMS_DOCS
+&#34;&#34;&#34;
+    + _PARAMS_DOCS
+)
+
 
 class NitroError(Exception):
     &#34;&#34;&#34;
-    Base ESM exception.  
-    It&#39;s used when the user/passwd is incorrect and other HTTP errors.  
+    Base ESM exception.
+    It&#39;s used when the user/passwd is incorrect and other HTTP errors.
     &#34;&#34;&#34;
+
     pass</code></pre>
 </details>
 </section>
@@ -931,83 +1143,86 @@ class NitroError(Exception):
 <span>(</span><span>config=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p><code><a title="msiempy.core.session.NitroSession" href="#msiempy.core.session.NitroSession">NitroSession</a></code> is the point of convergence of every requests that goes to the ESM.<br>
-It provides easier dialogue with the ESM by doing argument interpolation with <code><a title="msiempy.core.session.NitroSession.PARAMS" href="#msiempy.core.session.NitroSession.PARAMS">NitroSession.PARAMS</a></code>.
-</p>
-<p>Arguments:
-</p>
+<div class="desc"><p><code><a title="msiempy.core.session.NitroSession" href="#msiempy.core.session.NitroSession">NitroSession</a></code> is the point of convergence of every requests that goes to the ESM.
+It provides easier dialogue with the ESM by doing argument interpolation with <code><a title="msiempy.core.session.NitroSession.PARAMS" href="#msiempy.core.session.NitroSession.PARAMS">NitroSession.PARAMS</a></code>.</p>
+<p>Arguments:</p>
 <ul>
-<li><code>config</code> : <code><a title="msiempy.core.config.NitroConfig" href="config.html#msiempy.core.config.NitroConfig">NitroConfig</a></code> object, find default config if missing.
-</li>
+<li><code>config</code> : <code><a title="msiempy.core.config.NitroConfig" href="config.html#msiempy.core.config.NitroConfig">NitroConfig</a></code> object, find default config if missing.</li>
 </ul>
 <p>See <code><a title="msiempy.core.session.NitroSession.api_request" href="#msiempy.core.session.NitroSession.api_request">NitroSession.api_request()</a></code> and <code><a title="msiempy.core.session.NitroSession.request" href="#msiempy.core.session.NitroSession.request">NitroSession.request()</a></code> for usage.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L355-L857" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/core/session.py#L480-L1050" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class NitroSession():
+<pre><code class="python">class NitroSession:
     &#34;&#34;&#34;
-    `msiempy.core.session.NitroSession` is the point of convergence of every requests that goes to the ESM.  
-    It provides easier dialogue with the ESM by doing argument interpolation with `msiempy.core.session.NitroSession.PARAMS`.  
+    `msiempy.core.session.NitroSession` is the point of convergence of every requests that goes to the ESM.
+    It provides easier dialogue with the ESM by doing argument interpolation with `msiempy.core.session.NitroSession.PARAMS`.
 
-    Arguments:  
+    Arguments:
 
-    - `config` : `msiempy.core.config.NitroConfig` object, find default config if missing.  
+    - `config` : `msiempy.core.config.NitroConfig` object, find default config if missing.
 
-    See `msiempy.core.session.NitroSession.api_request` and `msiempy.core.session.NitroSession.request` for usage.  
+    See `msiempy.core.session.NitroSession.api_request` and `msiempy.core.session.NitroSession.request` for usage.
 
     &#34;&#34;&#34;
+
     def __init__(self, config=None):
 
         self.__dict__ = NitroSession.__unique_state__
-        
-        #Init properties only once
-        if NitroSession.__initiated__ == False :
+
+        # Init properties only once
+        if NitroSession.__initiated__ == False:
             NitroSession.__initiated__ = True
-            
-            #Private attributes
+
+            # Private attributes
             # self._headers={&#39;Content-Type&#39;: &#39;application/json&#39;}
-            
-            #Config parsing
-            self.config=None
+
+            # Config parsing
+            self.config = None
             &#34;&#34;&#34;
             `msiempy.core.config.NitroConfig` object.  
             &#34;&#34;&#34;
 
-            if config==None:
+            if config == None:
                 self.config = NitroConfig()
             else:
                 if isinstance(config, NitroConfig):
                     self.config = config
                 else:
-                    raise TypeError(&#39;config must be a NitroConfig or None. Not {}&#39;.format(config))
+                    raise TypeError(
+                        &#34;config must be a NitroConfig or None. Not {}&#34;.format(config)
+                    )
 
-            #Set the logging configuration
-            self._init_log(verbose=self.config.verbose,
+            # Set the logging configuration
+            self._init_log(
+                verbose=self.config.verbose,
                 quiet=self.config.quiet,
-                logfile=self.config.logfile)
+                logfile=self.config.logfile,
+            )
 
             self.api_v = 0
-            self.logged_in=False
+            self.logged_in = False
 
-            self.login_info=dict()
+            self.login_info = dict()
             &#34;&#34;&#34;Login user infos as returned by `login` API method.&#34;&#34;&#34;
 
             self.session = requests.Session()
             &#34;&#34;&#34;Underlying `requests.Session` object. &#34;&#34;&#34;
 
-            try :
-                requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+            try:
+                requests.packages.urllib3.disable_warnings(
+                    requests.packages.urllib3.exceptions.InsecureRequestWarning
+                )
                 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-            except : 
+            except:
                 pass
 
-
-    BASE_URL = &#39;https://{}/rs/esm/&#39;
+    BASE_URL = &#34;https://{}/rs/esm/&#34;
     &#34;&#34;&#34;API base url: `&#39;https://{}/rs/esm/&#39;`&#34;&#34;&#34;
 
-    BASE_URL_PRIV = &#39;https://{}/ess/&#39;
+    BASE_URL_PRIV = &#34;https://{}/ess/&#34;
     &#34;&#34;&#34;Private API base URL: `&#39;https://{}/ess/&#39;`&#34;&#34;&#34;
 
     __initiated__ = False
@@ -1018,7 +1233,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
     &#34;&#34;&#34;
     The singleton unique state.
     &#34;&#34;&#34;
-    
+
     PARAMS = _PARAMS
     &#34;&#34;&#34;
     SIEM API methos/parameters mapping.  
@@ -1026,293 +1241,342 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
 
     See `msiempy.core.session.NitroSession.request` for a list of all possible calls.  
     &#34;&#34;&#34;
-        
+
     def __str__(self):
-        return repr(self.__unique_state__) 
+        return repr(self.__unique_state__)
 
     def login(self, retry=1):
-        &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.  
-        Throws `msiempy.core.session.NitroError` if login fails.  
+        &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.
+        Throws `msiempy.core.session.NitroError` if login fails.
         &#34;&#34;&#34;
         userb64 = tob64(self.config.user)
         passb64 = self.config.passwd
-        
-        self.session.headers = {&#39;Content-Type&#39;: &#39;application/json&#39;}
 
-        resp = self.request(&#39;login&#39;, username=userb64, password=passb64, raw=True, secure=True)
-        
-        if resp != None :
+        self.session.headers = {&#34;Content-Type&#34;: &#34;application/json&#34;}
+
+        resp = self.request(
+            &#34;login&#34;, username=userb64, password=passb64, raw=True, secure=True
+        )
+
+        if resp != None:
             try:
                 resp.raise_for_status()
-            except requests.HTTPError as e :
-                if retry&gt;0:
+            except requests.HTTPError as e:
+                if retry &gt; 0:
                     time.sleep(1)
-                    return self.login(retry=retry-1)
+                    return self.login(retry=retry - 1)
                 else:
-                    raise NitroError(&#39;ESM Login Error: &#39;, resp.text) from e
-       
-            self.session.headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
-            self.session.headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
-            
-            self.user_tz_id = dict(resp.json())[&#39;tzId&#39;]
+                    raise NitroError(&#34;ESM Login Error: &#34;, resp.text) from e
+
+            self.session.headers[&#34;Cookie&#34;] = resp.headers.get(&#34;Set-Cookie&#34;)
+            self.session.headers[&#34;X-Xsrf-Token&#34;] = resp.headers.get(&#34;Xsrf-Token&#34;)
+
+            self.user_tz_id = dict(resp.json())[&#34;tzId&#34;]
             self.logged_in = True
-            self.login_info=self._unpack_resp(resp)
+            self.login_info = self._unpack_resp(resp)
 
             # Saving version number
-            self.esm_v=self.version()
-            # Shorthanding the 2019 API major changes  
+            self.esm_v = self.version()
+            # Shorthanding the 2019 API major changes
             # 10.4.x Release Notes: https://docs.mcafee.com/bundle/enterprise-security-manager-10.4.x-release-notes/page/GUID-53A62E21-F256-4D39-9B33-EDB3955FF7F2.html
             # 11.2.x Release Notes: https://docs.mcafee.com/bundle/enterprise-security-manager-11.2.x-release-notes/page/GUID-DD551A43-13A2-4649-B9C2-D618C291C9C2.html
             # 1 for pre 11.2.1, 2 for 11.2.1 and later
             # Not be confused with the ESM API v1 and v2 which are different.
-            if self.esm_v.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+            if self.esm_v.startswith((&#34;9&#34;, &#34;10&#34;, &#34;11.0&#34;, &#34;11.1&#34;)):
                 self.api_v = 1
             else:
                 self.api_v = 2
 
-            
-
-            log.info(&#39;Logged into ESM {} with username {}. Last login {}&#39;.format(
-                str(self.config.host),
-                self.login_info[&#39;userName&#39;],
-                self.login_info[&#39;lastLoginDate&#39;]))
+            log.info(
+                &#34;Logged into ESM {} with username {}. Last login {}&#34;.format(
+                    str(self.config.host),
+                    self.login_info[&#34;userName&#34;],
+                    self.login_info[&#34;lastLoginDate&#34;],
+                )
+            )
 
             return True
         else:
-            raise NitroError(&#39;ESM Login Error: Response empty&#39;)
+            raise NitroError(&#34;ESM Login Error: Response empty&#34;)
 
     def logout(self):
-        &#34;&#34;&#34; 
+        &#34;&#34;&#34;
         This method will logout the session.
         &#34;&#34;&#34;
         self.api_v = 0
-        self.esm_v = &#39;0&#39;
-        self.request(&#39;logout&#39;, http=&#39;delete&#39;)
-        self.logged_in=False
-        self.login_info=dict()
-        self.session=requests.Session()
+        self.esm_v = &#34;0&#34;
+        self.request(&#34;logout&#34;, http=&#34;delete&#34;)
+        self.logged_in = False
+        self.login_info = dict()
+        self.session = requests.Session()
         self.user_tz_id = None
-    
-    def api_request(self, method, data=None, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
+
+    def api_request(
+        self,
+        method,
+        data=None,
+        http=&#34;post&#34;,
+        callback=None,
+        raw=False,
+        secure=False,
+        retry=1,
+    ):
         &#34;&#34;&#34;
-        Handle a lower level HTTP request to ESM API endpoints.  
+        Handle a lower level HTTP request to ESM API endpoints.
 
-        Format the request, handle the basic parsing of the SIEM result as well as other errors.  
+        Format the request, handle the basic parsing of the SIEM result as well as other errors.
 
-        All upper cases method names signals to use the private API methods. 
+        All upper cases method names signals to use the private API methods.
 
-        Arguments:   
+        Arguments:
 
-        - `method` : ESM API enpoint name and url formatted parameters  
-        - `http`: HTTP method.  
-        - `data` : dict data to send  
-        - `callback` : function to apply afterwards  
-        - `raw` : If true will return the Response object from requests module. No retry when raw=True.     
-        - `secure` : If true will not log the content of the request.   
-        - `retry` : Number of time the request can be retried  
+        - `method` : ESM API enpoint name and url formatted parameters
+        - `http`: HTTP method.
+        - `data` : dict data to send
+        - `callback` : function to apply afterwards
+        - `raw` : If true will return the Response object from requests module. No retry when raw=True.
+        - `secure` : If true will not log the content of the request.
+        - `retry` : Number of time the request can be retried
 
-        Returns:   
+        Returns:
 
-        - a `dict`, `list` or `str` object. 
-        - the `resquest.Response` object if raw=True  
-        - `None` if Timeout or TooManyRedirects if raw=False  
+        - a `dict`, `list` or `str` object.
+        - the `resquest.Response` object if raw=True
+        - `None` if Timeout or TooManyRedirects if raw=False
 
         Raises:
 
         - `msiempy.core.session.NitroError` if any `HTTPError`
 
-        Note : Private API is under /ess/ and public api is under /rs/esm  
+        Note : Private API is under /ess/ and public api is under /rs/esm
 
-        Exemple:  
+        Exemple:
 
             from msiempy import NitroSession
             s = NitroSession()
             s.login()
-            # qryGetFilterFields 
+            # qryGetFilterFields
             s.api_request(&#39;qryGetFilterFields&#39;)
-            # Get all last 24h alarms details with ESM API v2.  
+            # Get all last 24h alarms details with ESM API v2.
             alarms = s.api_request(&#39;v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1&#39;, None)
             for a in alarms:
                 a.update(s.api_request(&#39;v2/notifyGetTriggeredNotificationDetail&#39;, {&#39;id&#39;:a[&#39;id&#39;]}))
 
         &#34;&#34;&#34;
 
-        url=&#39;&#39;
-        privateApiCall=False
-        result=None
+        url = &#34;&#34;
+        privateApiCall = False
+        result = None
 
-        #Logging the data request if not secure | Logs anyway the method
-        log.debug(&#39;Requesting HTTP &#39;+str(http)+&#39; &#39;+ str(method) + 
-            (&#39; with data &#39;+str(data) if not secure else &#39; ***&#39;) )
-        
-        http_data=&#39;&#39;
+        # Logging the data request if not secure | Logs anyway the method
+        log.debug(
+            &#34;Requesting HTTP &#34;
+            + str(http)
+            + &#34; &#34;
+            + str(method)
+            + (&#34; with data &#34; + str(data) if not secure else &#34; ***&#34;)
+        )
 
-        #Handling private API calls formatting
+        http_data = &#34;&#34;
+
+        # Handling private API calls formatting
         if method == method.upper():
-            privateApiCall=True
+            privateApiCall = True
             url = self.BASE_URL_PRIV
             http_data = self._format_params(method, **data)
-            log.debug(&#39;Private API call : &#39;+str(method)+&#39; Formatted params : &#39;+str(http_data))
-        
-        #Normal API calls
+            log.debug(
+                &#34;Private API call : &#34;
+                + str(method)
+                + &#34; Formatted params : &#34;
+                + str(http_data)
+            )
+
+        # Normal API calls
         else:
             url = self.BASE_URL
-            if data :
+            if data:
                 http_data = json.dumps(data)
 
-        try :
+        try:
             result = self.session.request(
                 http,
                 urllib.parse.urljoin(url.format(self.config.host), method),
-                data=http_data, 
+                data=http_data,
                 verify=self.config.ssl_verify,
                 timeout=self.config.timeout,
                 # Uncomment for debugging.
                 # proxies={&#34;http&#34;: &#34;http://127.0.0.1:8888&#34;, &#34;https&#34;:&#34;http:127.0.0.1:8888&#34;}
             )
 
-            if raw :
-                log.debug(&#39;Returning raw requests Response object : &#39;+str(result))
+            if raw:
+                log.debug(&#34;Returning raw requests Response object : &#34; + str(result))
                 return result
 
             else:
                 try:
                     result.raise_for_status()
 
-                except requests.HTTPError as e :
-                    error=None
+                except requests.HTTPError as e:
+                    error = None
 
-                    if retry&gt;0 :
+                    if retry &gt; 0:
                         # Invalid session handler -&gt; re-login
-                        if any([match in result.text for match in [&#39;ERROR_InvalidSession&#39;, &#39;ERROR_INVALID_SESSION&#39;,
-                            &#39;Not Authorized User&#39;, &#39;Invalid Session&#39;, &#39;Username and password cannot be null&#39;]]):
-                            error = NitroError(&#39;Authentication error with method ({}) and data : {} logging in and retrying api_request(). From requests.HTTPError {} {}&#39;.format(
-                                method, data, e, result.text))
+                        if any(
+                            [
+                                match in result.text
+                                for match in [
+                                    &#34;ERROR_InvalidSession&#34;,
+                                    &#34;ERROR_INVALID_SESSION&#34;,
+                                    &#34;Not Authorized User&#34;,
+                                    &#34;Invalid Session&#34;,
+                                    &#34;Username and password cannot be null&#34;,
+                                ]
+                            ]
+                        ):
+                            error = NitroError(
+                                &#34;Authentication error with method ({}) and data : {} logging in and retrying api_request(). From requests.HTTPError {} {}&#34;.format(
+                                    method, data, e, result.text
+                                )
+                            )
                             log.warning(error)
-                            self.logged_in=False
+                            self.logged_in = False
                             self.login()
-                        
-                        else: log.warning(&#39;An HTTP error occured ({} {}), retrying api_request()&#39;.format(e, result.text))
-                        
+
+                        else:
+                            log.warning(
+                                &#34;An HTTP error occured ({} {}), retrying api_request()&#34;.format(
+                                    e, result.text
+                                )
+                            )
+
                         # Retry request
                         time.sleep(1)
-                        return self.api_request(method, data, http, callback, raw, secure, retry=retry-1)
-                    
-                    else :
-                        error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
-                            method, data, e, result.text))
+                        return self.api_request(
+                            method, data, http, callback, raw, secure, retry=retry - 1
+                        )
+
+                    else:
+                        error = NitroError(
+                            &#34;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#34;.format(
+                                method, data, e, result.text
+                            )
+                        )
                         log.error(error)
                         raise error from e
 
-                else: # The result is not an HTTP Error
+                else:  # The result is not an HTTP Error
                     response = result
                     result = self._unpack_resp(result)
 
-                    if privateApiCall :
+                    if privateApiCall:
                         result = self._format_priv_resp(result)
 
                     if callback:
                         result = callback(result)
 
-                    log.debug(&#39;{} -&gt; Result ({}): {}&#39;.format(
-                        str(response),
-                        type(result),
-                        str(result)[:200] + &#39;[...]&#39; if len(str(result))&gt;200 else &#39;&#39;
-                    ))
+                    log.debug(
+                        &#34;{} -&gt; Result ({}): {}&#34;.format(
+                            str(response), type(result), str(result)[:200]
+                        )
+                    )
 
                     return result
 
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
-            
-            if retry&gt;0 :
-                log.warning(&#39;An network error occured ({}), retrying api_request()&#39;.format(e))
+
+            if retry &gt; 0:
+                log.warning(
+                    &#34;An network error occured ({}), retrying api_request()&#34;.format(e)
+                )
                 time.sleep(1)
-                return self.api_request(method, data, http, callback, raw, secure, retry=retry-1)
-            else :
+                return self.api_request(
+                    method, data, http, callback, raw, secure, retry=retry - 1
+                )
+            else:
                 raise e
 
-        except requests.exceptions.TooManyRedirects as e :
+        except requests.exceptions.TooManyRedirects as e:
             log.error(e)
             raise
-    
+
     def esm_request(self, *args, **kwargs):
         &#34;&#34;&#34;Same as `msiempy.core.session.NitroSession.api_request`&#34;&#34;&#34;
         return self.api_request(*args, **kwargs)
 
     def version(self):
         &#34;&#34;&#34;
-        Returns: `str` ESM short version.  
+        Returns: `str` ESM short version.
         Example: &#39;10.0.2&#39;
         &#34;&#34;&#34;
         return self.buildstamp().split()[0]
 
     def buildstamp(self):
         &#34;&#34;&#34;
-        Returns: `str` ESM buildstamp.  
+        Returns: `str` ESM buildstamp.
         Example: &#39;10.0.2 20170516001031&#39;
         &#34;&#34;&#34;
-        return self.request(&#39;build_stamp&#39;)[&#39;buildStamp&#39;]
+        return self.request(&#34;build_stamp&#34;)[&#34;buildStamp&#34;]
 
     def get_internal_file(self, file_token):
         &#34;&#34;&#34;Uses the private API to retrieve, assemble and delete a temp file from the ESM.
-        
-        Arguments:  
+
+        Arguments:
 
         - `file_token` (`str`): File token ID
         &#34;&#34;&#34;
         pos = 0
         nbytes = 0
-        resp = self.request(&#39;get_rfile2&#39;, ftoken=file_token, pos=pos, nbytes=nbytes)
+        resp = self.request(&#34;get_rfile2&#34;, ftoken=file_token, pos=pos, nbytes=nbytes)
 
-        if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-            data = resp[&#39;DATA&#39;]
-            self.request(&#39;del_rfile&#39;, ftoken=file_token)
+        if resp[&#34;FSIZE&#34;] == resp[&#34;BREAD&#34;]:
+            data = resp[&#34;DATA&#34;]
+            self.request(&#34;del_rfile&#34;, ftoken=file_token)
             return data
-        
+
         data = []
-        data.append(resp[&#39;DATA&#39;])
-        file_size = int(resp[&#39;FSIZE&#39;])
-        collected = int(resp[&#39;BREAD&#39;])
+        data.append(resp[&#34;DATA&#34;])
+        file_size = int(resp[&#34;FSIZE&#34;])
+        collected = int(resp[&#34;BREAD&#34;])
 
         while file_size &gt; collected:
-            pos += int(resp[&#39;BREAD&#39;])
+            pos += int(resp[&#34;BREAD&#34;])
             nbytes = file_size - collected
-            resp = self.request(&#39;get_rfile2&#39;, ftoken=file_token, pos=pos, nbytes=nbytes)
-            collected += int(resp[&#39;BREAD&#39;])
-            data.append(resp[&#39;DATA&#39;])
+            resp = self.request(&#34;get_rfile2&#34;, ftoken=file_token, pos=pos, nbytes=nbytes)
+            collected += int(resp[&#34;BREAD&#34;])
+            data.append(resp[&#34;DATA&#34;])
 
-        resp = self.request(&#39;del_rfile&#39;, ftoken=file_token)
-        return &#39;&#39;.join(data)
+        resp = self.request(&#34;del_rfile&#34;, ftoken=file_token)
+        return &#34;&#34;.join(data)
 
     def request(self, request, **kwargs):
         &#34;&#34;&#34;
-        Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with `msiempy.core.session.NitroSession.PARAMS` docstrings and build a valid datastructure for the HTTP data.  
+        Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with `msiempy.core.session.NitroSession.PARAMS` docstrings and build a valid datastructure for the HTTP data.
 
-        Then call the `msiempy.core.session.NitroSession.api_request` method with the built data.  
+        Then call the `msiempy.core.session.NitroSession.api_request` method with the built data.
 
-        Also handles auto-login.  
+        Also handles auto-login.
 
-        Arguments:  
+        Arguments:
 
-        - `request`: Name keyword corresponding to the request name in `msiempy.core.session.NitroSession.PARAMS` mapping.  
-        - `http`: HTTP method.  
-        - `callback` : function to apply afterwards  
-        - `raw` : If true will return the Response object from requests module.   
-        - `secure` : If true will not log the content of the request.   
+        - `request`: Name keyword corresponding to the request name in `msiempy.core.session.NitroSession.PARAMS` mapping.
+        - `http`: HTTP method.
+        - `callback` : function to apply afterwards
+        - `raw` : If true will return the Response object from requests module.
+        - `secure` : If true will not log the content of the request.
         - `retry` : Number of time the request can be retried
-        
-        Interpolation parameters :  
-        
-        - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.session.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
 
-        Returns:   
+        Interpolation parameters :
 
-        - a `dict`, `list` or `str` object  
-        - the `resquest.Response` object if raw=True  
-        - `result.text` if `requests.HTTPError`,   
-        - `None` if Timeout or TooManyRedirects if raw=False  
+        - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.session.NitroSession.PARAMS` templates. Dynamic keyword arguments.
 
-        Exemple:  
+        Returns:
+
+        - a `dict`, `list` or `str` object
+        - the `resquest.Response` object if raw=True
+        - `result.text` if `requests.HTTPError`,
+        - `None` if Timeout or TooManyRedirects if raw=False
+
+        Exemple:
 
             from msiempy import NitroSession
             s = NitroSession()
@@ -1322,37 +1586,45 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
             for a in alarms:
                 a.update(s.request(&#39;get_notification_detail&#39;, id=a[&#39;id&#39;]))
 
-        If you&#39;re reading this thom an IDE, all possible requests are listed on the documentation webpage:   
-        https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request  
+        If you&#39;re reading this thom an IDE, all possible requests are listed on the documentation webpage:
+        https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request
         &#34;&#34;&#34;
-        
-        log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
-            str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
+
+        log.debug(
+            &#34;Calling nitro request : {} kwargs={}&#34;.format(
+                str(request),
+                &#34;***&#34;
+                if &#34;secure&#34; in kwargs and kwargs[&#34;secure&#34;] == True
+                else str(kwargs),
+            )
+        )
 
         method, data = self.PARAMS.get(request)
 
-        if data != None :
-            if isinstance(data, Template) :
-                data =  data.substitute(**kwargs)
-            data = ast.literal_eval(data.replace(&#39;\n&#39;,&#39;&#39;).replace(&#39;\t&#39;,&#39;&#39;))
-           
-        if method != None and isinstance(method, Template) :
-            try :
-                method = method.substitute(**kwargs)
-            except TypeError as err :
-                if (&#39;must be real number, not dict&#39; in str(err)):
-                    log.warning(&#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;)
+        if data != None:
+            if isinstance(data, Template):
+                data = data.substitute(**kwargs)
+            data = ast.literal_eval(data.replace(&#34;\n&#34;, &#34;&#34;).replace(&#34;\t&#34;, &#34;&#34;))
 
-        if not self.logged_in and method != &#39;login&#39;:
+        if method != None and isinstance(method, Template):
+            try:
+                method = method.substitute(**kwargs)
+            except TypeError as err:
+                if &#34;must be real number, not dict&#34; in str(err):
+                    log.warning(
+                        &#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;
+                    )
+
+        if not self.logged_in and method != &#34;login&#34;:
             # Autologin
             self.login()
-    
-        # Dynamically checking the esm_request arguments so additionnal parameters can be passed.  
+
+        # Dynamically checking the esm_request arguments so additionnal parameters can be passed.
         esm_request_args = inspect.getfullargspec(self.api_request)[0]
-        params={}
-        for arg in kwargs :
+        params = {}
+        for arg in kwargs:
             if arg in esm_request_args:
-                params[arg]=kwargs[arg]
+                params[arg] = kwargs[arg]
         return self.api_request(method=method, data=data, **params)
 
     @staticmethod
@@ -1362,64 +1634,68 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
         All objects should be able to log stuff, so the logger is globaly accessible
         &#34;&#34;&#34;
 
-        log = logging.getLogger(&#39;msiempy&#39;)
+        log = logging.getLogger(&#34;msiempy&#34;)
 
         log.setLevel(logging.DEBUG)
 
         std = logging.StreamHandler()
         std.setLevel(logging.DEBUG)
-        std.setFormatter(logging.Formatter(&#39;%(levelname)s - %(message)s&#39;))
+        std.setFormatter(logging.Formatter(&#34;%(levelname)s - %(message)s&#34;))
 
-        if verbose :
+        if verbose:
             std.setLevel(logging.DEBUG)
-        elif quiet :
+        elif quiet:
             std.setLevel(logging.CRITICAL)
-        else :
+        else:
             std.setLevel(logging.INFO)
 
-        log.handlers=[]
-        
+        log.handlers = []
+
         log.addHandler(std)
 
-        if logfile :
+        if logfile:
             fh = logging.FileHandler(logfile)
             fh.setLevel(logging.DEBUG)
-            fh.setFormatter(logging.Formatter(&#39;%(asctime)s - %(levelname)s - %(message)s&#39;))
+            fh.setFormatter(
+                logging.Formatter(&#34;%(asctime)s - %(levelname)s - %(message)s&#34;)
+            )
             log.addHandler(fh)
 
-        if verbose and quiet :
-            log.warning(&#34;Verbose and quiet values are both set to True. By default, output will be verbose.&#34;)
+        if verbose and quiet:
+            log.warning(
+                &#34;Verbose and quiet values are both set to True. By default, output will be verbose.&#34;
+            )
 
-        return (log)
+        return log
 
     @staticmethod
     def _format_params(cmd, **params):
         &#34;&#34;&#34;
-        Format private API call.  
+        Format private API call.
         &#34;&#34;&#34;
         params = {k: v for k, v in params.items() if v != None}
-        params = &#39;%14&#39;.join([k + &#39;%13&#39; + v + &#39;%13&#39; for (k, v) in params.items()])
-        
+        params = &#34;%14&#34;.join([k + &#34;%13&#34; + v + &#34;%13&#34; for (k, v) in params.items()])
+
         if params:
-            params = &#39;Request=API%13&#39; + cmd + &#39;%13%14&#39; + params + &#39;%14&#39;
+            params = &#34;Request=API%13&#34; + cmd + &#34;%13%14&#34; + params + &#34;%14&#34;
         else:
-            params = &#39;Request=API%13&#39; + cmd + &#39;%13%14&#39;
+            params = &#34;Request=API%13&#34; + cmd + &#34;%13%14&#34;
         return params
 
     @staticmethod
     def _format_priv_resp(resp):
         &#34;&#34;&#34;
-        Format response from private API.  
+        Format response from private API.
         &#34;&#34;&#34;
-        resp = re.search(&#39;Response=(.*)&#39;, resp).group(1)
-        resp = resp.replace(&#39;%14&#39;, &#39; &#39;)
+        resp = re.search(&#34;Response=(.*)&#34;, resp).group(1)
+        resp = resp.replace(&#34;%14&#34;, &#34; &#34;)
         pairs = resp.split()
         formatted = {}
         for pair in pairs:
-            pair = pair.replace(&#39;%13&#39;, &#39; &#39;)
+            pair = pair.replace(&#34;%13&#34;, &#34; &#34;)
             pair = pair.split()
             key = pair[0]
-            if key == &#39;ITEMS&#39;:
+            if key == &#34;ITEMS&#34;:
                 value = pair[-1]
             else:
                 value = urllib.parse.unquote(pair[-1])
@@ -1427,25 +1703,26 @@ It provides easier dialogue with the ESM by doing argument interpolation with <c
         return formatted
 
     @staticmethod
-    def _unpack_resp(response) :
-        &#34;&#34;&#34;Unpack data from response.  
-        Should not be necessary with API v2.  
-        Args: 
+    def _unpack_resp(response):
+        &#34;&#34;&#34;Unpack data from response.
+        Should not be necessary with API v2.
+        Args:
             response: requests.Response response object
         Returns a list, a dict or a string
         &#34;&#34;&#34;
-        try :
+        log.debug(&#34;Unpacking SIEM response: {}&#34;.format(str(response.text)[:200]))
+        try:
             data = response.json()
             if isinstance(response.json(), dict):
                 try:
-                    data = data[&#39;value&#39;]
+                    data = data[&#34;value&#34;]
                 except KeyError:
                     try:
-                        data = data[&#39;return&#39;]
+                        data = data[&#34;return&#34;]
                     except KeyError:
                         pass
-            
-        except ValueError :
+
+        except ValueError:
             data = response.text
 
         return data</code></pre>
@@ -1474,63 +1751,66 @@ This structure provide a central place to aggregate API methods and parameters.
 <span>def <span class="ident">login</span></span>(<span>self, retry=1)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Authentication is done lazily upon the first call to <code><a title="msiempy.core.session.NitroSession.request" href="#msiempy.core.session.NitroSession.request">NitroSession.request()</a></code> method, but you can still do it manually by calling this method.<br>
+<div class="desc"><p>Authentication is done lazily upon the first call to <code><a title="msiempy.core.session.NitroSession.request" href="#msiempy.core.session.NitroSession.request">NitroSession.request()</a></code> method, but you can still do it manually by calling this method.
 Throws <code><a title="msiempy.core.session.NitroError" href="#msiempy.core.session.NitroError">NitroError</a></code> if login fails.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L439-L488" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/core/session.py#L570-L622" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def login(self, retry=1):
-    &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.  
-    Throws `msiempy.core.session.NitroError` if login fails.  
+    &#34;&#34;&#34;Authentication is done lazily upon the first call to `msiempy.core.session.NitroSession.request` method, but you can still do it manually by calling this method.
+    Throws `msiempy.core.session.NitroError` if login fails.
     &#34;&#34;&#34;
     userb64 = tob64(self.config.user)
     passb64 = self.config.passwd
-    
-    self.session.headers = {&#39;Content-Type&#39;: &#39;application/json&#39;}
 
-    resp = self.request(&#39;login&#39;, username=userb64, password=passb64, raw=True, secure=True)
-    
-    if resp != None :
+    self.session.headers = {&#34;Content-Type&#34;: &#34;application/json&#34;}
+
+    resp = self.request(
+        &#34;login&#34;, username=userb64, password=passb64, raw=True, secure=True
+    )
+
+    if resp != None:
         try:
             resp.raise_for_status()
-        except requests.HTTPError as e :
-            if retry&gt;0:
+        except requests.HTTPError as e:
+            if retry &gt; 0:
                 time.sleep(1)
-                return self.login(retry=retry-1)
+                return self.login(retry=retry - 1)
             else:
-                raise NitroError(&#39;ESM Login Error: &#39;, resp.text) from e
-   
-        self.session.headers[&#39;Cookie&#39;] = resp.headers.get(&#39;Set-Cookie&#39;)
-        self.session.headers[&#39;X-Xsrf-Token&#39;] = resp.headers.get(&#39;Xsrf-Token&#39;)
-        
-        self.user_tz_id = dict(resp.json())[&#39;tzId&#39;]
+                raise NitroError(&#34;ESM Login Error: &#34;, resp.text) from e
+
+        self.session.headers[&#34;Cookie&#34;] = resp.headers.get(&#34;Set-Cookie&#34;)
+        self.session.headers[&#34;X-Xsrf-Token&#34;] = resp.headers.get(&#34;Xsrf-Token&#34;)
+
+        self.user_tz_id = dict(resp.json())[&#34;tzId&#34;]
         self.logged_in = True
-        self.login_info=self._unpack_resp(resp)
+        self.login_info = self._unpack_resp(resp)
 
         # Saving version number
-        self.esm_v=self.version()
-        # Shorthanding the 2019 API major changes  
+        self.esm_v = self.version()
+        # Shorthanding the 2019 API major changes
         # 10.4.x Release Notes: https://docs.mcafee.com/bundle/enterprise-security-manager-10.4.x-release-notes/page/GUID-53A62E21-F256-4D39-9B33-EDB3955FF7F2.html
         # 11.2.x Release Notes: https://docs.mcafee.com/bundle/enterprise-security-manager-11.2.x-release-notes/page/GUID-DD551A43-13A2-4649-B9C2-D618C291C9C2.html
         # 1 for pre 11.2.1, 2 for 11.2.1 and later
         # Not be confused with the ESM API v1 and v2 which are different.
-        if self.esm_v.startswith((&#39;9&#39;, &#39;10&#39;, &#39;11.0&#39;, &#39;11.1&#39;)):
+        if self.esm_v.startswith((&#34;9&#34;, &#34;10&#34;, &#34;11.0&#34;, &#34;11.1&#34;)):
             self.api_v = 1
         else:
             self.api_v = 2
 
-        
-
-        log.info(&#39;Logged into ESM {} with username {}. Last login {}&#39;.format(
-            str(self.config.host),
-            self.login_info[&#39;userName&#39;],
-            self.login_info[&#39;lastLoginDate&#39;]))
+        log.info(
+            &#34;Logged into ESM {} with username {}. Last login {}&#34;.format(
+                str(self.config.host),
+                self.login_info[&#34;userName&#34;],
+                self.login_info[&#34;lastLoginDate&#34;],
+            )
+        )
 
         return True
     else:
-        raise NitroError(&#39;ESM Login Error: Response empty&#39;)</code></pre>
+        raise NitroError(&#34;ESM Login Error: Response empty&#34;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.session.NitroSession.logout"><code class="name flex">
@@ -1541,18 +1821,18 @@ Throws <code><a title="msiempy.core.session.NitroError" href="#msiempy.core.sess
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L490-L500" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/core/session.py#L624-L634" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def logout(self):
-    &#34;&#34;&#34; 
+    &#34;&#34;&#34;
     This method will logout the session.
     &#34;&#34;&#34;
     self.api_v = 0
-    self.esm_v = &#39;0&#39;
-    self.request(&#39;logout&#39;, http=&#39;delete&#39;)
-    self.logged_in=False
-    self.login_info=dict()
-    self.session=requests.Session()
+    self.esm_v = &#34;0&#34;
+    self.request(&#34;logout&#34;, http=&#34;delete&#34;)
+    self.logged_in = False
+    self.login_info = dict()
+    self.session = requests.Session()
     self.user_tz_id = None</code></pre>
 </details>
 </dd>
@@ -1560,200 +1840,230 @@ Throws <code><a title="msiempy.core.session.NitroError" href="#msiempy.core.sess
 <span>def <span class="ident">api_request</span></span>(<span>self, method, data=None, http='post', callback=None, raw=False, secure=False, retry=1)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Handle a lower level HTTP request to ESM API endpoints.
-</p>
-<p>Format the request, handle the basic parsing of the SIEM result as well as other errors.
-</p>
-<p>All upper cases method names signals to use the private API methods. </p>
-<p>Arguments:
-</p>
+<div class="desc"><p>Handle a lower level HTTP request to ESM API endpoints.</p>
+<p>Format the request, handle the basic parsing of the SIEM result as well as other errors.</p>
+<p>All upper cases method names signals to use the private API methods.</p>
+<p>Arguments:</p>
 <ul>
-<li><code>method</code> : ESM API enpoint name and url formatted parameters
-</li>
-<li><code>http</code>: HTTP method.
-</li>
-<li><code>data</code> : dict data to send
-</li>
-<li><code>callback</code> : function to apply afterwards
-</li>
-<li><code>raw</code> : If true will return the Response object from requests module. No retry when raw=True.
-</li>
-<li><code>secure</code> : If true will not log the content of the request.
-</li>
-<li><code>retry</code> : Number of time the request can be retried
-</li>
+<li><code>method</code> : ESM API enpoint name and url formatted parameters</li>
+<li><code>http</code>: HTTP method.</li>
+<li><code>data</code> : dict data to send</li>
+<li><code>callback</code> : function to apply afterwards</li>
+<li><code>raw</code> : If true will return the Response object from requests module. No retry when raw=True.</li>
+<li><code>secure</code> : If true will not log the content of the request.</li>
+<li><code>retry</code> : Number of time the request can be retried</li>
 </ul>
-<p>Returns:
-</p>
+<p>Returns:</p>
 <ul>
-<li>a <code>dict</code>, <code>list</code> or <code>str</code> object. </li>
-<li>the <code>resquest.Response</code> object if raw=True
-</li>
-<li><code>None</code> if Timeout or TooManyRedirects if raw=False
-</li>
+<li>a <code>dict</code>, <code>list</code> or <code>str</code> object.</li>
+<li>the <code>resquest.Response</code> object if raw=True</li>
+<li><code>None</code> if Timeout or TooManyRedirects if raw=False</li>
 </ul>
 <p>Raises:</p>
 <ul>
 <li><code><a title="msiempy.core.session.NitroError" href="#msiempy.core.session.NitroError">NitroError</a></code> if any <code>HTTPError</code></li>
 </ul>
-<p>Note : Private API is under /ess/ and public api is under /rs/esm
-</p>
-<p>Exemple:
-</p>
-<pre><code>from msiempy import NitroSession
+<p>Note : Private API is under /ess/ and public api is under /rs/esm</p>
+<h2 id="exemple">Exemple</h2>
+<p>from msiempy import NitroSession
 s = NitroSession()
-s.login()
-# qryGetFilterFields 
-s.api_request('qryGetFilterFields')
-# Get all last 24h alarms details with ESM API v2.  
-alarms = s.api_request('v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1', None)
+s.login()</p>
+<h1 id="qrygetfilterfields">qryGetFilterFields</h1>
+<p>s.api_request('qryGetFilterFields')</p>
+<h1 id="get-all-last-24h-alarms-details-with-esm-api-v2">Get all last 24h alarms details with ESM API v2.</h1>
+<p>alarms = s.api_request('v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1', None)
 for a in alarms:
-    a.update(s.api_request('v2/notifyGetTriggeredNotificationDetail', {'id':a['id']}))
-</code></pre></div>
+a.update(s.api_request('v2/notifyGetTriggeredNotificationDetail', {'id':a['id']}))</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L502-L642" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/core/session.py#L636-L822" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">def api_request(self, method, data=None, http=&#39;post&#39;, callback=None, raw=False, secure=False, retry=1):
+<pre><code class="python">def api_request(
+    self,
+    method,
+    data=None,
+    http=&#34;post&#34;,
+    callback=None,
+    raw=False,
+    secure=False,
+    retry=1,
+):
     &#34;&#34;&#34;
-    Handle a lower level HTTP request to ESM API endpoints.  
+    Handle a lower level HTTP request to ESM API endpoints.
 
-    Format the request, handle the basic parsing of the SIEM result as well as other errors.  
+    Format the request, handle the basic parsing of the SIEM result as well as other errors.
 
-    All upper cases method names signals to use the private API methods. 
+    All upper cases method names signals to use the private API methods.
 
-    Arguments:   
+    Arguments:
 
-    - `method` : ESM API enpoint name and url formatted parameters  
-    - `http`: HTTP method.  
-    - `data` : dict data to send  
-    - `callback` : function to apply afterwards  
-    - `raw` : If true will return the Response object from requests module. No retry when raw=True.     
-    - `secure` : If true will not log the content of the request.   
-    - `retry` : Number of time the request can be retried  
+    - `method` : ESM API enpoint name and url formatted parameters
+    - `http`: HTTP method.
+    - `data` : dict data to send
+    - `callback` : function to apply afterwards
+    - `raw` : If true will return the Response object from requests module. No retry when raw=True.
+    - `secure` : If true will not log the content of the request.
+    - `retry` : Number of time the request can be retried
 
-    Returns:   
+    Returns:
 
-    - a `dict`, `list` or `str` object. 
-    - the `resquest.Response` object if raw=True  
-    - `None` if Timeout or TooManyRedirects if raw=False  
+    - a `dict`, `list` or `str` object.
+    - the `resquest.Response` object if raw=True
+    - `None` if Timeout or TooManyRedirects if raw=False
 
     Raises:
 
     - `msiempy.core.session.NitroError` if any `HTTPError`
 
-    Note : Private API is under /ess/ and public api is under /rs/esm  
+    Note : Private API is under /ess/ and public api is under /rs/esm
 
-    Exemple:  
+    Exemple:
 
         from msiempy import NitroSession
         s = NitroSession()
         s.login()
-        # qryGetFilterFields 
+        # qryGetFilterFields
         s.api_request(&#39;qryGetFilterFields&#39;)
-        # Get all last 24h alarms details with ESM API v2.  
+        # Get all last 24h alarms details with ESM API v2.
         alarms = s.api_request(&#39;v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1&#39;, None)
         for a in alarms:
             a.update(s.api_request(&#39;v2/notifyGetTriggeredNotificationDetail&#39;, {&#39;id&#39;:a[&#39;id&#39;]}))
 
     &#34;&#34;&#34;
 
-    url=&#39;&#39;
-    privateApiCall=False
-    result=None
+    url = &#34;&#34;
+    privateApiCall = False
+    result = None
 
-    #Logging the data request if not secure | Logs anyway the method
-    log.debug(&#39;Requesting HTTP &#39;+str(http)+&#39; &#39;+ str(method) + 
-        (&#39; with data &#39;+str(data) if not secure else &#39; ***&#39;) )
-    
-    http_data=&#39;&#39;
+    # Logging the data request if not secure | Logs anyway the method
+    log.debug(
+        &#34;Requesting HTTP &#34;
+        + str(http)
+        + &#34; &#34;
+        + str(method)
+        + (&#34; with data &#34; + str(data) if not secure else &#34; ***&#34;)
+    )
 
-    #Handling private API calls formatting
+    http_data = &#34;&#34;
+
+    # Handling private API calls formatting
     if method == method.upper():
-        privateApiCall=True
+        privateApiCall = True
         url = self.BASE_URL_PRIV
         http_data = self._format_params(method, **data)
-        log.debug(&#39;Private API call : &#39;+str(method)+&#39; Formatted params : &#39;+str(http_data))
-    
-    #Normal API calls
+        log.debug(
+            &#34;Private API call : &#34;
+            + str(method)
+            + &#34; Formatted params : &#34;
+            + str(http_data)
+        )
+
+    # Normal API calls
     else:
         url = self.BASE_URL
-        if data :
+        if data:
             http_data = json.dumps(data)
 
-    try :
+    try:
         result = self.session.request(
             http,
             urllib.parse.urljoin(url.format(self.config.host), method),
-            data=http_data, 
+            data=http_data,
             verify=self.config.ssl_verify,
             timeout=self.config.timeout,
             # Uncomment for debugging.
             # proxies={&#34;http&#34;: &#34;http://127.0.0.1:8888&#34;, &#34;https&#34;:&#34;http:127.0.0.1:8888&#34;}
         )
 
-        if raw :
-            log.debug(&#39;Returning raw requests Response object : &#39;+str(result))
+        if raw:
+            log.debug(&#34;Returning raw requests Response object : &#34; + str(result))
             return result
 
         else:
             try:
                 result.raise_for_status()
 
-            except requests.HTTPError as e :
-                error=None
+            except requests.HTTPError as e:
+                error = None
 
-                if retry&gt;0 :
+                if retry &gt; 0:
                     # Invalid session handler -&gt; re-login
-                    if any([match in result.text for match in [&#39;ERROR_InvalidSession&#39;, &#39;ERROR_INVALID_SESSION&#39;,
-                        &#39;Not Authorized User&#39;, &#39;Invalid Session&#39;, &#39;Username and password cannot be null&#39;]]):
-                        error = NitroError(&#39;Authentication error with method ({}) and data : {} logging in and retrying api_request(). From requests.HTTPError {} {}&#39;.format(
-                            method, data, e, result.text))
+                    if any(
+                        [
+                            match in result.text
+                            for match in [
+                                &#34;ERROR_InvalidSession&#34;,
+                                &#34;ERROR_INVALID_SESSION&#34;,
+                                &#34;Not Authorized User&#34;,
+                                &#34;Invalid Session&#34;,
+                                &#34;Username and password cannot be null&#34;,
+                            ]
+                        ]
+                    ):
+                        error = NitroError(
+                            &#34;Authentication error with method ({}) and data : {} logging in and retrying api_request(). From requests.HTTPError {} {}&#34;.format(
+                                method, data, e, result.text
+                            )
+                        )
                         log.warning(error)
-                        self.logged_in=False
+                        self.logged_in = False
                         self.login()
-                    
-                    else: log.warning(&#39;An HTTP error occured ({} {}), retrying api_request()&#39;.format(e, result.text))
-                    
+
+                    else:
+                        log.warning(
+                            &#34;An HTTP error occured ({} {}), retrying api_request()&#34;.format(
+                                e, result.text
+                            )
+                        )
+
                     # Retry request
                     time.sleep(1)
-                    return self.api_request(method, data, http, callback, raw, secure, retry=retry-1)
-                
-                else :
-                    error = NitroError(&#39;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#39;.format(
-                        method, data, e, result.text))
+                    return self.api_request(
+                        method, data, http, callback, raw, secure, retry=retry - 1
+                    )
+
+                else:
+                    error = NitroError(
+                        &#34;Error with method ({}) and data : {}. From requests.HTTPError {} {}&#34;.format(
+                            method, data, e, result.text
+                        )
+                    )
                     log.error(error)
                     raise error from e
 
-            else: # The result is not an HTTP Error
+            else:  # The result is not an HTTP Error
                 response = result
                 result = self._unpack_resp(result)
 
-                if privateApiCall :
+                if privateApiCall:
                     result = self._format_priv_resp(result)
 
                 if callback:
                     result = callback(result)
 
-                log.debug(&#39;{} -&gt; Result ({}): {}&#39;.format(
-                    str(response),
-                    type(result),
-                    str(result)[:200] + &#39;[...]&#39; if len(str(result))&gt;200 else &#39;&#39;
-                ))
+                log.debug(
+                    &#34;{} -&gt; Result ({}): {}&#34;.format(
+                        str(response), type(result), str(result)[:200]
+                    )
+                )
 
                 return result
 
     except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
-        
-        if retry&gt;0 :
-            log.warning(&#39;An network error occured ({}), retrying api_request()&#39;.format(e))
+
+        if retry &gt; 0:
+            log.warning(
+                &#34;An network error occured ({}), retrying api_request()&#34;.format(e)
+            )
             time.sleep(1)
-            return self.api_request(method, data, http, callback, raw, secure, retry=retry-1)
-        else :
+            return self.api_request(
+                method, data, http, callback, raw, secure, retry=retry - 1
+            )
+        else:
             raise e
 
-    except requests.exceptions.TooManyRedirects as e :
+    except requests.exceptions.TooManyRedirects as e:
         log.error(e)
         raise</code></pre>
 </details>
@@ -1762,16 +2072,16 @@ for a in alarms:
 <span>def <span class="ident">version</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns: <code>str</code> ESM short version.<br>
+<div class="desc"><p>Returns: <code>str</code> ESM short version.
 Example: '10.0.2'</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L648-L653" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/core/session.py#L828-L833" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def version(self):
     &#34;&#34;&#34;
-    Returns: `str` ESM short version.  
+    Returns: `str` ESM short version.
     Example: &#39;10.0.2&#39;
     &#34;&#34;&#34;
     return self.buildstamp().split()[0]</code></pre>
@@ -1781,19 +2091,19 @@ Example: '10.0.2'</p></div>
 <span>def <span class="ident">buildstamp</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns: <code>str</code> ESM buildstamp.<br>
+<div class="desc"><p>Returns: <code>str</code> ESM buildstamp.
 Example: '10.0.2 20170516001031'</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L655-L660" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/core/session.py#L835-L840" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def buildstamp(self):
     &#34;&#34;&#34;
-    Returns: `str` ESM buildstamp.  
+    Returns: `str` ESM buildstamp.
     Example: &#39;10.0.2 20170516001031&#39;
     &#34;&#34;&#34;
-    return self.request(&#39;build_stamp&#39;)[&#39;buildStamp&#39;]</code></pre>
+    return self.request(&#34;build_stamp&#34;)[&#34;buildStamp&#34;]</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.session.NitroSession.get_internal_file"><code class="name flex">
@@ -1801,104 +2111,85 @@ Example: '10.0.2 20170516001031'</p></div>
 </code></dt>
 <dd>
 <div class="desc"><p>Uses the private API to retrieve, assemble and delete a temp file from the ESM.</p>
-<p>Arguments:
-</p>
+<p>Arguments:</p>
 <ul>
 <li><code>file_token</code> (<code>str</code>): File token ID</li>
 </ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L662-L691" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/core/session.py#L842-L871" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_internal_file(self, file_token):
     &#34;&#34;&#34;Uses the private API to retrieve, assemble and delete a temp file from the ESM.
-    
-    Arguments:  
+
+    Arguments:
 
     - `file_token` (`str`): File token ID
     &#34;&#34;&#34;
     pos = 0
     nbytes = 0
-    resp = self.request(&#39;get_rfile2&#39;, ftoken=file_token, pos=pos, nbytes=nbytes)
+    resp = self.request(&#34;get_rfile2&#34;, ftoken=file_token, pos=pos, nbytes=nbytes)
 
-    if resp[&#39;FSIZE&#39;] == resp[&#39;BREAD&#39;]:
-        data = resp[&#39;DATA&#39;]
-        self.request(&#39;del_rfile&#39;, ftoken=file_token)
+    if resp[&#34;FSIZE&#34;] == resp[&#34;BREAD&#34;]:
+        data = resp[&#34;DATA&#34;]
+        self.request(&#34;del_rfile&#34;, ftoken=file_token)
         return data
-    
+
     data = []
-    data.append(resp[&#39;DATA&#39;])
-    file_size = int(resp[&#39;FSIZE&#39;])
-    collected = int(resp[&#39;BREAD&#39;])
+    data.append(resp[&#34;DATA&#34;])
+    file_size = int(resp[&#34;FSIZE&#34;])
+    collected = int(resp[&#34;BREAD&#34;])
 
     while file_size &gt; collected:
-        pos += int(resp[&#39;BREAD&#39;])
+        pos += int(resp[&#34;BREAD&#34;])
         nbytes = file_size - collected
-        resp = self.request(&#39;get_rfile2&#39;, ftoken=file_token, pos=pos, nbytes=nbytes)
-        collected += int(resp[&#39;BREAD&#39;])
-        data.append(resp[&#39;DATA&#39;])
+        resp = self.request(&#34;get_rfile2&#34;, ftoken=file_token, pos=pos, nbytes=nbytes)
+        collected += int(resp[&#34;BREAD&#34;])
+        data.append(resp[&#34;DATA&#34;])
 
-    resp = self.request(&#39;del_rfile&#39;, ftoken=file_token)
-    return &#39;&#39;.join(data)</code></pre>
+    resp = self.request(&#34;del_rfile&#34;, ftoken=file_token)
+    return &#34;&#34;.join(data)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.session.NitroSession.request"><code class="name flex">
 <span>def <span class="ident">request</span></span>(<span>self, request, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Interface to make ESM API calls more simple by interpolating <code>**kwargs</code> arguments with <code><a title="msiempy.core.session.NitroSession.PARAMS" href="#msiempy.core.session.NitroSession.PARAMS">NitroSession.PARAMS</a></code> docstrings and build a valid datastructure for the HTTP data.
-</p>
-<p>Then call the <code><a title="msiempy.core.session.NitroSession.api_request" href="#msiempy.core.session.NitroSession.api_request">NitroSession.api_request()</a></code> method with the built data.
-</p>
-<p>Also handles auto-login.
-</p>
-<p>Arguments:
-</p>
+<div class="desc"><p>Interface to make ESM API calls more simple by interpolating <code>**kwargs</code> arguments with <code><a title="msiempy.core.session.NitroSession.PARAMS" href="#msiempy.core.session.NitroSession.PARAMS">NitroSession.PARAMS</a></code> docstrings and build a valid datastructure for the HTTP data.</p>
+<p>Then call the <code><a title="msiempy.core.session.NitroSession.api_request" href="#msiempy.core.session.NitroSession.api_request">NitroSession.api_request()</a></code> method with the built data.</p>
+<p>Also handles auto-login.</p>
+<p>Arguments:</p>
 <ul>
-<li><code>request</code>: Name keyword corresponding to the request name in <code><a title="msiempy.core.session.NitroSession.PARAMS" href="#msiempy.core.session.NitroSession.PARAMS">NitroSession.PARAMS</a></code> mapping.
-</li>
-<li><code>http</code>: HTTP method.
-</li>
-<li><code>callback</code> : function to apply afterwards
-</li>
-<li><code>raw</code> : If true will return the Response object from requests module.
-</li>
-<li><code>secure</code> : If true will not log the content of the request.
-</li>
+<li><code>request</code>: Name keyword corresponding to the request name in <code><a title="msiempy.core.session.NitroSession.PARAMS" href="#msiempy.core.session.NitroSession.PARAMS">NitroSession.PARAMS</a></code> mapping.</li>
+<li><code>http</code>: HTTP method.</li>
+<li><code>callback</code> : function to apply afterwards</li>
+<li><code>raw</code> : If true will return the Response object from requests module.</li>
+<li><code>secure</code> : If true will not log the content of the request.</li>
 <li><code>retry</code> : Number of time the request can be retried</li>
 </ul>
-<p>Interpolation parameters :
-</p>
+<p>Interpolation parameters :</p>
 <ul>
-<li><code>**kwargs</code> : Interpolation parameters that will be match to <code><a title="msiempy.core.session.NitroSession.PARAMS" href="#msiempy.core.session.NitroSession.PARAMS">NitroSession.PARAMS</a></code> templates. Dynamic keyword arguments.
-</li>
+<li><code>**kwargs</code> : Interpolation parameters that will be match to <code><a title="msiempy.core.session.NitroSession.PARAMS" href="#msiempy.core.session.NitroSession.PARAMS">NitroSession.PARAMS</a></code> templates. Dynamic keyword arguments.</li>
 </ul>
-<p>Returns:
-</p>
+<p>Returns:</p>
 <ul>
-<li>a <code>dict</code>, <code>list</code> or <code>str</code> object
-</li>
-<li>the <code>resquest.Response</code> object if raw=True
-</li>
-<li><code>result.text</code> if <code>requests.HTTPError</code>,
-</li>
-<li><code>None</code> if Timeout or TooManyRedirects if raw=False
-</li>
+<li>a <code>dict</code>, <code>list</code> or <code>str</code> object</li>
+<li>the <code>resquest.Response</code> object if raw=True</li>
+<li><code>result.text</code> if <code>requests.HTTPError</code>,</li>
+<li><code>None</code> if Timeout or TooManyRedirects if raw=False</li>
 </ul>
-<p>Exemple:
-</p>
-<pre><code>from msiempy import NitroSession
+<h2 id="exemple">Exemple</h2>
+<p>from msiempy import NitroSession
 s = NitroSession()
-s.login()
-# Get all last 24h alarms details
-alarms = s.request('get_alarms', time_range='LAST_24_HOURS',  status='', page_size=500, page_number=0)
+s.login()</p>
+<h1 id="get-all-last-24h-alarms-details">Get all last 24h alarms details</h1>
+<p>alarms = s.request('get_alarms', time_range='LAST_24_HOURS',
+status='', page_size=500, page_number=0)
 for a in alarms:
-    a.update(s.request('get_notification_detail', id=a['id']))
-</code></pre>
-<p>If you're reading this thom an IDE, all possible requests are listed on the documentation webpage: <br>
-<a href="https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request">https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request</a>
-</p>
+a.update(s.request('get_notification_detail', id=a['id']))</p>
+<p>If you're reading this thom an IDE, all possible requests are listed on the documentation webpage:
+<a href="https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request">https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request</a></p>
 <p>All requests:
 <br>
 ( <em>All upper cases method names signals to use the private API methods.</em> )
@@ -1937,18 +2228,18 @@ request('unack_alarms', ids) # Call alarmUnacknowledgeTriggeredAlarm
 request('unack_alarms_11_2_1', ids) # Call alarmUnacknowledgeTriggeredAlarm  
 request('delete_alarms', ids) # Call alarmDeleteTriggeredAlarm  
 request('delete_alarms_11_2_1', ids) # Call alarmDeleteTriggeredAlarm  
-request('get_possible_filters', ) # Call qryGetFilterFields  
-request('get_possible_fields', type, groupType) # Call qryGetSelectFields  
-request('get_esm_time', ) # Call essmgtGetESSTime  
 request('get_alerts_now', ds_id) # Call IPS_GETALERTSNOW  
 request('get_flows_now', ds_id) # Call IPS_GETFLOWSNOW  
-request('logout', ) # Call logout  
-request('get_user_locale', ) # Call getUserLocale  
-request('event_query_custom_time', time_range, start_time, end_time, fields, filters, limit, offset, order_field, order_direction) # Call qryExecuteDetail  
-request('event_query', time_range, fields, filters, limit, offset, order_field, order_direction) # Call qryExecuteDetail  
-request('query_status', resultID) # Call qryGetStatus  
-request('query_result', startPos, numRows, resultID) # Call qryGetResults  
-request('time_zones', ) # Call userGetTimeZones  
+request('get_possible_filters', ) # Call v2/qryGetFilterFields  
+request('get_possible_fields', type, groupType) # Call v2/qryGetSelectFields  
+request('event_query_custom_time', time_range, start_time, end_time, fields, filters, limit, offset, order_field, order_direction) # Call v2/qryExecuteDetail  
+request('event_query', time_range, fields, filters, limit, offset, order_field, order_direction) # Call v2/qryExecuteDetail  
+request('query_status', resultID) # Call v2/qryGetStatus  
+request('query_result', startPos, numRows, resultID) # Call v2/qryGetResults  
+request('grouped_event_query', filters, field, time_range) # Call v2/qryExecuteGrouped  
+request('grouped_event_query_custom_time', filters, field, time_range, start_time, end_time) # Call v2/qryExecuteGrouped  
+request('close_query', resultID) # Call v2/qryClose  
+request('get_alert_data', id) # Call ipsGetAlertData  
 request('add_note_to_event', id, note) # Call ipsAddAlertNote  
 request('add_note_to_event_int', id, note) # Call IPS_ADDALERTNOTE  
 request('get_wl_types', ) # Call sysGetWatchlistFields  
@@ -1956,46 +2247,50 @@ request('get_watchlists_no_filters', hidden, dynamic, writeOnly, indexedOnly) # 
 request('get_watchlist_details', id) # Call sysGetWatchlistDetails  
 request('add_watchlist', name, wl_type) # Call sysAddWatchlist  
 request('add_watchlist_values', watchlist, values) # Call sysAddWatchlistValues  
+request('remove_watchlist_values', watchlist, values) # Call sysRemoveWatchlistValues  
 request('get_watchlist_values', id) # Call SYS_GETWATCHLISTDETAILS  
 request('remove_watchlists', wl_id_list) # Call sysRemoveWatchlist  
-request('get_alert_data', id) # Call ipsGetAlertData  
+request('get_user_locale', ) # Call getUserLocale  
+request('time_zones', ) # Call userGetTimeZones  
+request('logout', ) # Call logout  
 request('get_sys_info', ) # Call SYS_GETSYSINFO  
+request('get_esm_time', ) # Call essmgtGetESSTime  
 request('build_stamp', ) # Call essmgtGetBuildStamp
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L693-L762" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/core/session.py#L873-L950" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def request(self, request, **kwargs):
     &#34;&#34;&#34;
-    Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with `msiempy.core.session.NitroSession.PARAMS` docstrings and build a valid datastructure for the HTTP data.  
+    Interface to make ESM API calls more simple by interpolating `**kwargs` arguments with `msiempy.core.session.NitroSession.PARAMS` docstrings and build a valid datastructure for the HTTP data.
 
-    Then call the `msiempy.core.session.NitroSession.api_request` method with the built data.  
+    Then call the `msiempy.core.session.NitroSession.api_request` method with the built data.
 
-    Also handles auto-login.  
+    Also handles auto-login.
 
-    Arguments:  
+    Arguments:
 
-    - `request`: Name keyword corresponding to the request name in `msiempy.core.session.NitroSession.PARAMS` mapping.  
-    - `http`: HTTP method.  
-    - `callback` : function to apply afterwards  
-    - `raw` : If true will return the Response object from requests module.   
-    - `secure` : If true will not log the content of the request.   
+    - `request`: Name keyword corresponding to the request name in `msiempy.core.session.NitroSession.PARAMS` mapping.
+    - `http`: HTTP method.
+    - `callback` : function to apply afterwards
+    - `raw` : If true will return the Response object from requests module.
+    - `secure` : If true will not log the content of the request.
     - `retry` : Number of time the request can be retried
-    
-    Interpolation parameters :  
-    
-    - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.session.NitroSession.PARAMS` templates. Dynamic keyword arguments.  
 
-    Returns:   
+    Interpolation parameters :
 
-    - a `dict`, `list` or `str` object  
-    - the `resquest.Response` object if raw=True  
-    - `result.text` if `requests.HTTPError`,   
-    - `None` if Timeout or TooManyRedirects if raw=False  
+    - `**kwargs` : Interpolation parameters that will be match to `msiempy.core.session.NitroSession.PARAMS` templates. Dynamic keyword arguments.
 
-    Exemple:  
+    Returns:
+
+    - a `dict`, `list` or `str` object
+    - the `resquest.Response` object if raw=True
+    - `result.text` if `requests.HTTPError`,
+    - `None` if Timeout or TooManyRedirects if raw=False
+
+    Exemple:
 
         from msiempy import NitroSession
         s = NitroSession()
@@ -2005,37 +2300,45 @@ request('build_stamp', ) # Call essmgtGetBuildStamp
         for a in alarms:
             a.update(s.request(&#39;get_notification_detail&#39;, id=a[&#39;id&#39;]))
 
-    If you&#39;re reading this thom an IDE, all possible requests are listed on the documentation webpage:   
-    https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request  
+    If you&#39;re reading this thom an IDE, all possible requests are listed on the documentation webpage:
+    https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request
     &#34;&#34;&#34;
-    
-    log.debug(&#34;Calling nitro request : {} kwargs={}&#34;.format(
-        str(request), &#39;***&#39; if &#39;secure&#39; in kwargs and kwargs[&#39;secure&#39;]==True else str(kwargs)))
+
+    log.debug(
+        &#34;Calling nitro request : {} kwargs={}&#34;.format(
+            str(request),
+            &#34;***&#34;
+            if &#34;secure&#34; in kwargs and kwargs[&#34;secure&#34;] == True
+            else str(kwargs),
+        )
+    )
 
     method, data = self.PARAMS.get(request)
 
-    if data != None :
-        if isinstance(data, Template) :
-            data =  data.substitute(**kwargs)
-        data = ast.literal_eval(data.replace(&#39;\n&#39;,&#39;&#39;).replace(&#39;\t&#39;,&#39;&#39;))
-       
-    if method != None and isinstance(method, Template) :
-        try :
-            method = method.substitute(**kwargs)
-        except TypeError as err :
-            if (&#39;must be real number, not dict&#39; in str(err)):
-                log.warning(&#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;)
+    if data != None:
+        if isinstance(data, Template):
+            data = data.substitute(**kwargs)
+        data = ast.literal_eval(data.replace(&#34;\n&#34;, &#34;&#34;).replace(&#34;\t&#34;, &#34;&#34;))
 
-    if not self.logged_in and method != &#39;login&#39;:
+    if method != None and isinstance(method, Template):
+        try:
+            method = method.substitute(**kwargs)
+        except TypeError as err:
+            if &#34;must be real number, not dict&#34; in str(err):
+                log.warning(
+                    &#34;Interpolation failed probably because of the private API calls formatting... Unexpected behaviours can happend.&#34;
+                )
+
+    if not self.logged_in and method != &#34;login&#34;:
         # Autologin
         self.login()
 
-    # Dynamically checking the esm_request arguments so additionnal parameters can be passed.  
+    # Dynamically checking the esm_request arguments so additionnal parameters can be passed.
     esm_request_args = inspect.getfullargspec(self.api_request)[0]
-    params={}
-    for arg in kwargs :
+    params = {}
+    for arg in kwargs:
         if arg in esm_request_args:
-            params[arg]=kwargs[arg]
+            params[arg] = kwargs[arg]
     return self.api_request(method=method, data=data, **params)</code></pre>
 </details>
 </dd>
@@ -2046,18 +2349,19 @@ request('build_stamp', ) # Call essmgtGetBuildStamp
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base ESM exception.<br>
+<div class="desc"><p>Base ESM exception.
 It's used when the user/passwd is incorrect and other HTTP errors.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/cf92d0f9e15b474169847861ec648d398d3fd85b/msiempy/core/session.py#L879-L884" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/fd1b114627d3c78744b0726b1f193e1137d3ca8f/msiempy/core/session.py#L1090-L1096" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class NitroError(Exception):
     &#34;&#34;&#34;
-    Base ESM exception.  
-    It&#39;s used when the user/passwd is incorrect and other HTTP errors.  
+    Base ESM exception.
+    It&#39;s used when the user/passwd is incorrect and other HTTP errors.
     &#34;&#34;&#34;
+
     pass</code></pre>
 </details>
 <h3>Ancestors</h3>

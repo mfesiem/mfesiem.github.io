@@ -245,7 +245,7 @@ INDEX=[
 {
 "ref":"msiempy.event.Event",
 "url":1,
-"doc":"Dict-Like object. Event interface. This object handles events objects created with  msiempy.event.EventManager (From the  qryGetResults api call) and events objects created with  msiempy.alarm.AlarmManager (From  ipsGetAlertData api call or  notifyGetTriggeredNotificationDetail depending of the value of  load_data(events_details=True/False) ) . Common keys for alert data events (When loading from ID or with  AlarmManager.load_data() : -  ruleName -  srcIp -  destIp -  protocol -  lastTime -  subtype -  destPort -  destMac -  srcMac -  srcPort -  deviceName -  sigId -  normId -  srcUser -  destUser -  normMessage -  normDesc -  host -  domain -  ipsId Common keys for triggered alarms events (When using  AlarmManager.load_data(events_details=False) ) (SIEM v11.x only): -  ruleMessage -  eventId -  severity -  eventCount -  sourceIp -  destIp -  protocol -  lastTime -  eventSubType Common keys for query events (When using  EventManager ): -  Rule.msg -  Alert.LastTime -  Alert.IPSIDAlertID - and any other . You can request more fields by passing a list of fields to the  msiempy.event.EventManager object.  msiempy.event.Event.REGULAR_EVENT_FIELDS offer a base list of regular fields that may be useful. See msiempy/static JSON files to browse complete list : https: github.com/mfesiem/msiempy/blob/master/static/all_fields.json You can also use this script to dinamically print the available fields and filters : https: github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py Arguments: -  adict : Event parameters -  id : The event  IPSIDAlertID to instanciate. Will load informations  For query events : We tried our best effort to match SIEM returned fields with initially requested fields. Prefixes  Alert. ,  Rule. , etc are optionnal, autocompletion is computed in any case.  __getitem__ ,  __contains__ ,  __setitem__ and  __delitem__ method have been rewrote in order to offer more straight-forward  dict usage. For exemple, if the SIEM returns results with keys like  Alert.65613 ,  Alert.BIN(7) or  Alert.SrcIP : you'll be able to use  Event dict with your initial queried keys like  Event['Web_Doamin']  ,  Event['UserIDSrc'] or  Event['SrcIP'] . (You can still use internal keys if you want). Exemple:"
+"doc":"Dict-Like object. Event interface. This object handles events objects created with  msiempy.event.EventManager (From the  qryGetResults api call) and events objects created with  msiempy.alarm.AlarmManager (From  ipsGetAlertData api call or  notifyGetTriggeredNotificationDetail depending of the value of  load_data(events_details=True/False) ) .  Common keys for alert data events (When loading from ID or with  AlarmManager.load_data() : -  ruleName -  srcIp -  destIp -  protocol -  lastTime -  subtype -  destPort -  destMac -  srcMac -  srcPort -  deviceName -  sigId -  normId -  srcUser -  destUser -  normMessage -  normDesc -  host -  domain -  ipsId - And others All keys for triggered alarms events (When using  AlarmManager.load_data(events_details=False) ) (SIEM v11.x only): -  ruleMessage -  eventId -  severity -  eventCount -  sourceIp -  destIp -  protocol -  lastTime -  eventSubType Common keys for query events (When using  EventManager ): -  Rule.msg -  Alert.LastTime -  Alert.IPSIDAlertID - And any other You can request more fields by passing a list of fields to the  msiempy.event.EventManager object.  msiempy.event.Event.REGULAR_EVENT_FIELDS offer a base list of regular fields that may be useful. See msiempy/static JSON files to browse complete list : https: github.com/mfesiem/msiempy/blob/master/static/all_fields.json You can also use this script to dinamically print the available fields and filters : https: github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py Arguments: -  adict : Event parameters -  id : The event  IPSIDAlertID to instanciate. Will load informations  For query events : We tried our best effort to match SIEM returned fields with initially requested fields. Prefixes  Alert. ,  Rule. , etc are optionnal, autocompletion is computed in any case.  __getitem__ ,  __contains__ ,  __setitem__ and  __delitem__ method have been rewrote in order to offer more straight-forward  dict usage. For exemple, if the SIEM returns results with keys like  Alert.65613 ,  Alert.BIN(7) or  Alert.SrcIP : you'll be able to use  Event dict with your initial queried keys like  Event['Web_Doamin']  ,  Event['UserIDSrc'] or  Event['SrcIP'] . (You can still use internal keys if you want). Exemple:"
 },
 {
 "ref":"msiempy.event.Event.FIELDS_TABLES",
@@ -1253,7 +1253,7 @@ INDEX=[
 {
 "ref":"msiempy.alarm.AlarmManager.add_filter",
 "url":9,
-"doc":"Add a filter to the query. Arguments : -  afilter : Can be a a tuple  (field, [values]) or  (field, value) or  str 'field=value' Filters format is  tuple(field, [values]) .",
+"doc":"Add a filter to the alarm query. Some event related filters can be added with this method. See  Alarm.ALARM_EVENT_FILTER_FIELDS . Arguments : -  afilter : Can be a a tuple  (field, [values]) or  (field, value) or  str 'field=value' Filters format is  tuple(field, [values]) .",
 "func":1
 },
 {
@@ -1373,12 +1373,12 @@ INDEX=[
 {
 "ref":"msiempy.alarm.Alarm.ALARM_EVENT_FILTER_FIELDS",
 "url":9,
-"doc":""
+"doc":"Few Events fields names can be automatically added as event's filters when passing to  AlarmManager() 's  filter argument. See  msiempy.event.Event ."
 },
 {
 "ref":"msiempy.alarm.Alarm.ALARM_DEFAULT_FIELDS",
 "url":9,
-"doc":"Defaulfs fields :  id, alarmName, summary, triggeredDate, acknowledgedUsername (not used in library, can bu useful for printing with  get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS) )"
+"doc":" id, alarmName, summary, triggeredDate, acknowledgedUsername . Just a list of regular fields. Can bu useful for printing with  AlarmManager.get_text(fields=msiempy.alarm.ALARM_DEFAULT_FIELDS) "
 },
 {
 "ref":"msiempy.alarm.Alarm.acknowledge",

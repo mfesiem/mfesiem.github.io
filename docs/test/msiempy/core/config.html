@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L0-L160" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L0-L201" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;
@@ -43,52 +43,56 @@ from prettytable import MSWORD_FRIENDLY
 from io import StringIO
 from .utils import tob64
 
-log = logging.getLogger(&#39;msiempy&#39;)
+log = logging.getLogger(&#34;msiempy&#34;)
 
-__pdoc__ = {} # Init pdoc to document dynamically
+__pdoc__ = {}  # Init pdoc to document dynamically
+
 
 class NitroConfig(configparser.ConfigParser):
     &#34;&#34;&#34;
 
-    Handles the configuration. Reads the config file `.msiem/conf.ini` where ever it is and make accessible it&#39;s values throught object properties. 
-    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values. 
-    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:  
+    Handles the configuration. Reads the config file `.msiem/conf.ini` where ever it is and make accessible it&#39;s values throught object properties.
+    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values.
+    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:
 
     Default configuration file should look like this. Authentication is left empty.
     ```
     [esm]
-    host = 
-    user = 
-    passwd = 
+    host =
+    user =
+    passwd =
 
     [general]
     verbose = False
     quiet = False
-    logfile = 
+    logfile =
     timeout = 60
     ssl_verify = False
     ```
 
-    For Windows: `%APPDATA%\.msiem\conf.ini`  
-    For Mac : `$HOME/.msiem/conf.ini`  
-    For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`  
-    If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`  
+    For Windows: `%APPDATA%\.msiem\conf.ini`
+    For Mac : `$HOME/.msiem/conf.ini`
+    For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`
+    If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`
 
-    You can setup the configuration by command line with `msiempy_setup.py` script at https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py .  
-    
+    You can setup the configuration by command line with `msiempy_setup.py` script at https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py .
 
-    Arguments: 
 
-    - `path`: Config file special path, if path is left None, will automatically look for it.  
-    - `config`: Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`.  
+    Arguments:
+
+    - `path`: Config file special path, if path is left None, will automatically look for it.
+    - `config`: Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`.
     - `*args, **kwargs` : Passed to `configparser.ConfigParser.__init__()` method.
 
     &#34;&#34;&#34;
+
     def __init__(self, path=None, config=None, *arg, **kwarg):
         super().__init__(*arg, **kwarg)
-        if not path : self._path = self.find_ini_location()
-        else : self._path = path
-        files=self.read(self._path)
+        if not path:
+            self._path = self.find_ini_location()
+        else:
+            self._path = path
+        files = self.read(self._path)
         if len(files) == 0:
             log.info(&#34;Config file inexistant or currupted, applying defaults&#34;)
             self.read_dict(self.DEFAULT_CONF_DICT)
@@ -97,25 +101,25 @@ class NitroConfig(configparser.ConfigParser):
             self.write()
         else:
             log.info(&#34;Successfuly read config file {}&#34;.format(files[0]))
-        if config != None :
-            log.info(&#34;Reading config_dict : &#34;+str(self))
+        if config != None:
+            log.info(&#34;Reading config_dict : &#34; + str(self))
             self.read_dict(config)
 
-    CONFIG_FILE_NAME=&#39;.msiem/conf.ini&#39;
+    CONFIG_FILE_NAME = &#34;.msiem/conf.ini&#34;
     &#34;&#34;&#34;`.msiem/conf.ini`&#34;&#34;&#34;
 
-    CONF_DIR=&#39;.msiem/&#39;
+    CONF_DIR = &#34;.msiem/&#34;
     &#34;&#34;&#34;`.msiem/`&#34;&#34;&#34;
 
-    DEFAULT_CONF_DICT={
-        &#39;esm&#39;:{&#39;host&#39;:&#39;&#39;, 
-            &#39;user&#39;:&#39;&#39;,
-            &#39;passwd&#39;:&#39;&#39;},
-        &#39;general&#39;:{&#39;verbose&#39;:False,
-            &#39;quiet&#39;:False,
-            &#39;logfile&#39;:&#39;&#39;,
-            &#39;timeout&#39;:60,
-            &#39;ssl_verify&#39;:False}
+    DEFAULT_CONF_DICT = {
+        &#34;esm&#34;: {&#34;host&#34;: &#34;&#34;, &#34;user&#34;: &#34;&#34;, &#34;passwd&#34;: &#34;&#34;},
+        &#34;general&#34;: {
+            &#34;verbose&#34;: False,
+            &#34;quiet&#34;: False,
+            &#34;logfile&#34;: &#34;&#34;,
+            &#34;timeout&#34;: 60,
+            &#34;ssl_verify&#34;: False,
+        },
     }
     &#34;&#34;&#34;
     Default configuration values.
@@ -125,73 +129,110 @@ class NitroConfig(configparser.ConfigParser):
         &#34;&#34;&#34;
         Custom str() method that lists all config fields.
         &#34;&#34;&#34;
-        return(&#39;Configuration file : &#39;+ self._path+&#39;\n&#39;+str({section: dict(self[section]) for section in self.sections()}))
+        return (
+            &#34;Configuration file : &#34;
+            + self._path
+            + &#34;\n&#34;
+            + str({section: dict(self[section]) for section in self.sections()})
+        )
 
     def write(self):
-        &#34;&#34;&#34;Write the config file to the predetermined path.
-        &#34;&#34;&#34;
-        with open(self._path, &#39;w&#39;) as conf:
+        &#34;&#34;&#34;Write the config file to the predetermined path.&#34;&#34;&#34;
+        with open(self._path, &#34;w&#34;) as conf:
             super().write(conf)
-            log.info(&#34;Config file has been written at &#34;+self._path)
+            log.info(&#34;Config file has been written at &#34; + self._path)
 
     def _iset(self, section, option, secure=False):
-        &#34;&#34;&#34;Internal method to interactively set  a option in a section.
-        &#34;&#34;&#34;
-        msg=&#39;Enter [{}]{}&#39;
+        &#34;&#34;&#34;Internal method to interactively set  a option in a section.&#34;&#34;&#34;
+        msg = &#34;Enter [{}]{}&#34;
         value = self.get(section, option)
-        newvalue=&#39;&#39;
-        if option==&#39;passwd&#39;: secure=True
-        if secure : newvalue = tob64(getpass.getpass(msg.format(section, option)+&#39;. Press &lt;Enter&gt; to skip: &#39;))
-        else: newvalue = input(msg.format(section, option)+ &#39;. Press &lt;Enter&gt; to keep &#39;+ (value if (str(value) != &#39;&#39;) else &#39;empty&#39;) + &#39;: &#39;)
-        if newvalue != &#39;&#39; : super().set(section, option, newvalue)
+        newvalue = &#34;&#34;
+        if option == &#34;passwd&#34;:
+            secure = True
+        if secure:
+            newvalue = tob64(
+                getpass.getpass(
+                    msg.format(section, option) + &#34;. Press &lt;Enter&gt; to skip: &#34;
+                )
+            )
+        else:
+            newvalue = input(
+                msg.format(section, option)
+                + &#34;. Press &lt;Enter&gt; to keep &#34;
+                + (value if (str(value) != &#34;&#34;) else &#34;empty&#34;)
+                + &#34;: &#34;
+            )
+        if newvalue != &#34;&#34;:
+            super().set(section, option, newvalue)
 
     def iset(self, section, option=None, secure=False):
-        &#34;&#34;&#34;Interactively set the specified section/option by asking the user the input.  
-        Arguments:  
+        &#34;&#34;&#34;Interactively set the specified section/option by asking the user the input.
+        Arguments:
 
-        - `section`: Configuration&#39;s section. Exemple : &#39;esm&#39; or &#39;general&#39;.  
-        - `option`: Configuraion&#39;s option. Leave to `None` to set the whole section one after another. Exemple : &#39;user&#39;, &#39;timeout&#39;.  
+        - `section`: Configuration&#39;s section. Exemple : &#39;esm&#39; or &#39;general&#39;.
+        - `option`: Configuraion&#39;s option. Leave to `None` to set the whole section one after another. Exemple : &#39;user&#39;, &#39;timeout&#39;.
         - `secure`: Will use getpass to retreive the configuration value and won&#39;t print old value.
         &#34;&#34;&#34;
-        if option is None :
+        if option is None:
             for key in self.options(section):
                 self._iset(section, key, secure)
-        else : self._iset(section, option, secure)
+        else:
+            self._iset(section, option, secure)
 
     @property
-    def user(self): return self.get(&#39;esm&#39;, &#39;user&#39;)
+    def user(self):
+        return self.get(&#34;esm&#34;, &#34;user&#34;)
+
     @property
-    def host(self): return self.get(&#39;esm&#39;, &#39;host&#39;)
+    def host(self):
+        return self.get(&#34;esm&#34;, &#34;host&#34;)
+
     @property
-    def passwd(self): return self.get(&#39;esm&#39;, &#39;passwd&#39;)
+    def passwd(self):
+        return self.get(&#34;esm&#34;, &#34;passwd&#34;)
+
     @property
-    def verbose(self): return self.getboolean(&#39;general&#39;, &#39;verbose&#39;)
+    def verbose(self):
+        return self.getboolean(&#34;general&#34;, &#34;verbose&#34;)
+
     @property
-    def quiet(self): return self.getboolean(&#39;general&#39;, &#39;quiet&#39;)
+    def quiet(self):
+        return self.getboolean(&#34;general&#34;, &#34;quiet&#34;)
+
     @property
-    def logfile(self): return self.get(&#39;general&#39;, &#39;logfile&#39;)
+    def logfile(self):
+        return self.get(&#34;general&#34;, &#34;logfile&#34;)
+
     @property
-    def timeout(self): return self.getint(&#39;general&#39;, &#39;timeout&#39;)
+    def timeout(self):
+        return self.getint(&#34;general&#34;, &#34;timeout&#34;)
+
     @property
-    def ssl_verify(self): return self.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)
+    def ssl_verify(self):
+        return self.getboolean(&#34;general&#34;, &#34;ssl_verify&#34;)
 
     @staticmethod
     def find_ini_location():
-        &#39;&#39;&#39;
-        Returns the location of a supposed conf.ini file the `conf.ini` file.  
-        If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.  
-        If the file doesn&#39;t exist, will still return the location.  
-        Do not create a file nor directory, you must call `msiempy.core.config.NitroConfig.write`.  
-        &#39;&#39;&#39;
-        conf_path_dir=None
-        if os.path.isdir(&#39;./&#39;+NitroConfig.CONF_DIR): conf_path_dir=&#39;./&#39;
-        elif &#39;APPDATA&#39; in os.environ: conf_path_dir = os.environ[&#39;APPDATA&#39;]
-        elif &#39;XDG_CONFIG_HOME&#39; in os.environ: conf_path_dir = os.environ[&#39;XDG_CONFIG_HOME&#39;]
-        elif &#39;HOME&#39; in os.environ: conf_path_dir = os.path.join(os.environ[&#39;HOME&#39;])
-        else: conf_path_dir=&#39;./&#39;
-        #Join configuartion filename with supposed parent directory
-        conf_path=(os.path.join(conf_path_dir, NitroConfig.CONFIG_FILE_NAME))
-        return(conf_path)</code></pre>
+        &#34;&#34;&#34;
+        Returns the location of a supposed conf.ini file the `conf.ini` file.
+        If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.
+        If the file doesn&#39;t exist, will still return the location.
+        Do not create a file nor directory, you must call `msiempy.core.config.NitroConfig.write`.
+        &#34;&#34;&#34;
+        conf_path_dir = None
+        if os.path.isdir(&#34;./&#34; + NitroConfig.CONF_DIR):
+            conf_path_dir = &#34;./&#34;
+        elif &#34;APPDATA&#34; in os.environ:
+            conf_path_dir = os.environ[&#34;APPDATA&#34;]
+        elif &#34;XDG_CONFIG_HOME&#34; in os.environ:
+            conf_path_dir = os.environ[&#34;XDG_CONFIG_HOME&#34;]
+        elif &#34;HOME&#34; in os.environ:
+            conf_path_dir = os.path.join(os.environ[&#34;HOME&#34;])
+        else:
+            conf_path_dir = &#34;./&#34;
+        # Join configuartion filename with supposed parent directory
+        conf_path = os.path.join(conf_path_dir, NitroConfig.CONFIG_FILE_NAME)
+        return conf_path</code></pre>
 </details>
 </section>
 <section>
@@ -210,83 +251,81 @@ class NitroConfig(configparser.ConfigParser):
 <dd>
 <div class="desc"><p>Handles the configuration. Reads the config file <code>.msiem/conf.ini</code> where ever it is and make accessible it's values throught object properties.
 If a <code>.msiem/</code> directory exists in your current directory, the program will assume the <code>conf.ini</code> file is there, if not, it will create it with default values.
-Secondly, if no <code>.msiem/</code> directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:
-</p>
+Secondly, if no <code>.msiem/</code> directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:</p>
 <p>Default configuration file should look like this. Authentication is left empty.</p>
 <pre><code>[esm]
-host = 
-user = 
-passwd = 
+host =
+user =
+passwd =
 
 [general]
 verbose = False
 quiet = False
-logfile = 
+logfile =
 timeout = 60
 ssl_verify = False
 </code></pre>
-<p>For Windows: <code>%APPDATA%\.msiem\conf.ini</code><br>
-For Mac : <code>$HOME/.msiem/conf.ini</code><br>
-For Linux : <code>$XDG_CONFIG_HOME/.msiem/conf.ini</code> or : <code>$HOME/.msiem/conf.ini</code><br>
-If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/conf.ini</code>
-</p>
-<p>You can setup the configuration by command line with <code>msiempy_setup.py</code> script at <a href="https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py">https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py</a> .
-</p>
-<p>Arguments: </p>
+<p>For Windows: <code>%APPDATA%\.msiem\conf.ini</code>
+For Mac : <code>$HOME/.msiem/conf.ini</code>
+For Linux : <code>$XDG_CONFIG_HOME/.msiem/conf.ini</code> or : <code>$HOME/.msiem/conf.ini</code>
+If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/conf.ini</code></p>
+<p>You can setup the configuration by command line with <code>msiempy_setup.py</code> script at <a href="https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py">https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py</a> .</p>
+<p>Arguments:</p>
 <ul>
-<li><code>path</code>: Config file special path, if path is left None, will automatically look for it.
-</li>
-<li><code>config</code>: Manual config dict. ex: <code>{'general':{'verbose':True}}</code>.
-</li>
+<li><code>path</code>: Config file special path, if path is left None, will automatically look for it.</li>
+<li><code>config</code>: Manual config dict. ex: <code>{'general':{'verbose':True}}</code>.</li>
 <li><code>*args, **kwargs</code> : Passed to <code>configparser.ConfigParser.__init__()</code> method.</li>
 </ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L17-L161" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L18-L202" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class NitroConfig(configparser.ConfigParser):
     &#34;&#34;&#34;
 
-    Handles the configuration. Reads the config file `.msiem/conf.ini` where ever it is and make accessible it&#39;s values throught object properties. 
-    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values. 
-    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:  
+    Handles the configuration. Reads the config file `.msiem/conf.ini` where ever it is and make accessible it&#39;s values throught object properties.
+    If a `.msiem/` directory exists in your current directory, the program will assume the `conf.ini` file is there, if not, it will create it with default values.
+    Secondly, if no `.msiem/` directory exists in the current directory, it will be automatically placed in a appropriate place depending of your platform:
 
     Default configuration file should look like this. Authentication is left empty.
     ```
     [esm]
-    host = 
-    user = 
-    passwd = 
+    host =
+    user =
+    passwd =
 
     [general]
     verbose = False
     quiet = False
-    logfile = 
+    logfile =
     timeout = 60
     ssl_verify = False
     ```
 
-    For Windows: `%APPDATA%\.msiem\conf.ini`  
-    For Mac : `$HOME/.msiem/conf.ini`  
-    For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`  
-    If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`  
+    For Windows: `%APPDATA%\.msiem\conf.ini`
+    For Mac : `$HOME/.msiem/conf.ini`
+    For Linux : `$XDG_CONFIG_HOME/.msiem/conf.ini` or : `$HOME/.msiem/conf.ini`
+    If `.msiem` folder exists in you local directory : `./.msiem/conf.ini`
 
-    You can setup the configuration by command line with `msiempy_setup.py` script at https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py .  
-    
+    You can setup the configuration by command line with `msiempy_setup.py` script at https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py .
 
-    Arguments: 
 
-    - `path`: Config file special path, if path is left None, will automatically look for it.  
-    - `config`: Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`.  
+    Arguments:
+
+    - `path`: Config file special path, if path is left None, will automatically look for it.
+    - `config`: Manual config dict. ex: `{&#39;general&#39;:{&#39;verbose&#39;:True}}`.
     - `*args, **kwargs` : Passed to `configparser.ConfigParser.__init__()` method.
 
     &#34;&#34;&#34;
+
     def __init__(self, path=None, config=None, *arg, **kwarg):
         super().__init__(*arg, **kwarg)
-        if not path : self._path = self.find_ini_location()
-        else : self._path = path
-        files=self.read(self._path)
+        if not path:
+            self._path = self.find_ini_location()
+        else:
+            self._path = path
+        files = self.read(self._path)
         if len(files) == 0:
             log.info(&#34;Config file inexistant or currupted, applying defaults&#34;)
             self.read_dict(self.DEFAULT_CONF_DICT)
@@ -295,25 +334,25 @@ If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/con
             self.write()
         else:
             log.info(&#34;Successfuly read config file {}&#34;.format(files[0]))
-        if config != None :
-            log.info(&#34;Reading config_dict : &#34;+str(self))
+        if config != None:
+            log.info(&#34;Reading config_dict : &#34; + str(self))
             self.read_dict(config)
 
-    CONFIG_FILE_NAME=&#39;.msiem/conf.ini&#39;
+    CONFIG_FILE_NAME = &#34;.msiem/conf.ini&#34;
     &#34;&#34;&#34;`.msiem/conf.ini`&#34;&#34;&#34;
 
-    CONF_DIR=&#39;.msiem/&#39;
+    CONF_DIR = &#34;.msiem/&#34;
     &#34;&#34;&#34;`.msiem/`&#34;&#34;&#34;
 
-    DEFAULT_CONF_DICT={
-        &#39;esm&#39;:{&#39;host&#39;:&#39;&#39;, 
-            &#39;user&#39;:&#39;&#39;,
-            &#39;passwd&#39;:&#39;&#39;},
-        &#39;general&#39;:{&#39;verbose&#39;:False,
-            &#39;quiet&#39;:False,
-            &#39;logfile&#39;:&#39;&#39;,
-            &#39;timeout&#39;:60,
-            &#39;ssl_verify&#39;:False}
+    DEFAULT_CONF_DICT = {
+        &#34;esm&#34;: {&#34;host&#34;: &#34;&#34;, &#34;user&#34;: &#34;&#34;, &#34;passwd&#34;: &#34;&#34;},
+        &#34;general&#34;: {
+            &#34;verbose&#34;: False,
+            &#34;quiet&#34;: False,
+            &#34;logfile&#34;: &#34;&#34;,
+            &#34;timeout&#34;: 60,
+            &#34;ssl_verify&#34;: False,
+        },
     }
     &#34;&#34;&#34;
     Default configuration values.
@@ -323,73 +362,110 @@ If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/con
         &#34;&#34;&#34;
         Custom str() method that lists all config fields.
         &#34;&#34;&#34;
-        return(&#39;Configuration file : &#39;+ self._path+&#39;\n&#39;+str({section: dict(self[section]) for section in self.sections()}))
+        return (
+            &#34;Configuration file : &#34;
+            + self._path
+            + &#34;\n&#34;
+            + str({section: dict(self[section]) for section in self.sections()})
+        )
 
     def write(self):
-        &#34;&#34;&#34;Write the config file to the predetermined path.
-        &#34;&#34;&#34;
-        with open(self._path, &#39;w&#39;) as conf:
+        &#34;&#34;&#34;Write the config file to the predetermined path.&#34;&#34;&#34;
+        with open(self._path, &#34;w&#34;) as conf:
             super().write(conf)
-            log.info(&#34;Config file has been written at &#34;+self._path)
+            log.info(&#34;Config file has been written at &#34; + self._path)
 
     def _iset(self, section, option, secure=False):
-        &#34;&#34;&#34;Internal method to interactively set  a option in a section.
-        &#34;&#34;&#34;
-        msg=&#39;Enter [{}]{}&#39;
+        &#34;&#34;&#34;Internal method to interactively set  a option in a section.&#34;&#34;&#34;
+        msg = &#34;Enter [{}]{}&#34;
         value = self.get(section, option)
-        newvalue=&#39;&#39;
-        if option==&#39;passwd&#39;: secure=True
-        if secure : newvalue = tob64(getpass.getpass(msg.format(section, option)+&#39;. Press &lt;Enter&gt; to skip: &#39;))
-        else: newvalue = input(msg.format(section, option)+ &#39;. Press &lt;Enter&gt; to keep &#39;+ (value if (str(value) != &#39;&#39;) else &#39;empty&#39;) + &#39;: &#39;)
-        if newvalue != &#39;&#39; : super().set(section, option, newvalue)
+        newvalue = &#34;&#34;
+        if option == &#34;passwd&#34;:
+            secure = True
+        if secure:
+            newvalue = tob64(
+                getpass.getpass(
+                    msg.format(section, option) + &#34;. Press &lt;Enter&gt; to skip: &#34;
+                )
+            )
+        else:
+            newvalue = input(
+                msg.format(section, option)
+                + &#34;. Press &lt;Enter&gt; to keep &#34;
+                + (value if (str(value) != &#34;&#34;) else &#34;empty&#34;)
+                + &#34;: &#34;
+            )
+        if newvalue != &#34;&#34;:
+            super().set(section, option, newvalue)
 
     def iset(self, section, option=None, secure=False):
-        &#34;&#34;&#34;Interactively set the specified section/option by asking the user the input.  
-        Arguments:  
+        &#34;&#34;&#34;Interactively set the specified section/option by asking the user the input.
+        Arguments:
 
-        - `section`: Configuration&#39;s section. Exemple : &#39;esm&#39; or &#39;general&#39;.  
-        - `option`: Configuraion&#39;s option. Leave to `None` to set the whole section one after another. Exemple : &#39;user&#39;, &#39;timeout&#39;.  
+        - `section`: Configuration&#39;s section. Exemple : &#39;esm&#39; or &#39;general&#39;.
+        - `option`: Configuraion&#39;s option. Leave to `None` to set the whole section one after another. Exemple : &#39;user&#39;, &#39;timeout&#39;.
         - `secure`: Will use getpass to retreive the configuration value and won&#39;t print old value.
         &#34;&#34;&#34;
-        if option is None :
+        if option is None:
             for key in self.options(section):
                 self._iset(section, key, secure)
-        else : self._iset(section, option, secure)
+        else:
+            self._iset(section, option, secure)
 
     @property
-    def user(self): return self.get(&#39;esm&#39;, &#39;user&#39;)
+    def user(self):
+        return self.get(&#34;esm&#34;, &#34;user&#34;)
+
     @property
-    def host(self): return self.get(&#39;esm&#39;, &#39;host&#39;)
+    def host(self):
+        return self.get(&#34;esm&#34;, &#34;host&#34;)
+
     @property
-    def passwd(self): return self.get(&#39;esm&#39;, &#39;passwd&#39;)
+    def passwd(self):
+        return self.get(&#34;esm&#34;, &#34;passwd&#34;)
+
     @property
-    def verbose(self): return self.getboolean(&#39;general&#39;, &#39;verbose&#39;)
+    def verbose(self):
+        return self.getboolean(&#34;general&#34;, &#34;verbose&#34;)
+
     @property
-    def quiet(self): return self.getboolean(&#39;general&#39;, &#39;quiet&#39;)
+    def quiet(self):
+        return self.getboolean(&#34;general&#34;, &#34;quiet&#34;)
+
     @property
-    def logfile(self): return self.get(&#39;general&#39;, &#39;logfile&#39;)
+    def logfile(self):
+        return self.get(&#34;general&#34;, &#34;logfile&#34;)
+
     @property
-    def timeout(self): return self.getint(&#39;general&#39;, &#39;timeout&#39;)
+    def timeout(self):
+        return self.getint(&#34;general&#34;, &#34;timeout&#34;)
+
     @property
-    def ssl_verify(self): return self.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)
+    def ssl_verify(self):
+        return self.getboolean(&#34;general&#34;, &#34;ssl_verify&#34;)
 
     @staticmethod
     def find_ini_location():
-        &#39;&#39;&#39;
-        Returns the location of a supposed conf.ini file the `conf.ini` file.  
-        If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.  
-        If the file doesn&#39;t exist, will still return the location.  
-        Do not create a file nor directory, you must call `msiempy.core.config.NitroConfig.write`.  
-        &#39;&#39;&#39;
-        conf_path_dir=None
-        if os.path.isdir(&#39;./&#39;+NitroConfig.CONF_DIR): conf_path_dir=&#39;./&#39;
-        elif &#39;APPDATA&#39; in os.environ: conf_path_dir = os.environ[&#39;APPDATA&#39;]
-        elif &#39;XDG_CONFIG_HOME&#39; in os.environ: conf_path_dir = os.environ[&#39;XDG_CONFIG_HOME&#39;]
-        elif &#39;HOME&#39; in os.environ: conf_path_dir = os.path.join(os.environ[&#39;HOME&#39;])
-        else: conf_path_dir=&#39;./&#39;
-        #Join configuartion filename with supposed parent directory
-        conf_path=(os.path.join(conf_path_dir, NitroConfig.CONFIG_FILE_NAME))
-        return(conf_path)</code></pre>
+        &#34;&#34;&#34;
+        Returns the location of a supposed conf.ini file the `conf.ini` file.
+        If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.
+        If the file doesn&#39;t exist, will still return the location.
+        Do not create a file nor directory, you must call `msiempy.core.config.NitroConfig.write`.
+        &#34;&#34;&#34;
+        conf_path_dir = None
+        if os.path.isdir(&#34;./&#34; + NitroConfig.CONF_DIR):
+            conf_path_dir = &#34;./&#34;
+        elif &#34;APPDATA&#34; in os.environ:
+            conf_path_dir = os.environ[&#34;APPDATA&#34;]
+        elif &#34;XDG_CONFIG_HOME&#34; in os.environ:
+            conf_path_dir = os.environ[&#34;XDG_CONFIG_HOME&#34;]
+        elif &#34;HOME&#34; in os.environ:
+            conf_path_dir = os.path.join(os.environ[&#34;HOME&#34;])
+        else:
+            conf_path_dir = &#34;./&#34;
+        # Join configuartion filename with supposed parent directory
+        conf_path = os.path.join(conf_path_dir, NitroConfig.CONFIG_FILE_NAME)
+        return conf_path</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -423,32 +499,37 @@ If <code>.msiem</code> folder exists in you local directory : <code>./.msiem/con
 <span>def <span class="ident">find_ini_location</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns the location of a supposed conf.ini file the <code>conf.ini</code> file.<br>
-If <code>.msiem</code> folder exists in you local directory, assume the <code>conf.ini</code> file is in there.<br>
-If the file doesn't exist, will still return the location.<br>
+<div class="desc"><p>Returns the location of a supposed conf.ini file the <code>conf.ini</code> file.
+If <code>.msiem</code> folder exists in you local directory, assume the <code>conf.ini</code> file is in there.
+If the file doesn't exist, will still return the location.
 Do not create a file nor directory, you must call <code><a title="msiempy.core.config.NitroConfig.write" href="#msiempy.core.config.NitroConfig.write">NitroConfig.write()</a></code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L145-L161" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L181-L202" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@staticmethod
 def find_ini_location():
-    &#39;&#39;&#39;
-    Returns the location of a supposed conf.ini file the `conf.ini` file.  
-    If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.  
-    If the file doesn&#39;t exist, will still return the location.  
-    Do not create a file nor directory, you must call `msiempy.core.config.NitroConfig.write`.  
-    &#39;&#39;&#39;
-    conf_path_dir=None
-    if os.path.isdir(&#39;./&#39;+NitroConfig.CONF_DIR): conf_path_dir=&#39;./&#39;
-    elif &#39;APPDATA&#39; in os.environ: conf_path_dir = os.environ[&#39;APPDATA&#39;]
-    elif &#39;XDG_CONFIG_HOME&#39; in os.environ: conf_path_dir = os.environ[&#39;XDG_CONFIG_HOME&#39;]
-    elif &#39;HOME&#39; in os.environ: conf_path_dir = os.path.join(os.environ[&#39;HOME&#39;])
-    else: conf_path_dir=&#39;./&#39;
-    #Join configuartion filename with supposed parent directory
-    conf_path=(os.path.join(conf_path_dir, NitroConfig.CONFIG_FILE_NAME))
-    return(conf_path)</code></pre>
+    &#34;&#34;&#34;
+    Returns the location of a supposed conf.ini file the `conf.ini` file.
+    If `.msiem` folder exists in you local directory, assume the `conf.ini` file is in there.
+    If the file doesn&#39;t exist, will still return the location.
+    Do not create a file nor directory, you must call `msiempy.core.config.NitroConfig.write`.
+    &#34;&#34;&#34;
+    conf_path_dir = None
+    if os.path.isdir(&#34;./&#34; + NitroConfig.CONF_DIR):
+        conf_path_dir = &#34;./&#34;
+    elif &#34;APPDATA&#34; in os.environ:
+        conf_path_dir = os.environ[&#34;APPDATA&#34;]
+    elif &#34;XDG_CONFIG_HOME&#34; in os.environ:
+        conf_path_dir = os.environ[&#34;XDG_CONFIG_HOME&#34;]
+    elif &#34;HOME&#34; in os.environ:
+        conf_path_dir = os.path.join(os.environ[&#34;HOME&#34;])
+    else:
+        conf_path_dir = &#34;./&#34;
+    # Join configuartion filename with supposed parent directory
+    conf_path = os.path.join(conf_path_dir, NitroConfig.CONFIG_FILE_NAME)
+    return conf_path</code></pre>
 </details>
 </dd>
 </dl>
@@ -460,10 +541,11 @@ def find_ini_location():
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L128-L129" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L149-L151" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
-def user(self): return self.get(&#39;esm&#39;, &#39;user&#39;)</code></pre>
+def user(self):
+    return self.get(&#34;esm&#34;, &#34;user&#34;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.config.NitroConfig.host"><code class="name">var <span class="ident">host</span></code></dt>
@@ -472,10 +554,11 @@ def user(self): return self.get(&#39;esm&#39;, &#39;user&#39;)</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L130-L131" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L153-L155" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
-def host(self): return self.get(&#39;esm&#39;, &#39;host&#39;)</code></pre>
+def host(self):
+    return self.get(&#34;esm&#34;, &#34;host&#34;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.config.NitroConfig.passwd"><code class="name">var <span class="ident">passwd</span></code></dt>
@@ -484,10 +567,11 @@ def host(self): return self.get(&#39;esm&#39;, &#39;host&#39;)</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L132-L133" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L157-L159" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
-def passwd(self): return self.get(&#39;esm&#39;, &#39;passwd&#39;)</code></pre>
+def passwd(self):
+    return self.get(&#34;esm&#34;, &#34;passwd&#34;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.config.NitroConfig.verbose"><code class="name">var <span class="ident">verbose</span></code></dt>
@@ -496,10 +580,11 @@ def passwd(self): return self.get(&#39;esm&#39;, &#39;passwd&#39;)</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L134-L135" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L161-L163" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
-def verbose(self): return self.getboolean(&#39;general&#39;, &#39;verbose&#39;)</code></pre>
+def verbose(self):
+    return self.getboolean(&#34;general&#34;, &#34;verbose&#34;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.config.NitroConfig.quiet"><code class="name">var <span class="ident">quiet</span></code></dt>
@@ -508,10 +593,11 @@ def verbose(self): return self.getboolean(&#39;general&#39;, &#39;verbose&#39;)<
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L136-L137" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L165-L167" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
-def quiet(self): return self.getboolean(&#39;general&#39;, &#39;quiet&#39;)</code></pre>
+def quiet(self):
+    return self.getboolean(&#34;general&#34;, &#34;quiet&#34;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.config.NitroConfig.logfile"><code class="name">var <span class="ident">logfile</span></code></dt>
@@ -520,10 +606,11 @@ def quiet(self): return self.getboolean(&#39;general&#39;, &#39;quiet&#39;)</cod
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L138-L139" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L169-L171" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
-def logfile(self): return self.get(&#39;general&#39;, &#39;logfile&#39;)</code></pre>
+def logfile(self):
+    return self.get(&#34;general&#34;, &#34;logfile&#34;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.config.NitroConfig.timeout"><code class="name">var <span class="ident">timeout</span></code></dt>
@@ -532,10 +619,11 @@ def logfile(self): return self.get(&#39;general&#39;, &#39;logfile&#39;)</code><
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L140-L141" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L173-L175" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
-def timeout(self): return self.getint(&#39;general&#39;, &#39;timeout&#39;)</code></pre>
+def timeout(self):
+    return self.getint(&#34;general&#34;, &#34;timeout&#34;)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.config.NitroConfig.ssl_verify"><code class="name">var <span class="ident">ssl_verify</span></code></dt>
@@ -544,10 +632,11 @@ def timeout(self): return self.getint(&#39;general&#39;, &#39;timeout&#39;)</cod
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L142-L143" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L177-L179" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
-def ssl_verify(self): return self.getboolean(&#39;general&#39;, &#39;ssl_verify&#39;)</code></pre>
+def ssl_verify(self):
+    return self.getboolean(&#34;general&#34;, &#34;ssl_verify&#34;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -561,47 +650,44 @@ def ssl_verify(self): return self.getboolean(&#39;general&#39;, &#39;ssl_verify&
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L97-L102" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L106-L110" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def write(self):
-    &#34;&#34;&#34;Write the config file to the predetermined path.
-    &#34;&#34;&#34;
-    with open(self._path, &#39;w&#39;) as conf:
+    &#34;&#34;&#34;Write the config file to the predetermined path.&#34;&#34;&#34;
+    with open(self._path, &#34;w&#34;) as conf:
         super().write(conf)
-        log.info(&#34;Config file has been written at &#34;+self._path)</code></pre>
+        log.info(&#34;Config file has been written at &#34; + self._path)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.config.NitroConfig.iset"><code class="name flex">
 <span>def <span class="ident">iset</span></span>(<span>self, section, option=None, secure=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Interactively set the specified section/option by asking the user the input.<br>
-Arguments:
-</p>
+<div class="desc"><p>Interactively set the specified section/option by asking the user the input.
+Arguments:</p>
 <ul>
-<li><code>section</code>: Configuration's section. Exemple : 'esm' or 'general'.
-</li>
-<li><code>option</code>: Configuraion's option. Leave to <code>None</code> to set the whole section one after another. Exemple : 'user', 'timeout'.
-</li>
+<li><code>section</code>: Configuration's section. Exemple : 'esm' or 'general'.</li>
+<li><code>option</code>: Configuraion's option. Leave to <code>None</code> to set the whole section one after another. Exemple : 'user', 'timeout'.</li>
 <li><code>secure</code>: Will use getpass to retreive the configuration value and won't print old value.</li>
 </ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/config.py#L115-L126" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/config.py#L135-L147" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def iset(self, section, option=None, secure=False):
-    &#34;&#34;&#34;Interactively set the specified section/option by asking the user the input.  
-    Arguments:  
+    &#34;&#34;&#34;Interactively set the specified section/option by asking the user the input.
+    Arguments:
 
-    - `section`: Configuration&#39;s section. Exemple : &#39;esm&#39; or &#39;general&#39;.  
-    - `option`: Configuraion&#39;s option. Leave to `None` to set the whole section one after another. Exemple : &#39;user&#39;, &#39;timeout&#39;.  
+    - `section`: Configuration&#39;s section. Exemple : &#39;esm&#39; or &#39;general&#39;.
+    - `option`: Configuraion&#39;s option. Leave to `None` to set the whole section one after another. Exemple : &#39;user&#39;, &#39;timeout&#39;.
     - `secure`: Will use getpass to retreive the configuration value and won&#39;t print old value.
     &#34;&#34;&#34;
-    if option is None :
+    if option is None:
         for key in self.options(section):
             self._iset(section, key, secure)
-    else : self._iset(section, option, secure)</code></pre>
+    else:
+        self._iset(section, option, secure)</code></pre>
 </details>
 </dd>
 </dl>

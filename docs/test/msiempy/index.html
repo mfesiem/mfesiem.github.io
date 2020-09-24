@@ -138,8 +138,8 @@ for event in events :
 See method documentation for more infos.
 </p>
 <p>See <a href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py"><code>dump_all_fields.py</code></a> script to have full list of <code>fields</code> you can request and fields you can use with <code>FieldFilter</code> .</p>
-<h3 id="execute-an-grouped-event-query">Execute an grouped event query</h3>
-<p>Query the curent day events grouped by <code>ScrIP</code>.
+<h3 id="execute-a-grouped-event-query">Execute a grouped event query</h3>
+<p>Query the curent day events filtered by <code>IPSID</code> grouped by <code>ScrIP</code>.
 </p>
 <p>See objects: <code><a title="msiempy.event.GroupedEventManager" href="event.html#msiempy.event.GroupedEventManager">GroupedEventManager</a></code> and <code><a title="msiempy.event.GroupedEvent" href="event.html#msiempy.event.GroupedEvent">GroupedEvent</a></code>.
 </p>
@@ -235,7 +235,7 @@ Useful shell command to get simple list of errors:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/__init__.py#L0-L280" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/__init__.py#L0-L264" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;
@@ -367,9 +367,9 @@ See method documentation for more infos.
  
 See [`dump_all_fields.py`](https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py) script to have full list of `fields` you can request and fields you can use with `FieldFilter` .
 
-### Execute an grouped event query
+### Execute a grouped event query
 
-Query the curent day events grouped by `ScrIP`.  
+Query the curent day events filtered by `IPSID` grouped by `ScrIP`.  
 
 See objects: `msiempy.event.GroupedEventManager` and `msiempy.event.GroupedEvent`.  
 
@@ -490,22 +490,9 @@ cat /path/to/your/log/file | grep -i error | sort | uniq
 
 # List all library objects that the user might need
 
-from .core import (
-    NitroConfig,
-    NitroError,
-    NitroSession,
-    FilteredQueryList,
-    NitroList
-)
-from .alarm import (
-    Alarm,
-    AlarmManager
-)
-from .device import (
-    ESM,
-    DevTree,
-    DataSource
-)
+from .core import NitroConfig, NitroError, NitroSession, FilteredQueryList, NitroList
+from .alarm import Alarm, AlarmManager
+from .device import ESM, DevTree, DataSource
 from .event import (
     Event,
     EventManager,
@@ -514,10 +501,7 @@ from .event import (
     GroupedEventManager,
     GroupedEvent,
 )
-from .watchlist import (
-    Watchlist,
-    WatchlistManager
-)</code></pre>
+from .watchlist import Watchlist, WatchlistManager</code></pre>
 </details>
 </section>
 <section>
@@ -613,7 +597,7 @@ setTimeout(() => input.focus(), 100);
 <li><a href="#acknowledge-alarms">Acknowledge alarms</a></li>
 <li><a href="#execute-an-event-query">Execute an event query</a></li>
 <li><a href="#add-a-note-to-events">Add a note to events</a></li>
-<li><a href="#execute-an-grouped-event-query">Execute an grouped event query</a></li>
+<li><a href="#execute-a-grouped-event-query">Execute a grouped event query</a></li>
 <li><a href="#print-esm-infos">Print ESM infos</a></li>
 <li><a href="#dump-datasources">Dump Datasources</a></li>
 <li><a href="#dump-watchlists-definitions">Dump Watchlists definitions</a></li>

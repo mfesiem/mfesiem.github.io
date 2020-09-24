@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/query.py#L0-L222" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/query.py#L0-L246" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;
@@ -43,80 +43,102 @@ import datetime
 from .utils import format_esm_time, convert_to_time_obj
 from .types import NitroList
 
-log = logging.getLogger(&#39;msiempy&#39;)
+log = logging.getLogger(&#34;msiempy&#34;)
 
-__pdoc__ = {} # Init pdoc to document dynamically
+__pdoc__ = {}  # Init pdoc to document dynamically
+
 
 class FilteredQueryList(NitroList):
     &#34;&#34;&#34;
-    Base class for query based managers : `msiempy.alarm.AlarmManager`, `msiempy.event.EventManager`.  
-    FilteredQueryList object can handle time_ranges and time splitting.  
-    Abstract base class that provide time ranged filtered query wrapper.  
+    Base class for query based managers : `msiempy.alarm.AlarmManager`, `msiempy.event.EventManager`.
+    FilteredQueryList object can handle time_ranges and time splitting.
+    Abstract base class that provide time ranged filtered query wrapper.
 
-    Arguments:  
+    Arguments:
 
-    - `time_range` : Query time range. String representation of a time range. 
-        See `msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.  
-    - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
-    - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
-    - `filters` : List of filters applied to the query.  
+    - `time_range` : Query time range. String representation of a time range.
+        See `msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+    - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.
+    - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.
+    - `filters` : List of filters applied to the query.
     &#34;&#34;&#34;
-    def __init__(self, *arg, time_range=None, start_time=None, end_time=None, filters=None, **kwargs):
+
+    def __init__(
+        self,
+        *arg,
+        time_range=None,
+        start_time=None,
+        end_time=None,
+        filters=None,
+        **kwargs
+    ):
 
         # Handled eventual deprecated arguments
-        if &#39;max_query_depth&#39; in kwargs :
-            log.warning(&#39;Deprecated : `max_query_depth` argument has been removed from the object declaration for more clarty, it\&#39;s now a specilized EventManager.load_data() argument only. This argument will be ignored.&#39;)
-            del kwargs[&#39;max_query_depth&#39;]
-        if &#39;requests_size&#39; in kwargs :
-            log.warning(&#39;Deprecated : `requests_size` argument has been removed from FilteredQueryList, use `page_size` for AlarmManager or `limit` for EventManager arguments.&#39;)
-            del kwargs[&#39;requests_size&#39;]
-        if &#39;load_async&#39; in kwargs :
-            log.warning(&#39;Deprecated : `load_async` argument has been removed from FilteredQueryList. Queries are now always loaded asynchronously.&#39;)
-            del kwargs[&#39;load_async&#39;]
+        if &#34;max_query_depth&#34; in kwargs:
+            log.warning(
+                &#34;Deprecated : `max_query_depth` argument has been removed from the object declaration for more clarty, it&#39;s now a specilized EventManager.load_data() argument only. This argument will be ignored.&#34;
+            )
+            del kwargs[&#34;max_query_depth&#34;]
+        if &#34;requests_size&#34; in kwargs:
+            log.warning(
+                &#34;Deprecated : `requests_size` argument has been removed from FilteredQueryList, use `page_size` for AlarmManager or `limit` for EventManager arguments.&#34;
+            )
+            del kwargs[&#34;requests_size&#34;]
+        if &#34;load_async&#34; in kwargs:
+            log.warning(
+                &#34;Deprecated : `load_async` argument has been removed from FilteredQueryList. Queries are now always loaded asynchronously.&#34;
+            )
+            del kwargs[&#34;load_async&#34;]
 
         super().__init__(*arg, **kwargs)
-        
-        self.not_completed=False
 
-        #Declaring attributes and types
-        self._time_range=str()
-        self._start_time=None
-        self._end_time=None
+        self.not_completed = False
 
-        self.filters=filters # filter property setter
+        # Declaring attributes and types
+        self._time_range = str()
+        self._start_time = None
+        self._end_time = None
 
-        if start_time != None and end_time != None :
-            self.start_time=start_time
-            self.end_time=end_time
-            self.time_range=&#39;CUSTOM&#39;
-        else :
-            self.time_range=time_range
-    
-    DEFAULT_TIME_RANGE=&#34;CURRENT_DAY&#34;
-    __pdoc__[&#39;FilteredQueryList.DEFAULT_TIME_RANGE&#39;]=&#34;&#34;&#34;Default time range : %(default)s&#34;&#34;&#34; % dict(default=DEFAULT_TIME_RANGE)
+        self.filters = filters  # filter property setter
 
-    POSSIBLE_TIME_RANGE=[
-            &#34;CUSTOM&#34;,
-            &#34;LAST_MINUTE&#34;,
-            &#34;LAST_10_MINUTES&#34;,
-            &#34;LAST_30_MINUTES&#34;,
-            &#34;LAST_HOUR&#34;,
-            &#34;CURRENT_DAY&#34;,
-            &#34;PREVIOUS_DAY&#34;,
-            &#34;LAST_24_HOURS&#34;,
-            &#34;LAST_2_DAYS&#34;,
-            &#34;LAST_3_DAYS&#34;,
-            &#34;CURRENT_WEEK&#34;,
-            &#34;PREVIOUS_WEEK&#34;,
-            &#34;CURRENT_MONTH&#34;,
-            &#34;PREVIOUS_MONTH&#34;,
-            &#34;CURRENT_QUARTER&#34;,
-            &#34;PREVIOUS_QUARTER&#34;,
-            &#34;CURRENT_YEAR&#34;,
-            &#34;PREVIOUS_YEAR&#34;
+        if start_time != None and end_time != None:
+            self.start_time = start_time
+            self.end_time = end_time
+            self.time_range = &#34;CUSTOM&#34;
+        else:
+            self.time_range = time_range
+
+    DEFAULT_TIME_RANGE = &#34;CURRENT_DAY&#34;
+    __pdoc__[
+        &#34;FilteredQueryList.DEFAULT_TIME_RANGE&#34;
+    ] = &#34;&#34;&#34;Default time range : %(default)s&#34;&#34;&#34; % dict(default=DEFAULT_TIME_RANGE)
+
+    POSSIBLE_TIME_RANGE = [
+        &#34;CUSTOM&#34;,
+        &#34;LAST_MINUTE&#34;,
+        &#34;LAST_10_MINUTES&#34;,
+        &#34;LAST_30_MINUTES&#34;,
+        &#34;LAST_HOUR&#34;,
+        &#34;CURRENT_DAY&#34;,
+        &#34;PREVIOUS_DAY&#34;,
+        &#34;LAST_24_HOURS&#34;,
+        &#34;LAST_2_DAYS&#34;,
+        &#34;LAST_3_DAYS&#34;,
+        &#34;CURRENT_WEEK&#34;,
+        &#34;PREVIOUS_WEEK&#34;,
+        &#34;CURRENT_MONTH&#34;,
+        &#34;PREVIOUS_MONTH&#34;,
+        &#34;CURRENT_QUARTER&#34;,
+        &#34;PREVIOUS_QUARTER&#34;,
+        &#34;CURRENT_YEAR&#34;,
+        &#34;PREVIOUS_YEAR&#34;,
     ]
-    __pdoc__[&#39;FilteredQueryList.POSSIBLE_TIME_RANGE&#39;]=&#34;&#34;&#34;
-    List of possible time ranges : `%(timeranges)s`&#34;&#34;&#34; % dict(timeranges=&#39;, &#39;.join(POSSIBLE_TIME_RANGE))
+    __pdoc__[
+        &#34;FilteredQueryList.POSSIBLE_TIME_RANGE&#34;
+    ] = &#34;&#34;&#34;
+    List of possible time ranges : `%(timeranges)s`&#34;&#34;&#34; % dict(
+        timeranges=&#34;, &#34;.join(POSSIBLE_TIME_RANGE)
+    )
 
     @property
     def time_range(self):
@@ -130,28 +152,30 @@ class FilteredQueryList(NitroList):
 
     @time_range.setter
     def time_range(self, time_range):
-        if not time_range :
-            self.time_range=self.DEFAULT_TIME_RANGE
+        if not time_range:
+            self.time_range = self.DEFAULT_TIME_RANGE
 
         elif isinstance(time_range, str):
-            time_range=time_range.upper()
-            if time_range in self.POSSIBLE_TIME_RANGE :
-                if time_range != &#39;CUSTOM&#39;:
-                    self.start_time=None
-                    self.end_time=None
-                self._time_range=time_range
+            time_range = time_range.upper()
+            if time_range in self.POSSIBLE_TIME_RANGE:
+                if time_range != &#34;CUSTOM&#34;:
+                    self.start_time = None
+                    self.end_time = None
+                self._time_range = time_range
             else:
-                raise ValueError(&#34;The time range must be in &#34;+str(self.POSSIBLE_TIME_RANGE))
+                raise ValueError(
+                    &#34;The time range must be in &#34; + str(self.POSSIBLE_TIME_RANGE)
+                )
         else:
-            raise AttributeError(&#39;time_range must be a string or None&#39;)
+            raise AttributeError(&#34;time_range must be a string or None&#34;)
 
     @property
     def start_time(self):
         &#34;&#34;&#34;
-        Start time of the query in the right SIEM format.  
-        Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.  
-        If `None`, equivalent CURRENT_DAY start 00:00:00.  
-        Raises: `ValueError` if not the right type.  
+        Start time of the query in the right SIEM format.
+        Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.
+        If `None`, equivalent CURRENT_DAY start 00:00:00.
+        Raises: `ValueError` if not the right type.
         &#34;&#34;&#34;
         return format_esm_time(self._start_time)
 
@@ -161,97 +185,97 @@ class FilteredQueryList(NitroList):
             self.start_time = convert_to_time_obj(start_time)
         elif isinstance(start_time, datetime.datetime):
             self._start_time = start_time
-        elif start_time==None:
-             self._start_time=None
+        elif start_time == None:
+            self._start_time = None
         else:
             raise ValueError(&#34;Time must be string or datetime object.&#34;)
 
     @property
     def end_time(self):
         &#34;&#34;&#34;
-        End time of the query in the right SIEM format.  
-        Use `_end_time` property to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.  
-        If `None`, equivalent CURRENT_DAY.  
+        End time of the query in the right SIEM format.
+        Use `_end_time` property to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.
+        If `None`, equivalent CURRENT_DAY.
         Raises `ValueError` if not the right type.
         &#34;&#34;&#34;
         return format_esm_time(self._end_time)
 
     @end_time.setter
-    def end_time(self, end_time):       
+    def end_time(self, end_time):
         if isinstance(end_time, str):
             self.end_time = convert_to_time_obj(end_time)
         elif isinstance(end_time, datetime.datetime):
             self._end_time = end_time
-        elif end_time==None:
-             self._end_time=None
+        elif end_time == None:
+            self._end_time = None
         else:
             raise ValueError(&#34;Time must be string or datetime object.&#34;)
-    
+
     @property
     def filters(self):
-        &#34;&#34;&#34; 
-        Filter property : Returns a list of filters.  
-        Can be set with list of tuple(field, [values]), a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
-        Filters will always be added to the list, use `clear_filters()` to remove all filters from a query.   
-        Raises : `AttributeError` if type not supported.  
+        &#34;&#34;&#34;
+        Filter property : Returns a list of filters.
+        Can be set with list of tuple(field, [values]), a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.
+        Filters will always be added to the list, use `clear_filters()` to remove all filters from a query.
+        Raises : `AttributeError` if type not supported.
         Abstract declaration.
         &#34;&#34;&#34;
         return self._get_filters()
-    
+
     @filters.setter
     def filters(self, filters):
         self._set_filters(filters)
 
-
     def _set_filters(self, filters):
         if isinstance(filters, list):
-            for f in filters :
+            for f in filters:
                 self.add_filter(f)
 
         elif isinstance(filters, tuple):
             self.add_filter(filters)
 
-        elif filters == None :
+        elif filters == None:
             self.clear_filters()
-        
-        else :
-            raise AttributeError(&#34;Illegal type for the filter object, it must be a list, a tuple or None.&#34;)
-    
+
+        else:
+            raise AttributeError(
+                &#34;Illegal type for the filter object, it must be a list, a tuple or None.&#34;
+            )
+
     @abc.abstractmethod
     def _get_filters(self):
         &#34;&#34;&#34;
-        Returns the filters in the right format.  
+        Returns the filters in the right format.
         Abstract declaration.
         &#34;&#34;&#34;
         pass
 
-    
     @abc.abstractmethod
     def add_filter(self, filter):
-        &#34;&#34;&#34;Add a filter to the query.  
+        &#34;&#34;&#34;Add a filter to the query.
         Abstract declaration.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
     def clear_filters(self):
-        &#34;&#34;&#34;Remove all filters to the query.  
+        &#34;&#34;&#34;Remove all filters to the query.
         Abstract declaration.
         &#34;&#34;&#34;
-        pass 
+        pass
 
     @abc.abstractmethod
     def qry_load_data(self, *args, **kwargs):
         &#34;&#34;&#34;
-        Method to load the data from the SIEM.  
-        Rturns a `tuple ((items, completed))`.  
+        Method to load the data from the SIEM.
+        Rturns a `tuple ((items, completed))`.
         Abstract declaration.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
     def load_data(self, *args, **kwargs):
-        &#34;&#34;&#34;Load the data from the SIEM into the list.  
+        &#34;&#34;&#34;Load the data from the SIEM into the list.
         Abstract declaration.&#34;&#34;&#34;
         pass</code></pre>
 </details>
@@ -270,97 +294,113 @@ class FilteredQueryList(NitroList):
 <span>(</span><span>*arg, time_range=None, start_time=None, end_time=None, filters=None, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for query based managers : <code><a title="msiempy.alarm.AlarmManager" href="../alarm.html#msiempy.alarm.AlarmManager">AlarmManager</a></code>, <code><a title="msiempy.event.EventManager" href="../event.html#msiempy.event.EventManager">EventManager</a></code>.<br>
-FilteredQueryList object can handle time_ranges and time splitting.<br>
-Abstract base class that provide time ranged filtered query wrapper.
-</p>
-<p>Arguments:
-</p>
+<div class="desc"><p>Base class for query based managers : <code><a title="msiempy.alarm.AlarmManager" href="../alarm.html#msiempy.alarm.AlarmManager">AlarmManager</a></code>, <code><a title="msiempy.event.EventManager" href="../event.html#msiempy.event.EventManager">EventManager</a></code>.
+FilteredQueryList object can handle time_ranges and time splitting.
+Abstract base class that provide time ranged filtered query wrapper.</p>
+<p>Arguments:</p>
 <ul>
 <li><code>time_range</code> : Query time range. String representation of a time range.
-See <code><a title="msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE">FilteredQueryList.POSSIBLE_TIME_RANGE</a></code>.
-</li>
-<li><code>start_time</code> : Query starting time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
-</li>
-<li><code>end_time</code> : Query endding time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
-</li>
+See <code><a title="msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE" href="#msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE">FilteredQueryList.POSSIBLE_TIME_RANGE</a></code>.</li>
+<li><code>start_time</code> : Query starting time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.</li>
+<li><code>end_time</code> : Query endding time, can be a <code>string</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.</li>
 <li><code>filters</code> : List of filters applied to the query.</li>
 </ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/query.py#L17-L223" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/query.py#L18-L247" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FilteredQueryList(NitroList):
     &#34;&#34;&#34;
-    Base class for query based managers : `msiempy.alarm.AlarmManager`, `msiempy.event.EventManager`.  
-    FilteredQueryList object can handle time_ranges and time splitting.  
-    Abstract base class that provide time ranged filtered query wrapper.  
+    Base class for query based managers : `msiempy.alarm.AlarmManager`, `msiempy.event.EventManager`.
+    FilteredQueryList object can handle time_ranges and time splitting.
+    Abstract base class that provide time ranged filtered query wrapper.
 
-    Arguments:  
+    Arguments:
 
-    - `time_range` : Query time range. String representation of a time range. 
-        See `msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.  
-    - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
-    - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.  
-    - `filters` : List of filters applied to the query.  
+    - `time_range` : Query time range. String representation of a time range.
+        See `msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE`.
+    - `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.
+    - `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.
+    - `filters` : List of filters applied to the query.
     &#34;&#34;&#34;
-    def __init__(self, *arg, time_range=None, start_time=None, end_time=None, filters=None, **kwargs):
+
+    def __init__(
+        self,
+        *arg,
+        time_range=None,
+        start_time=None,
+        end_time=None,
+        filters=None,
+        **kwargs
+    ):
 
         # Handled eventual deprecated arguments
-        if &#39;max_query_depth&#39; in kwargs :
-            log.warning(&#39;Deprecated : `max_query_depth` argument has been removed from the object declaration for more clarty, it\&#39;s now a specilized EventManager.load_data() argument only. This argument will be ignored.&#39;)
-            del kwargs[&#39;max_query_depth&#39;]
-        if &#39;requests_size&#39; in kwargs :
-            log.warning(&#39;Deprecated : `requests_size` argument has been removed from FilteredQueryList, use `page_size` for AlarmManager or `limit` for EventManager arguments.&#39;)
-            del kwargs[&#39;requests_size&#39;]
-        if &#39;load_async&#39; in kwargs :
-            log.warning(&#39;Deprecated : `load_async` argument has been removed from FilteredQueryList. Queries are now always loaded asynchronously.&#39;)
-            del kwargs[&#39;load_async&#39;]
+        if &#34;max_query_depth&#34; in kwargs:
+            log.warning(
+                &#34;Deprecated : `max_query_depth` argument has been removed from the object declaration for more clarty, it&#39;s now a specilized EventManager.load_data() argument only. This argument will be ignored.&#34;
+            )
+            del kwargs[&#34;max_query_depth&#34;]
+        if &#34;requests_size&#34; in kwargs:
+            log.warning(
+                &#34;Deprecated : `requests_size` argument has been removed from FilteredQueryList, use `page_size` for AlarmManager or `limit` for EventManager arguments.&#34;
+            )
+            del kwargs[&#34;requests_size&#34;]
+        if &#34;load_async&#34; in kwargs:
+            log.warning(
+                &#34;Deprecated : `load_async` argument has been removed from FilteredQueryList. Queries are now always loaded asynchronously.&#34;
+            )
+            del kwargs[&#34;load_async&#34;]
 
         super().__init__(*arg, **kwargs)
-        
-        self.not_completed=False
 
-        #Declaring attributes and types
-        self._time_range=str()
-        self._start_time=None
-        self._end_time=None
+        self.not_completed = False
 
-        self.filters=filters # filter property setter
+        # Declaring attributes and types
+        self._time_range = str()
+        self._start_time = None
+        self._end_time = None
 
-        if start_time != None and end_time != None :
-            self.start_time=start_time
-            self.end_time=end_time
-            self.time_range=&#39;CUSTOM&#39;
-        else :
-            self.time_range=time_range
-    
-    DEFAULT_TIME_RANGE=&#34;CURRENT_DAY&#34;
-    __pdoc__[&#39;FilteredQueryList.DEFAULT_TIME_RANGE&#39;]=&#34;&#34;&#34;Default time range : %(default)s&#34;&#34;&#34; % dict(default=DEFAULT_TIME_RANGE)
+        self.filters = filters  # filter property setter
 
-    POSSIBLE_TIME_RANGE=[
-            &#34;CUSTOM&#34;,
-            &#34;LAST_MINUTE&#34;,
-            &#34;LAST_10_MINUTES&#34;,
-            &#34;LAST_30_MINUTES&#34;,
-            &#34;LAST_HOUR&#34;,
-            &#34;CURRENT_DAY&#34;,
-            &#34;PREVIOUS_DAY&#34;,
-            &#34;LAST_24_HOURS&#34;,
-            &#34;LAST_2_DAYS&#34;,
-            &#34;LAST_3_DAYS&#34;,
-            &#34;CURRENT_WEEK&#34;,
-            &#34;PREVIOUS_WEEK&#34;,
-            &#34;CURRENT_MONTH&#34;,
-            &#34;PREVIOUS_MONTH&#34;,
-            &#34;CURRENT_QUARTER&#34;,
-            &#34;PREVIOUS_QUARTER&#34;,
-            &#34;CURRENT_YEAR&#34;,
-            &#34;PREVIOUS_YEAR&#34;
+        if start_time != None and end_time != None:
+            self.start_time = start_time
+            self.end_time = end_time
+            self.time_range = &#34;CUSTOM&#34;
+        else:
+            self.time_range = time_range
+
+    DEFAULT_TIME_RANGE = &#34;CURRENT_DAY&#34;
+    __pdoc__[
+        &#34;FilteredQueryList.DEFAULT_TIME_RANGE&#34;
+    ] = &#34;&#34;&#34;Default time range : %(default)s&#34;&#34;&#34; % dict(default=DEFAULT_TIME_RANGE)
+
+    POSSIBLE_TIME_RANGE = [
+        &#34;CUSTOM&#34;,
+        &#34;LAST_MINUTE&#34;,
+        &#34;LAST_10_MINUTES&#34;,
+        &#34;LAST_30_MINUTES&#34;,
+        &#34;LAST_HOUR&#34;,
+        &#34;CURRENT_DAY&#34;,
+        &#34;PREVIOUS_DAY&#34;,
+        &#34;LAST_24_HOURS&#34;,
+        &#34;LAST_2_DAYS&#34;,
+        &#34;LAST_3_DAYS&#34;,
+        &#34;CURRENT_WEEK&#34;,
+        &#34;PREVIOUS_WEEK&#34;,
+        &#34;CURRENT_MONTH&#34;,
+        &#34;PREVIOUS_MONTH&#34;,
+        &#34;CURRENT_QUARTER&#34;,
+        &#34;PREVIOUS_QUARTER&#34;,
+        &#34;CURRENT_YEAR&#34;,
+        &#34;PREVIOUS_YEAR&#34;,
     ]
-    __pdoc__[&#39;FilteredQueryList.POSSIBLE_TIME_RANGE&#39;]=&#34;&#34;&#34;
-    List of possible time ranges : `%(timeranges)s`&#34;&#34;&#34; % dict(timeranges=&#39;, &#39;.join(POSSIBLE_TIME_RANGE))
+    __pdoc__[
+        &#34;FilteredQueryList.POSSIBLE_TIME_RANGE&#34;
+    ] = &#34;&#34;&#34;
+    List of possible time ranges : `%(timeranges)s`&#34;&#34;&#34; % dict(
+        timeranges=&#34;, &#34;.join(POSSIBLE_TIME_RANGE)
+    )
 
     @property
     def time_range(self):
@@ -374,28 +414,30 @@ See <code><a title="msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE" hr
 
     @time_range.setter
     def time_range(self, time_range):
-        if not time_range :
-            self.time_range=self.DEFAULT_TIME_RANGE
+        if not time_range:
+            self.time_range = self.DEFAULT_TIME_RANGE
 
         elif isinstance(time_range, str):
-            time_range=time_range.upper()
-            if time_range in self.POSSIBLE_TIME_RANGE :
-                if time_range != &#39;CUSTOM&#39;:
-                    self.start_time=None
-                    self.end_time=None
-                self._time_range=time_range
+            time_range = time_range.upper()
+            if time_range in self.POSSIBLE_TIME_RANGE:
+                if time_range != &#34;CUSTOM&#34;:
+                    self.start_time = None
+                    self.end_time = None
+                self._time_range = time_range
             else:
-                raise ValueError(&#34;The time range must be in &#34;+str(self.POSSIBLE_TIME_RANGE))
+                raise ValueError(
+                    &#34;The time range must be in &#34; + str(self.POSSIBLE_TIME_RANGE)
+                )
         else:
-            raise AttributeError(&#39;time_range must be a string or None&#39;)
+            raise AttributeError(&#34;time_range must be a string or None&#34;)
 
     @property
     def start_time(self):
         &#34;&#34;&#34;
-        Start time of the query in the right SIEM format.  
-        Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.  
-        If `None`, equivalent CURRENT_DAY start 00:00:00.  
-        Raises: `ValueError` if not the right type.  
+        Start time of the query in the right SIEM format.
+        Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.
+        If `None`, equivalent CURRENT_DAY start 00:00:00.
+        Raises: `ValueError` if not the right type.
         &#34;&#34;&#34;
         return format_esm_time(self._start_time)
 
@@ -405,97 +447,97 @@ See <code><a title="msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE" hr
             self.start_time = convert_to_time_obj(start_time)
         elif isinstance(start_time, datetime.datetime):
             self._start_time = start_time
-        elif start_time==None:
-             self._start_time=None
+        elif start_time == None:
+            self._start_time = None
         else:
             raise ValueError(&#34;Time must be string or datetime object.&#34;)
 
     @property
     def end_time(self):
         &#34;&#34;&#34;
-        End time of the query in the right SIEM format.  
-        Use `_end_time` property to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.  
-        If `None`, equivalent CURRENT_DAY.  
+        End time of the query in the right SIEM format.
+        Use `_end_time` property to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.
+        If `None`, equivalent CURRENT_DAY.
         Raises `ValueError` if not the right type.
         &#34;&#34;&#34;
         return format_esm_time(self._end_time)
 
     @end_time.setter
-    def end_time(self, end_time):       
+    def end_time(self, end_time):
         if isinstance(end_time, str):
             self.end_time = convert_to_time_obj(end_time)
         elif isinstance(end_time, datetime.datetime):
             self._end_time = end_time
-        elif end_time==None:
-             self._end_time=None
+        elif end_time == None:
+            self._end_time = None
         else:
             raise ValueError(&#34;Time must be string or datetime object.&#34;)
-    
+
     @property
     def filters(self):
-        &#34;&#34;&#34; 
-        Filter property : Returns a list of filters.  
-        Can be set with list of tuple(field, [values]), a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
-        Filters will always be added to the list, use `clear_filters()` to remove all filters from a query.   
-        Raises : `AttributeError` if type not supported.  
+        &#34;&#34;&#34;
+        Filter property : Returns a list of filters.
+        Can be set with list of tuple(field, [values]), a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.
+        Filters will always be added to the list, use `clear_filters()` to remove all filters from a query.
+        Raises : `AttributeError` if type not supported.
         Abstract declaration.
         &#34;&#34;&#34;
         return self._get_filters()
-    
+
     @filters.setter
     def filters(self, filters):
         self._set_filters(filters)
 
-
     def _set_filters(self, filters):
         if isinstance(filters, list):
-            for f in filters :
+            for f in filters:
                 self.add_filter(f)
 
         elif isinstance(filters, tuple):
             self.add_filter(filters)
 
-        elif filters == None :
+        elif filters == None:
             self.clear_filters()
-        
-        else :
-            raise AttributeError(&#34;Illegal type for the filter object, it must be a list, a tuple or None.&#34;)
-    
+
+        else:
+            raise AttributeError(
+                &#34;Illegal type for the filter object, it must be a list, a tuple or None.&#34;
+            )
+
     @abc.abstractmethod
     def _get_filters(self):
         &#34;&#34;&#34;
-        Returns the filters in the right format.  
+        Returns the filters in the right format.
         Abstract declaration.
         &#34;&#34;&#34;
         pass
 
-    
     @abc.abstractmethod
     def add_filter(self, filter):
-        &#34;&#34;&#34;Add a filter to the query.  
+        &#34;&#34;&#34;Add a filter to the query.
         Abstract declaration.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
     def clear_filters(self):
-        &#34;&#34;&#34;Remove all filters to the query.  
+        &#34;&#34;&#34;Remove all filters to the query.
         Abstract declaration.
         &#34;&#34;&#34;
-        pass 
+        pass
 
     @abc.abstractmethod
     def qry_load_data(self, *args, **kwargs):
         &#34;&#34;&#34;
-        Method to load the data from the SIEM.  
-        Rturns a `tuple ((items, completed))`.  
+        Method to load the data from the SIEM.
+        Rturns a `tuple ((items, completed))`.
         Abstract declaration.
         &#34;&#34;&#34;
         pass
 
     @abc.abstractmethod
     def load_data(self, *args, **kwargs):
-        &#34;&#34;&#34;Load the data from the SIEM into the list.  
+        &#34;&#34;&#34;Load the data from the SIEM into the list.
         Abstract declaration.&#34;&#34;&#34;
         pass</code></pre>
 </details>
@@ -540,7 +582,7 @@ Raises <code>VallueError</code> if unrecognized time range is set and <code>Attr
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/query.py#L88-L96" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/query.py#L110-L118" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def time_range(self):
@@ -555,43 +597,43 @@ def time_range(self):
 </dd>
 <dt id="msiempy.core.query.FilteredQueryList.start_time"><code class="name">var <span class="ident">start_time</span></code></dt>
 <dd>
-<div class="desc"><p>Start time of the query in the right SIEM format.<br>
-Use <code>_start_time</code> to get the datetime object. You can set the <code>star_time</code> as a <code>str</code> or a <code>datetime</code>.<br>
-If <code>None</code>, equivalent CURRENT_DAY start 00:00:00.<br>
+<div class="desc"><p>Start time of the query in the right SIEM format.
+Use <code>_start_time</code> to get the datetime object. You can set the <code>star_time</code> as a <code>str</code> or a <code>datetime</code>.
+If <code>None</code>, equivalent CURRENT_DAY start 00:00:00.
 Raises: <code>ValueError</code> if not the right type.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/query.py#L115-L123" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/query.py#L139-L147" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def start_time(self):
     &#34;&#34;&#34;
-    Start time of the query in the right SIEM format.  
-    Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.  
-    If `None`, equivalent CURRENT_DAY start 00:00:00.  
-    Raises: `ValueError` if not the right type.  
+    Start time of the query in the right SIEM format.
+    Use `_start_time` to get the datetime object. You can set the `star_time` as a `str` or a `datetime`.
+    If `None`, equivalent CURRENT_DAY start 00:00:00.
+    Raises: `ValueError` if not the right type.
     &#34;&#34;&#34;
     return format_esm_time(self._start_time)</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.query.FilteredQueryList.end_time"><code class="name">var <span class="ident">end_time</span></code></dt>
 <dd>
-<div class="desc"><p>End time of the query in the right SIEM format.<br>
-Use <code>_end_time</code> property to get the datetime object. You can set the <code>end_time</code> as a <code>str</code> or a <code>datetime</code>.<br>
-If <code>None</code>, equivalent CURRENT_DAY.<br>
+<div class="desc"><p>End time of the query in the right SIEM format.
+Use <code>_end_time</code> property to get the datetime object. You can set the <code>end_time</code> as a <code>str</code> or a <code>datetime</code>.
+If <code>None</code>, equivalent CURRENT_DAY.
 Raises <code>ValueError</code> if not the right type.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/query.py#L136-L144" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/query.py#L160-L168" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def end_time(self):
     &#34;&#34;&#34;
-    End time of the query in the right SIEM format.  
-    Use `_end_time` property to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.  
-    If `None`, equivalent CURRENT_DAY.  
+    End time of the query in the right SIEM format.
+    Use `_end_time` property to get the datetime object. You can set the `end_time` as a `str` or a `datetime`.
+    If `None`, equivalent CURRENT_DAY.
     Raises `ValueError` if not the right type.
     &#34;&#34;&#34;
     return format_esm_time(self._end_time)</code></pre>
@@ -599,23 +641,23 @@ def end_time(self):
 </dd>
 <dt id="msiempy.core.query.FilteredQueryList.filters"><code class="name">var <span class="ident">filters</span></code></dt>
 <dd>
-<div class="desc"><p>Filter property : Returns a list of filters.<br>
-Can be set with list of tuple(field, [values]), a <code><a title="msiempy.event.FieldFilter" href="../event.html#msiempy.event.FieldFilter">FieldFilter</a></code> or <code><a title="msiempy.event.GroupFilter" href="../event.html#msiempy.event.GroupFilter">GroupFilter</a></code> in the case of a <code><a title="msiempy.event.EventManager" href="../event.html#msiempy.event.EventManager">EventManager</a></code> query. A single tuple is also accepted.<br>
-Filters will always be added to the list, use <code>clear_filters()</code> to remove all filters from a query. <br>
-Raises : <code>AttributeError</code> if type not supported.<br>
+<div class="desc"><p>Filter property : Returns a list of filters.
+Can be set with list of tuple(field, [values]), a <code><a title="msiempy.event.FieldFilter" href="../event.html#msiempy.event.FieldFilter">FieldFilter</a></code> or <code><a title="msiempy.event.GroupFilter" href="../event.html#msiempy.event.GroupFilter">GroupFilter</a></code> in the case of a <code><a title="msiempy.event.EventManager" href="../event.html#msiempy.event.EventManager">EventManager</a></code> query. A single tuple is also accepted.
+Filters will always be added to the list, use <code>clear_filters()</code> to remove all filters from a query.
+Raises : <code>AttributeError</code> if type not supported.
 Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/query.py#L157-L166" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/query.py#L181-L190" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def filters(self):
-    &#34;&#34;&#34; 
-    Filter property : Returns a list of filters.  
-    Can be set with list of tuple(field, [values]), a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.  
-    Filters will always be added to the list, use `clear_filters()` to remove all filters from a query.   
-    Raises : `AttributeError` if type not supported.  
+    &#34;&#34;&#34;
+    Filter property : Returns a list of filters.
+    Can be set with list of tuple(field, [values]), a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` in the case of a `msiempy.event.EventManager` query. A single tuple is also accepted.
+    Filters will always be added to the list, use `clear_filters()` to remove all filters from a query.
+    Raises : `AttributeError` if type not supported.
     Abstract declaration.
     &#34;&#34;&#34;
     return self._get_filters()</code></pre>
@@ -628,16 +670,16 @@ def filters(self):
 <span>def <span class="ident">add_filter</span></span>(<span>self, filter)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Add a filter to the query.<br>
+<div class="desc"><p>Add a filter to the query.
 Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/query.py#L196-L201" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/query.py#L220-L225" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def add_filter(self, filter):
-    &#34;&#34;&#34;Add a filter to the query.  
+    &#34;&#34;&#34;Add a filter to the query.
     Abstract declaration.
     &#34;&#34;&#34;
     pass</code></pre>
@@ -647,38 +689,38 @@ def add_filter(self, filter):
 <span>def <span class="ident">clear_filters</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Remove all filters to the query.<br>
+<div class="desc"><p>Remove all filters to the query.
 Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/query.py#L203-L208" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/query.py#L227-L232" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def clear_filters(self):
-    &#34;&#34;&#34;Remove all filters to the query.  
+    &#34;&#34;&#34;Remove all filters to the query.
     Abstract declaration.
     &#34;&#34;&#34;
-    pass </code></pre>
+    pass</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.query.FilteredQueryList.qry_load_data"><code class="name flex">
 <span>def <span class="ident">qry_load_data</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Method to load the data from the SIEM.<br>
-Rturns a <code>tuple ((items, completed))</code>.<br>
+<div class="desc"><p>Method to load the data from the SIEM.
+Rturns a <code>tuple ((items, completed))</code>.
 Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/query.py#L210-L217" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/query.py#L234-L241" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def qry_load_data(self, *args, **kwargs):
     &#34;&#34;&#34;
-    Method to load the data from the SIEM.  
-    Rturns a `tuple ((items, completed))`.  
+    Method to load the data from the SIEM.
+    Rturns a `tuple ((items, completed))`.
     Abstract declaration.
     &#34;&#34;&#34;
     pass</code></pre>
@@ -688,16 +730,16 @@ def qry_load_data(self, *args, **kwargs):
 <span>def <span class="ident">load_data</span></span>(<span>self, *args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Load the data from the SIEM into the list.<br>
+<div class="desc"><p>Load the data from the SIEM into the list.
 Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/query.py#L219-L223" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/query.py#L243-L247" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def load_data(self, *args, **kwargs):
-    &#34;&#34;&#34;Load the data from the SIEM into the list.  
+    &#34;&#34;&#34;Load the data from the SIEM into the list.
     Abstract declaration.&#34;&#34;&#34;
     pass</code></pre>
 </details>

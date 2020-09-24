@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L0-L423" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L0-L450" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;A few quick static util methods.
@@ -41,7 +41,8 @@ from functools import wraps
 from datetime import datetime, timedelta
 import dateutil.parser
 
-__pdoc__ = {} # Init pdoc to document dynamically
+__pdoc__ = {}  # Init pdoc to document dynamically
+
 
 def dehexify(data):
     &#34;&#34;&#34;
@@ -50,36 +51,36 @@ def dehexify(data):
     &#34;&#34;&#34;
 
     hexen = {
-        &#39;\x1c&#39;: &#39;,&#39;,  # Replacing Device Control 1 with a comma.
-        &#39;\x11&#39;: &#39;\n&#39;,  # Replacing Device Control 2 with a new line.
-        &#39;\x12&#39;: &#39; &#39;,  # Space
-        &#39;\x22&#39;: &#39;&#34;&#39;,  # Double Quotes
-        &#39;\x23&#39;: &#39;#&#39;,  # Number Symbol
-        &#39;\x27&#39;: &#39;\&#39;&#39;,  # Single Quote
-        &#39;\x28&#39;: &#39;(&#39;,  # Open Parenthesis
-        &#39;\x29&#39;: &#39;)&#39;,  # Close Parenthesis
-        &#39;\x2b&#39;: &#39;+&#39;,  # Plus Symbol
-        &#39;\x2d&#39;: &#39;-&#39;,  # Hyphen Symbol
-        &#39;\x2e&#39;: &#39;.&#39;,  # Period, dot, or full stop.
-        &#39;\x2f&#39;: &#39;/&#39;,  # Forward Slash or divide symbol.
-        &#39;\x7c&#39;: &#39;|&#39;,  # Vertical bar or pipe.
+        &#34;\x1c&#34;: &#34;,&#34;,  # Replacing Device Control 1 with a comma.
+        &#34;\x11&#34;: &#34;\n&#34;,  # Replacing Device Control 2 with a new line.
+        &#34;\x12&#34;: &#34; &#34;,  # Space
+        &#34;\x22&#34;: &#39;&#34;&#39;,  # Double Quotes
+        &#34;\x23&#34;: &#34;#&#34;,  # Number Symbol
+        &#34;\x27&#34;: &#34;&#39;&#34;,  # Single Quote
+        &#34;\x28&#34;: &#34;(&#34;,  # Open Parenthesis
+        &#34;\x29&#34;: &#34;)&#34;,  # Close Parenthesis
+        &#34;\x2b&#34;: &#34;+&#34;,  # Plus Symbol
+        &#34;\x2d&#34;: &#34;-&#34;,  # Hyphen Symbol
+        &#34;\x2e&#34;: &#34;.&#34;,  # Period, dot, or full stop.
+        &#34;\x2f&#34;: &#34;/&#34;,  # Forward Slash or divide symbol.
+        &#34;\x7c&#34;: &#34;|&#34;,  # Vertical bar or pipe.
     }
 
     uri = {
-        &#39;%11&#39;: &#39;,&#39;,  # Replacing Device Control 1 with a comma.
-        &#39;%12&#39;: &#39;\n&#39;,  # Replacing Device Control 2 with a new line.
-        &#39;%20&#39;: &#39; &#39;,  # Space
-        &#39;%22&#39;: &#39;&#34;&#39;,  # Double Quotes
-        &#39;%23&#39;: &#39;#&#39;,  # Number Symbol
-        &#39;%27&#39;: &#39;\&#39;&#39;,  # Single Quote
-        &#39;%28&#39;: &#39;(&#39;,  # Open Parenthesis
-        &#39;%29&#39;: &#39;)&#39;,  # Close Parenthesis
-        &#39;%2B&#39;: &#39;+&#39;,  # Plus Symbol
-        &#39;%2D&#39;: &#39;-&#39;,  # Hyphen Symbol
-        &#39;%2E&#39;: &#39;.&#39;,  # Period, dot, or full stop.
-        &#39;%2F&#39;: &#39;/&#39;,  # Forward Slash or divide symbol.
-        &#39;%3A&#39;: &#39;:&#39;,  # Colon
-        &#39;%7C&#39;: &#39;|&#39;,  # Vertical bar or pipe.
+        &#34;%11&#34;: &#34;,&#34;,  # Replacing Device Control 1 with a comma.
+        &#34;%12&#34;: &#34;\n&#34;,  # Replacing Device Control 2 with a new line.
+        &#34;%20&#34;: &#34; &#34;,  # Space
+        &#34;%22&#34;: &#39;&#34;&#39;,  # Double Quotes
+        &#34;%23&#34;: &#34;#&#34;,  # Number Symbol
+        &#34;%27&#34;: &#34;&#39;&#34;,  # Single Quote
+        &#34;%28&#34;: &#34;(&#34;,  # Open Parenthesis
+        &#34;%29&#34;: &#34;)&#34;,  # Close Parenthesis
+        &#34;%2B&#34;: &#34;+&#34;,  # Plus Symbol
+        &#34;%2D&#34;: &#34;-&#34;,  # Hyphen Symbol
+        &#34;%2E&#34;: &#34;.&#34;,  # Period, dot, or full stop.
+        &#34;%2F&#34;: &#34;/&#34;,  # Forward Slash or divide symbol.
+        &#34;%3A&#34;: &#34;:&#34;,  # Colon
+        &#34;%7C&#34;: &#34;|&#34;,  # Vertical bar or pipe.
     }
 
     for (enc, dec) in hexen.items():
@@ -89,6 +90,7 @@ def dehexify(data):
         data = data.replace(enc, dec)
 
     return data
+
 
 # Unused method
 # def timethis(func):
@@ -105,27 +107,30 @@ def dehexify(data):
 #         return result
 #     return wrapper
 
+
 def tob64(s):
     &#34;&#34;&#34;
     Encode a string to base64 almost like `echo &#39;123&#39; | base64` would do.
     &#34;&#34;&#34;
     if type(s) is str:
-        return base64.b64encode(s.encode(&#39;utf-8&#39;)).decode()
+        return base64.b64encode(s.encode(&#34;utf-8&#34;)).decode()
+
 
 def fromb64(s):
     &#34;&#34;&#34;
     Decode a string to base64 almost like `echo &#39;MTIzCg==&#39; | base64 --decode` would do.
     &#34;&#34;&#34;
     if type(s) is str:
-        return base64.b64decode(s.encode(&#39;utf-8&#39;)).encode()
+        return base64.b64decode(s.encode(&#34;utf-8&#34;)).encode()
+
 
 # Usefull to compte CURRENT_WEEK timerange
 # one_day = timedelta(days=1)
 # def get_week(date):
 #     &#34;&#34;&#34;
-#     Return the full week (Sunday first) of the week containing the given date.  
+#     Return the full week (Sunday first) of the week containing the given date.
 
-#         - &#39;date&#39; may be a datetime or date instance (the same type is returned).  
+#         - &#39;date&#39; may be a datetime or date instance (the same type is returned).
 #     &#34;&#34;&#34;
 #     day_idx = (date.weekday() + 1) % 7  # turn sunday into 0, monday into 1, etc.
 #     sunday = date - timedelta(days=day_idx)
@@ -134,42 +139,49 @@ def fromb64(s):
 #         yield date
 #         date += one_day
 
+
 def timerange_gettimes(time_range):
     &#34;&#34;&#34;
     Convert a string time range to a tuple of datetime objects. Only works for certain time ranges.
     &#34;&#34;&#34;
-    t=time_range.upper()
-    now=datetime.now()
-    times=tuple()
+    t = time_range.upper()
+    now = datetime.now()
+    times = tuple()
 
-    if t == &#39;LAST_MINUTE&#39; :
-        times=(now-timedelta(seconds=60), now)
-        
-    elif t == &#39;LAST_10_MINUTES&#39;:
-        times=(now-timedelta(minutes=10), now)
+    if t == &#34;LAST_MINUTE&#34;:
+        times = (now - timedelta(seconds=60), now)
 
-    elif t == &#39;LAST_30_MINUTES&#39;:
-        times=(now-timedelta(minutes=30), now)
+    elif t == &#34;LAST_10_MINUTES&#34;:
+        times = (now - timedelta(minutes=10), now)
 
-    elif t == &#39;LAST_HOUR&#39;:
-        times=(now-timedelta(minutes=60), now)
+    elif t == &#34;LAST_30_MINUTES&#34;:
+        times = (now - timedelta(minutes=30), now)
 
-    elif t == &#39;CURRENT_DAY&#39;:
-        times=(now.replace(hour=0, minute=0, second=0), now.replace(hour=23, minute=59, second=59))
+    elif t == &#34;LAST_HOUR&#34;:
+        times = (now - timedelta(minutes=60), now)
 
-    elif t == &#39;PREVIOUS_DAY&#39;:
-        yesterday=now-timedelta(hours=24)
-        times=(yesterday.replace(hour=0, minute=0, second=0), yesterday.replace(hour=23, minute=59, second=59))
+    elif t == &#34;CURRENT_DAY&#34;:
+        times = (
+            now.replace(hour=0, minute=0, second=0),
+            now.replace(hour=23, minute=59, second=59),
+        )
 
-    elif t == &#39;LAST_24_HOURS&#39;:
-        times=(now-timedelta(hours=24), now)
+    elif t == &#34;PREVIOUS_DAY&#34;:
+        yesterday = now - timedelta(hours=24)
+        times = (
+            yesterday.replace(hour=0, minute=0, second=0),
+            yesterday.replace(hour=23, minute=59, second=59),
+        )
 
-    elif t == &#39;LAST_2_DAYS&#39;:
-        times=(now-timedelta(days=2), now)
+    elif t == &#34;LAST_24_HOURS&#34;:
+        times = (now - timedelta(hours=24), now)
 
-    elif t == &#39;LAST_3_DAYS&#39;:
-        times=(now-timedelta(days=3), now)
-    #TODO Support other time ranges
+    elif t == &#34;LAST_2_DAYS&#34;:
+        times = (now - timedelta(days=2), now)
+
+    elif t == &#34;LAST_3_DAYS&#34;:
+        times = (now - timedelta(days=3), now)
+    # TODO Support other time ranges
     # elif t == &#39;CURRENT_WEEK&#39;:
     #     pass
     # elif t == &#39;PREVIOUS_WEEK&#39;:
@@ -186,52 +198,52 @@ def timerange_gettimes(time_range):
     #     pass
     # elif t == &#39;PREVIOUS_YEAR&#39;:
     #     pass
-    else :
-        raise NotImplementedError(&#34;Timerange &#34;+t+&#34; is not supported yet&#34;)
-    
-    return(times[0].isoformat(), times[1].isoformat())
-    
+    else:
+        raise NotImplementedError(&#34;Timerange &#34; + t + &#34; is not supported yet&#34;)
+
+    return (times[0].isoformat(), times[1].isoformat())
+
 
 def divide_times(first, last, time=0, slots=0, delta=0):
-    &#34;&#34;&#34;&#34;
-        Divide the time range based on another time, a delta or on a number of slots.
-        Return list of tuple
+    &#34;&#34;&#34; &#34;
+    Divide the time range based on another time, a delta or on a number of slots.
+    Return list of tuple
     &#34;&#34;&#34;
 
-    #parse the dates
-    t1=convert_to_time_obj(first) if not isinstance(first, datetime) else first
-    t2=convert_to_time_obj(last) if not isinstance(last, datetime) else last
-    
-    duration=t2-t1
+    # parse the dates
+    t1 = convert_to_time_obj(first) if not isinstance(first, datetime) else first
+    t2 = convert_to_time_obj(last) if not isinstance(last, datetime) else last
 
-    if slots==0 :
-        if delta==0 :
-            if time==0 :
-                raise AttributeError(&#39;Either time, slots or delta must be specified&#39;)
-            else :
-                div=convert_to_time_obj(time)-t1
+    duration = t2 - t1
 
-        elif(isinstance(delta, timedelta)):
+    if slots == 0:
+        if delta == 0:
+            if time == 0:
+                raise AttributeError(&#34;Either time, slots or delta must be specified&#34;)
+            else:
+                div = convert_to_time_obj(time) - t1
+
+        elif isinstance(delta, timedelta):
             div = delta
         elif isinstance(delta, str):
             div = parse_timedelta(delta)
         else:
-            raise AttributeError(&#39;delta Must be timedelta or str object&#39;)
+            raise AttributeError(&#34;delta Must be timedelta or str object&#34;)
 
-        
-        slots=int(duration.total_seconds()/div.total_seconds())+1
+        slots = int(duration.total_seconds() / div.total_seconds()) + 1
 
-    timeSlot=timedelta(seconds=duration.total_seconds()/slots)
+    timeSlot = timedelta(seconds=duration.total_seconds() / slots)
 
-    #print(locals())
+    # print(locals())
 
-    times=list()
+    times = list()
 
     for i in range(slots):
-        times.append( (t1, t1+timeSlot) )
-        t1+=timeSlot
+        times.append((t1, t1 + timeSlot))
+        t1 += timeSlot
 
-    return(times)
+    return times
+
 
 def regex_match(regex, string):
     if re.search(regex, string):
@@ -239,47 +251,50 @@ def regex_match(regex, string):
     else:
         return False
 
+
 def format_esm_time(esm_time):
     &#34;&#34;&#34;Converts time object to ESM time string.
-    
+
     Arguments:
         time_obj {[type]} -- [description]
     Returns:
         time string in format: 2019-04-08T19:35:02.971Z
     &#34;&#34;&#34;
-    _esm_out_time_fmt = &#39;%m/%d/%Y %H:%M:%S&#39;
-    _esm_in_time_fmt = &#39;%Y-%m-%dT%H:%M:%S.000Z&#39;
+    _esm_out_time_fmt = &#34;%m/%d/%Y %H:%M:%S&#34;
+    _esm_in_time_fmt = &#34;%Y-%m-%dT%H:%M:%S.000Z&#34;
     if isinstance(esm_time, str):
-        esm_time = convert_to_time_obj(esm_time)#, _esm_out_time_fmt)
+        esm_time = convert_to_time_obj(esm_time)  # , _esm_out_time_fmt)
     return datetime.strftime(esm_time, _esm_in_time_fmt)
+
 
 def convert_to_time_obj(time_str):
     &#34;&#34;&#34;
     Converts given timestamp string to datetime object
-    
+
     Args:
         time_str: timestamp in format &#39;YYYY/MM/DD HH:MM:SS&#39;,
                          &#39;MM/DD/YYYY HH:MM:SS&#39;, or &#39;DD/MM/YYYY HH:MM:SS&#39;
-                         
+
     Returns:
         datetime object or None if no format matches
     &#34;&#34;&#34;
     return dateutil.parser.parse(time_str)
 
+
 def parse_query_result(columns, rows):
     &#34;&#34;&#34;
     For input :
         columns = [{&#39;name&#39;: &#39;Alert.LastTime&#39;}, {&#39;name&#39;: &#39;Rule.msg&#39;}, {&#39;name&#39;: &#39;Alert.DstIP&#39;}, {&#39;name&#39;: &#39;Alert.IPSIDAlertID&#39;}]
-        rows = 
+        rows =
             [
-                {&#39;values&#39;: [&#39;09/22/2020 15:51:14&#39;, &#39;Postfix Disconnect from host&#39;, &#39;::&#39;, &#39;144116287604260864|547123&#39;]}, 
+                {&#39;values&#39;: [&#39;09/22/2020 15:51:14&#39;, &#39;Postfix Disconnect from host&#39;, &#39;::&#39;, &#39;144116287604260864|547123&#39;]},
                 {&#39;values&#39;: [&#39;09/22/2020 15:51:14&#39;, &#39;Postfix Lost connection from host&#39;, &#39;::&#39;, &#39;144116287604260864|547122&#39;]}
-            } 
+            }
 
     Returns :
     [
         {
-            &#34;Alert.LastTime&#34;:&#34;09/22/2020 15:51:14&#34;, 
+            &#34;Alert.LastTime&#34;:&#34;09/22/2020 15:51:14&#34;,
             &#34;Rule.msg&#34;:&#34;Postfix Disconnect from host&#34;,
             &#34;Alert.DstIP&#34;:&#34;::&#34;,
             &#34;Alert.IPSIDAlertID&#34;:&#34;144116287604260864|547123&#34;
@@ -290,35 +305,36 @@ def parse_query_result(columns, rows):
     ]
 
     &#34;&#34;&#34;
-    events=list()
-    for row in rows :
-        event=dict()
+    events = list()
+    for row in rows:
+        event = dict()
         for i in range(len(columns)):
-            event.update({columns[i][&#39;name&#39;]:row[&#39;values&#39;][i]})
+            event.update({columns[i][&#34;name&#34;]: row[&#34;values&#34;][i]})
 
         events.append(event)
 
-    return(events)
+    return events
 
 
 def format_fields_for_query(fields):
     &#34;&#34;&#34;
-    Format fields names to cann query module.  
+    Format fields names to cann query module.
 
-    Arguments:  
+    Arguments:
 
     - `fields`: list of fields, i.e. `[&#39;field1&#39;,&#39;name&#39;,&#39;user&#39;]`
 
-    Returns:  
-    
+    Returns:
+
         [
             {&#39;name&#39;:&#39;field1&#39;},
             {&#39;name&#39;:&#39;name&#39;},
             {&#39;name&#39;:&#39;user&#39;},
         ]
-    
+
     &#34;&#34;&#34;
-    return([{&#39;name&#39;:value} for value in list(fields)])
+    return [{&#34;name&#34;: value} for value in list(fields)]
+
 
 def parse_timedelta(time_str):
     &#34;&#34;&#34;
@@ -329,29 +345,38 @@ def parse_timedelta(time_str):
     :param time_str: A string identifying a duration.  (eg. 2h13m)
     :return datetime.timedelta: A datetime.timedelta object
     &#34;&#34;&#34;
-    regex = re.compile(r&#39;^((?P&lt;days&gt;[\.\d]+?)d)?((?P&lt;hours&gt;[\.\d]+?)h)?((?P&lt;minutes&gt;[\.\d]+?)m)?((?P&lt;seconds&gt;[\.\d]+?)s)?$&#39;)
+    regex = re.compile(
+        r&#34;^((?P&lt;days&gt;[\.\d]+?)d)?((?P&lt;hours&gt;[\.\d]+?)h)?((?P&lt;minutes&gt;[\.\d]+?)m)?((?P&lt;seconds&gt;[\.\d]+?)s)?$&#34;
+    )
     parts = regex.match(time_str)
-    assert parts is not None, &#34;Could not parse any time information from &#39;{}&#39;.  Examples of valid strings: &#39;8h&#39;, &#39;2d8h5m20s&#39;, &#39;2m4s&#39;&#34;.format(time_str)
-    time_params = {name: float(param) for name, param in parts.groupdict().items() if param}
+    assert (
+        parts is not None
+    ), &#34;Could not parse any time information from &#39;{}&#39;.  Examples of valid strings: &#39;8h&#39;, &#39;2d8h5m20s&#39;, &#39;2m4s&#39;&#34;.format(
+        time_str
+    )
+    time_params = {
+        name: float(param) for name, param in parts.groupdict().items() if param
+    }
     return timedelta(**time_params)
+
 
 # Unused method
 # def sanitize_string(strg, valid_chars = &#39;&#39;):
-#     &#39;&#39;&#39; Sanitize string 
+#     &#39;&#39;&#39; Sanitize string
 #         Usage:
 #             By default returns the string without special characters, underscore replaced with space, and surrounding whitespace removed
 #             :valid_chars: By default this function removes all characters. Specifying a string of characters here will skip removing them
 
 #         Edited from https://github.com/AutomationSolutionz/Zeuz_Python_Node/blob/master/Framework/Built_In_Automation/Built_In_Utility/CrossPlatform/BuiltInUtilityFunction.py
 #     &#39;&#39;&#39;
-    
+
 #     # Invalid character list (space and underscore are handle separately)
 #     invalid_chars = &#39;!&#34;#$%&amp;\&#39;()*+,-./:;&lt;=&gt;?@[\]^`{|}~&#39;
 
 #     # Adjust invalid character list, based on function input
 #     for j in range(len(valid_chars)): # For each valid character
 #         invalid_chars = invalid_chars.replace(valid_chars[j], &#39;&#39;) # Remove valid character from invalid character list
-   
+
 #     for j in range(0,len(invalid_chars)): # For each invalid character (allows us to only remove those the user hasn&#39;t deemed valid)
 #         strg = strg.replace(invalid_chars[j], &#39;&#39;) # Remove invalid character
 #         strg = strg.lower() # Convert to lower case
@@ -360,100 +385,102 @@ def parse_timedelta(time_str):
 #     strg = strg.replace(&#39;  &#39;, &#39; &#39;) # Double space to single space
 #     strg = strg.strip() # Remove leading and trailing whitespace
 
-    
+
 #     return strg
 
 
 def nitro_tz(tz_id):
-    &#34;&#34;&#34;Maps McAfee SIEM/Nitro ESM internal timezone IDs to 
-        the tz database at: http://web.cs.ucla.edu/~eggert/tz/tz-link.htm
-    
-        Args:
-            tz_id (str/int): McAfee ESM internal timezone ID
-            
-        Returns:
-            timezone name (str)
-    
+    &#34;&#34;&#34;Maps McAfee SIEM/Nitro ESM internal timezone IDs to
+    the tz database at: http://web.cs.ucla.edu/~eggert/tz/tz-link.htm
+
+    Args:
+        tz_id (str/int): McAfee ESM internal timezone ID
+
+    Returns:
+        timezone name (str)
+
     &#34;&#34;&#34;
 
-    tz_map = {1: &#39;Pacific/Pago_Pago&#39;,
-                2: &#39;Pacific/Honolulu&#39;,
-                3: &#39;America/Anchorage&#39;,     
-                4: &#39;America/Los_Angeles&#39;,  
-                5: &#39;America/Phoenix&#39;,      
-                6: &#39;America/Chihuahua&#39;,    
-                7: &#39;America/Denver&#39;,     
-                8: &#39;America/Guatemala&#39;,    
-                9: &#39;America/Chicago&#39;,    
-                10: &#39;America/Mexico_City&#39;, 
-                11: &#39;America/Regina&#39;,     
-                12: &#39;America/Bogota&#39;,     
-                13: &#39;America/New_York&#39;,    
-                14: &#39;America/Indiana/Indianapolis&#39;, 
-                15: &#39;America/Halifax&#39;,     
-                16: &#39;America/Caracas&#39;,     
-                17: &#39;America/Santiago&#39;,    
-                18: &#39;America/St_Johns&#39;,     
-                19: &#39;America/Sao_Paulo&#39;, 
-                20: &#39;America/Buenos_Aires&#39;,     
-                21: &#39;America/Godthab&#39;,     
-                22: &#39;Atlantic/South_Georgia&#39;, 
-                23: &#39;Atlantic/Azores&#39;,     
-                24: &#39;Atlantic/Cape_Verde&#39;,     
-                25: &#39;Africa/Casablanca&#39;,     
-                26: &#39;Etc/UTC&#39;, 
-                27: &#39;Europe/Amsterdam&#39;, 
-                28: &#39;Europe/Belgrade&#39;, 
-                29: &#39;Europe/Brussels&#39;, 
-                30: &#39;Europe/Warsaw&#39;, 
-                31: &#39;Africa/Tripoli&#39;, 
-                32: &#39;Europe/Athens&#39;, 
-                33: &#39;Europe/Bucharest&#39;,     
-                34: &#39;Africa/Cairo&#39;,     
-                35: &#39;Africa/Maputo&#39;, 
-                36: &#39;Europe/Helsinki&#39;, 
-                37: &#39;Asia/Jerusalem&#39;,     
-                38: &#39;Asia/Baghdad&#39;,     
-                39: &#39;Asia/Riyadh&#39;,
-                40: &#39;Europe/Moscow&#39;,     
-                41: &#39;Africa/Nairobi&#39;,     
-                42: &#39;Asia/Tehran&#39;,     
-                43: &#39;Asia/Dubai&#39;,
-                44: &#39;Asia/Baku&#39;,
-                45: &#39;Asia/Kabul&#39;,     
-                46: &#39;Asia/Yekaterinburg&#39;,     
-                47: &#39;Asia/Karachi&#39;,
-                48: &#39;Asia/Kolkata&#39;,
-                49: &#39;Asia/Kathmandu&#39;, 
-                50: &#39;Asia/Almaty&#39;,     
-                51: &#39;Asia/Dhaka&#39;, 
-                52: &#39;Asia/Colombo&#39;, 
-                53: &#39;Asia/Rangoon&#39;,     
-                54: &#39;Asia/Bangkok&#39;,     
-                55: &#39;Asia/Krasnoyarsk&#39;,     
-                56: &#39;Asia/Shanghai&#39;, 
-                57: &#39;Asia/Irkutsk&#39;,     
-                58: &#39;Asia/Singapore&#39;, 
-                59: &#39;Australia/Perth&#39;,     
-                60: &#39;Asia/Taipei&#39;,     
-                61: &#39;Asia/Tokyo&#39;, 
-                62: &#39;Asia/Seoul&#39;,     
-                63: &#39;Asia/Yakutsk&#39;,     
-                64: &#39;Australia/Adelaide&#39;,     
-                65: &#39;Australia/Darwin&#39;,     
-                66: &#39;Australia/Brisbane&#39;,     
-                67: &#39;Australia/Sydney&#39;,
-                68: &#39;Pacific/Guam&#39;, 
-                69: &#39;Australia/Hobart&#39;,     
-                70: &#39;Asia/Vladivostok&#39;,     
-                71: &#39;Asia/Magadan&#39;,     
-                72: &#39;Pacific/Auckland&#39;,     
-                73: &#39;Pacific/Fiji&#39;, 
-                74: &#39;Pacific/Tongatapu&#39;, 
-                75: &#39;Asia/Tbilisi&#39;,     
-                76: &#39;Europe/Dublin&#39;,
-                77: &#39;Europe/Istanbul&#39;}
-    
+    tz_map = {
+        1: &#34;Pacific/Pago_Pago&#34;,
+        2: &#34;Pacific/Honolulu&#34;,
+        3: &#34;America/Anchorage&#34;,
+        4: &#34;America/Los_Angeles&#34;,
+        5: &#34;America/Phoenix&#34;,
+        6: &#34;America/Chihuahua&#34;,
+        7: &#34;America/Denver&#34;,
+        8: &#34;America/Guatemala&#34;,
+        9: &#34;America/Chicago&#34;,
+        10: &#34;America/Mexico_City&#34;,
+        11: &#34;America/Regina&#34;,
+        12: &#34;America/Bogota&#34;,
+        13: &#34;America/New_York&#34;,
+        14: &#34;America/Indiana/Indianapolis&#34;,
+        15: &#34;America/Halifax&#34;,
+        16: &#34;America/Caracas&#34;,
+        17: &#34;America/Santiago&#34;,
+        18: &#34;America/St_Johns&#34;,
+        19: &#34;America/Sao_Paulo&#34;,
+        20: &#34;America/Buenos_Aires&#34;,
+        21: &#34;America/Godthab&#34;,
+        22: &#34;Atlantic/South_Georgia&#34;,
+        23: &#34;Atlantic/Azores&#34;,
+        24: &#34;Atlantic/Cape_Verde&#34;,
+        25: &#34;Africa/Casablanca&#34;,
+        26: &#34;Etc/UTC&#34;,
+        27: &#34;Europe/Amsterdam&#34;,
+        28: &#34;Europe/Belgrade&#34;,
+        29: &#34;Europe/Brussels&#34;,
+        30: &#34;Europe/Warsaw&#34;,
+        31: &#34;Africa/Tripoli&#34;,
+        32: &#34;Europe/Athens&#34;,
+        33: &#34;Europe/Bucharest&#34;,
+        34: &#34;Africa/Cairo&#34;,
+        35: &#34;Africa/Maputo&#34;,
+        36: &#34;Europe/Helsinki&#34;,
+        37: &#34;Asia/Jerusalem&#34;,
+        38: &#34;Asia/Baghdad&#34;,
+        39: &#34;Asia/Riyadh&#34;,
+        40: &#34;Europe/Moscow&#34;,
+        41: &#34;Africa/Nairobi&#34;,
+        42: &#34;Asia/Tehran&#34;,
+        43: &#34;Asia/Dubai&#34;,
+        44: &#34;Asia/Baku&#34;,
+        45: &#34;Asia/Kabul&#34;,
+        46: &#34;Asia/Yekaterinburg&#34;,
+        47: &#34;Asia/Karachi&#34;,
+        48: &#34;Asia/Kolkata&#34;,
+        49: &#34;Asia/Kathmandu&#34;,
+        50: &#34;Asia/Almaty&#34;,
+        51: &#34;Asia/Dhaka&#34;,
+        52: &#34;Asia/Colombo&#34;,
+        53: &#34;Asia/Rangoon&#34;,
+        54: &#34;Asia/Bangkok&#34;,
+        55: &#34;Asia/Krasnoyarsk&#34;,
+        56: &#34;Asia/Shanghai&#34;,
+        57: &#34;Asia/Irkutsk&#34;,
+        58: &#34;Asia/Singapore&#34;,
+        59: &#34;Australia/Perth&#34;,
+        60: &#34;Asia/Taipei&#34;,
+        61: &#34;Asia/Tokyo&#34;,
+        62: &#34;Asia/Seoul&#34;,
+        63: &#34;Asia/Yakutsk&#34;,
+        64: &#34;Australia/Adelaide&#34;,
+        65: &#34;Australia/Darwin&#34;,
+        66: &#34;Australia/Brisbane&#34;,
+        67: &#34;Australia/Sydney&#34;,
+        68: &#34;Pacific/Guam&#34;,
+        69: &#34;Australia/Hobart&#34;,
+        70: &#34;Asia/Vladivostok&#34;,
+        71: &#34;Asia/Magadan&#34;,
+        72: &#34;Pacific/Auckland&#34;,
+        73: &#34;Pacific/Fiji&#34;,
+        74: &#34;Pacific/Tongatapu&#34;,
+        75: &#34;Asia/Tbilisi&#34;,
+        76: &#34;Europe/Dublin&#34;,
+        77: &#34;Europe/Istanbul&#34;,
+    }
+
     return tz_map[tz_id]</code></pre>
 </details>
 </section>
@@ -473,7 +500,7 @@ Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L13-L58" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L14-L59" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def dehexify(data):
     &#34;&#34;&#34;
@@ -482,36 +509,36 @@ Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing
     &#34;&#34;&#34;
 
     hexen = {
-        &#39;\x1c&#39;: &#39;,&#39;,  # Replacing Device Control 1 with a comma.
-        &#39;\x11&#39;: &#39;\n&#39;,  # Replacing Device Control 2 with a new line.
-        &#39;\x12&#39;: &#39; &#39;,  # Space
-        &#39;\x22&#39;: &#39;&#34;&#39;,  # Double Quotes
-        &#39;\x23&#39;: &#39;#&#39;,  # Number Symbol
-        &#39;\x27&#39;: &#39;\&#39;&#39;,  # Single Quote
-        &#39;\x28&#39;: &#39;(&#39;,  # Open Parenthesis
-        &#39;\x29&#39;: &#39;)&#39;,  # Close Parenthesis
-        &#39;\x2b&#39;: &#39;+&#39;,  # Plus Symbol
-        &#39;\x2d&#39;: &#39;-&#39;,  # Hyphen Symbol
-        &#39;\x2e&#39;: &#39;.&#39;,  # Period, dot, or full stop.
-        &#39;\x2f&#39;: &#39;/&#39;,  # Forward Slash or divide symbol.
-        &#39;\x7c&#39;: &#39;|&#39;,  # Vertical bar or pipe.
+        &#34;\x1c&#34;: &#34;,&#34;,  # Replacing Device Control 1 with a comma.
+        &#34;\x11&#34;: &#34;\n&#34;,  # Replacing Device Control 2 with a new line.
+        &#34;\x12&#34;: &#34; &#34;,  # Space
+        &#34;\x22&#34;: &#39;&#34;&#39;,  # Double Quotes
+        &#34;\x23&#34;: &#34;#&#34;,  # Number Symbol
+        &#34;\x27&#34;: &#34;&#39;&#34;,  # Single Quote
+        &#34;\x28&#34;: &#34;(&#34;,  # Open Parenthesis
+        &#34;\x29&#34;: &#34;)&#34;,  # Close Parenthesis
+        &#34;\x2b&#34;: &#34;+&#34;,  # Plus Symbol
+        &#34;\x2d&#34;: &#34;-&#34;,  # Hyphen Symbol
+        &#34;\x2e&#34;: &#34;.&#34;,  # Period, dot, or full stop.
+        &#34;\x2f&#34;: &#34;/&#34;,  # Forward Slash or divide symbol.
+        &#34;\x7c&#34;: &#34;|&#34;,  # Vertical bar or pipe.
     }
 
     uri = {
-        &#39;%11&#39;: &#39;,&#39;,  # Replacing Device Control 1 with a comma.
-        &#39;%12&#39;: &#39;\n&#39;,  # Replacing Device Control 2 with a new line.
-        &#39;%20&#39;: &#39; &#39;,  # Space
-        &#39;%22&#39;: &#39;&#34;&#39;,  # Double Quotes
-        &#39;%23&#39;: &#39;#&#39;,  # Number Symbol
-        &#39;%27&#39;: &#39;\&#39;&#39;,  # Single Quote
-        &#39;%28&#39;: &#39;(&#39;,  # Open Parenthesis
-        &#39;%29&#39;: &#39;)&#39;,  # Close Parenthesis
-        &#39;%2B&#39;: &#39;+&#39;,  # Plus Symbol
-        &#39;%2D&#39;: &#39;-&#39;,  # Hyphen Symbol
-        &#39;%2E&#39;: &#39;.&#39;,  # Period, dot, or full stop.
-        &#39;%2F&#39;: &#39;/&#39;,  # Forward Slash or divide symbol.
-        &#39;%3A&#39;: &#39;:&#39;,  # Colon
-        &#39;%7C&#39;: &#39;|&#39;,  # Vertical bar or pipe.
+        &#34;%11&#34;: &#34;,&#34;,  # Replacing Device Control 1 with a comma.
+        &#34;%12&#34;: &#34;\n&#34;,  # Replacing Device Control 2 with a new line.
+        &#34;%20&#34;: &#34; &#34;,  # Space
+        &#34;%22&#34;: &#39;&#34;&#39;,  # Double Quotes
+        &#34;%23&#34;: &#34;#&#34;,  # Number Symbol
+        &#34;%27&#34;: &#34;&#39;&#34;,  # Single Quote
+        &#34;%28&#34;: &#34;(&#34;,  # Open Parenthesis
+        &#34;%29&#34;: &#34;)&#34;,  # Close Parenthesis
+        &#34;%2B&#34;: &#34;+&#34;,  # Plus Symbol
+        &#34;%2D&#34;: &#34;-&#34;,  # Hyphen Symbol
+        &#34;%2E&#34;: &#34;.&#34;,  # Period, dot, or full stop.
+        &#34;%2F&#34;: &#34;/&#34;,  # Forward Slash or divide symbol.
+        &#34;%3A&#34;: &#34;:&#34;,  # Colon
+        &#34;%7C&#34;: &#34;|&#34;,  # Vertical bar or pipe.
     }
 
     for (enc, dec) in hexen.items():
@@ -531,14 +558,14 @@ Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L75-L80" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L78-L83" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tob64(s):
     &#34;&#34;&#34;
     Encode a string to base64 almost like `echo &#39;123&#39; | base64` would do.
     &#34;&#34;&#34;
     if type(s) is str:
-        return base64.b64encode(s.encode(&#39;utf-8&#39;)).decode()</code></pre>
+        return base64.b64encode(s.encode(&#34;utf-8&#34;)).decode()</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.utils.fromb64"><code class="name flex">
@@ -549,14 +576,14 @@ Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L82-L87" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L86-L91" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fromb64(s):
     &#34;&#34;&#34;
     Decode a string to base64 almost like `echo &#39;MTIzCg==&#39; | base64 --decode` would do.
     &#34;&#34;&#34;
     if type(s) is str:
-        return base64.b64decode(s.encode(&#39;utf-8&#39;)).encode()</code></pre>
+        return base64.b64decode(s.encode(&#34;utf-8&#34;)).encode()</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.utils.timerange_gettimes"><code class="name flex">
@@ -567,44 +594,50 @@ Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L104-L159" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L110-L171" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def timerange_gettimes(time_range):
     &#34;&#34;&#34;
     Convert a string time range to a tuple of datetime objects. Only works for certain time ranges.
     &#34;&#34;&#34;
-    t=time_range.upper()
-    now=datetime.now()
-    times=tuple()
+    t = time_range.upper()
+    now = datetime.now()
+    times = tuple()
 
-    if t == &#39;LAST_MINUTE&#39; :
-        times=(now-timedelta(seconds=60), now)
-        
-    elif t == &#39;LAST_10_MINUTES&#39;:
-        times=(now-timedelta(minutes=10), now)
+    if t == &#34;LAST_MINUTE&#34;:
+        times = (now - timedelta(seconds=60), now)
 
-    elif t == &#39;LAST_30_MINUTES&#39;:
-        times=(now-timedelta(minutes=30), now)
+    elif t == &#34;LAST_10_MINUTES&#34;:
+        times = (now - timedelta(minutes=10), now)
 
-    elif t == &#39;LAST_HOUR&#39;:
-        times=(now-timedelta(minutes=60), now)
+    elif t == &#34;LAST_30_MINUTES&#34;:
+        times = (now - timedelta(minutes=30), now)
 
-    elif t == &#39;CURRENT_DAY&#39;:
-        times=(now.replace(hour=0, minute=0, second=0), now.replace(hour=23, minute=59, second=59))
+    elif t == &#34;LAST_HOUR&#34;:
+        times = (now - timedelta(minutes=60), now)
 
-    elif t == &#39;PREVIOUS_DAY&#39;:
-        yesterday=now-timedelta(hours=24)
-        times=(yesterday.replace(hour=0, minute=0, second=0), yesterday.replace(hour=23, minute=59, second=59))
+    elif t == &#34;CURRENT_DAY&#34;:
+        times = (
+            now.replace(hour=0, minute=0, second=0),
+            now.replace(hour=23, minute=59, second=59),
+        )
 
-    elif t == &#39;LAST_24_HOURS&#39;:
-        times=(now-timedelta(hours=24), now)
+    elif t == &#34;PREVIOUS_DAY&#34;:
+        yesterday = now - timedelta(hours=24)
+        times = (
+            yesterday.replace(hour=0, minute=0, second=0),
+            yesterday.replace(hour=23, minute=59, second=59),
+        )
 
-    elif t == &#39;LAST_2_DAYS&#39;:
-        times=(now-timedelta(days=2), now)
+    elif t == &#34;LAST_24_HOURS&#34;:
+        times = (now - timedelta(hours=24), now)
 
-    elif t == &#39;LAST_3_DAYS&#39;:
-        times=(now-timedelta(days=3), now)
-    #TODO Support other time ranges
+    elif t == &#34;LAST_2_DAYS&#34;:
+        times = (now - timedelta(days=2), now)
+
+    elif t == &#34;LAST_3_DAYS&#34;:
+        times = (now - timedelta(days=3), now)
+    # TODO Support other time ranges
     # elif t == &#39;CURRENT_WEEK&#39;:
     #     pass
     # elif t == &#39;PREVIOUS_WEEK&#39;:
@@ -621,10 +654,10 @@ Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing
     #     pass
     # elif t == &#39;PREVIOUS_YEAR&#39;:
     #     pass
-    else :
-        raise NotImplementedError(&#34;Timerange &#34;+t+&#34; is not supported yet&#34;)
-    
-    return(times[0].isoformat(), times[1].isoformat())</code></pre>
+    else:
+        raise NotImplementedError(&#34;Timerange &#34; + t + &#34; is not supported yet&#34;)
+
+    return (times[0].isoformat(), times[1].isoformat())</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.utils.divide_times"><code class="name flex">
@@ -637,48 +670,47 @@ Return list of tuple</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L162-L201" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L174-L212" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def divide_times(first, last, time=0, slots=0, delta=0):
-    &#34;&#34;&#34;&#34;
-        Divide the time range based on another time, a delta or on a number of slots.
-        Return list of tuple
+    &#34;&#34;&#34; &#34;
+    Divide the time range based on another time, a delta or on a number of slots.
+    Return list of tuple
     &#34;&#34;&#34;
 
-    #parse the dates
-    t1=convert_to_time_obj(first) if not isinstance(first, datetime) else first
-    t2=convert_to_time_obj(last) if not isinstance(last, datetime) else last
-    
-    duration=t2-t1
+    # parse the dates
+    t1 = convert_to_time_obj(first) if not isinstance(first, datetime) else first
+    t2 = convert_to_time_obj(last) if not isinstance(last, datetime) else last
 
-    if slots==0 :
-        if delta==0 :
-            if time==0 :
-                raise AttributeError(&#39;Either time, slots or delta must be specified&#39;)
-            else :
-                div=convert_to_time_obj(time)-t1
+    duration = t2 - t1
 
-        elif(isinstance(delta, timedelta)):
+    if slots == 0:
+        if delta == 0:
+            if time == 0:
+                raise AttributeError(&#34;Either time, slots or delta must be specified&#34;)
+            else:
+                div = convert_to_time_obj(time) - t1
+
+        elif isinstance(delta, timedelta):
             div = delta
         elif isinstance(delta, str):
             div = parse_timedelta(delta)
         else:
-            raise AttributeError(&#39;delta Must be timedelta or str object&#39;)
+            raise AttributeError(&#34;delta Must be timedelta or str object&#34;)
 
-        
-        slots=int(duration.total_seconds()/div.total_seconds())+1
+        slots = int(duration.total_seconds() / div.total_seconds()) + 1
 
-    timeSlot=timedelta(seconds=duration.total_seconds()/slots)
+    timeSlot = timedelta(seconds=duration.total_seconds() / slots)
 
-    #print(locals())
+    # print(locals())
 
-    times=list()
+    times = list()
 
     for i in range(slots):
-        times.append( (t1, t1+timeSlot) )
-        t1+=timeSlot
+        times.append((t1, t1 + timeSlot))
+        t1 += timeSlot
 
-    return(times)</code></pre>
+    return times</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.utils.regex_match"><code class="name flex">
@@ -689,7 +721,7 @@ Return list of tuple</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L203-L207" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L215-L219" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def regex_match(regex, string):
     if re.search(regex, string):
@@ -713,20 +745,20 @@ Return list of tuple</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L209-L221" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L222-L234" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def format_esm_time(esm_time):
     &#34;&#34;&#34;Converts time object to ESM time string.
-    
+
     Arguments:
         time_obj {[type]} -- [description]
     Returns:
         time string in format: 2019-04-08T19:35:02.971Z
     &#34;&#34;&#34;
-    _esm_out_time_fmt = &#39;%m/%d/%Y %H:%M:%S&#39;
-    _esm_in_time_fmt = &#39;%Y-%m-%dT%H:%M:%S.000Z&#39;
+    _esm_out_time_fmt = &#34;%m/%d/%Y %H:%M:%S&#34;
+    _esm_in_time_fmt = &#34;%Y-%m-%dT%H:%M:%S.000Z&#34;
     if isinstance(esm_time, str):
-        esm_time = convert_to_time_obj(esm_time)#, _esm_out_time_fmt)
+        esm_time = convert_to_time_obj(esm_time)  # , _esm_out_time_fmt)
     return datetime.strftime(esm_time, _esm_in_time_fmt)</code></pre>
 </details>
 </dd>
@@ -746,16 +778,16 @@ Return list of tuple</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L223-L234" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L237-L248" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def convert_to_time_obj(time_str):
     &#34;&#34;&#34;
     Converts given timestamp string to datetime object
-    
+
     Args:
         time_str: timestamp in format &#39;YYYY/MM/DD HH:MM:SS&#39;,
                          &#39;MM/DD/YYYY HH:MM:SS&#39;, or &#39;DD/MM/YYYY HH:MM:SS&#39;
-                         
+
     Returns:
         datetime object or None if no format matches
     &#34;&#34;&#34;
@@ -772,7 +804,7 @@ rows =
 [
 {'values': ['09/22/2020 15:51:14', 'Postfix Disconnect from host', '::', '144116287604260864|547123']},
 {'values': ['09/22/2020 15:51:14', 'Postfix Lost connection from host', '::', '144116287604260864|547122']}
-} </p>
+}</p>
 <p>Returns :
 [
 {
@@ -788,22 +820,22 @@ rows =
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L236-L268" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L251-L283" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def parse_query_result(columns, rows):
     &#34;&#34;&#34;
     For input :
         columns = [{&#39;name&#39;: &#39;Alert.LastTime&#39;}, {&#39;name&#39;: &#39;Rule.msg&#39;}, {&#39;name&#39;: &#39;Alert.DstIP&#39;}, {&#39;name&#39;: &#39;Alert.IPSIDAlertID&#39;}]
-        rows = 
+        rows =
             [
-                {&#39;values&#39;: [&#39;09/22/2020 15:51:14&#39;, &#39;Postfix Disconnect from host&#39;, &#39;::&#39;, &#39;144116287604260864|547123&#39;]}, 
+                {&#39;values&#39;: [&#39;09/22/2020 15:51:14&#39;, &#39;Postfix Disconnect from host&#39;, &#39;::&#39;, &#39;144116287604260864|547123&#39;]},
                 {&#39;values&#39;: [&#39;09/22/2020 15:51:14&#39;, &#39;Postfix Lost connection from host&#39;, &#39;::&#39;, &#39;144116287604260864|547122&#39;]}
-            } 
+            }
 
     Returns :
     [
         {
-            &#34;Alert.LastTime&#34;:&#34;09/22/2020 15:51:14&#34;, 
+            &#34;Alert.LastTime&#34;:&#34;09/22/2020 15:51:14&#34;,
             &#34;Rule.msg&#34;:&#34;Postfix Disconnect from host&#34;,
             &#34;Alert.DstIP&#34;:&#34;::&#34;,
             &#34;Alert.IPSIDAlertID&#34;:&#34;144116287604260864|547123&#34;
@@ -814,59 +846,55 @@ rows =
     ]
 
     &#34;&#34;&#34;
-    events=list()
-    for row in rows :
-        event=dict()
+    events = list()
+    for row in rows:
+        event = dict()
         for i in range(len(columns)):
-            event.update({columns[i][&#39;name&#39;]:row[&#39;values&#39;][i]})
+            event.update({columns[i][&#34;name&#34;]: row[&#34;values&#34;][i]})
 
         events.append(event)
 
-    return(events)</code></pre>
+    return events</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.utils.format_fields_for_query"><code class="name flex">
 <span>def <span class="ident">format_fields_for_query</span></span>(<span>fields)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Format fields names to cann query module.
-</p>
-<p>Arguments:
-</p>
+<div class="desc"><p>Format fields names to cann query module.</p>
+<p>Arguments:</p>
 <ul>
 <li><code>fields</code>: list of fields, i.e. <code>['field1','name','user']</code></li>
 </ul>
-<p>Returns:
-</p>
-<pre><code>[
-    {'name':'field1'},
-    {'name':'name'},
-    {'name':'user'},
-]
-</code></pre></div>
+<h2 id="returns">Returns</h2>
+<p>[
+{'name':'field1'},
+{'name':'name'},
+{'name':'user'},
+]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L271-L288" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L286-L303" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def format_fields_for_query(fields):
     &#34;&#34;&#34;
-    Format fields names to cann query module.  
+    Format fields names to cann query module.
 
-    Arguments:  
+    Arguments:
 
     - `fields`: list of fields, i.e. `[&#39;field1&#39;,&#39;name&#39;,&#39;user&#39;]`
 
-    Returns:  
-    
+    Returns:
+
         [
             {&#39;name&#39;:&#39;field1&#39;},
             {&#39;name&#39;:&#39;name&#39;},
             {&#39;name&#39;:&#39;user&#39;},
         ]
-    
+
     &#34;&#34;&#34;
-    return([{&#39;name&#39;:value} for value in list(fields)])</code></pre>
+    return [{&#34;name&#34;: value} for value in list(fields)]</code></pre>
 </details>
 </dd>
 <dt id="msiempy.core.utils.parse_timedelta"><code class="name flex">
@@ -881,7 +909,7 @@ rows =
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L290-L303" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L306-L327" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def parse_timedelta(time_str):
     &#34;&#34;&#34;
@@ -892,10 +920,18 @@ rows =
     :param time_str: A string identifying a duration.  (eg. 2h13m)
     :return datetime.timedelta: A datetime.timedelta object
     &#34;&#34;&#34;
-    regex = re.compile(r&#39;^((?P&lt;days&gt;[\.\d]+?)d)?((?P&lt;hours&gt;[\.\d]+?)h)?((?P&lt;minutes&gt;[\.\d]+?)m)?((?P&lt;seconds&gt;[\.\d]+?)s)?$&#39;)
+    regex = re.compile(
+        r&#34;^((?P&lt;days&gt;[\.\d]+?)d)?((?P&lt;hours&gt;[\.\d]+?)h)?((?P&lt;minutes&gt;[\.\d]+?)m)?((?P&lt;seconds&gt;[\.\d]+?)s)?$&#34;
+    )
     parts = regex.match(time_str)
-    assert parts is not None, &#34;Could not parse any time information from &#39;{}&#39;.  Examples of valid strings: &#39;8h&#39;, &#39;2d8h5m20s&#39;, &#39;2m4s&#39;&#34;.format(time_str)
-    time_params = {name: float(param) for name, param in parts.groupdict().items() if param}
+    assert (
+        parts is not None
+    ), &#34;Could not parse any time information from &#39;{}&#39;.  Examples of valid strings: &#39;8h&#39;, &#39;2d8h5m20s&#39;, &#39;2m4s&#39;&#34;.format(
+        time_str
+    )
+    time_params = {
+        name: float(param) for name, param in parts.groupdict().items() if param
+    }
     return timedelta(**time_params)</code></pre>
 </details>
 </dd>
@@ -912,98 +948,100 @@ the tz database at: <a href="http://web.cs.ucla.edu/~eggert/tz/tz-link.htm">http
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/750de2e9cd60169694eb7b701a0c07cdfba24e72/msiempy/core/utils.py#L334-L424" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L359-L451" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def nitro_tz(tz_id):
-    &#34;&#34;&#34;Maps McAfee SIEM/Nitro ESM internal timezone IDs to 
-        the tz database at: http://web.cs.ucla.edu/~eggert/tz/tz-link.htm
-    
-        Args:
-            tz_id (str/int): McAfee ESM internal timezone ID
-            
-        Returns:
-            timezone name (str)
-    
+    &#34;&#34;&#34;Maps McAfee SIEM/Nitro ESM internal timezone IDs to
+    the tz database at: http://web.cs.ucla.edu/~eggert/tz/tz-link.htm
+
+    Args:
+        tz_id (str/int): McAfee ESM internal timezone ID
+
+    Returns:
+        timezone name (str)
+
     &#34;&#34;&#34;
 
-    tz_map = {1: &#39;Pacific/Pago_Pago&#39;,
-                2: &#39;Pacific/Honolulu&#39;,
-                3: &#39;America/Anchorage&#39;,     
-                4: &#39;America/Los_Angeles&#39;,  
-                5: &#39;America/Phoenix&#39;,      
-                6: &#39;America/Chihuahua&#39;,    
-                7: &#39;America/Denver&#39;,     
-                8: &#39;America/Guatemala&#39;,    
-                9: &#39;America/Chicago&#39;,    
-                10: &#39;America/Mexico_City&#39;, 
-                11: &#39;America/Regina&#39;,     
-                12: &#39;America/Bogota&#39;,     
-                13: &#39;America/New_York&#39;,    
-                14: &#39;America/Indiana/Indianapolis&#39;, 
-                15: &#39;America/Halifax&#39;,     
-                16: &#39;America/Caracas&#39;,     
-                17: &#39;America/Santiago&#39;,    
-                18: &#39;America/St_Johns&#39;,     
-                19: &#39;America/Sao_Paulo&#39;, 
-                20: &#39;America/Buenos_Aires&#39;,     
-                21: &#39;America/Godthab&#39;,     
-                22: &#39;Atlantic/South_Georgia&#39;, 
-                23: &#39;Atlantic/Azores&#39;,     
-                24: &#39;Atlantic/Cape_Verde&#39;,     
-                25: &#39;Africa/Casablanca&#39;,     
-                26: &#39;Etc/UTC&#39;, 
-                27: &#39;Europe/Amsterdam&#39;, 
-                28: &#39;Europe/Belgrade&#39;, 
-                29: &#39;Europe/Brussels&#39;, 
-                30: &#39;Europe/Warsaw&#39;, 
-                31: &#39;Africa/Tripoli&#39;, 
-                32: &#39;Europe/Athens&#39;, 
-                33: &#39;Europe/Bucharest&#39;,     
-                34: &#39;Africa/Cairo&#39;,     
-                35: &#39;Africa/Maputo&#39;, 
-                36: &#39;Europe/Helsinki&#39;, 
-                37: &#39;Asia/Jerusalem&#39;,     
-                38: &#39;Asia/Baghdad&#39;,     
-                39: &#39;Asia/Riyadh&#39;,
-                40: &#39;Europe/Moscow&#39;,     
-                41: &#39;Africa/Nairobi&#39;,     
-                42: &#39;Asia/Tehran&#39;,     
-                43: &#39;Asia/Dubai&#39;,
-                44: &#39;Asia/Baku&#39;,
-                45: &#39;Asia/Kabul&#39;,     
-                46: &#39;Asia/Yekaterinburg&#39;,     
-                47: &#39;Asia/Karachi&#39;,
-                48: &#39;Asia/Kolkata&#39;,
-                49: &#39;Asia/Kathmandu&#39;, 
-                50: &#39;Asia/Almaty&#39;,     
-                51: &#39;Asia/Dhaka&#39;, 
-                52: &#39;Asia/Colombo&#39;, 
-                53: &#39;Asia/Rangoon&#39;,     
-                54: &#39;Asia/Bangkok&#39;,     
-                55: &#39;Asia/Krasnoyarsk&#39;,     
-                56: &#39;Asia/Shanghai&#39;, 
-                57: &#39;Asia/Irkutsk&#39;,     
-                58: &#39;Asia/Singapore&#39;, 
-                59: &#39;Australia/Perth&#39;,     
-                60: &#39;Asia/Taipei&#39;,     
-                61: &#39;Asia/Tokyo&#39;, 
-                62: &#39;Asia/Seoul&#39;,     
-                63: &#39;Asia/Yakutsk&#39;,     
-                64: &#39;Australia/Adelaide&#39;,     
-                65: &#39;Australia/Darwin&#39;,     
-                66: &#39;Australia/Brisbane&#39;,     
-                67: &#39;Australia/Sydney&#39;,
-                68: &#39;Pacific/Guam&#39;, 
-                69: &#39;Australia/Hobart&#39;,     
-                70: &#39;Asia/Vladivostok&#39;,     
-                71: &#39;Asia/Magadan&#39;,     
-                72: &#39;Pacific/Auckland&#39;,     
-                73: &#39;Pacific/Fiji&#39;, 
-                74: &#39;Pacific/Tongatapu&#39;, 
-                75: &#39;Asia/Tbilisi&#39;,     
-                76: &#39;Europe/Dublin&#39;,
-                77: &#39;Europe/Istanbul&#39;}
-    
+    tz_map = {
+        1: &#34;Pacific/Pago_Pago&#34;,
+        2: &#34;Pacific/Honolulu&#34;,
+        3: &#34;America/Anchorage&#34;,
+        4: &#34;America/Los_Angeles&#34;,
+        5: &#34;America/Phoenix&#34;,
+        6: &#34;America/Chihuahua&#34;,
+        7: &#34;America/Denver&#34;,
+        8: &#34;America/Guatemala&#34;,
+        9: &#34;America/Chicago&#34;,
+        10: &#34;America/Mexico_City&#34;,
+        11: &#34;America/Regina&#34;,
+        12: &#34;America/Bogota&#34;,
+        13: &#34;America/New_York&#34;,
+        14: &#34;America/Indiana/Indianapolis&#34;,
+        15: &#34;America/Halifax&#34;,
+        16: &#34;America/Caracas&#34;,
+        17: &#34;America/Santiago&#34;,
+        18: &#34;America/St_Johns&#34;,
+        19: &#34;America/Sao_Paulo&#34;,
+        20: &#34;America/Buenos_Aires&#34;,
+        21: &#34;America/Godthab&#34;,
+        22: &#34;Atlantic/South_Georgia&#34;,
+        23: &#34;Atlantic/Azores&#34;,
+        24: &#34;Atlantic/Cape_Verde&#34;,
+        25: &#34;Africa/Casablanca&#34;,
+        26: &#34;Etc/UTC&#34;,
+        27: &#34;Europe/Amsterdam&#34;,
+        28: &#34;Europe/Belgrade&#34;,
+        29: &#34;Europe/Brussels&#34;,
+        30: &#34;Europe/Warsaw&#34;,
+        31: &#34;Africa/Tripoli&#34;,
+        32: &#34;Europe/Athens&#34;,
+        33: &#34;Europe/Bucharest&#34;,
+        34: &#34;Africa/Cairo&#34;,
+        35: &#34;Africa/Maputo&#34;,
+        36: &#34;Europe/Helsinki&#34;,
+        37: &#34;Asia/Jerusalem&#34;,
+        38: &#34;Asia/Baghdad&#34;,
+        39: &#34;Asia/Riyadh&#34;,
+        40: &#34;Europe/Moscow&#34;,
+        41: &#34;Africa/Nairobi&#34;,
+        42: &#34;Asia/Tehran&#34;,
+        43: &#34;Asia/Dubai&#34;,
+        44: &#34;Asia/Baku&#34;,
+        45: &#34;Asia/Kabul&#34;,
+        46: &#34;Asia/Yekaterinburg&#34;,
+        47: &#34;Asia/Karachi&#34;,
+        48: &#34;Asia/Kolkata&#34;,
+        49: &#34;Asia/Kathmandu&#34;,
+        50: &#34;Asia/Almaty&#34;,
+        51: &#34;Asia/Dhaka&#34;,
+        52: &#34;Asia/Colombo&#34;,
+        53: &#34;Asia/Rangoon&#34;,
+        54: &#34;Asia/Bangkok&#34;,
+        55: &#34;Asia/Krasnoyarsk&#34;,
+        56: &#34;Asia/Shanghai&#34;,
+        57: &#34;Asia/Irkutsk&#34;,
+        58: &#34;Asia/Singapore&#34;,
+        59: &#34;Australia/Perth&#34;,
+        60: &#34;Asia/Taipei&#34;,
+        61: &#34;Asia/Tokyo&#34;,
+        62: &#34;Asia/Seoul&#34;,
+        63: &#34;Asia/Yakutsk&#34;,
+        64: &#34;Australia/Adelaide&#34;,
+        65: &#34;Australia/Darwin&#34;,
+        66: &#34;Australia/Brisbane&#34;,
+        67: &#34;Australia/Sydney&#34;,
+        68: &#34;Pacific/Guam&#34;,
+        69: &#34;Australia/Hobart&#34;,
+        70: &#34;Asia/Vladivostok&#34;,
+        71: &#34;Asia/Magadan&#34;,
+        72: &#34;Pacific/Auckland&#34;,
+        73: &#34;Pacific/Fiji&#34;,
+        74: &#34;Pacific/Tongatapu&#34;,
+        75: &#34;Asia/Tbilisi&#34;,
+        76: &#34;Europe/Dublin&#34;,
+        77: &#34;Europe/Istanbul&#34;,
+    }
+
     return tz_map[tz_id]</code></pre>
 </details>
 </dd>

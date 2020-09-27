@@ -1,13 +1,17 @@
 
 ### McAfee SIEM et al.
 
-This project aims to provide interface to McAfee products (SIEM, etc). Make it more accessible to as many people as possible.
+This organisation aims to provide better interfaces to the McAfee SIEM API with a Python wrapper: msiempy.  
 
 On this website you will found: 
 
-#### The SIEM API Python wrapper documentation
+#### Python wrapper - msiempy - documentation
 
 The pythonic way to deal with McAfee SIEM API: <a href="https://mfesiem.github.io/docs/msiempy/index.html">HERE</a>
+
+#### SIEM Command Line tools - msiem
+
+Most of the core msiempy feature accessible with CLI: <a href="https://github.com/mfesiem/msiem">HERE</a>
 
 #### Generated PDFs of the SIEM HTTP API documentation
 
@@ -18,6 +22,10 @@ ESM API **v2**: <a href="https://mfesiem.github.io/docs/esm_api/v2.pdf">HERE</a>
 **Diff** ESM API v1 v2: <a href="https://mfesiem.github.io/docs/esm_api/diff-v1-v2.png">HERE</a>
 
 *Files generated from ESM v11.3*
+
+##### See also
+
+Repo: https://github.com/aw-mfe
 
 ###### Disclaimer
 

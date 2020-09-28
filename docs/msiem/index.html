@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>msiem API documentation</title>
-<meta name="description" content="CLI overview
-```
-usage: msiem [-h] [-V] {config,alarms,esm,ds,events,api}
-…" />
+<meta name="description" content="Welcome to the **msiem** CLI documentation.
+***
+Links : [GitHub](https://github.com/mfesiem/msiem), [PyPI](https://pypi.org/project/msiem/), …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/foundation.min.css" crossorigin>
@@ -28,6 +27,11 @@ usage: msiem [-h] [-V] {config,alarms,esm,ds,events,api}
 <h1 class="title">Package <code>msiem</code></h1>
 </header>
 <section id="section-intro">
+<p>Welcome to the <strong>msiem</strong> CLI documentation.
+</p>
+<hr>
+<p>Links : <a href="https://github.com/mfesiem/msiem">GitHub</a>, <a href="https://pypi.org/project/msiem/">PyPI</a>, <a href="https://mfesiem.github.io/docs/msiempy/index.html">msiempy documentation</a>, <a href="https://mfesiem.github.io">SIEM API references Home</a> (generated PDFs and other links)</p>
+<hr>
 <h2 id="cli-overview">CLI overview</h2>
 <pre><code>usage: msiem [-h] [-V] {config,alarms,esm,ds,events,api} ...
 
@@ -46,8 +50,8 @@ Run 'msiem &lt;command&gt; --help' for more information about a sub-command.
 positional arguments:
   {config,alarms,esm,ds,events,api}
     config              Set and print your msiempy config.
-    alarms              Query alarms with alarms and events based regex filters. Print, acknowledge,
-                        unacknowledge and delete alarms.
+    alarms              Query alarms with alarms and events based regex filters.
+                        Print, acknowledge, unacknowledge and delete alarms.
     esm                 Show ESM version and misc informations regarding your ESM.
     ds                  Add datasources from CSV or INI files, list, search, remove.
     events              Query events with any simple filter. Add a note to events.
@@ -66,11 +70,12 @@ optional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --print               Print configuration fields, password base 64 included. (default: False)
+  --print               Print configuration fields, password base 64 included.
+                        (default: False)
   --set '&lt;section&gt;' ['&lt;option&gt;' '&lt;value&gt;'] ['&lt;section&gt;' ['&lt;option&gt;' '&lt;value&gt;'] ...]
-                        Set the config option to the specified value if passed (can be repeated), OR
-                        inveractively prompt for specified configuration section: 'esm' or 'general'.
-                        (default: [])
+                        Set the config option to the specified value if passed (can
+                        be repeated), OR inveractively prompt for specified
+                        configuration section: 'esm' or 'general'. (default: [])
 </code></pre>
 <h2 id="alarms">Alarms</h2>
 <pre><code>usage: msiem alarms [-h] [--action action] [--force] [--time_range time_range]
@@ -82,67 +87,85 @@ optional arguments:
                     [--json] [--page_size page_size] [--pages pages]
                     [--workers workers] [--no_events] [--query_events]
 
-    Query alarms with alarms and events based regex filters.  
-    Print, acknowledge, unacknowledge and delete alarms.  
+Query alarms with alarms and events based regex filters.  
+Print, acknowledge, unacknowledge and delete alarms.  
 
-    Exemples:  
+Exemples:  
 
-    Acknowledges the (unacknowledged) alarms triggered in the last 3 days that mention &quot;HTTP: SQL Injection Attempt Detected&quot; in the triggered event name and destinated to 10.55.16.99 :
-    ```
-    $ msiem alarms --action acknowledge     -t LAST_24_HOURS     --status unacknowledged     --filters &quot;ruleName=HTTP: SQL Injection Attempt Detected&quot; &quot;destIp=10.55.16.99&quot;
-    ```
-
-    Prints the alarms triggered in the last hour using the query module to retreive events informations and request for specific fields :
-    ```
-    $ msiem alarms -t LAST_HOUR     --query_events     --alarms_fields acknowledgedDate alarmName events     --events_fields Alert.LastTime Rule.msg Alert.DstIP
-    ```
-
+Acknowledges the (unacknowledged) alarms triggered in the last 
+3 days that mention &quot;HTTP: SQL Injection Attempt Detected&quot; in 
+the triggered event name and destinated to 10.55.16.99 :
+</code></pre>
+<p>$ msiem alarms &ndash;action acknowledge -t LAST_24_HOURS &ndash;status unacknowledged &ndash;filters
+"ruleName=HTTP: SQL Injection Attempt Detected"
+"destIp=10.55.16.99"</p>
+<pre><code>
+Prints the alarms triggered in the last hour using the query 
+module to retreive events informations and request for 
+specific fields :
+</code></pre>
+<p>$ msiem alarms -t LAST_HOUR &ndash;query_events &ndash;alarms_fields acknowledgedDate alarmName events &ndash;events_fields Alert.LastTime Rule.msg Alert.DstIP</p>
+<pre><code>
 optional arguments:
   -h, --help            show this help message and exit
-  --action action       What to do with the alarms, if not specified will print only. Chose from
-                        'acknowledge','unacknowledge','delete' (default: None)
-  --force               Will not prompt for confirmation to do the specified action (default: False)
+  --action action       What to do with the alarms, if not specified will print
+                        only. Chose from 'acknowledge','unacknowledge','delete'
+                        (default: None)
+  --force               Will not prompt for confirmation to do the specified action
+                        (default: False)
   --time_range time_range, -t time_range
-                        Timerange, choose from CUSTOM, LAST_MINUTE, LAST_10_MINUTES, LAST_30_MINUTES,
-                        LAST_HOUR, CURRENT_DAY, PREVIOUS_DAY, LAST_24_HOURS, LAST_2_DAYS, LAST_3_DAYS,
-                        CURRENT_WEEK, PREVIOUS_WEEK, CURRENT_MONTH, PREVIOUS_MONTH, CURRENT_QUARTER,
-                        PREVIOUS_QUARTER, CURRENT_YEAR, PREVIOUS_YEAR (default: CURRENT_DAY)
+                        Timerange, choose from CUSTOM, LAST_MINUTE, LAST_10_MINUTES,
+                        LAST_30_MINUTES, LAST_HOUR, CURRENT_DAY, PREVIOUS_DAY,
+                        LAST_24_HOURS, LAST_2_DAYS, LAST_3_DAYS, CURRENT_WEEK,
+                        PREVIOUS_WEEK, CURRENT_MONTH, PREVIOUS_MONTH,
+                        CURRENT_QUARTER, PREVIOUS_QUARTER, CURRENT_YEAR,
+                        PREVIOUS_YEAR (default: CURRENT_DAY)
   --start_time time, --t1 time
                         Start trigger date (default: None)
   --end_time time, --t2 time
                         End trigger date (default: None)
-  --status status       Status of the alarm. Chose from 'acknowledged','unacknowledged','all' (default:
-                        all)
+  --status status       Status of the alarm. Chose from
+                        'acknowledged','unacknowledged','all' (default: all)
   --filters '&lt;field&gt;=&lt;match&gt;' ['&lt;field&gt;=&lt;match&gt;' ...], -f '&lt;field&gt;=&lt;match&gt;' ['&lt;field&gt;=&lt;match&gt;' ...]
-                        List of alarm related field/matchvalue filters. Repeatable. Alarm related fields
-                        can be : id, summary, assignee, severity, triggeredDate, acknowledgedDate,
-                        acknowledgedUsername, alarmName, events, and others (default: [[]])
+                        List of alarm related field/matchvalue filters. Repeatable.
+                        Alarm related fields can be : id, summary, assignee,
+                        severity, triggeredDate, acknowledgedDate,
+                        acknowledgedUsername, alarmName, events, and others
+                        (default: [[]])
   --event_filters '&lt;field&gt;=&lt;match&gt;' ['&lt;field&gt;=&lt;match&gt;' ...], -e '&lt;field&gt;=&lt;match&gt;' ['&lt;field&gt;=&lt;match&gt;' ...]
-                        List of triggering event related field/matchvalue filters. Repeatable. Event
-                        related fields can be : ruleName, srcIp, destIp, protocol, lastTime, subtype,
-                        destPort, destMac, srcMac, srcPort, deviceName, sigId, normId, srcUser,
-                        destUser, normMessage, normDesc, host, domain, ipsId, etc... Or (if
-                        --query_events) : Rule.msg, Alert.SrcPort, Alert.DstPort, Alert.SrcIP,
-                        Alert.DstIP, Alert.SrcMac, Alert.DstMac, Alert.LastTime, Rule.NormID,
-                        Alert.DSIDSigID, Alert.IPSIDAlertID, etc... (default: [[]])
+                        List of triggering event related field/matchvalue filters.
+                        Repeatable. Event related fields can be : ruleName, srcIp,
+                        destIp, protocol, lastTime, subtype, destPort, destMac,
+                        srcMac, srcPort, deviceName, sigId, normId, srcUser,
+                        destUser, normMessage, normDesc, host, domain, ipsId, etc...
+                        Or (if --query_events) : Rule.msg, Alert.SrcPort,
+                        Alert.DstPort, Alert.SrcIP, Alert.DstIP, Alert.SrcMac,
+                        Alert.DstMac, Alert.LastTime, Rule.NormID, Alert.DSIDSigID,
+                        Alert.IPSIDAlertID, etc... (default: [[]])
   --alarms_fields list of fields [list of fields ...]
-                        List of fields that appear in the alarm table. Overwritten by --json (default:
-                        ['alarmName', 'triggeredDate', 'acknowledgedDate', 'events'])
+                        List of fields that appear in the alarm table. Overwritten
+                        by --json (default: ['alarmName', 'triggeredDate',
+                        'acknowledgedDate', 'events'])
   --events_fields list of fields [list of fields ...]
-                        List of fields that appear in the events sub tables. Default value: ['ruleName',
-                        'srcIp', 'destIp']. If you use --query_events, this list will be used to query
-                        needed values, you must specify all fields you want to filter on with
-                        ewvent_filters. Default value if --query_events: ['Rule.msg', 'Alert.SrcIP',
-                        'Alert.DstIP']. Overwritten by --json. (default: None)
-  --json                Prints the raw json object with all loaded fields (default: False)
+                        List of fields that appear in the events sub tables. Default
+                        value: ['ruleName', 'srcIp', 'destIp']. If you use
+                        --query_events, this list will be used to query needed
+                        values, you must specify all fields you want to filter on
+                        with ewvent_filters. Default value if --query_events:
+                        ['Rule.msg', 'Alert.SrcIP', 'Alert.DstIP']. Overwritten by
+                        --json. (default: None)
+  --json                Prints the raw json object with all loaded fields (default:
+                        False)
   --page_size page_size, -p page_size
                         Size of requests (default: 500)
   --pages pages, -n pages
                         Number of alarm pages to load (default: 1)
   --workers workers     Number of max asynch workers (default: 10)
-  --no_events           Do not load the complete trigerring events informations. (default: False)
-  --query_events        Use the query module to retreive events, much more effcient. Event keys will be
-                        like 'Alert.SrcIP' instead of 'srcIp' (default: False)
+  --no_events           Do not load the complete trigerring events informations.
+                        (default: False)
+  --query_events        Use the query module to retreive events, much more effcient.
+                        Event keys will be like 'Alert.SrcIP' instead of 'srcIp'
+                        (default: False)
 </code></pre>
 <h2 id="esm">ESM</h2>
 <pre><code>usage: msiem esm [-h] [--version] [--time] [--disks] [--ram] [--callhome]
@@ -158,9 +181,11 @@ optional arguments:
   --disks      disk status (default: False)
   --ram        ram status (default: False)
   --callhome   True/False if callhome is active/not active (default: False)
-  --status     Statuses and a few other less interesting details : autoBackupEnabled,
-               autoBackupDay, backupLastTime, backupNextTime, rulesAndSoftwareCheckEnabled,
-               rulesAndSoftLastCheck, rulesAndSoftNextCheck (default: False)
+  --status     Statuses and a few other less interesting details :
+               autoBackupEnabled, autoBackupDay, backupLastTime,
+               backupNextTime, rulesAndSoftwareCheckEnabled,
+               rulesAndSoftLastCheck, rulesAndSoftNextCheck (default:
+               False)
   --timezones  Current ESM timezone (default: False)
 </code></pre>
 <h2 id="datasources">Datasources</h2>
@@ -207,18 +232,21 @@ optional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -a &lt;file or folder&gt;, --add &lt;file or folder&gt;
-                        Scan a directory or a file for new Datasource files and add them to the ESM.
-                        Datasources can be defined in CSV or INI format (see README.md). (default: None)
+                        Scan a directory or a file for new Datasource files and add
+                        them to the ESM. Datasources can be defined in CSV or INI
+                        format (see README.md). (default: None)
   -s [term], --search [term]
-                        Search for datasource name, hostname, or IP.May require quotes around the name
-                        if thereare spaces. (default: None)
+                        Search for datasource name, hostname, or IP.May require
+                        quotes around the name if thereare spaces. (default: None)
   -l, --list            Display datasources. (default: False)
   --delete &lt;datasource ID&gt; [&lt;datasource ID&gt; ...]
-                        Deletes the datasource and all the data. Be careful. (default: None)
+                        Deletes the datasource and all the data. Be careful.
+                        (default: None)
   --deleteclients &lt;datasource ID&gt; [&lt;datasource ID&gt; ...]
-                        Deletes the datasource's clients and all the data. Be careful. (default: None)
-  --force               Do not ask the user input before deletion of the datasources / datasources
-                        client. (default: False)
+                        Deletes the datasource's clients and all the data. Be
+                        careful. (default: None)
+  --force               Do not ask the user input before deletion of the datasources
+                        / datasources client. (default: False)
 </code></pre>
 <h2 id="events">Events</h2>
 <pre><code>usage: msiem events [-h] [--time_range time_range] [--start_time time]
@@ -235,30 +263,36 @@ optional arguments:
 
     Specific operatior and multiple values filter
     ```
-    msiem events --filter SrcIP IN 22.0.0.0/8 10.0.0.0/8 --fields SrcIP DstIP
+    msiem events --filter         SrcIP IN 22.0.0.0/8 10.0.0.0/8         --fields SrcIP DstIP
     ```
 
 optional arguments:
   -h, --help            show this help message and exit
   --time_range time_range, -t time_range
-                        Timerange, choose from CUSTOM, LAST_MINUTE, LAST_10_MINUTES, LAST_30_MINUTES,
-                        LAST_HOUR, CURRENT_DAY, PREVIOUS_DAY, LAST_24_HOURS, LAST_2_DAYS, LAST_3_DAYS,
-                        CURRENT_WEEK, PREVIOUS_WEEK, CURRENT_MONTH, PREVIOUS_MONTH, CURRENT_QUARTER,
-                        PREVIOUS_QUARTER, CURRENT_YEAR, PREVIOUS_YEAR (default: CURRENT_DAY)
+                        Timerange, choose from CUSTOM, LAST_MINUTE, LAST_10_MINUTES,
+                        LAST_30_MINUTES, LAST_HOUR, CURRENT_DAY, PREVIOUS_DAY,
+                        LAST_24_HOURS, LAST_2_DAYS, LAST_3_DAYS, CURRENT_WEEK,
+                        PREVIOUS_WEEK, CURRENT_MONTH, PREVIOUS_MONTH,
+                        CURRENT_QUARTER, PREVIOUS_QUARTER, CURRENT_YEAR,
+                        PREVIOUS_YEAR (default: CURRENT_DAY)
   --start_time time, --t1 time
                         Start trigger date (default: None)
   --end_time time, --t2 time
                         End trigger date (default: None)
   --filters &lt;filter&gt; [&lt;filter&gt; ...], -f &lt;filter&gt; [&lt;filter&gt; ...]
-                        List of Event field/value filters: '&lt;field&gt;=&lt;value&gt;' or '&lt;field&gt;' '&lt;operator&gt;'
-                        '&lt;value1&gt;' '&lt;value2&gt;...'. Repeatable. Will generate only EsmBasicValue filters.
-                        Filter fields can be: Rule.msg, Alert.SrcPort, Alert.DstPort, Alert.SrcIP,
-                        Alert.DstIP, Alert.SrcMac, Alert.DstMac, Alert.LastTime, Rule.NormID,
-                        Alert.DSIDSigID, Alert.IPSIDAlertID, etc... (default: [[]])
+                        List of Event field/value filters: '&lt;field&gt;=&lt;value&gt;' or
+                        '&lt;field&gt;' '&lt;operator&gt;' '&lt;value1&gt;' '&lt;value2&gt;...'. Repeatable.
+                        Will generate only EsmBasicValue filters. Filter fields can
+                        be: Rule.msg, Alert.SrcPort, Alert.DstPort, Alert.SrcIP,
+                        Alert.DstIP, Alert.SrcMac, Alert.DstMac, Alert.LastTime,
+                        Rule.NormID, Alert.DSIDSigID, Alert.IPSIDAlertID, etc...
+                        (default: [[]])
   --fields list of fields [list of fields ...]
-                        List of fields that appear in the events table. Default value: ['Rule.msg',
-                        'Alert.SrcIP', 'Alert.DstIP']. (default: None)
-  --json                Prints the raw json object with all loaded fields (default: False)
+                        List of fields that appear in the events table. Default
+                        value: ['Rule.msg', 'Alert.SrcIP', 'Alert.DstIP']. (default:
+                        None)
+  --json                Prints the raw json object with all loaded fields (default:
+                        False)
   --limit limit         Size of requests (default: 500)
 </code></pre>
 <h2 id="api">API</h2>
@@ -270,31 +304,38 @@ optional arguments:
     Exemple
 
     ```
-    msiem api --method &quot;v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1&quot; --data {}
+    msiem api --method         &quot;v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1&quot;         --data {}
     ```
 
 optional arguments:
   -h, --help            show this help message and exit
   -m &lt;method&gt;, --method &lt;method&gt;
-                        SIEM API method name or NitroSession.PARAMS keyword. Exemple:
-                        'v2/qryGetSelectFields' or 'get_possible_fields', see
-                        https://mfesiem.github.io/docs/msiempy/core/session.html . (default: None)
+                        SIEM API method name or NitroSession.PARAMS keyword.
+                        Exemple: 'v2/qryGetSelectFields' or 'get_possible_fields',
+                        see https://mfesiem.github.io/docs/msiempy/core/session.html
+                        . (default: None)
   -d &lt;JSON string or file&gt;, --data &lt;JSON string or file&gt;
-                        POST data, in the case of a API method name call. (default: {})
+                        POST data, in the case of a API method name call. (default:
+                        {})
   -a &lt;key&gt;=&lt;value&gt; [&lt;key&gt;=&lt;value&gt; ...], --args &lt;key&gt;=&lt;value&gt; [&lt;key&gt;=&lt;value&gt; ...]
-                        NitroSession.PARAMS interpolation parameters, in the case of a
-                        NitroSession.PARAMS keyword call. (default: [[]])
-  -l, --list            List all supported SIEM API calls with keywords and parameter mapping. Note that
-                        you can still request any endpoint without paramater mapping. (default: False)
+                        NitroSession.PARAMS interpolation parameters, in the case of
+                        a NitroSession.PARAMS keyword call. (default: [[]])
+  -l, --list            List all supported SIEM API calls with keywords and
+                        parameter mapping. Note that you can still request any
+                        endpoint without paramater mapping. (default: False)
 </code></pre>
 <h2 id="watchlists">Watchlists</h2>
 <pre><code></code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiem/blob/09f2b0cc30d9aadcb9e029f7d19f571a7adde83b/msiem/__init__.py#L0-L270" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiem/blob/09f2b0cc30d9aadcb9e029f7d19f571a7adde83b/msiem/__init__.py#L0-L307" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
+Welcome to the **msiem** CLI documentation.  
+***
+Links : [GitHub](https://github.com/mfesiem/msiem), [PyPI](https://pypi.org/project/msiem/), [msiempy documentation](https://mfesiem.github.io/docs/msiempy/index.html), [SIEM API references Home](https://mfesiem.github.io) (generated PDFs and other links)
+***
 ## CLI overview
 ```
 usage: msiem [-h] [-V] {config,alarms,esm,ds,events,api} ...
@@ -314,8 +355,8 @@ Run &#39;msiem &lt;command&gt; --help&#39; for more information about a sub-comm
 positional arguments:
   {config,alarms,esm,ds,events,api}
     config              Set and print your msiempy config.
-    alarms              Query alarms with alarms and events based regex filters. Print, acknowledge,
-                        unacknowledge and delete alarms.
+    alarms              Query alarms with alarms and events based regex filters.
+                        Print, acknowledge, unacknowledge and delete alarms.
     esm                 Show ESM version and misc informations regarding your ESM.
     ds                  Add datasources from CSV or INI files, list, search, remove.
     events              Query events with any simple filter. Add a note to events.
@@ -335,11 +376,12 @@ usage: msiem config [-h] [--print] [--set &#39;&lt;section&gt;&#39; [&#39;&lt;op
 
 optional arguments:
   -h, --help            show this help message and exit
-  --print               Print configuration fields, password base 64 included. (default: False)
+  --print               Print configuration fields, password base 64 included.
+                        (default: False)
   --set &#39;&lt;section&gt;&#39; [&#39;&lt;option&gt;&#39; &#39;&lt;value&gt;&#39;] [&#39;&lt;section&gt;&#39; [&#39;&lt;option&gt;&#39; &#39;&lt;value&gt;&#39;] ...]
-                        Set the config option to the specified value if passed (can be repeated), OR
-                        inveractively prompt for specified configuration section: &#39;esm&#39; or &#39;general&#39;.
-                        (default: [])
+                        Set the config option to the specified value if passed (can
+                        be repeated), OR inveractively prompt for specified
+                        configuration section: &#39;esm&#39; or &#39;general&#39;. (default: [])
 ```
 ## Alarms
 ```
@@ -352,67 +394,85 @@ usage: msiem alarms [-h] [--action action] [--force] [--time_range time_range]
                     [--json] [--page_size page_size] [--pages pages]
                     [--workers workers] [--no_events] [--query_events]
 
-    Query alarms with alarms and events based regex filters.  
-    Print, acknowledge, unacknowledge and delete alarms.  
+Query alarms with alarms and events based regex filters.  
+Print, acknowledge, unacknowledge and delete alarms.  
 
-    Exemples:  
+Exemples:  
 
-    Acknowledges the (unacknowledged) alarms triggered in the last 3 days that mention &#34;HTTP: SQL Injection Attempt Detected&#34; in the triggered event name and destinated to 10.55.16.99 :
-    ```
-    $ msiem alarms --action acknowledge     -t LAST_24_HOURS     --status unacknowledged     --filters &#34;ruleName=HTTP: SQL Injection Attempt Detected&#34; &#34;destIp=10.55.16.99&#34;
-    ```
+Acknowledges the (unacknowledged) alarms triggered in the last 
+3 days that mention &#34;HTTP: SQL Injection Attempt Detected&#34; in 
+the triggered event name and destinated to 10.55.16.99 :
+```
+$ msiem alarms --action acknowledge -t LAST_24_HOURS --status unacknowledged --filters     &#34;ruleName=HTTP: SQL Injection Attempt Detected&#34;     &#34;destIp=10.55.16.99&#34;
+```
 
-    Prints the alarms triggered in the last hour using the query module to retreive events informations and request for specific fields :
-    ```
-    $ msiem alarms -t LAST_HOUR     --query_events     --alarms_fields acknowledgedDate alarmName events     --events_fields Alert.LastTime Rule.msg Alert.DstIP
-    ```
+Prints the alarms triggered in the last hour using the query 
+module to retreive events informations and request for 
+specific fields :
+```
+$ msiem alarms -t LAST_HOUR --query_events --alarms_fields acknowledgedDate alarmName events --events_fields Alert.LastTime Rule.msg Alert.DstIP
+```
 
 optional arguments:
   -h, --help            show this help message and exit
-  --action action       What to do with the alarms, if not specified will print only. Chose from
-                        &#39;acknowledge&#39;,&#39;unacknowledge&#39;,&#39;delete&#39; (default: None)
-  --force               Will not prompt for confirmation to do the specified action (default: False)
+  --action action       What to do with the alarms, if not specified will print
+                        only. Chose from &#39;acknowledge&#39;,&#39;unacknowledge&#39;,&#39;delete&#39;
+                        (default: None)
+  --force               Will not prompt for confirmation to do the specified action
+                        (default: False)
   --time_range time_range, -t time_range
-                        Timerange, choose from CUSTOM, LAST_MINUTE, LAST_10_MINUTES, LAST_30_MINUTES,
-                        LAST_HOUR, CURRENT_DAY, PREVIOUS_DAY, LAST_24_HOURS, LAST_2_DAYS, LAST_3_DAYS,
-                        CURRENT_WEEK, PREVIOUS_WEEK, CURRENT_MONTH, PREVIOUS_MONTH, CURRENT_QUARTER,
-                        PREVIOUS_QUARTER, CURRENT_YEAR, PREVIOUS_YEAR (default: CURRENT_DAY)
+                        Timerange, choose from CUSTOM, LAST_MINUTE, LAST_10_MINUTES,
+                        LAST_30_MINUTES, LAST_HOUR, CURRENT_DAY, PREVIOUS_DAY,
+                        LAST_24_HOURS, LAST_2_DAYS, LAST_3_DAYS, CURRENT_WEEK,
+                        PREVIOUS_WEEK, CURRENT_MONTH, PREVIOUS_MONTH,
+                        CURRENT_QUARTER, PREVIOUS_QUARTER, CURRENT_YEAR,
+                        PREVIOUS_YEAR (default: CURRENT_DAY)
   --start_time time, --t1 time
                         Start trigger date (default: None)
   --end_time time, --t2 time
                         End trigger date (default: None)
-  --status status       Status of the alarm. Chose from &#39;acknowledged&#39;,&#39;unacknowledged&#39;,&#39;all&#39; (default:
-                        all)
+  --status status       Status of the alarm. Chose from
+                        &#39;acknowledged&#39;,&#39;unacknowledged&#39;,&#39;all&#39; (default: all)
   --filters &#39;&lt;field&gt;=&lt;match&gt;&#39; [&#39;&lt;field&gt;=&lt;match&gt;&#39; ...], -f &#39;&lt;field&gt;=&lt;match&gt;&#39; [&#39;&lt;field&gt;=&lt;match&gt;&#39; ...]
-                        List of alarm related field/matchvalue filters. Repeatable. Alarm related fields
-                        can be : id, summary, assignee, severity, triggeredDate, acknowledgedDate,
-                        acknowledgedUsername, alarmName, events, and others (default: [[]])
+                        List of alarm related field/matchvalue filters. Repeatable.
+                        Alarm related fields can be : id, summary, assignee,
+                        severity, triggeredDate, acknowledgedDate,
+                        acknowledgedUsername, alarmName, events, and others
+                        (default: [[]])
   --event_filters &#39;&lt;field&gt;=&lt;match&gt;&#39; [&#39;&lt;field&gt;=&lt;match&gt;&#39; ...], -e &#39;&lt;field&gt;=&lt;match&gt;&#39; [&#39;&lt;field&gt;=&lt;match&gt;&#39; ...]
-                        List of triggering event related field/matchvalue filters. Repeatable. Event
-                        related fields can be : ruleName, srcIp, destIp, protocol, lastTime, subtype,
-                        destPort, destMac, srcMac, srcPort, deviceName, sigId, normId, srcUser,
-                        destUser, normMessage, normDesc, host, domain, ipsId, etc... Or (if
-                        --query_events) : Rule.msg, Alert.SrcPort, Alert.DstPort, Alert.SrcIP,
-                        Alert.DstIP, Alert.SrcMac, Alert.DstMac, Alert.LastTime, Rule.NormID,
-                        Alert.DSIDSigID, Alert.IPSIDAlertID, etc... (default: [[]])
+                        List of triggering event related field/matchvalue filters.
+                        Repeatable. Event related fields can be : ruleName, srcIp,
+                        destIp, protocol, lastTime, subtype, destPort, destMac,
+                        srcMac, srcPort, deviceName, sigId, normId, srcUser,
+                        destUser, normMessage, normDesc, host, domain, ipsId, etc...
+                        Or (if --query_events) : Rule.msg, Alert.SrcPort,
+                        Alert.DstPort, Alert.SrcIP, Alert.DstIP, Alert.SrcMac,
+                        Alert.DstMac, Alert.LastTime, Rule.NormID, Alert.DSIDSigID,
+                        Alert.IPSIDAlertID, etc... (default: [[]])
   --alarms_fields list of fields [list of fields ...]
-                        List of fields that appear in the alarm table. Overwritten by --json (default:
-                        [&#39;alarmName&#39;, &#39;triggeredDate&#39;, &#39;acknowledgedDate&#39;, &#39;events&#39;])
+                        List of fields that appear in the alarm table. Overwritten
+                        by --json (default: [&#39;alarmName&#39;, &#39;triggeredDate&#39;,
+                        &#39;acknowledgedDate&#39;, &#39;events&#39;])
   --events_fields list of fields [list of fields ...]
-                        List of fields that appear in the events sub tables. Default value: [&#39;ruleName&#39;,
-                        &#39;srcIp&#39;, &#39;destIp&#39;]. If you use --query_events, this list will be used to query
-                        needed values, you must specify all fields you want to filter on with
-                        ewvent_filters. Default value if --query_events: [&#39;Rule.msg&#39;, &#39;Alert.SrcIP&#39;,
-                        &#39;Alert.DstIP&#39;]. Overwritten by --json. (default: None)
-  --json                Prints the raw json object with all loaded fields (default: False)
+                        List of fields that appear in the events sub tables. Default
+                        value: [&#39;ruleName&#39;, &#39;srcIp&#39;, &#39;destIp&#39;]. If you use
+                        --query_events, this list will be used to query needed
+                        values, you must specify all fields you want to filter on
+                        with ewvent_filters. Default value if --query_events:
+                        [&#39;Rule.msg&#39;, &#39;Alert.SrcIP&#39;, &#39;Alert.DstIP&#39;]. Overwritten by
+                        --json. (default: None)
+  --json                Prints the raw json object with all loaded fields (default:
+                        False)
   --page_size page_size, -p page_size
                         Size of requests (default: 500)
   --pages pages, -n pages
                         Number of alarm pages to load (default: 1)
   --workers workers     Number of max asynch workers (default: 10)
-  --no_events           Do not load the complete trigerring events informations. (default: False)
-  --query_events        Use the query module to retreive events, much more effcient. Event keys will be
-                        like &#39;Alert.SrcIP&#39; instead of &#39;srcIp&#39; (default: False)
+  --no_events           Do not load the complete trigerring events informations.
+                        (default: False)
+  --query_events        Use the query module to retreive events, much more effcient.
+                        Event keys will be like &#39;Alert.SrcIP&#39; instead of &#39;srcIp&#39;
+                        (default: False)
 ```
 ## ESM
 ```
@@ -429,9 +489,11 @@ optional arguments:
   --disks      disk status (default: False)
   --ram        ram status (default: False)
   --callhome   True/False if callhome is active/not active (default: False)
-  --status     Statuses and a few other less interesting details : autoBackupEnabled,
-               autoBackupDay, backupLastTime, backupNextTime, rulesAndSoftwareCheckEnabled,
-               rulesAndSoftLastCheck, rulesAndSoftNextCheck (default: False)
+  --status     Statuses and a few other less interesting details :
+               autoBackupEnabled, autoBackupDay, backupLastTime,
+               backupNextTime, rulesAndSoftwareCheckEnabled,
+               rulesAndSoftLastCheck, rulesAndSoftNextCheck (default:
+               False)
   --timezones  Current ESM timezone (default: False)
 ```
 ## Datasources
@@ -479,18 +541,21 @@ usage: msiem ds [-h] [-a &lt;file or folder&gt;] [-s [term]] [-l]
 optional arguments:
   -h, --help            show this help message and exit
   -a &lt;file or folder&gt;, --add &lt;file or folder&gt;
-                        Scan a directory or a file for new Datasource files and add them to the ESM.
-                        Datasources can be defined in CSV or INI format (see README.md). (default: None)
+                        Scan a directory or a file for new Datasource files and add
+                        them to the ESM. Datasources can be defined in CSV or INI
+                        format (see README.md). (default: None)
   -s [term], --search [term]
-                        Search for datasource name, hostname, or IP.May require quotes around the name
-                        if thereare spaces. (default: None)
+                        Search for datasource name, hostname, or IP.May require
+                        quotes around the name if thereare spaces. (default: None)
   -l, --list            Display datasources. (default: False)
   --delete &lt;datasource ID&gt; [&lt;datasource ID&gt; ...]
-                        Deletes the datasource and all the data. Be careful. (default: None)
+                        Deletes the datasource and all the data. Be careful.
+                        (default: None)
   --deleteclients &lt;datasource ID&gt; [&lt;datasource ID&gt; ...]
-                        Deletes the datasource&#39;s clients and all the data. Be careful. (default: None)
-  --force               Do not ask the user input before deletion of the datasources / datasources
-                        client. (default: False)
+                        Deletes the datasource&#39;s clients and all the data. Be
+                        careful. (default: None)
+  --force               Do not ask the user input before deletion of the datasources
+                        / datasources client. (default: False)
 ```
 ## Events
 ```
@@ -508,30 +573,36 @@ usage: msiem events [-h] [--time_range time_range] [--start_time time]
     
     Specific operatior and multiple values filter
     ```
-    msiem events --filter SrcIP IN 22.0.0.0/8 10.0.0.0/8 --fields SrcIP DstIP
+    msiem events --filter         SrcIP IN 22.0.0.0/8 10.0.0.0/8         --fields SrcIP DstIP
     ```
 
 optional arguments:
   -h, --help            show this help message and exit
   --time_range time_range, -t time_range
-                        Timerange, choose from CUSTOM, LAST_MINUTE, LAST_10_MINUTES, LAST_30_MINUTES,
-                        LAST_HOUR, CURRENT_DAY, PREVIOUS_DAY, LAST_24_HOURS, LAST_2_DAYS, LAST_3_DAYS,
-                        CURRENT_WEEK, PREVIOUS_WEEK, CURRENT_MONTH, PREVIOUS_MONTH, CURRENT_QUARTER,
-                        PREVIOUS_QUARTER, CURRENT_YEAR, PREVIOUS_YEAR (default: CURRENT_DAY)
+                        Timerange, choose from CUSTOM, LAST_MINUTE, LAST_10_MINUTES,
+                        LAST_30_MINUTES, LAST_HOUR, CURRENT_DAY, PREVIOUS_DAY,
+                        LAST_24_HOURS, LAST_2_DAYS, LAST_3_DAYS, CURRENT_WEEK,
+                        PREVIOUS_WEEK, CURRENT_MONTH, PREVIOUS_MONTH,
+                        CURRENT_QUARTER, PREVIOUS_QUARTER, CURRENT_YEAR,
+                        PREVIOUS_YEAR (default: CURRENT_DAY)
   --start_time time, --t1 time
                         Start trigger date (default: None)
   --end_time time, --t2 time
                         End trigger date (default: None)
   --filters &lt;filter&gt; [&lt;filter&gt; ...], -f &lt;filter&gt; [&lt;filter&gt; ...]
-                        List of Event field/value filters: &#39;&lt;field&gt;=&lt;value&gt;&#39; or &#39;&lt;field&gt;&#39; &#39;&lt;operator&gt;&#39;
-                        &#39;&lt;value1&gt;&#39; &#39;&lt;value2&gt;...&#39;. Repeatable. Will generate only EsmBasicValue filters.
-                        Filter fields can be: Rule.msg, Alert.SrcPort, Alert.DstPort, Alert.SrcIP,
-                        Alert.DstIP, Alert.SrcMac, Alert.DstMac, Alert.LastTime, Rule.NormID,
-                        Alert.DSIDSigID, Alert.IPSIDAlertID, etc... (default: [[]])
+                        List of Event field/value filters: &#39;&lt;field&gt;=&lt;value&gt;&#39; or
+                        &#39;&lt;field&gt;&#39; &#39;&lt;operator&gt;&#39; &#39;&lt;value1&gt;&#39; &#39;&lt;value2&gt;...&#39;. Repeatable.
+                        Will generate only EsmBasicValue filters. Filter fields can
+                        be: Rule.msg, Alert.SrcPort, Alert.DstPort, Alert.SrcIP,
+                        Alert.DstIP, Alert.SrcMac, Alert.DstMac, Alert.LastTime,
+                        Rule.NormID, Alert.DSIDSigID, Alert.IPSIDAlertID, etc...
+                        (default: [[]])
   --fields list of fields [list of fields ...]
-                        List of fields that appear in the events table. Default value: [&#39;Rule.msg&#39;,
-                        &#39;Alert.SrcIP&#39;, &#39;Alert.DstIP&#39;]. (default: None)
-  --json                Prints the raw json object with all loaded fields (default: False)
+                        List of fields that appear in the events table. Default
+                        value: [&#39;Rule.msg&#39;, &#39;Alert.SrcIP&#39;, &#39;Alert.DstIP&#39;]. (default:
+                        None)
+  --json                Prints the raw json object with all loaded fields (default:
+                        False)
   --limit limit         Size of requests (default: 500)
 ```
 ## API
@@ -544,22 +615,25 @@ usage: msiem api [-h] [-m &lt;method&gt;] [-d &lt;JSON string or file&gt;]
     Exemple
 
     ```
-    msiem api --method &#34;v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1&#34; --data {}
+    msiem api --method         &#34;v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1&#34;         --data {}
     ```
 
 optional arguments:
   -h, --help            show this help message and exit
   -m &lt;method&gt;, --method &lt;method&gt;
-                        SIEM API method name or NitroSession.PARAMS keyword. Exemple:
-                        &#39;v2/qryGetSelectFields&#39; or &#39;get_possible_fields&#39;, see
-                        https://mfesiem.github.io/docs/msiempy/core/session.html . (default: None)
+                        SIEM API method name or NitroSession.PARAMS keyword.
+                        Exemple: &#39;v2/qryGetSelectFields&#39; or &#39;get_possible_fields&#39;,
+                        see https://mfesiem.github.io/docs/msiempy/core/session.html
+                        . (default: None)
   -d &lt;JSON string or file&gt;, --data &lt;JSON string or file&gt;
-                        POST data, in the case of a API method name call. (default: {})
+                        POST data, in the case of a API method name call. (default:
+                        {})
   -a &lt;key&gt;=&lt;value&gt; [&lt;key&gt;=&lt;value&gt; ...], --args &lt;key&gt;=&lt;value&gt; [&lt;key&gt;=&lt;value&gt; ...]
-                        NitroSession.PARAMS interpolation parameters, in the case of a
-                        NitroSession.PARAMS keyword call. (default: [[]])
-  -l, --list            List all supported SIEM API calls with keywords and parameter mapping. Note that
-                        you can still request any endpoint without paramater mapping. (default: False)
+                        NitroSession.PARAMS interpolation parameters, in the case of
+                        a NitroSession.PARAMS keyword call. (default: [[]])
+  -l, --list            List all supported SIEM API calls with keywords and
+                        parameter mapping. Note that you can still request any
+                        endpoint without paramater mapping. (default: False)
 ```
 ## Watchlists
 ```

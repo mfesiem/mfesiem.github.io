@@ -1,5 +1,5 @@
 <!-- Creator     : groff version 1.19.2 -->
-<!-- CreationDate: Sun Sep 27 23:56:24 2020 -->
+<!-- CreationDate: Mon Sep 28 00:05:26 2020 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -160,9 +160,12 @@ Detected&quot; in the triggered event name and destinated to
 10.55.16.99 :</p>
 
 <p style="margin-left:11%; margin-top: 1em">$ msiem alarms
-&minus;&minus;action acknowledge &minus;t LAST_24_HOURS
-&minus;&minus;status unacknowledged &minus;&minus;filters
-&quot;ruleName=HTTP: SQL Injection Attempt Detected&quot;
+&minus;&minus;action acknowledge \ <br>
+&minus;t LAST_24_HOURS \ <br>
+&minus;&minus;status unacknowledged \ <br>
+&minus;&minus;filters \ <br>
+&quot;ruleName=HTTP: SQL Injection Attempt Detected&quot; \
+<br>
 &quot;destIp=10.55.16.99&quot;</p>
 
 <p style="margin-left:11%; margin-top: 1em">Prints the
@@ -171,9 +174,11 @@ retreive events informations and request for specific fields
 :</p>
 
 <p style="margin-left:11%; margin-top: 1em">$ msiem alarms
-&minus;t LAST_HOUR &minus;&minus;query_events
+&minus;t LAST_HOUR \ <br>
+&minus;&minus;query_events \ <br>
 &minus;&minus;alarms_fields acknowledgedDate alarmName
-events &minus;&minus;events_fields Alert.LastTime Rule.msg
+events \ <br>
+&minus;&minus;events_fields Alert.LastTime Rule.msg
 Alert.DstIP <b><br>
 &minus;&minus;action</b> action</p>
 
@@ -498,17 +503,18 @@ events [-h] [--time_range time_range] [--start_time time]
 with filters, add note to events.</p>
 
 <p style="margin-left:11%; margin-top: 1em">With simpler
-filter</p>
+filter:</p>
 
 <p style="margin-left:11%; margin-top: 1em">$ msiem events
 &minus;&minus;filter DstIP=127.0.0.1 &minus;&minus;field
 SrcIP DstIP</p>
 
 <p style="margin-left:11%; margin-top: 1em">Specific
-operatior and multiple values filter</p>
+operatior and multiple values filter:</p>
 
 <p style="margin-left:11%; margin-top: 1em">$ msiem events
-&minus;&minus;filter SrcIP IN 22.0.0.0/8 10.0.0.0/8
+&minus;&minus;filter \ <br>
+SrcIP IN 22.0.0.0/8 10.0.0.0/8 \ <br>
 &minus;&minus;fields SrcIP DstIP <b><br>
 &minus;&minus;time_range</b> time_range, <b>&minus;t</b>
 time_range</p>
@@ -590,7 +596,7 @@ file&gt;] <br>
 <p style="margin-left:11%; margin-top: 1em">Quickly make
 API requests to any enpoints with any data.</p>
 
-<p style="margin-left:11%; margin-top: 1em">Exemple</p>
+<p style="margin-left:11%; margin-top: 1em">Exemple:</p>
 
 <p style="margin-left:11%; margin-top: 1em">$ msiem api
 &minus;&minus;method \ <br>

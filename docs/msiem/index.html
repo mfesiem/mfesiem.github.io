@@ -65,8 +65,7 @@ optional arguments:
 <pre><code>usage: msiem config [-h] [--print] [--set '&lt;section&gt;' ['&lt;option&gt;' '&lt;value&gt;']
                     ['&lt;section&gt;' ['&lt;option&gt;' '&lt;value&gt;'] ...]]
 
-    Set and print your msiempy config.  
-
+Set and print your msiempy config.  
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -95,17 +94,15 @@ Exemples:
 Acknowledges the (unacknowledged) alarms triggered in the last 
 3 days that mention &quot;HTTP: SQL Injection Attempt Detected&quot; in 
 the triggered event name and destinated to 10.55.16.99 :
-</code></pre>
-<p>$ msiem alarms &ndash;action acknowledge -t LAST_24_HOURS &ndash;status unacknowledged &ndash;filters
-"ruleName=HTTP: SQL Injection Attempt Detected"
-"destIp=10.55.16.99"</p>
-<pre><code>
+
+$ msiem alarms --action acknowledge -t LAST_24_HOURS --status unacknowledged --filters     &quot;ruleName=HTTP: SQL Injection Attempt Detected&quot;     &quot;destIp=10.55.16.99&quot;
+
 Prints the alarms triggered in the last hour using the query 
 module to retreive events informations and request for 
 specific fields :
-</code></pre>
-<p>$ msiem alarms -t LAST_HOUR &ndash;query_events &ndash;alarms_fields acknowledgedDate alarmName events &ndash;events_fields Alert.LastTime Rule.msg Alert.DstIP</p>
-<pre><code>
+
+$ msiem alarms -t LAST_HOUR --query_events --alarms_fields acknowledgedDate alarmName events --events_fields Alert.LastTime Rule.msg Alert.DstIP
+
 optional arguments:
   -h, --help            show this help message and exit
   --action action       What to do with the alarms, if not specified will print
@@ -197,34 +194,31 @@ Add datasources from CSV or INI files, list, search, remove.
 
 INI format: Single datasource per file.  
 
-</code></pre>
-<p>[datasource]</p>
-<h1 id="name-of-datasource-req">name of datasource (req)</h1>
-<p>name=testing_datasource</p>
-<h1 id="ip-of-datasource-ip-or-hostname-required">ip of datasource (ip or hostname required)</h1>
-<p>ds_ip=10.10.1.34</p>
-<h1 id="hostname-of-te-new-datasource">hostname of te new datasource</h1>
-<p>hostname=</p>
-<h1 id="type-of-datasource-req">type of datasource (req)</h1>
-<p>type_id=65</p>
-<h1 id="id-of-parent-device-req">id of parent device (req)</h1>
-<p>parent_id=144116287587483648</p>
-<h1 id="true-value-designate-a-client-datasource">True value designate a client datasource</h1>
-<p>client=</p>
-<pre><code>
+[datasource]
+# name of datasource (req)
+name=testing_datasource
+# ip of datasource (ip or hostname required)
+ds_ip=10.10.1.34
+# hostname of te new datasource
+hostname=
+# type of datasource (req)
+type_id=65
+# id of parent device (req)
+parent_id=144116287587483648
+# True value designate a client datasource 
+client=
+
 CSV Format: Multiple datasources per file
 
-</code></pre>
-<p>name,ds_ip,hostname,type_id,parent_id,client
+name,ds_ip,hostname,type_id,parent_id,client
 Test DataSource 11,10.10.1.41,datasource11.domain.com,65,144116287587483648,
 Test DataSource 12,10.10.1.42,datasource12.domain.com,65,144116287587483648,
-Test DataSource 13,10.10.1.43,datasource13.domain.com,65,144116287587483648,</p>
-<pre><code>
+Test DataSource 13,10.10.1.43,datasource13.domain.com,65,144116287587483648,
+
 Add Datasources with: 
 
-</code></pre>
-<p>msiem ds &ndash;add <file or folder></p>
-<pre><code>
+$ msiem ds --add &lt;file or folder&gt;
+
 optional arguments:
   -h, --help            show this help message and exit
   -a &lt;file or folder&gt;, --add &lt;file or folder&gt;
@@ -253,16 +247,13 @@ optional arguments:
 Query events with filters, add note to events.  
 
 With simpler filter
-</code></pre>
-<p>msiem events &ndash;filter DstIP=127.0.0.1 &ndash;field SrcIP DstIP
-</p>
-<pre><code>
+
+$ msiem events --filter DstIP=127.0.0.1 --field SrcIP DstIP   
+
 Specific operatior and multiple values filter
-</code></pre>
-<p>msiem events &ndash;filter
-SrcIP IN 22.0.0.0/8 10.0.0.0/8
-&ndash;fields SrcIP DstIP</p>
-<pre><code>
+
+$ msiem events --filter     SrcIP IN 22.0.0.0/8 10.0.0.0/8     --fields SrcIP DstIP
+
 optional arguments:
   -h, --help            show this help message and exit
   --time_range time_range, -t time_range
@@ -300,11 +291,8 @@ Quickly make API requests to any enpoints with any data.
 
 Exemple
 
-</code></pre>
-<p>msiem api &ndash;method
-"v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1"
-&ndash;data {}</p>
-<pre><code>
+$ msiem api --method     &quot;v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1&quot;     --data {}
+
 optional arguments:
   -h, --help            show this help message and exit
   -m &lt;method&gt;, --method &lt;method&gt;
@@ -327,7 +315,7 @@ optional arguments:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiem/blob/09f2b0cc30d9aadcb9e029f7d19f571a7adde83b/msiem/__init__.py#L0-L318" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiem/blob/09f2b0cc30d9aadcb9e029f7d19f571a7adde83b/msiem/__init__.py#L0-L305" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
 Welcome to the **msiem** CLI documentation.  
@@ -369,8 +357,7 @@ optional arguments:
 usage: msiem config [-h] [--print] [--set &#39;&lt;section&gt;&#39; [&#39;&lt;option&gt;&#39; &#39;&lt;value&gt;&#39;]
                     [&#39;&lt;section&gt;&#39; [&#39;&lt;option&gt;&#39; &#39;&lt;value&gt;&#39;] ...]]
 
-    Set and print your msiempy config.  
-    
+Set and print your msiempy config.  
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -400,24 +387,22 @@ Exemples:
 Acknowledges the (unacknowledged) alarms triggered in the last 
 3 days that mention &#34;HTTP: SQL Injection Attempt Detected&#34; in 
 the triggered event name and destinated to 10.55.16.99 :
-```
+
 $ msiem alarms --action acknowledge \
 -t LAST_24_HOURS \
 --status unacknowledged \
 --filters \
     &#34;ruleName=HTTP: SQL Injection Attempt Detected&#34; \
     &#34;destIp=10.55.16.99&#34;
-```
 
 Prints the alarms triggered in the last hour using the query 
 module to retreive events informations and request for 
 specific fields :
-```
+
 $ msiem alarms -t LAST_HOUR \
 --query_events \
 --alarms_fields acknowledgedDate alarmName events \
 --events_fields Alert.LastTime Rule.msg Alert.DstIP
-```
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -512,7 +497,6 @@ Add datasources from CSV or INI files, list, search, remove.
 
 INI format: Single datasource per file.  
 
-```
 [datasource]
 # name of datasource (req)
 name=testing_datasource
@@ -526,22 +510,17 @@ type_id=65
 parent_id=144116287587483648
 # True value designate a client datasource 
 client=
-```
 
 CSV Format: Multiple datasources per file
 
-```
 name,ds_ip,hostname,type_id,parent_id,client
 Test DataSource 11,10.10.1.41,datasource11.domain.com,65,144116287587483648,
 Test DataSource 12,10.10.1.42,datasource12.domain.com,65,144116287587483648,
 Test DataSource 13,10.10.1.43,datasource13.domain.com,65,144116287587483648,
-```
 
 Add Datasources with: 
 
-```
-msiem ds --add &lt;file or folder&gt;
-```
+$ msiem ds --add &lt;file or folder&gt;
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -572,16 +551,14 @@ usage: msiem events [-h] [--time_range time_range] [--start_time time]
 Query events with filters, add note to events.  
 
 With simpler filter
-```
-msiem events --filter DstIP=127.0.0.1 --field SrcIP DstIP   
-```
+
+$ msiem events --filter DstIP=127.0.0.1 --field SrcIP DstIP   
 
 Specific operatior and multiple values filter
-```
-msiem events --filter \
+
+$ msiem events --filter \
     SrcIP IN 22.0.0.0/8 10.0.0.0/8 \
     --fields SrcIP DstIP
-```
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -621,11 +598,9 @@ Quickly make API requests to any enpoints with any data.
 
 Exemple
 
-```
-msiem api --method \
+$ msiem api --method \
     &#34;v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1&#34; \
     --data {}
-```
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -719,17 +694,9 @@ setTimeout(() => input.focus(), 100);
 <li><a href="#alarms">Alarms</a></li>
 <li><a href="#esm">ESM</a></li>
 <li><a href="#datasources">Datasources</a></li>
-<li><a href="#name-of-datasource-req">name of datasource (req)</a></li>
-<li><a href="#ip-of-datasource-ip-or-hostname-required">ip of datasource (ip or hostname required)</a></li>
-<li><a href="#hostname-of-te-new-datasource">hostname of te new datasource</a></li>
-<li><a href="#type-of-datasource-req">type of datasource (req)</a></li>
-<li><a href="#id-of-parent-device-req">id of parent device (req)</a></li>
-<li><a href="#true-value-designate-a-client-datasource">True value designate a client datasource</a><ul>
 <li><a href="#events">Events</a></li>
 <li><a href="#api">API</a></li>
 <li><a href="#watchlists">Watchlists</a></li>
-</ul>
-</li>
 </ul>
 </div>
 <ul id="index">

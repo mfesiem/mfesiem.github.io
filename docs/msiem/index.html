@@ -1,1 +1,284 @@
-
+<h1>NAME</h1>
+<p>msiem</p>
+<h1>SYNOPSIS</h1>
+<p><strong>msiem</strong> [-h] [-V] {config,alarms,esm,ds,events,api} ...</p>
+<h1>DESCRIPTION</h1>
+<p>McAfee SIEM Command Line Interface 0.3.0.dev1</p>
+<p>License: MIT Credits: Andy Walden, Tristan Landes</p>
+<p>Run 'msiem &lt;command&gt; --help' for more information about a sub-command.</p>
+<h1>OPTIONS</h1>
+<h2><strong>Sub-commands</strong></h2>
+<dl>
+<dt><strong>msiem</strong> <em>config</em></dt>
+<dd><p>Set and print your msiempy config. </p>
+</dd>
+<dt><strong>msiem</strong> <em>alarms</em></dt>
+<dd><p>Query alarms with alarms and events based regex filters. Print, acknowledge, unacknowledge and delete alarms. </p>
+</dd>
+<dt><strong>msiem</strong> <em>esm</em></dt>
+<dd><p>Show ESM version and misc informations regarding your ESM. </p>
+</dd>
+<dt><strong>msiem</strong> <em>ds</em></dt>
+<dd><p>Add datasources from CSV or INI files, list, search, remove. </p>
+</dd>
+<dt><strong>msiem</strong> <em>events</em></dt>
+<dd><p>Query events with any simple filter. Add a note to events. </p>
+</dd>
+<dt><strong>msiem</strong> <em>api</em></dt>
+<dd><p>Quickly make API requests to any enpoints with any data. </p>
+</dd>
+</dl>
+<h1>OPTIONS 'msiem config'</h1>
+<p>usage: msiem config [-h] [--print] [--set '&lt;section&gt;' ['&lt;option&gt;' '&lt;value&gt;'] ['&lt;section&gt;' ['&lt;option&gt;' '&lt;value&gt;'] ...]]</p>
+<p>Set and print your msiempy config.</p>
+<dl>
+<dt><strong>--print</strong></dt>
+<dd><p>Print configuration fields, password base 64 included. </p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--set</strong> '&lt;section&gt;' ['&lt;option&gt;' '&lt;value&gt;'] ['&lt;section&gt;' ['&lt;option&gt;' '&lt;value&gt;'] ...]</dt>
+<dd><p>Set the config option to the specified value if passed (can be repeated), OR inveractively prompt for specified configuration section: 'esm' or 'general'.</p>
+</dd>
+</dl>
+<h1>OPTIONS 'msiem alarms'</h1>
+<p>usage: msiem alarms [-h] [--action action] [--force] [--time_range time_range] [--start_time time] [--end_time time] [--status status] [--filters '&lt;field&gt;=&lt;match&gt;' ['&lt;field&gt;=&lt;match&gt;' ...]] [--event_filters '&lt;field&gt;=&lt;match&gt;' ['&lt;field&gt;=&lt;match&gt;' ...]] [--alarms_fields list of fields [list of fields ...]] [--events_fields list of fields [list of fields ...]] [--json] [--page_size page_size] [--pages pages] [--workers workers] [--no_events] [--query_events]</p>
+<p>Query alarms with alarms and events based regex filters. Print, acknowledge, unacknowledge and delete alarms.</p>
+<p>Exemples:</p>
+<p>Acknowledges the (unacknowledged) alarms triggered in the last 3 days that mention "HTTP: SQL Injection Attempt Detected" in the triggered event name and destinated to 10.55.16.99 :</p>
+<p>$ msiem alarms --action acknowledge \ -t LAST_24_HOURS \ --status unacknowledged \ --filters \ "ruleName=HTTP: SQL Injection Attempt Detected" \ "destIp=10.55.16.99"</p>
+<p>Prints the alarms triggered in the last hour using the query module to retreive events informations and request for specific fields :</p>
+<p>$ msiem alarms -t LAST_HOUR \ --query_events \ --alarms_fields acknowledgedDate alarmName events \ --events_fields Alert.LastTime Rule.msg Alert.DstIP</p>
+<dl>
+<dt><strong>--action</strong> action</dt>
+<dd><p>What to do with the alarms, if not specified will print only. Chose from 'acknowledge','unacknowledge','delete'</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--force</strong></dt>
+<dd><p>Will not prompt for confirmation to do the specified action</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--time_range</strong> time_range, <strong>-t</strong> time_range</dt>
+<dd><p>Timerange, choose from CUSTOM, LAST_MINUTE, LAST_10_MINUTES, LAST_30_MINUTES, LAST_HOUR, CURRENT_DAY, PREVIOUS_DAY, LAST_24_HOURS, LAST_2_DAYS, LAST_3_DAYS, CURRENT_WEEK, PREVIOUS_WEEK, CURRENT_MONTH, PREVIOUS_MONTH, CURRENT_QUARTER, PREVIOUS_QUARTER, CURRENT_YEAR, PREVIOUS_YEAR</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--start_time</strong> time, <strong>--t1</strong> time</dt>
+<dd><p>Start trigger date</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--end_time</strong> time, <strong>--t2</strong> time</dt>
+<dd><p>End trigger date</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--status</strong> status</dt>
+<dd><p>Status of the alarm. Chose from 'acknowledged','unacknowledged','all'</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--filters</strong> '&lt;field&gt;=&lt;match&gt;' ['&lt;field&gt;=&lt;match&gt;' ...], <strong>-f</strong> '&lt;field&gt;=&lt;match&gt;' ['&lt;field&gt;=&lt;match&gt;' ...]</dt>
+<dd><p>List of alarm related field/matchvalue filters. Repeatable. Alarm related fields can be : id, summary, assignee, severity, triggeredDate, acknowledgedDate, acknowledgedUsername, alarmName, events, and others</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--event_filters</strong> '&lt;field&gt;=&lt;match&gt;' ['&lt;field&gt;=&lt;match&gt;' ...], <strong>-e</strong> '&lt;field&gt;=&lt;match&gt;' ['&lt;field&gt;=&lt;match&gt;' ...]</dt>
+<dd><p>List of triggering event related field/matchvalue filters. Repeatable. Event related fields can be : ruleName, srcIp, destIp, protocol, lastTime, subtype, destPort, destMac, srcMac, srcPort, deviceName, sigId, normId, srcUser, destUser, normMessage, normDesc, host, domain, ipsId, etc... Or (if --query_events) : Rule.msg, Alert.SrcPort, Alert.DstPort, Alert.SrcIP, Alert.DstIP, Alert.SrcMac, Alert.DstMac, Alert.LastTime, Rule.NormID, Alert.DSIDSigID, Alert.IPSIDAlertID, etc...</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--alarms_fields</strong> list of fields [list of fields ...]</dt>
+<dd><p>List of fields that appear in the alarm table. Overwritten by --json</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--events_fields</strong> list of fields [list of fields ...]</dt>
+<dd><p>List of fields that appear in the events sub tables. Default value: ['ruleName', 'srcIp', 'destIp']. If you use --query_events, this list will be used to query needed values, you must specify all fields you want to filter on with ewvent_filters. Default value if --query_events: ['Rule.msg', 'Alert.SrcIP', 'Alert.DstIP']. Overwritten by --json.</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--json</strong></dt>
+<dd><p>Prints the raw json object with all loaded fields</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--page_size</strong> page_size, <strong>-p</strong> page_size</dt>
+<dd><p>Size of requests</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--pages</strong> pages, <strong>-n</strong> pages</dt>
+<dd><p>Number of alarm pages to load</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--workers</strong> workers</dt>
+<dd><p>Number of max asynch workers</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--no_events</strong></dt>
+<dd><p>Do not load the complete trigerring events informations.</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--query_events</strong></dt>
+<dd><p>Use the query module to retreive events, much more effcient. Event keys will be like 'Alert.SrcIP' instead of 'srcIp'</p>
+</dd>
+</dl>
+<h1>OPTIONS 'msiem esm'</h1>
+<p>usage: msiem esm [-h] [--version] [--time] [--disks] [--ram] [--callhome] [--status] [--timezones]</p>
+<p>Show ESM version and misc informations regarding your ESM.</p>
+<dl>
+<dt><strong>--version</strong></dt>
+<dd><p>Show ESM version</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--time</strong></dt>
+<dd><p>time (GMT)</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--disks</strong></dt>
+<dd><p>disk status</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--ram</strong></dt>
+<dd><p>ram status</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--callhome</strong></dt>
+<dd><p>True/False if callhome is active/not active</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--status</strong></dt>
+<dd><p>Statuses and a few other less interesting details : autoBackupEnabled, autoBackupDay, backupLastTime, backupNextTime, rulesAndSoftwareCheckEnabled, rulesAndSoftLastCheck, rulesAndSoftNextCheck</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--timezones</strong></dt>
+<dd><p>Current ESM timezone</p>
+</dd>
+</dl>
+<h1>OPTIONS 'msiem ds'</h1>
+<p>usage: msiem ds [-h] [-a &lt;file or folder&gt;] [-s [term]] [-l] [--delete &lt;datasource ID&gt; [&lt;datasource ID&gt; ...]] [--deleteclients &lt;datasource ID&gt; [&lt;datasource ID&gt; ...]] [--force]</p>
+<p>Add datasources from CSV or INI files, list, search, remove.</p>
+<p>INI format: Single datasource per file.</p>
+<p>[datasource] # name of datasource (req) name=testing_datasource # ip of datasource (ip or hostname required) ds_ip=10.10.1.34 # hostname of te new datasource hostname= # type of datasource (req) type_id=65 # id of parent device (req) parent_id=144116287587483648 # True value designate a client datasource client=</p>
+<p>CSV Format: Multiple datasources per file</p>
+<p>name,ds_ip,hostname,type_id,parent_id,client Test DataSource 11,10.10.1.41,datasource11.domain.com,65,144116287587483648, Test DataSource 12,10.10.1.42,datasource12.domain.com,65,144116287587483648, Test DataSource 13,10.10.1.43,datasource13.domain.com,65,144116287587483648,</p>
+<p>Add Datasources with:</p>
+<p>$ msiem ds --add &lt;file or folder&gt;</p>
+<dl>
+<dt><strong>-a</strong> &lt;file or folder&gt;, <strong>--add</strong> &lt;file or folder&gt;</dt>
+<dd><p>Scan a directory or a file for new Datasource files and add them to the ESM. Datasources can be defined in CSV or INI format (see README.md). </p>
+</dd>
+</dl>
+<dl>
+<dt><strong>-s</strong> [term], <strong>--search</strong> [term]</dt>
+<dd><p>Search for datasource name, hostname, or IP.May require quotes around the name if thereare spaces.</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>-l</strong>, <strong>--list</strong></dt>
+<dd><p>Display datasources.</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--delete</strong> &lt;datasource ID&gt; [&lt;datasource ID&gt; ...]</dt>
+<dd><p>Deletes the datasource and all the data. Be careful.</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--deleteclients</strong> &lt;datasource ID&gt; [&lt;datasource ID&gt; ...]</dt>
+<dd><p>Deletes the datasource's clients and all the data. Be careful.</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--force</strong></dt>
+<dd><p>Do not ask the user input before deletion of the datasources / datasources client.</p>
+</dd>
+</dl>
+<h1>OPTIONS 'msiem events'</h1>
+<p>usage: msiem events [-h] [--time_range time_range] [--start_time time] [--end_time time] [--filters &lt;filter&gt; [&lt;filter&gt; ...]] [--fields &lt;field&gt; [&lt;field&gt; ...]] [--json] [--limit limit]</p>
+<p>Query events with filters, add note to events.</p>
+<p>With simpler filter:</p>
+<p>$ msiem events --filter DstIP=127.0.0.1 --field SrcIP DstIP</p>
+<p>Specific operatior and multiple values filter:</p>
+<p>$ msiem events --filter \ SrcIP IN 22.0.0.0/8 10.0.0.0/8 \ --fields SrcIP DstIP</p>
+<dl>
+<dt><strong>--time_range</strong> time_range, <strong>-t</strong> time_range</dt>
+<dd><p>Timerange, choose from CUSTOM, LAST_MINUTE, LAST_10_MINUTES, LAST_30_MINUTES, LAST_HOUR, CURRENT_DAY, PREVIOUS_DAY, LAST_24_HOURS, LAST_2_DAYS, LAST_3_DAYS, CURRENT_WEEK, PREVIOUS_WEEK, CURRENT_MONTH, PREVIOUS_MONTH, CURRENT_QUARTER, PREVIOUS_QUARTER, CURRENT_YEAR, PREVIOUS_YEAR</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--start_time</strong> time, <strong>--t1</strong> time</dt>
+<dd><p>Start trigger date</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--end_time</strong> time, <strong>--t2</strong> time</dt>
+<dd><p>End trigger date</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--filters</strong> &lt;filter&gt; [&lt;filter&gt; ...], <strong>-f</strong> &lt;filter&gt; [&lt;filter&gt; ...]</dt>
+<dd><p>List of Event field/value filters: '&lt;field&gt;=&lt;value&gt;' or '&lt;field&gt;' '&lt;operator&gt;' '&lt;value1&gt;' '&lt;value2&gt;...'. Repeatable. Will generate only EsmBasicValue filters. Filter fields can be: Rule.msg, Alert.SrcPort, Alert.DstPort, Alert.SrcIP, Alert.DstIP, Alert.SrcMac, Alert.DstMac, Alert.LastTime, Rule.NormID, Alert.DSIDSigID, Alert.IPSIDAlertID, etc...</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--fields</strong> &lt;field&gt; [&lt;field&gt; ...]</dt>
+<dd><p>List of fields that appear in the events table. Default value: ['Rule.msg', 'Alert.SrcIP', 'Alert.DstIP']. </p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--json</strong></dt>
+<dd><p>Prints the raw json object with all loaded fields</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>--limit</strong> limit</dt>
+<dd><p>Size of requests</p>
+</dd>
+</dl>
+<h1>OPTIONS 'msiem api'</h1>
+<p>usage: msiem api [-h] [-m &lt;method&gt;] [-d &lt;JSON string or file&gt;] [-a &lt;key&gt;=&lt;value&gt; [&lt;key&gt;=&lt;value&gt; ...]] [-l]</p>
+<p>Quickly make API requests to any enpoints with any data.</p>
+<p>Exemple:</p>
+<p>$ msiem api --method \ "v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1" \ --data {}</p>
+<dl>
+<dt><strong>-m</strong> &lt;method&gt;, <strong>--method</strong> &lt;method&gt;</dt>
+<dd><p>SIEM API method name or NitroSession.PARAMS keyword. Exemple: 'v2/qryGetSelectFields' or 'get_possible_fields', see --list for full details .</p>
+</dd>
+</dl>
+<dl>
+<dt><strong>-d</strong> &lt;JSON string or file&gt;, <strong>--data</strong> &lt;JSON string or file&gt;</dt>
+<dd><p>POST data, in the case of a API method name call. </p>
+</dd>
+</dl>
+<dl>
+<dt><strong>-a</strong> &lt;key&gt;=&lt;value&gt; [&lt;key&gt;=&lt;value&gt; ...], <strong>--args</strong> &lt;key&gt;=&lt;value&gt; [&lt;key&gt;=&lt;value&gt; ...]</dt>
+<dd><p>NitroSession.PARAMS interpolation parameters, in the case of a NitroSession.PARAMS keyword call. </p>
+</dd>
+</dl>
+<dl>
+<dt><strong>-l</strong>, <strong>--list</strong></dt>
+<dd><p>List all available SIEM API calls, and supported calls with keywords and parameter mapping requests. </p>
+</dd>
+</dl>
+<dl>
+<dt><strong>-V</strong>, <strong>--version</strong></dt>
+<dd><p>Show version and exit</p>
+</dd>
+</dl>
+<h1>AUTHORS</h1>
+<p><strong>msiem</strong> was written by Andy Walden, Tristan Landes &lt;&lt;&lt;UNSET --author_email OPTION&gt;&gt;&gt;.</p>
+<h1>DISTRIBUTION</h1>
+<p>The latest version of msiem may be downloaded from <a href="&lt;&lt;UNSET"></a></p>

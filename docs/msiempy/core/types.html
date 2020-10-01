@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L0-L482" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L0-L484" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;
@@ -395,11 +395,13 @@ class NitroList(collections.UserList, NitroObject):
 
         This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.
         Basically, if `asynch==True`, will return :
+        
             returned=list(concurrent.futures.ThreadPoolExecutor(
                         max_workers=workers ).map(
                             func, data))
 
         if `asynch==False`, will iterate and return :
+
             for index_or_item in data:
                 returned.append(func(index_or_item))
 
@@ -534,7 +536,7 @@ Creates the object session.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L31-L76" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L31-L76" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class NitroObject(abc.ABC):
     &#34;&#34;&#34;
@@ -610,7 +612,7 @@ Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L55-L61" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L55-L61" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractproperty
 def text(self):
@@ -628,7 +630,7 @@ Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L63-L68" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L63-L68" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractproperty
 def json(self):
@@ -654,7 +656,7 @@ Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L70-L76" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L70-L76" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def refresh(self):
@@ -684,7 +686,7 @@ Exemple : <code>Event</code>, <code>Alarm</code>, etc&hellip;</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L79-L139" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L79-L139" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class NitroDict(collections.UserDict, NitroObject):
     &#34;&#34;&#34;
@@ -775,7 +777,7 @@ Exemple : <code>Event</code>, <code>Alarm</code>, etc&hellip;</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L115-L118" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L115-L118" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def json(self):
@@ -789,7 +791,7 @@ def json(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L120-L123" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L120-L123" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def text(self):
@@ -809,7 +811,7 @@ Abstract declaration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L125-L130" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L125-L130" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def data_from_id(id):
@@ -828,7 +830,7 @@ Abstract definition.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L132-L139" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L132-L139" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def get_id(self):
@@ -871,7 +873,7 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L142-L483" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L142-L485" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class NitroList(collections.UserList, NitroObject):
     &#34;&#34;&#34;
@@ -1096,11 +1098,13 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
 
         This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.
         Basically, if `asynch==True`, will return :
+        
             returned=list(concurrent.futures.ThreadPoolExecutor(
                         max_workers=workers ).map(
                             func, data))
 
         if `asynch==False`, will iterate and return :
+
             for index_or_item in data:
                 returned.append(func(index_or_item))
 
@@ -1243,7 +1247,7 @@ See: <a href="https://docs.python.org/3.8/library/collections.html?highlight=use
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L260-L263" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L260-L263" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def text(self):
@@ -1257,7 +1261,7 @@ def text(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L265-L272" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L265-L272" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def json(self):
@@ -1280,7 +1284,7 @@ def json(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L175-L181" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L175-L181" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def keys(self):
     &#34;&#34;&#34;Set of keys for all dict&#34;&#34;&#34;
@@ -1308,7 +1312,7 @@ csv: Returns data with header and comma separated values.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L183-L258" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L183-L258" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_text(
     self,
@@ -1411,7 +1415,7 @@ i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L274-L327" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L274-L327" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def search(self, invert=False, match_prop=&#34;json&#34;, *pattern):
     &#34;&#34;&#34;
@@ -1477,7 +1481,7 @@ i.e. : <code>[item for item in list if item['cost'] &gt; 50]</code></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L329-L333" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L329-L333" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self):
     &#34;&#34;&#34;
@@ -1507,18 +1511,20 @@ it will be a mess.</li>
 <li><code>message</code> : To show to the user.</li>
 </ul>
 <p>This method is where the core of asynchronous tasks resides. <code>func</code> will be executed on all <code>data</code> elements.
-Basically, if <code>asynch==True</code>, will return :
-returned=list(concurrent.futures.ThreadPoolExecutor(
-max_workers=workers ).map(
-func, data))</p>
-<p>if <code>asynch==False</code>, will iterate and return :
-for index_or_item in data:
-returned.append(func(index_or_item))</p>
+Basically, if <code>asynch==True</code>, will return :</p>
+<pre><code>returned=list(concurrent.futures.ThreadPoolExecutor(
+            max_workers=workers ).map(
+                func, data))
+</code></pre>
+<p>if <code>asynch==False</code>, will iterate and return :</p>
+<pre><code>for index_or_item in data:
+    returned.append(func(index_or_item))
+</code></pre>
 <p>Returns a list of returned results.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/864795b5bb1acb2e654ab03516f9e240a9fc8e3d/msiempy/core/types.py#L335-L469" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/types.py#L335-L471" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def perform(
     self,
@@ -1550,11 +1556,13 @@ returned.append(func(index_or_item))</p>
 
     This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.
     Basically, if `asynch==True`, will return :
+    
         returned=list(concurrent.futures.ThreadPoolExecutor(
                     max_workers=workers ).map(
                         func, data))
 
     if `asynch==False`, will iterate and return :
+
         for index_or_item in data:
             returned.append(func(index_or_item))
 

@@ -46,13 +46,13 @@ INDEX=[
 {
 "ref":"msiempy.event.EventManager.qry_load_data",
 "url":1,
-"doc":"Helper method to execute the query and load the data : -> Submit the query -> Wait the query to be executed -> Get and parse the events Arguments: -  retry ( int ): number of time the query can be failed and retried. -  wait_timeout_sec ( int ): wait timeout in seconds Returns :  tuple :   msiempy.event.EventManager , Query completed?  True/False  Raises  msiempy.core.session.NitroError if any unhandled errors. Raises  TimeoutError if wait_timeout_sec counter gets to 0.",
+"doc":"Helper method to execute the query and load the data : -> Submit the query -> Wait the query to be executed -> Get and parse the events Arguments: -  retry ( int ): number of time the query can be failed and retried. 1 by default. -  wait_timeout_sec ( int ): wait timeout in seconds. 120 by default. Returns :  tuple :   msiempy.event.EventManager , Query completed?  True/False  Raises  msiempy.core.session.NitroError if any unhandled errors. Raises  TimeoutError if wait_timeout_sec counter gets to 0.",
 "func":1
 },
 {
 "ref":"msiempy.event.EventManager.load_data",
 "url":1,
-"doc":"Load the data into the list. Split the query in defferents time slots if the query apprears not to be completed. Wraps around  msiempy.event.EventManager.qry_load_data . Note: Only the first query is loaded asynchronously. Arguments: -  workers : numbre of parrallels tasks, should be equal or less than the number of slots. -  slots : number of time slots the query can be divided. The loading bar is divided according to the number of slots -  delta : exemple : '6h30m', the query will be firstly divided in chuncks according to the time delta read with dateutil. -  max_query_depth : maximum number of reccursive divisions the query before to . Meaning, if EventManager query  limit=500 ,  slots=5  and  max_query_depth=3 , then the maximum capacity of the list is  (500 5) (500 5) (500 5) =  15625000000 . Only works for certain time ranges. -  retry ( int ): number of time the query can be failed and retried -  wait_timeout_sec ( int ): wait timeout in seconds Returns :  msiempy.event.EventManager ",
+"doc":"Load the events data into the list. Wraps around  msiempy.event.EventManager.qry_load_data . Arguments: -  max_query_depth : Positive value splits the query in differents time slots if the query apprears not to be completed. Divisions are reccursive,  max_query_depth is the maximum number of reccursive calls load_data() can apply to the query in order to load all events. Meaning, if  EventManager.limit=500 ,  slots=10  and  max_query_depth=2 , then the maximum capacity of the list is  (500 10) (500 10) =  25000000 (instead of  500 with  max_query_depth=0 ). Only works with custom times and a few time ranges . -  slots : number of time slots the query can be divided. The loading bar is divided according to the number of slots. Applicable if max_query_depth>0. -  delta : exemple : '2h', the query will be firstly divided in chuncks according to the time delta read with dateutil. Applicable if max_query_depth>0. -  workers : numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if max_query_depth>0. -  retry ( int ): number of time the query can be failed and retried. 1 by default. -  wait_timeout_sec ( int ): wait timeout in seconds. 120 by default. Note: Only the first query is loaded asynchronously. Returns :  msiempy.event.EventManager ",
 "func":1
 },
 {
@@ -909,19 +909,19 @@ INDEX=[
 {
 "ref":"msiempy.core.utils.divide_times",
 "url":7,
-"doc":"\" Divide the time range based on another time, a delta or on a number of slots. Return list of tuple",
+"doc":"Divide the time range based on a delta or on a number of slots or another time,. Return list of tuple",
 "func":1
 },
 {
 "ref":"msiempy.core.utils.regex_match",
 "url":7,
-"doc":"",
+"doc":"Return True if the string match the regex.",
 "func":1
 },
 {
 "ref":"msiempy.core.utils.format_esm_time",
 "url":7,
-"doc":"Converts time object to ESM time string. Arguments: time_obj {[type]}  [description] Returns: time string in format: 2019-04-08T19:35:02.971Z",
+"doc":"Converts time object to ESM time string. Arguments: -  time_obj ( datetime.datetime ) Returns: time string in format  2019-04-08T19:35:02.971Z ",
 "func":1
 },
 {
@@ -945,7 +945,7 @@ INDEX=[
 {
 "ref":"msiempy.core.utils.parse_timedelta",
 "url":7,
-"doc":"Parse a time string e.g. (2h13m) into a timedelta object. Modified from virhilo's answer at https: stackoverflow.com/a/4628148/851699 :param time_str: A string identifying a duration. (eg. 2h13m) :return datetime.timedelta: A datetime.timedelta object",
+"doc":"Parse a time string e.g. ( 2h13m ) into a timedelta object. Modified from virhilo's answer at https: stackoverflow.com/a/4628148/851699 Arguments: -  time_str : A string identifying a duration. (eg.  2h13m ) Returns  datetime.timedelta : A datetime.timedelta object",
 "func":1
 },
 {

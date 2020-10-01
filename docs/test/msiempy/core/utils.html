@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L0-L450" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L0-L460" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># -*- coding: utf-8 -*-
 &#34;&#34;&#34;A few quick static util methods.
@@ -204,9 +204,9 @@ def timerange_gettimes(time_range):
     return (times[0].isoformat(), times[1].isoformat())
 
 
-def divide_times(first, last, time=0, slots=0, delta=0):
-    &#34;&#34;&#34; &#34;
-    Divide the time range based on another time, a delta or on a number of slots.
+def divide_times(first, last, slots=0, delta=0, time=0):
+    &#34;&#34;&#34;
+    Divide the time range based on a delta or on a number of slots or another time,.
     Return list of tuple
     &#34;&#34;&#34;
 
@@ -246,6 +246,9 @@ def divide_times(first, last, time=0, slots=0, delta=0):
 
 
 def regex_match(regex, string):
+    &#34;&#34;&#34;
+    Return True if the string match the regex.  
+    &#34;&#34;&#34;
     if re.search(regex, string):
         return True
     else:
@@ -256,9 +259,10 @@ def format_esm_time(esm_time):
     &#34;&#34;&#34;Converts time object to ESM time string.
 
     Arguments:
-        time_obj {[type]} -- [description]
-    Returns:
-        time string in format: 2019-04-08T19:35:02.971Z
+
+    - `time_obj` (`datetime.datetime`)
+
+    Returns: time string in format `2019-04-08T19:35:02.971Z`
     &#34;&#34;&#34;
     _esm_out_time_fmt = &#34;%m/%d/%Y %H:%M:%S&#34;
     _esm_in_time_fmt = &#34;%Y-%m-%dT%H:%M:%S.000Z&#34;
@@ -284,6 +288,7 @@ def convert_to_time_obj(time_str):
 def parse_query_result(columns, rows):
     &#34;&#34;&#34;
     For input :
+
         columns = [{&#39;name&#39;: &#39;Alert.LastTime&#39;}, {&#39;name&#39;: &#39;Rule.msg&#39;}, {&#39;name&#39;: &#39;Alert.DstIP&#39;}, {&#39;name&#39;: &#39;Alert.IPSIDAlertID&#39;}]
         rows =
             [
@@ -292,17 +297,18 @@ def parse_query_result(columns, rows):
             }
 
     Returns :
-    [
-        {
-            &#34;Alert.LastTime&#34;:&#34;09/22/2020 15:51:14&#34;,
-            &#34;Rule.msg&#34;:&#34;Postfix Disconnect from host&#34;,
-            &#34;Alert.DstIP&#34;:&#34;::&#34;,
-            &#34;Alert.IPSIDAlertID&#34;:&#34;144116287604260864|547123&#34;
-        },
-        {
-            ...
-        },
-    ]
+
+        [
+            {
+                &#34;Alert.LastTime&#34;:&#34;09/22/2020 15:51:14&#34;,
+                &#34;Rule.msg&#34;:&#34;Postfix Disconnect from host&#34;,
+                &#34;Alert.DstIP&#34;:&#34;::&#34;,
+                &#34;Alert.IPSIDAlertID&#34;:&#34;144116287604260864|547123&#34;
+            },
+            {
+                ...
+            },
+        ]
 
     &#34;&#34;&#34;
     events = list()
@@ -324,7 +330,7 @@ def format_fields_for_query(fields):
 
     - `fields`: list of fields, i.e. `[&#39;field1&#39;,&#39;name&#39;,&#39;user&#39;]`
 
-    Returns:
+    Returns:    
 
         [
             {&#39;name&#39;:&#39;field1&#39;},
@@ -338,12 +344,16 @@ def format_fields_for_query(fields):
 
 def parse_timedelta(time_str):
     &#34;&#34;&#34;
-    Parse a time string e.g. (2h13m) into a timedelta object.
+    Parse a time string e.g. (`2h13m`) into a timedelta object.
 
     Modified from virhilo&#39;s answer at https://stackoverflow.com/a/4628148/851699
 
-    :param time_str: A string identifying a duration.  (eg. 2h13m)
-    :return datetime.timedelta: A datetime.timedelta object
+    Arguments:
+    
+    - `time_str`: A string identifying a duration.  (eg. `2h13m`)
+    
+    
+    Returns `datetime.timedelta`: A datetime.timedelta object
     &#34;&#34;&#34;
     regex = re.compile(
         r&#34;^((?P&lt;days&gt;[\.\d]+?)d)?((?P&lt;hours&gt;[\.\d]+?)h)?((?P&lt;minutes&gt;[\.\d]+?)m)?((?P&lt;seconds&gt;[\.\d]+?)s)?$&#34;
@@ -500,7 +510,7 @@ Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L14-L59" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L14-L59" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def dehexify(data):
     &#34;&#34;&#34;
@@ -558,7 +568,7 @@ Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L78-L83" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L78-L83" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tob64(s):
     &#34;&#34;&#34;
@@ -576,7 +586,7 @@ Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L86-L91" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L86-L91" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fromb64(s):
     &#34;&#34;&#34;
@@ -594,7 +604,7 @@ Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L110-L171" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L110-L171" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def timerange_gettimes(time_range):
     &#34;&#34;&#34;
@@ -661,20 +671,19 @@ Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing
 </details>
 </dd>
 <dt id="msiempy.core.utils.divide_times"><code class="name flex">
-<span>def <span class="ident">divide_times</span></span>(<span>first, last, time=0, slots=0, delta=0)</span>
+<span>def <span class="ident">divide_times</span></span>(<span>first, last, slots=0, delta=0, time=0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>"
-Divide the time range based on another time, a delta or on a number of slots.
+<div class="desc"><p>Divide the time range based on a delta or on a number of slots or another time,.
 Return list of tuple</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L174-L212" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L174-L212" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">def divide_times(first, last, time=0, slots=0, delta=0):
-    &#34;&#34;&#34; &#34;
-    Divide the time range based on another time, a delta or on a number of slots.
+<pre><code class="python">def divide_times(first, last, slots=0, delta=0, time=0):
+    &#34;&#34;&#34;
+    Divide the time range based on a delta or on a number of slots or another time,.
     Return list of tuple
     &#34;&#34;&#34;
 
@@ -717,13 +726,16 @@ Return list of tuple</p></div>
 <span>def <span class="ident">regex_match</span></span>(<span>regex, string)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return True if the string match the regex.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L215-L219" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L215-L222" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def regex_match(regex, string):
+    &#34;&#34;&#34;
+    Return True if the string match the regex.  
+    &#34;&#34;&#34;
     if re.search(regex, string):
         return True
     else:
@@ -735,25 +747,24 @@ Return list of tuple</p></div>
 </code></dt>
 <dd>
 <div class="desc"><p>Converts time object to ESM time string.</p>
-<h2 id="arguments">Arguments</h2>
-<p>time_obj {[type]} &ndash; [description]</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>time string in format</code></dt>
-<dd>2019-04-08T19:35:02.971Z</dd>
-</dl></div>
+<p>Arguments:</p>
+<ul>
+<li><code>time_obj</code> (<code>datetime.datetime</code>)</li>
+</ul>
+<p>Returns: time string in format <code>2019-04-08T19:35:02.971Z</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L222-L234" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L225-L238" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def format_esm_time(esm_time):
     &#34;&#34;&#34;Converts time object to ESM time string.
 
     Arguments:
-        time_obj {[type]} -- [description]
-    Returns:
-        time string in format: 2019-04-08T19:35:02.971Z
+
+    - `time_obj` (`datetime.datetime`)
+
+    Returns: time string in format `2019-04-08T19:35:02.971Z`
     &#34;&#34;&#34;
     _esm_out_time_fmt = &#34;%m/%d/%Y %H:%M:%S&#34;
     _esm_in_time_fmt = &#34;%Y-%m-%dT%H:%M:%S.000Z&#34;
@@ -778,7 +789,7 @@ Return list of tuple</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L237-L248" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L241-L252" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def convert_to_time_obj(time_str):
     &#34;&#34;&#34;
@@ -798,33 +809,36 @@ Return list of tuple</p></div>
 <span>def <span class="ident">parse_query_result</span></span>(<span>columns, rows)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>For input :
-columns = [{'name': 'Alert.LastTime'}, {'name': 'Rule.msg'}, {'name': 'Alert.DstIP'}, {'name': 'Alert.IPSIDAlertID'}]
+<div class="desc"><p>For input :</p>
+<pre><code>columns = [{'name': 'Alert.LastTime'}, {'name': 'Rule.msg'}, {'name': 'Alert.DstIP'}, {'name': 'Alert.IPSIDAlertID'}]
 rows =
-[
-{'values': ['09/22/2020 15:51:14', 'Postfix Disconnect from host', '::', '144116287604260864|547123']},
-{'values': ['09/22/2020 15:51:14', 'Postfix Lost connection from host', '::', '144116287604260864|547122']}
-}</p>
-<p>Returns :
-[
-{
-"Alert.LastTime":"09/22/2020 15:51:14",
-"Rule.msg":"Postfix Disconnect from host",
-"Alert.DstIP":"::",
-"Alert.IPSIDAlertID":"144116287604260864|547123"
-},
-{
-&hellip;
-},
-]</p></div>
+    [
+        {'values': ['09/22/2020 15:51:14', 'Postfix Disconnect from host', '::', '144116287604260864|547123']},
+        {'values': ['09/22/2020 15:51:14', 'Postfix Lost connection from host', '::', '144116287604260864|547122']}
+    }
+</code></pre>
+<p>Returns :</p>
+<pre><code>[
+    {
+        "Alert.LastTime":"09/22/2020 15:51:14",
+        "Rule.msg":"Postfix Disconnect from host",
+        "Alert.DstIP":"::",
+        "Alert.IPSIDAlertID":"144116287604260864|547123"
+    },
+    {
+        ...
+    },
+]
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L251-L283" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L255-L289" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def parse_query_result(columns, rows):
     &#34;&#34;&#34;
     For input :
+
         columns = [{&#39;name&#39;: &#39;Alert.LastTime&#39;}, {&#39;name&#39;: &#39;Rule.msg&#39;}, {&#39;name&#39;: &#39;Alert.DstIP&#39;}, {&#39;name&#39;: &#39;Alert.IPSIDAlertID&#39;}]
         rows =
             [
@@ -833,17 +847,18 @@ rows =
             }
 
     Returns :
-    [
-        {
-            &#34;Alert.LastTime&#34;:&#34;09/22/2020 15:51:14&#34;,
-            &#34;Rule.msg&#34;:&#34;Postfix Disconnect from host&#34;,
-            &#34;Alert.DstIP&#34;:&#34;::&#34;,
-            &#34;Alert.IPSIDAlertID&#34;:&#34;144116287604260864|547123&#34;
-        },
-        {
-            ...
-        },
-    ]
+
+        [
+            {
+                &#34;Alert.LastTime&#34;:&#34;09/22/2020 15:51:14&#34;,
+                &#34;Rule.msg&#34;:&#34;Postfix Disconnect from host&#34;,
+                &#34;Alert.DstIP&#34;:&#34;::&#34;,
+                &#34;Alert.IPSIDAlertID&#34;:&#34;144116287604260864|547123&#34;
+            },
+            {
+                ...
+            },
+        ]
 
     &#34;&#34;&#34;
     events = list()
@@ -866,16 +881,18 @@ rows =
 <ul>
 <li><code>fields</code>: list of fields, i.e. <code>['field1','name','user']</code></li>
 </ul>
-<h2 id="returns">Returns</h2>
-<p>[
-{'name':'field1'},
-{'name':'name'},
-{'name':'user'},
-]</p></div>
+<p>Returns:
+</p>
+<pre><code>[
+    {'name':'field1'},
+    {'name':'name'},
+    {'name':'user'},
+]
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L286-L303" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L292-L309" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def format_fields_for_query(fields):
     &#34;&#34;&#34;
@@ -885,7 +902,7 @@ rows =
 
     - `fields`: list of fields, i.e. `[&#39;field1&#39;,&#39;name&#39;,&#39;user&#39;]`
 
-    Returns:
+    Returns:    
 
         [
             {&#39;name&#39;:&#39;field1&#39;},
@@ -901,24 +918,31 @@ rows =
 <span>def <span class="ident">parse_timedelta</span></span>(<span>time_str)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Parse a time string e.g. (2h13m) into a timedelta object.</p>
+<div class="desc"><p>Parse a time string e.g. (<code>2h13m</code>) into a timedelta object.</p>
 <p>Modified from virhilo's answer at <a href="https://stackoverflow.com/a/4628148/851699">https://stackoverflow.com/a/4628148/851699</a></p>
-<p>:param time_str: A string identifying a duration.
-(eg. 2h13m)
-:return datetime.timedelta: A datetime.timedelta object</p></div>
+<p>Arguments:</p>
+<ul>
+<li><code>time_str</code>: A string identifying a duration.
+(eg. <code>2h13m</code>)</li>
+</ul>
+<p>Returns <code>datetime.timedelta</code>: A datetime.timedelta object</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L306-L327" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L312-L337" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def parse_timedelta(time_str):
     &#34;&#34;&#34;
-    Parse a time string e.g. (2h13m) into a timedelta object.
+    Parse a time string e.g. (`2h13m`) into a timedelta object.
 
     Modified from virhilo&#39;s answer at https://stackoverflow.com/a/4628148/851699
 
-    :param time_str: A string identifying a duration.  (eg. 2h13m)
-    :return datetime.timedelta: A datetime.timedelta object
+    Arguments:
+    
+    - `time_str`: A string identifying a duration.  (eg. `2h13m`)
+    
+    
+    Returns `datetime.timedelta`: A datetime.timedelta object
     &#34;&#34;&#34;
     regex = re.compile(
         r&#34;^((?P&lt;days&gt;[\.\d]+?)d)?((?P&lt;hours&gt;[\.\d]+?)h)?((?P&lt;minutes&gt;[\.\d]+?)m)?((?P&lt;seconds&gt;[\.\d]+?)s)?$&#34;
@@ -948,7 +972,7 @@ the tz database at: <a href="http://web.cs.ucla.edu/~eggert/tz/tz-link.htm">http
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/9277e31f058b3a93430d63da153955ab3a66fca6/msiempy/core/utils.py#L359-L451" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/core/utils.py#L369-L461" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def nitro_tz(tz_id):
     &#34;&#34;&#34;Maps McAfee SIEM/Nitro ESM internal timezone IDs to

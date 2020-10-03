@@ -88,7 +88,7 @@ INDEX=[
 {
 "ref":"msiempy.watchlist.WatchlistManager.search",
 "url":2,
-"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new list with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern :String regex patterns to look for. More on regex https: docs.python.org/3/library/re.html re.Pattern.search -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  fields : Dictionnary fields to consider in the search, all keys are considered by default. Patterns are compared to str() representation of values. If you wish to apply more specific filters to list, please use filter() or list comprehension. i.e. :  [e for e in events if int(e['severity']) > 50] ",
+"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new list with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern :String regex patterns to look for. More on regex https: docs.python.org/3/library/re.html re.Pattern.search -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  fields : Dictionnary fields to consider in the search, all keys are considered by default. Patterns are compared to  str representation of values. If you wish to apply more specific filters to list, please use filter() or list comprehension. i.e. :  [e for e in events if int(e['severity']) > 50] ",
 "func":1
 },
 {
@@ -285,7 +285,7 @@ INDEX=[
 {
 "ref":"msiempy.event.EventManager.search",
 "url":2,
-"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new list with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern :String regex patterns to look for. More on regex https: docs.python.org/3/library/re.html re.Pattern.search -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  fields : Dictionnary fields to consider in the search, all keys are considered by default. Patterns are compared to str() representation of values. If you wish to apply more specific filters to list, please use filter() or list comprehension. i.e. :  [e for e in events if int(e['severity']) > 50] ",
+"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new list with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern :String regex patterns to look for. More on regex https: docs.python.org/3/library/re.html re.Pattern.search -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  fields : Dictionnary fields to consider in the search, all keys are considered by default. Patterns are compared to  str representation of values. If you wish to apply more specific filters to list, please use filter() or list comprehension. i.e. :  [e for e in events if int(e['severity']) > 50] ",
 "func":1
 },
 {
@@ -389,7 +389,7 @@ INDEX=[
 {
 "ref":"msiempy.event.GroupedEventManager.search",
 "url":2,
-"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new list with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern :String regex patterns to look for. More on regex https: docs.python.org/3/library/re.html re.Pattern.search -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  fields : Dictionnary fields to consider in the search, all keys are considered by default. Patterns are compared to str() representation of values. If you wish to apply more specific filters to list, please use filter() or list comprehension. i.e. :  [e for e in events if int(e['severity']) > 50] ",
+"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new list with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern :String regex patterns to look for. More on regex https: docs.python.org/3/library/re.html re.Pattern.search -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  fields : Dictionnary fields to consider in the search, all keys are considered by default. Patterns are compared to  str representation of values. If you wish to apply more specific filters to list, please use filter() or list comprehension. i.e. :  [e for e in events if int(e['severity']) > 50] ",
 "func":1
 },
 {
@@ -726,7 +726,7 @@ INDEX=[
 {
 "ref":"msiempy.alarm.AlarmManager.search",
 "url":2,
-"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new list with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern :String regex patterns to look for. More on regex https: docs.python.org/3/library/re.html re.Pattern.search -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  fields : Dictionnary fields to consider in the search, all keys are considered by default. Patterns are compared to str() representation of values. If you wish to apply more specific filters to list, please use filter() or list comprehension. i.e. :  [e for e in events if int(e['severity']) > 50] ",
+"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new list with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern :String regex patterns to look for. More on regex https: docs.python.org/3/library/re.html re.Pattern.search -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  fields : Dictionnary fields to consider in the search, all keys are considered by default. Patterns are compared to  str representation of values. If you wish to apply more specific filters to list, please use filter() or list comprehension. i.e. :  [e for e in events if int(e['severity']) > 50] ",
 "func":1
 },
 {
@@ -1202,7 +1202,7 @@ INDEX=[
 {
 "ref":"msiempy.core.types.NitroList.search",
 "url":2,
-"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new list with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern :String regex patterns to look for. More on regex https: docs.python.org/3/library/re.html re.Pattern.search -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  fields : Dictionnary fields to consider in the search, all keys are considered by default. Patterns are compared to str() representation of values. If you wish to apply more specific filters to list, please use filter() or list comprehension. i.e. :  [e for e in events if int(e['severity']) > 50] ",
+"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new list with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern :String regex patterns to look for. More on regex https: docs.python.org/3/library/re.html re.Pattern.search -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  fields : Dictionnary fields to consider in the search, all keys are considered by default. Patterns are compared to  str representation of values. If you wish to apply more specific filters to list, please use filter() or list comprehension. i.e. :  [e for e in events if int(e['severity']) > 50] ",
 "func":1
 },
 {
@@ -1316,7 +1316,7 @@ INDEX=[
 {
 "ref":"msiempy.core.query.FilteredQueryList.search",
 "url":2,
-"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new list with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern :String regex patterns to look for. More on regex https: docs.python.org/3/library/re.html re.Pattern.search -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  fields : Dictionnary fields to consider in the search, all keys are considered by default. Patterns are compared to str() representation of values. If you wish to apply more specific filters to list, please use filter() or list comprehension. i.e. :  [e for e in events if int(e['severity']) > 50] ",
+"doc":"Return a list of elements that matches one or more regex patterns. Patterns are applied one after another Use  | inside patterns to search with logic OR. This method will return a new list with matching data. NitroDicts in the returned NitroList do not references the items in the original NitroList. Arguments: -  pattern :String regex patterns to look for. More on regex https: docs.python.org/3/library/re.html re.Pattern.search -  invert : Weither or not to invert the search and return elements that doesn't not match search. -  fields : Dictionnary fields to consider in the search, all keys are considered by default. Patterns are compared to  str representation of values. If you wish to apply more specific filters to list, please use filter() or list comprehension. i.e. :  [e for e in events if int(e['severity']) > 50] ",
 "func":1
 },
 {

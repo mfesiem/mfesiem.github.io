@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L0-L2028" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L0-L2028" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Provide event management.   
 &#34;&#34;&#34;
@@ -209,7 +209,7 @@ class EventManager(_QueryExecuteManager):
         self.__parent__ = __parent__
 
         # Setting the default fields Adds the specified fields, make sure there is no duplicates and delete TABLE identifiers
-        self.fields=[]
+        self.fields = []
         &#34;&#34;&#34;
         Query fields
         &#34;&#34;&#34;
@@ -293,8 +293,8 @@ class EventManager(_QueryExecuteManager):
 
         Arguments:
 
-        - `retry` (`int`): number of time the query can be failed and retried.  1 by default. 
-        - `wait_timeout_sec` (`int`): wait timeout in seconds. 120 by default.  
+        - `retry` (`int`): number of time the query can be failed and retried.  1 by default.
+        - `wait_timeout_sec` (`int`): wait timeout in seconds. 120 by default.
 
         Returns : `tuple` : (( `msiempy.event.EventManager`, Query completed? `True/False` ))
 
@@ -351,24 +351,24 @@ class EventManager(_QueryExecuteManager):
 
     def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
         &#34;&#34;&#34;
-        Load the events data into the list.  
-        Wraps around `msiempy.event.EventManager.qry_load_data`.  
+        Load the events data into the list.
+        Wraps around `msiempy.event.EventManager.qry_load_data`.
 
         Arguments:
 
-        - `max_query_depth` : Positive value splits the query in differents time slots if the query apprears not to be completed. 
-        Divisions are reccursive, `max_query_depth` is the maximum number of reccursive calls load_data() can apply to the query in order to load all events.  
+        - `max_query_depth` : Positive value splits the query in differents time slots if the query apprears not to be completed.
+        Divisions are reccursive, `max_query_depth` is the maximum number of reccursive calls load_data() can apply to the query in order to load all events.
         Meaning, if `EventManager.limit=500`, `slots=10 `and `max_query_depth=2`, then the maximum capacity of
-        the list is `(500*10)*(500*10)` = `25000000` (instead of `500` with `max_query_depth=0`).  Only works with custom times and a few time ranges...  
+        the list is `(500*10)*(500*10)` = `25000000` (instead of `500` with `max_query_depth=0`).  Only works with custom times and a few time ranges...
         - `slots` : number of time slots the query can be divided. The loading bar is
-            divided according to the number of slots. Applicable if max_query_depth&gt;0. 
+            divided according to the number of slots. Applicable if max_query_depth&gt;0.
         - `delta` : exemple : &#39;2h&#39;, the query will be firstly divided in chuncks according to the time delta read
-            with dateutil. Applicable if max_query_depth&gt;0. 
-        - `workers` : numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if max_query_depth&gt;0. 
-        - `retry` (`int`): number of time the query can be failed and retried.  1 by default. 
-        - `wait_timeout_sec` (`int`): wait timeout in seconds. 120 by default.  
+            with dateutil. Applicable if max_query_depth&gt;0.
+        - `workers` : numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if max_query_depth&gt;0.
+        - `retry` (`int`): number of time the query can be failed and retried.  1 by default.
+        - `wait_timeout_sec` (`int`): wait timeout in seconds. 120 by default.
 
-        Note: Only the first query is loaded asynchronously.  
+        Note: Only the first query is loaded asynchronously.
 
         Returns : `msiempy.event.EventManager`
         &#34;&#34;&#34;
@@ -453,7 +453,7 @@ class EventManager(_QueryExecuteManager):
     @property
     def __root_parent__(self):
         &#34;&#34;&#34;
-        Internal method that return the first query of the query tree. 
+        Internal method that return the first query of the query tree.
         &#34;&#34;&#34;
         if self.__parent__ == None:
             return self
@@ -479,16 +479,16 @@ class EventManager(_QueryExecuteManager):
 
 class GroupedEventManager(_QueryExecuteManager):
     &#34;&#34;&#34;
-    List-Like object.  
-    Interface to execute a grouped event query.  
+    List-Like object.
+    Interface to execute a grouped event query.
 
-    Arguments: 
+    Arguments:
 
-    - `field` (`str`): The field that will be selected when this query is executed.  
-    - `filters` (`list`): list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` if you wish to use advanced filtering.  
-    - `time_range` (`str`): Query time range. String representation of a time range. Not need to specify &#39;CUSTOM&#39; if `start_time` and `end_time` are set.  
-    - `start_time` : Query start time, can be a `str` or a `datetime` object. Parsed with `dateutil`.  
-    - `end_time` : Query end time, can be a `str` or a `datetime` object. Parsed with `dateutil`.  
+    - `field` (`str`): The field that will be selected when this query is executed.
+    - `filters` (`list`): list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` if you wish to use advanced filtering.
+    - `time_range` (`str`): Query time range. String representation of a time range. Not need to specify &#39;CUSTOM&#39; if `start_time` and `end_time` are set.
+    - `start_time` : Query start time, can be a `str` or a `datetime` object. Parsed with `dateutil`.
+    - `end_time` : Query end time, can be a `str` or a `datetime` object. Parsed with `dateutil`.
 
     &#34;&#34;&#34;
 
@@ -571,7 +571,7 @@ class GroupedEventManager(_QueryExecuteManager):
 
         Raises `msiempy.core.session.NitroError` if any unhandled errors.
         Raises `TimeoutError` if wait_timeout_sec counter gets to 0.
-        Raises `ValueError` if an `IPSID` filter is not present.  
+        Raises `ValueError` if an `IPSID` filter is not present.
         &#34;&#34;&#34;
         if not any([f[&#34;field&#34;][&#34;name&#34;] == &#34;IPSID&#34; for f in self.filters]):
             raise ValueError(
@@ -1495,8 +1495,8 @@ class Event(NitroDict):
 
         Arguments:
         - `use_query` (`bool`): Force the use of the query module to retreive the event data.
-        The default behaviour will use `EventManager` query if an &#39;Alert.IPSIDAlertID&#39; key is present in the event,
-        else call `ipsGetAlertData` to get the full details.
+        In contrario, if explicitely `False`, force the use of `ipsGetAlertData` to get the details.
+        The default behaviour will figure out the event type/load method based on the existence if &#39;Alert.IPSIDAlertID&#39; keys
         - `extra_fields` (`list`): Only when `use_query=True` or the Event is already a query event. Additionnal event fields to load in the query.
 
         .. Warning:: Enforce `use_query=True` will reset the Events fields to whatever is passed to `extra_fields`
@@ -2093,7 +2093,7 @@ Some default fields will be present.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L145-L444" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L145-L444" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class EventManager(_QueryExecuteManager):
     &#34;&#34;&#34;
@@ -2129,7 +2129,7 @@ Some default fields will be present.</li>
         self.__parent__ = __parent__
 
         # Setting the default fields Adds the specified fields, make sure there is no duplicates and delete TABLE identifiers
-        self.fields=[]
+        self.fields = []
         &#34;&#34;&#34;
         Query fields
         &#34;&#34;&#34;
@@ -2213,8 +2213,8 @@ Some default fields will be present.</li>
 
         Arguments:
 
-        - `retry` (`int`): number of time the query can be failed and retried.  1 by default. 
-        - `wait_timeout_sec` (`int`): wait timeout in seconds. 120 by default.  
+        - `retry` (`int`): number of time the query can be failed and retried.  1 by default.
+        - `wait_timeout_sec` (`int`): wait timeout in seconds. 120 by default.
 
         Returns : `tuple` : (( `msiempy.event.EventManager`, Query completed? `True/False` ))
 
@@ -2271,24 +2271,24 @@ Some default fields will be present.</li>
 
     def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
         &#34;&#34;&#34;
-        Load the events data into the list.  
-        Wraps around `msiempy.event.EventManager.qry_load_data`.  
+        Load the events data into the list.
+        Wraps around `msiempy.event.EventManager.qry_load_data`.
 
         Arguments:
 
-        - `max_query_depth` : Positive value splits the query in differents time slots if the query apprears not to be completed. 
-        Divisions are reccursive, `max_query_depth` is the maximum number of reccursive calls load_data() can apply to the query in order to load all events.  
+        - `max_query_depth` : Positive value splits the query in differents time slots if the query apprears not to be completed.
+        Divisions are reccursive, `max_query_depth` is the maximum number of reccursive calls load_data() can apply to the query in order to load all events.
         Meaning, if `EventManager.limit=500`, `slots=10 `and `max_query_depth=2`, then the maximum capacity of
-        the list is `(500*10)*(500*10)` = `25000000` (instead of `500` with `max_query_depth=0`).  Only works with custom times and a few time ranges...  
+        the list is `(500*10)*(500*10)` = `25000000` (instead of `500` with `max_query_depth=0`).  Only works with custom times and a few time ranges...
         - `slots` : number of time slots the query can be divided. The loading bar is
-            divided according to the number of slots. Applicable if max_query_depth&gt;0. 
+            divided according to the number of slots. Applicable if max_query_depth&gt;0.
         - `delta` : exemple : &#39;2h&#39;, the query will be firstly divided in chuncks according to the time delta read
-            with dateutil. Applicable if max_query_depth&gt;0. 
-        - `workers` : numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if max_query_depth&gt;0. 
-        - `retry` (`int`): number of time the query can be failed and retried.  1 by default. 
-        - `wait_timeout_sec` (`int`): wait timeout in seconds. 120 by default.  
+            with dateutil. Applicable if max_query_depth&gt;0.
+        - `workers` : numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if max_query_depth&gt;0.
+        - `retry` (`int`): number of time the query can be failed and retried.  1 by default.
+        - `wait_timeout_sec` (`int`): wait timeout in seconds. 120 by default.
 
-        Note: Only the first query is loaded asynchronously.  
+        Note: Only the first query is loaded asynchronously.
 
         Returns : `msiempy.event.EventManager`
         &#34;&#34;&#34;
@@ -2373,7 +2373,7 @@ Some default fields will be present.</li>
     @property
     def __root_parent__(self):
         &#34;&#34;&#34;
-        Internal method that return the first query of the query tree. 
+        Internal method that return the first query of the query tree.
         &#34;&#34;&#34;
         if self.__parent__ == None:
             return self
@@ -2428,7 +2428,7 @@ Default value is <code>(DESCENDING, LastTime)</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L215-L221" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L215-L221" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def order(self):
@@ -2459,7 +2459,7 @@ Acts like there is not filters.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L240-L252" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L240-L252" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
@@ -2487,9 +2487,8 @@ Acts like there is not filters.</p></div>
 <p>Arguments:</p>
 <ul>
 <li><code>retry</code> (<code>int</code>): number of time the query can be failed and retried.
-1 by default. </li>
-<li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds. 120 by default.
-</li>
+1 by default.</li>
+<li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds. 120 by default.</li>
 </ul>
 <p>Returns : <code>tuple</code> : (( <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code>, Query completed? <code>True/False</code> ))</p>
 <p>Raises <code><a title="msiempy.core.session.NitroError" href="core/session.html#msiempy.core.session.NitroError">NitroError</a></code> if any unhandled errors.
@@ -2497,7 +2496,7 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L254-L317" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L254-L317" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def qry_load_data(self, retry=1, wait_timeout_sec=120):
     &#34;&#34;&#34;
@@ -2508,8 +2507,8 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div
 
     Arguments:
 
-    - `retry` (`int`): number of time the query can be failed and retried.  1 by default. 
-    - `wait_timeout_sec` (`int`): wait timeout in seconds. 120 by default.  
+    - `retry` (`int`): number of time the query can be failed and retried.  1 by default.
+    - `wait_timeout_sec` (`int`): wait timeout in seconds. 120 by default.
 
     Returns : `tuple` : (( `msiempy.event.EventManager`, Query completed? `True/False` ))
 
@@ -2569,55 +2568,51 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div
 <span>def <span class="ident">load_data</span></span>(<span>self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Load the events data into the list.<br>
-Wraps around <code><a title="msiempy.event.EventManager.qry_load_data" href="#msiempy.event.EventManager.qry_load_data">EventManager.qry_load_data()</a></code>.
-</p>
+<div class="desc"><p>Load the events data into the list.
+Wraps around <code><a title="msiempy.event.EventManager.qry_load_data" href="#msiempy.event.EventManager.qry_load_data">EventManager.qry_load_data()</a></code>.</p>
 <p>Arguments:</p>
 <ul>
 <li><code>max_query_depth</code> : Positive value splits the query in differents time slots if the query apprears not to be completed.
-Divisions are reccursive, <code>max_query_depth</code> is the maximum number of reccursive calls load_data() can apply to the query in order to load all events.<br>
+Divisions are reccursive, <code>max_query_depth</code> is the maximum number of reccursive calls load_data() can apply to the query in order to load all events.
 Meaning, if <code>EventManager.limit=500</code>, <code>slots=10</code>and <code>max_query_depth=2</code>, then the maximum capacity of
 the list is <code>(500*10)*(500*10)</code> = <code>25000000</code> (instead of <code>500</code> with <code>max_query_depth=0</code>).
-Only works with custom times and a few time ranges&hellip;
-</li>
+Only works with custom times and a few time ranges&hellip;</li>
 <li><code>slots</code> : number of time slots the query can be divided. The loading bar is
-divided according to the number of slots. Applicable if max_query_depth&gt;0. </li>
+divided according to the number of slots. Applicable if max_query_depth&gt;0.</li>
 <li><code>delta</code> : exemple : '2h', the query will be firstly divided in chuncks according to the time delta read
-with dateutil. Applicable if max_query_depth&gt;0. </li>
-<li><code>workers</code> : numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if max_query_depth&gt;0. </li>
+with dateutil. Applicable if max_query_depth&gt;0.</li>
+<li><code>workers</code> : numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if max_query_depth&gt;0.</li>
 <li><code>retry</code> (<code>int</code>): number of time the query can be failed and retried.
-1 by default. </li>
-<li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds. 120 by default.
-</li>
+1 by default.</li>
+<li><code>wait_timeout_sec</code> (<code>int</code>): wait timeout in seconds. 120 by default.</li>
 </ul>
-<p>Note: Only the first query is loaded asynchronously.
-</p>
+<p>Note: Only the first query is loaded asynchronously.</p>
 <p>Returns : <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L319-L418" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L319-L418" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
     &#34;&#34;&#34;
-    Load the events data into the list.  
-    Wraps around `msiempy.event.EventManager.qry_load_data`.  
+    Load the events data into the list.
+    Wraps around `msiempy.event.EventManager.qry_load_data`.
 
     Arguments:
 
-    - `max_query_depth` : Positive value splits the query in differents time slots if the query apprears not to be completed. 
-    Divisions are reccursive, `max_query_depth` is the maximum number of reccursive calls load_data() can apply to the query in order to load all events.  
+    - `max_query_depth` : Positive value splits the query in differents time slots if the query apprears not to be completed.
+    Divisions are reccursive, `max_query_depth` is the maximum number of reccursive calls load_data() can apply to the query in order to load all events.
     Meaning, if `EventManager.limit=500`, `slots=10 `and `max_query_depth=2`, then the maximum capacity of
-    the list is `(500*10)*(500*10)` = `25000000` (instead of `500` with `max_query_depth=0`).  Only works with custom times and a few time ranges...  
+    the list is `(500*10)*(500*10)` = `25000000` (instead of `500` with `max_query_depth=0`).  Only works with custom times and a few time ranges...
     - `slots` : number of time slots the query can be divided. The loading bar is
-        divided according to the number of slots. Applicable if max_query_depth&gt;0. 
+        divided according to the number of slots. Applicable if max_query_depth&gt;0.
     - `delta` : exemple : &#39;2h&#39;, the query will be firstly divided in chuncks according to the time delta read
-        with dateutil. Applicable if max_query_depth&gt;0. 
-    - `workers` : numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if max_query_depth&gt;0. 
-    - `retry` (`int`): number of time the query can be failed and retried.  1 by default. 
-    - `wait_timeout_sec` (`int`): wait timeout in seconds. 120 by default.  
+        with dateutil. Applicable if max_query_depth&gt;0.
+    - `workers` : numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if max_query_depth&gt;0.
+    - `retry` (`int`): number of time the query can be failed and retried.  1 by default.
+    - `wait_timeout_sec` (`int`): wait timeout in seconds. 120 by default.
 
-    Note: Only the first query is loaded asynchronously.  
+    Note: Only the first query is loaded asynchronously.
 
     Returns : `msiempy.event.EventManager`
     &#34;&#34;&#34;
@@ -2709,7 +2704,7 @@ The list is loaded from the SIEM.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L430-L437" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L430-L437" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_possible_fields(self):
     &#34;&#34;&#34;
@@ -2730,7 +2725,7 @@ The list is loaded from the SIEM.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L439-L444" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L439-L444" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_possible_filters(self):
     &#34;&#34;&#34;
@@ -2768,38 +2763,33 @@ The list is loaded from the SIEM.</p></div>
 <span>(</span><span>*args, field=None, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>List-Like object.<br>
-Interface to execute a grouped event query.
-</p>
-<p>Arguments: </p>
+<div class="desc"><p>List-Like object.
+Interface to execute a grouped event query.</p>
+<p>Arguments:</p>
 <ul>
-<li><code>field</code> (<code>str</code>): The field that will be selected when this query is executed.
-</li>
-<li><code>filters</code> (<code>list</code>): list of filters. A filter can be a <code>tuple(field, [values])</code> or it can be a <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> if you wish to use advanced filtering.
-</li>
-<li><code>time_range</code> (<code>str</code>): Query time range. String representation of a time range. Not need to specify 'CUSTOM' if <code>start_time</code> and <code>end_time</code> are set.
-</li>
-<li><code>start_time</code> : Query start time, can be a <code>str</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.
-</li>
+<li><code>field</code> (<code>str</code>): The field that will be selected when this query is executed.</li>
+<li><code>filters</code> (<code>list</code>): list of filters. A filter can be a <code>tuple(field, [values])</code> or it can be a <code><a title="msiempy.event.FieldFilter" href="#msiempy.event.FieldFilter">FieldFilter</a></code> or <code><a title="msiempy.event.GroupFilter" href="#msiempy.event.GroupFilter">GroupFilter</a></code> if you wish to use advanced filtering.</li>
+<li><code>time_range</code> (<code>str</code>): Query time range. String representation of a time range. Not need to specify 'CUSTOM' if <code>start_time</code> and <code>end_time</code> are set.</li>
+<li><code>start_time</code> : Query start time, can be a <code>str</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.</li>
 <li><code>end_time</code> : Query end time, can be a <code>str</code> or a <code>datetime</code> object. Parsed with <code>dateutil</code>.</li>
 </ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L447-L583" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L447-L583" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GroupedEventManager(_QueryExecuteManager):
     &#34;&#34;&#34;
-    List-Like object.  
-    Interface to execute a grouped event query.  
+    List-Like object.
+    Interface to execute a grouped event query.
 
-    Arguments: 
+    Arguments:
 
-    - `field` (`str`): The field that will be selected when this query is executed.  
-    - `filters` (`list`): list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` if you wish to use advanced filtering.  
-    - `time_range` (`str`): Query time range. String representation of a time range. Not need to specify &#39;CUSTOM&#39; if `start_time` and `end_time` are set.  
-    - `start_time` : Query start time, can be a `str` or a `datetime` object. Parsed with `dateutil`.  
-    - `end_time` : Query end time, can be a `str` or a `datetime` object. Parsed with `dateutil`.  
+    - `field` (`str`): The field that will be selected when this query is executed.
+    - `filters` (`list`): list of filters. A filter can be a `tuple(field, [values])` or it can be a `msiempy.event.FieldFilter` or `msiempy.event.GroupFilter` if you wish to use advanced filtering.
+    - `time_range` (`str`): Query time range. String representation of a time range. Not need to specify &#39;CUSTOM&#39; if `start_time` and `end_time` are set.
+    - `start_time` : Query start time, can be a `str` or a `datetime` object. Parsed with `dateutil`.
+    - `end_time` : Query end time, can be a `str` or a `datetime` object. Parsed with `dateutil`.
 
     &#34;&#34;&#34;
 
@@ -2882,7 +2872,7 @@ Interface to execute a grouped event query.
 
         Raises `msiempy.core.session.NitroError` if any unhandled errors.
         Raises `TimeoutError` if wait_timeout_sec counter gets to 0.
-        Raises `ValueError` if an `IPSID` filter is not present.  
+        Raises `ValueError` if an `IPSID` filter is not present.
         &#34;&#34;&#34;
         if not any([f[&#34;field&#34;][&#34;name&#34;] == &#34;IPSID&#34; for f in self.filters]):
             raise ValueError(
@@ -2966,7 +2956,7 @@ Interface to execute a grouped event query.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L487-L503" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L487-L503" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_data(self, *args, **kwargs):
     &#34;&#34;&#34;
@@ -2996,7 +2986,7 @@ Acts like there is no filters.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L505-L522" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L505-L522" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
@@ -3039,7 +3029,7 @@ Raises <code>ValueError</code> if an <code>IPSID</code> filter is not present.</
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L524-L583" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L524-L583" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def qry_load_data(self, num_rows=500, retry=1, wait_timeout_sec=120):
     &#34;&#34;&#34;
@@ -3058,7 +3048,7 @@ Raises <code>ValueError</code> if an <code>IPSID</code> filter is not present.</
 
     Raises `msiempy.core.session.NitroError` if any unhandled errors.
     Raises `TimeoutError` if wait_timeout_sec counter gets to 0.
-    Raises `ValueError` if an `IPSID` filter is not present.  
+    Raises `ValueError` if an `IPSID` filter is not present.
     &#34;&#34;&#34;
     if not any([f[&#34;field&#34;][&#34;name&#34;] == &#34;IPSID&#34; for f in self.filters]):
         raise ValueError(
@@ -3196,7 +3186,7 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L586-L1502" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L586-L1502" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Event(NitroDict):
     &#34;&#34;&#34;
@@ -4077,8 +4067,8 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
 
         Arguments:
         - `use_query` (`bool`): Force the use of the query module to retreive the event data.
-        The default behaviour will use `EventManager` query if an &#39;Alert.IPSIDAlertID&#39; key is present in the event,
-        else call `ipsGetAlertData` to get the full details.
+        In contrario, if explicitely `False`, force the use of `ipsGetAlertData` to get the details.
+        The default behaviour will figure out the event type/load method based on the existence if &#39;Alert.IPSIDAlertID&#39; keys
         - `extra_fields` (`list`): Only when `use_query=True` or the Event is already a query event. Additionnal event fields to load in the query.
 
         .. Warning:: Enforce `use_query=True` will reset the Events fields to whatever is passed to `extra_fields`
@@ -4184,7 +4174,7 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or conc
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L1360-L1377" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L1360-L1377" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_id(self):
     &#34;&#34;&#34;
@@ -4214,7 +4204,7 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or conc
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L1379-L1383" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L1379-L1383" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_notes(self):
     &#34;&#34;&#34;
@@ -4231,7 +4221,7 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or conc
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L1385-L1412" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L1385-L1412" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def set_note(self, note, no_date=False):
     &#34;&#34;&#34;
@@ -4278,7 +4268,7 @@ Default behaviour will call <code>ipsGetAlertData</code> to retreive the complet
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L1414-L1457" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L1414-L1457" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id, use_query=False, extra_fields=[]):
     &#34;&#34;&#34;
@@ -4333,8 +4323,8 @@ Default behaviour will call <code>ipsGetAlertData</code> to retreive the complet
 <div class="desc"><p>Re-load event's data.</p>
 <p>Arguments:
 - <code>use_query</code> (<code>bool</code>): Force the use of the query module to retreive the event data.
-The default behaviour will use <code><a title="msiempy.event.EventManager" href="#msiempy.event.EventManager">EventManager</a></code> query if an 'Alert.IPSIDAlertID' key is present in the event,
-else call <code>ipsGetAlertData</code> to get the full details.
+In contrario, if explicitely <code>False</code>, force the use of <code>ipsGetAlertData</code> to get the details.
+The default behaviour will figure out the event type/load method based on the existence if 'Alert.IPSIDAlertID' keys
 - <code>extra_fields</code> (<code>list</code>): Only when <code>use_query=True</code> or the Event is already a query event. Additionnal event fields to load in the query.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning:&ensp;Enforce <code>use_query=True</code> will reset the Events fields to whatever is passed to <code>extra_fields</code></p>
@@ -4343,7 +4333,7 @@ else call <code>ipsGetAlertData</code> to get the full details.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L1459-L1502" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L1459-L1502" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self, use_query=None, extra_fields=None):
     &#34;&#34;&#34;
@@ -4351,8 +4341,8 @@ else call <code>ipsGetAlertData</code> to get the full details.
 
     Arguments:
     - `use_query` (`bool`): Force the use of the query module to retreive the event data.
-    The default behaviour will use `EventManager` query if an &#39;Alert.IPSIDAlertID&#39; key is present in the event,
-    else call `ipsGetAlertData` to get the full details.
+    In contrario, if explicitely `False`, force the use of `ipsGetAlertData` to get the details.
+    The default behaviour will figure out the event type/load method based on the existence if &#39;Alert.IPSIDAlertID&#39; keys
     - `extra_fields` (`list`): Only when `use_query=True` or the Event is already a query event. Additionnal event fields to load in the query.
 
     .. Warning:: Enforce `use_query=True` will reset the Events fields to whatever is passed to `extra_fields`
@@ -4429,7 +4419,7 @@ The sum of their <code>EventCount</code> attribute</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L1505-L1534" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L1505-L1534" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GroupedEvent(Event):
     &#34;&#34;&#34;
@@ -4513,7 +4503,7 @@ Used to dump groups of filters in the right format.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L1541-L1560" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L1541-L1560" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GroupFilter(_QueryFilter):
     &#34;&#34;&#34;
@@ -4586,7 +4576,7 @@ Exemple to filter by Signature ID.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L1563-L2029" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L1563-L2029" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FieldFilter(_QueryFilter):
     &#34;&#34;&#34;
@@ -5091,7 +5081,7 @@ Throws <code>AttributeError</code> if trying to set an unknown operator.</p></di
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L1904-L1909" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L1904-L1909" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def operator(self):
@@ -5115,7 +5105,7 @@ Setter iterate trough the list and call :</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L1923-L1936" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L1923-L1936" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def values(self):
@@ -5161,7 +5151,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L1963-L2023" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L1963-L2023" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_value(self, type=None, **kwargs):
     &#34;&#34;&#34;
@@ -5234,7 +5224,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/7dea4325d4afab7208bc855fcb4fdd8b1eb185e2/msiempy/event.py#L2025-L2029" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/63e14467390c4010be409272069d72013322598d/msiempy/event.py#L2025-L2029" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_basic_value(self, value):
     &#34;&#34;&#34;

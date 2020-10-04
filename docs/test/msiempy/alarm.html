@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L0-L651" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L0-L654" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Provide alarm management.  
 &#34;&#34;&#34;
@@ -375,20 +375,23 @@ class AlarmManager(FilteredQueryList):
 
     def _event_match(self, alarm):
         &#34;&#34;&#34;
-        Internal filter method that is going to return True if the passed alarm match all event related filters.
+        Internal filter method that is going to return True if any triggering event match all passed event filters.
         &#34;&#34;&#34;
         match = True
-        for event_filter in self._event_filters:
-            match = False
-            try:
-                value = str(alarm[&#34;events&#34;][0][event_filter[0]])
-            except KeyError:
-                break
-            for filter_value in event_filter[1]:
-                if regex_match(filter_value.lower(), value.lower()):
-                    match = True
+        for event in alarm[&#34;events&#34;]:
+            for event_filter in self._event_filters:
+                match = False
+                try:
+                    value = str(event[event_filter[0]])
+                except KeyError:
                     break
-            if not match:
+                for filter_value in event_filter[1]:
+                    if regex_match(filter_value.lower(), value.lower()):
+                        match = True
+                        break
+                if not match:
+                    break
+            if match:
                 break
         return match
 
@@ -718,7 +721,7 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L15-L360" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L15-L363" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class AlarmManager(FilteredQueryList):
     &#34;&#34;&#34;
@@ -1050,20 +1053,23 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 
     def _event_match(self, alarm):
         &#34;&#34;&#34;
-        Internal filter method that is going to return True if the passed alarm match all event related filters.
+        Internal filter method that is going to return True if any triggering event match all passed event filters.
         &#34;&#34;&#34;
         match = True
-        for event_filter in self._event_filters:
-            match = False
-            try:
-                value = str(alarm[&#34;events&#34;][0][event_filter[0]])
-            except KeyError:
-                break
-            for filter_value in event_filter[1]:
-                if regex_match(filter_value.lower(), value.lower()):
-                    match = True
+        for event in alarm[&#34;events&#34;]:
+            for event_filter in self._event_filters:
+                match = False
+                try:
+                    value = str(event[event_filter[0]])
+                except KeyError:
                     break
-            if not match:
+                for filter_value in event_filter[1]:
+                    if regex_match(filter_value.lower(), value.lower()):
+                        match = True
+                        break
+                if not match:
+                    break
+            if match:
                 break
         return match</code></pre>
 </details>
@@ -1094,7 +1100,7 @@ Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L145-L148" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L145-L148" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def event_filters(self):
@@ -1123,7 +1129,7 @@ def event_filters(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L108-L143" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L108-L143" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_filter(self, afilter):
     &#34;&#34;&#34;
@@ -1176,7 +1182,7 @@ def event_filters(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L167-L183" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L167-L183" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_event_filter(self, afilter):
     &#34;&#34;&#34;
@@ -1205,7 +1211,7 @@ def event_filters(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L185-L190" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L185-L190" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
@@ -1242,7 +1248,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L192-L235" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L192-L235" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_data(self, pages=1, **kwargs):
     &#34;&#34;&#34;
@@ -1313,7 +1319,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L237-L322" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L237-L322" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def qry_load_data(
     self,
@@ -1454,7 +1460,7 @@ Only when <code>use_query=True</code>. Additionnal event fields to load in the q
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L363-L652" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L366-L655" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Alarm(NitroDict):
     &#34;&#34;&#34;
@@ -1792,7 +1798,7 @@ To change genuine (UPPERCASE) key names to more explicit ones matching public AP
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L452-L457" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L455-L460" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def acknowledge(self):
     &#34;&#34;&#34;Mark the alarm as acknowledged.&#34;&#34;&#34;
@@ -1810,7 +1816,7 @@ To change genuine (UPPERCASE) key names to more explicit ones matching public AP
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L459-L464" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L462-L467" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def unacknowledge(self):
     &#34;&#34;&#34;Mark the alarm as unacknowledge.&#34;&#34;&#34;
@@ -1829,7 +1835,7 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L466-L473" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L469-L476" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def delete(self):
     &#34;&#34;&#34;Destructive action!
@@ -1849,7 +1855,7 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L475-L477" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L478-L480" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def ceate_case(self):
     &#34;&#34;&#34;Not implemented : TODO&#34;&#34;&#34;
@@ -1864,7 +1870,7 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L479-L487" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L482-L490" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.&#34;&#34;&#34;
@@ -1885,7 +1891,7 @@ Delete the alarm.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L489-L491" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L492-L494" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self):
     &#34;&#34;&#34;Update the alarm with detailled data loaded from the SIEM.&#34;&#34;&#34;
@@ -1911,7 +1917,7 @@ Default behaviour will call <code>ipsGetAlertData</code> to retreive the complet
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L493-L537" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L496-L540" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_events(self, use_query=False, extra_fields=[], workers=1):
     &#34;&#34;&#34;
@@ -1969,7 +1975,7 @@ Converts "T" and "F" to <code>True</code> and <code>False</code> and handle None
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L580-L606" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L583-L609" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def map_alarm_int_fields(self, alarm_details):
     &#34;&#34;&#34;
@@ -2014,7 +2020,7 @@ Will only load the details of the first triggering event.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L608-L646" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L611-L649" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id, use_priv=False):
     &#34;&#34;&#34;
@@ -2065,7 +2071,7 @@ Will only load the details of the first triggering event.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/bd62e3b8025ee320dbb2e9edfd3191739267ef92/msiempy/alarm.py#L648-L652" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/alarm.py#L651-L655" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_id(self):
     &#34;&#34;&#34;

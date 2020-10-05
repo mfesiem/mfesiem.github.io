@@ -145,7 +145,7 @@ INDEX=[
 {
 "ref":"msiempy.watchlist.Watchlist.load_values",
 "url":1,
-"doc":"Load Watchlist values. Raises:  KeyError if watchlist invalid.",
+"doc":"Load Watchlist values. Raises:  KeyError if watchlist invalid.  note Uses the internal API method  SYS_GETWATCHLISTDETAILS ",
 "func":1
 },
 {
@@ -447,7 +447,7 @@ INDEX=[
 {
 "ref":"msiempy.event.Event.get_id",
 "url":3,
-"doc":"Get the event ID. Try to return  e['Alert.IPSIDAlertID'] or e['eventId'] or concatenate  e['ipsId']['id'] and  e['alertId'] depending of the Event dictionnary keys.",
+"doc":"Get the event ID. Return the full event ID or  None .",
 "func":1
 },
 {
@@ -459,7 +459,7 @@ INDEX=[
 {
 "ref":"msiempy.event.Event.set_note",
 "url":3,
-"doc":"Set the event's note. Desctructive action.",
+"doc":"Set the event's note. Desctructive action.  note Uses the internal API method  IPS_ADDALERTNOTE ",
 "func":1
 },
 {
@@ -527,7 +527,7 @@ INDEX=[
 {
 "ref":"msiempy.event.GroupedEvent.get_id",
 "url":3,
-"doc":"Get the event ID. Try to return  e['Alert.IPSIDAlertID'] or e['eventId'] or concatenate  e['ipsId']['id'] and  e['alertId'] depending of the Event dictionnary keys.",
+"doc":"Get the event ID. Return the full event ID or  None .",
 "func":1
 },
 {
@@ -539,7 +539,7 @@ INDEX=[
 {
 "ref":"msiempy.event.GroupedEvent.set_note",
 "url":3,
-"doc":"Set the event's note. Desctructive action.",
+"doc":"Set the event's note. Desctructive action.  note Uses the internal API method  IPS_ADDALERTNOTE ",
 "func":1
 },
 {
@@ -1349,7 +1349,7 @@ INDEX=[
 {
 "ref":"msiempy.device.ESM",
 "url":10,
-"doc":"Enterprise Security Manager interface"
+"doc":"Enterprise Security Manager interface. Object do not contain data, it's a simple interface to data structures / values returned by the SIEM or helper methods."
 },
 {
 "ref":"msiempy.device.ESM.text",
@@ -1388,7 +1388,7 @@ INDEX=[
 {
 "ref":"msiempy.device.ESM.status",
 "url":10,
-"doc":"Returns:  dict ESM statuses including : -  cpu , example:  Avail: 7977MB, Used: 7857MB, Free: 119MB -  hdd , example:  sda3 Size: 491GB, Used: 55GB(12%), Available: 413GB, Mount: / -  ram -  callHomeIp -  autoBackupEnabled -  autoBackupHour -  autoBackupDay -  backupNextTime -  backupLastTime -  rulesAndSoftwareCheckEnabled -  rulesAndSoftNextCheck -  rulesAndSoftLastCheck Other functions exist to return subsets of this data also.",
+"doc":"Returns:  dict ESM statuses including : -  cpu , example:  Avail: 7977MB, Used: 7857MB, Free: 119MB -  hdd , example:  sda3 Size: 491GB, Used: 55GB(12%), Available: 413GB, Mount: / -  ram -  callHomeIp -  autoBackupEnabled -  autoBackupHour -  autoBackupDay -  backupNextTime -  backupLastTime -  rulesAndSoftwareCheckEnabled -  rulesAndSoftNextCheck -  rulesAndSoftLastCheck Other functions exist to return subsets of this data also.  note Uses internal API method  SYS_GETSYSINFO ",
 "func":1
 },
 {
@@ -1406,31 +1406,31 @@ INDEX=[
 {
 "ref":"msiempy.device.ESM.backup_status",
 "url":10,
-"doc":"Returns: Backup status and timestamps. Example :   {'autoBackupEnabled': True, 'autoBackupDay': 7, 'autoBackupHour': 0, 'backupLastTime': '07/03/2017 08:59:36', 'backupNextTime': '07/10/2017 08:59'}  ",
+"doc":"Returns: Backup status and timestamps. Use  status() . Example :   {'autoBackupEnabled': True, 'autoBackupDay': 7, 'autoBackupHour': 0, 'backupLastTime': '07/03/2017 08:59:36', 'backupNextTime': '07/10/2017 08:59'}  ",
 "func":1
 },
 {
 "ref":"msiempy.device.ESM.callhome",
 "url":10,
-"doc":"Returns:  True/False if there is currently a callhome connection",
+"doc":"Returns:  True/False if there is currently a callhome connection. Use  status() .",
 "func":1
 },
 {
 "ref":"msiempy.device.ESM.rules_status",
 "url":10,
-"doc":"Returns: Rules autocheck status and timestamps. Example:   { 'rulesAndSoftwareCheckEnabled': True 'rulesAndSoftLastCheck': '07/06/2017 10:28:43', 'rulesAndSoftNextCheck': '07/06/2017 22:28:43',}  ",
+"doc":"Returns: Rules autocheck status and timestamps. Use  status() . Example:   { 'rulesAndSoftwareCheckEnabled': True 'rulesAndSoftLastCheck': '07/06/2017 10:28:43', 'rulesAndSoftNextCheck': '07/06/2017 22:28:43',}  ",
 "func":1
 },
 {
 "ref":"msiempy.device.ESM.get_alerts",
 "url":10,
-"doc":"Tells the ESM to retrieve alerts from the provided device ID. Arguments: -  ds_id : ( str )  IPSID for the device, e.g.  144116287587483648 -  flows : ( bool ) Also get flows from the device (default: False) Returns:  None  TODO: add test method in tests/auth/test_device.py",
+"doc":"Tells the ESM to retrieve alerts from the provided device ID. Arguments: -  ds_id : ( str )  IPSID for the device, e.g.  144116287587483648 -  flows : ( bool ) Also get flows from the device (default: False) Returns:  None  note Uses internal API methods  IPS_GETALERTSNOW and  IPS_GETFLOWSNOW ",
 "func":1
 },
 {
 "ref":"msiempy.device.ESM.recs",
 "url":10,
-"doc":"Returns:  list(tuple(  , List of receivers name and id",
+"doc":"Returns:  list(tuple(  , List of receivers name and id.",
 "func":1
 },
 {
@@ -1488,7 +1488,7 @@ INDEX=[
 {
 "ref":"msiempy.device.DevTree",
 "url":10,
-"doc":"List-Like object. ESM device tree interface. -  __contains__ method returns: ( bool )  True/None the name or IP matches the provided search term. Exemple:    "
+"doc":"List-Like object. ESM device tree interface. -  __contains__ method returns: ( bool )  True/None the name or IP matches the provided search term. Exemple:    Quick python code to list all McAfee SIEM Datasources from msiempy.device import DevTree devtree = DevTree() print(\"All Datasources\") print(devtree.get_text(fields=[\"parent_name\", \"name\", \"ds_id\"]    note Uses internal API methods such as  GRP_GETVIRTUALGROUPIPSLISTDATA to assemble  DevTree object."
 },
 {
 "ref":"msiempy.device.DevTree.search",

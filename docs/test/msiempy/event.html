@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L0-L2028" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L0-L2031" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Provide event management.   
 &#34;&#34;&#34;
@@ -1392,8 +1392,9 @@ class Event(NitroDict):
 
     def get_id(self):
         &#34;&#34;&#34;
-        Get the event ID.
-        Try to return `e[&#39;Alert.IPSIDAlertID&#39;]` or e[&#39;eventId&#39;]` or concatenate `e[&#39;ipsId&#39;][&#39;id&#39;]` and `e[&#39;alertId&#39;]` depending of the Event dictionnary keys.
+        Get the event ID.  
+
+        Return the full event ID or `None`.  
         &#34;&#34;&#34;
         the_id = (
             self.data[&#34;Alert.IPSIDAlertID&#34;]
@@ -1417,7 +1418,9 @@ class Event(NitroDict):
 
     def set_note(self, note, no_date=False):
         &#34;&#34;&#34;
-        Set the event&#39;s note. Desctructive action.
+        Set the event&#39;s note. Desctructive action.  
+
+        .. note:: Uses the internal API method `IPS_ADDALERTNOTE`
         &#34;&#34;&#34;
         the_id = self.get_id()
 
@@ -2093,7 +2096,7 @@ Some default fields will be present.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L145-L444" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L145-L444" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class EventManager(_QueryExecuteManager):
     &#34;&#34;&#34;
@@ -2428,7 +2431,7 @@ Default value is <code>(DESCENDING, LastTime)</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L215-L221" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L215-L221" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def order(self):
@@ -2459,7 +2462,7 @@ Acts like there is not filters.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L240-L252" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L240-L252" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
@@ -2496,7 +2499,7 @@ Raises <code>TimeoutError</code> if wait_timeout_sec counter gets to 0.</p></div
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L254-L317" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L254-L317" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def qry_load_data(self, retry=1, wait_timeout_sec=120):
     &#34;&#34;&#34;
@@ -2591,7 +2594,7 @@ with dateutil. Applicable if max_query_depth&gt;0.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L319-L418" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L319-L418" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
     &#34;&#34;&#34;
@@ -2704,7 +2707,7 @@ The list is loaded from the SIEM.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L430-L437" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L430-L437" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_possible_fields(self):
     &#34;&#34;&#34;
@@ -2725,7 +2728,7 @@ The list is loaded from the SIEM.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L439-L444" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L439-L444" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_possible_filters(self):
     &#34;&#34;&#34;
@@ -2776,7 +2779,7 @@ Interface to execute a grouped event query.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L447-L583" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L447-L583" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GroupedEventManager(_QueryExecuteManager):
     &#34;&#34;&#34;
@@ -2956,7 +2959,7 @@ Interface to execute a grouped event query.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L487-L503" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L487-L503" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_data(self, *args, **kwargs):
     &#34;&#34;&#34;
@@ -2986,7 +2989,7 @@ Acts like there is no filters.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L505-L522" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L505-L522" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_filters(self):
     &#34;&#34;&#34;
@@ -3029,7 +3032,7 @@ Raises <code>ValueError</code> if an <code>IPSID</code> filter is not present.</
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L524-L583" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L524-L583" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def qry_load_data(self, num_rows=500, retry=1, wait_timeout_sec=120):
     &#34;&#34;&#34;
@@ -3186,7 +3189,7 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L586-L1502" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L586-L1505" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Event(NitroDict):
     &#34;&#34;&#34;
@@ -3964,8 +3967,9 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
 
     def get_id(self):
         &#34;&#34;&#34;
-        Get the event ID.
-        Try to return `e[&#39;Alert.IPSIDAlertID&#39;]` or e[&#39;eventId&#39;]` or concatenate `e[&#39;ipsId&#39;][&#39;id&#39;]` and `e[&#39;alertId&#39;]` depending of the Event dictionnary keys.
+        Get the event ID.  
+
+        Return the full event ID or `None`.  
         &#34;&#34;&#34;
         the_id = (
             self.data[&#34;Alert.IPSIDAlertID&#34;]
@@ -3989,7 +3993,9 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
 
     def set_note(self, note, no_date=False):
         &#34;&#34;&#34;
-        Set the event&#39;s note. Desctructive action.
+        Set the event&#39;s note. Desctructive action.  
+
+        .. note:: Uses the internal API method `IPS_ADDALERTNOTE`
         &#34;&#34;&#34;
         the_id = self.get_id()
 
@@ -4170,16 +4176,18 @@ queried keys like <code>Event['Web_Doamin']</code>, <code>Event['UserIDSrc']</co
 </code></dt>
 <dd>
 <div class="desc"><p>Get the event ID.
-Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or concatenate </code>e['ipsId']['id']<code> and </code>e['alertId']` depending of the Event dictionnary keys.</p></div>
+</p>
+<p>Return the full event ID or <code>None</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L1360-L1377" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L1360-L1378" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_id(self):
     &#34;&#34;&#34;
-    Get the event ID.
-    Try to return `e[&#39;Alert.IPSIDAlertID&#39;]` or e[&#39;eventId&#39;]` or concatenate `e[&#39;ipsId&#39;][&#39;id&#39;]` and `e[&#39;alertId&#39;]` depending of the Event dictionnary keys.
+    Get the event ID.  
+
+    Return the full event ID or `None`.  
     &#34;&#34;&#34;
     the_id = (
         self.data[&#34;Alert.IPSIDAlertID&#34;]
@@ -4204,7 +4212,7 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or conc
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L1379-L1383" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L1380-L1384" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clear_notes(self):
     &#34;&#34;&#34;
@@ -4217,15 +4225,21 @@ Try to return <code>e['Alert.IPSIDAlertID']</code> or e['eventId']<code> or conc
 <span>def <span class="ident">set_note</span></span>(<span>self, note, no_date=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Set the event's note. Desctructive action.</p></div>
+<div class="desc"><p>Set the event's note. Desctructive action.
+</p>
+<div class="admonition note">
+<p class="admonition-title">Note:&ensp;Uses the internal API method <code>IPS_ADDALERTNOTE</code></p>
+</div></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L1385-L1412" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L1386-L1415" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def set_note(self, note, no_date=False):
     &#34;&#34;&#34;
-    Set the event&#39;s note. Desctructive action.
+    Set the event&#39;s note. Desctructive action.  
+
+    .. note:: Uses the internal API method `IPS_ADDALERTNOTE`
     &#34;&#34;&#34;
     the_id = self.get_id()
 
@@ -4268,7 +4282,7 @@ Default behaviour will call <code>ipsGetAlertData</code> to retreive the complet
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L1414-L1457" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L1417-L1460" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id, use_query=False, extra_fields=[]):
     &#34;&#34;&#34;
@@ -4333,7 +4347,7 @@ The default behaviour will figure out the event type/load method based on the ex
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L1459-L1502" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L1462-L1505" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self, use_query=None, extra_fields=None):
     &#34;&#34;&#34;
@@ -4419,7 +4433,7 @@ The sum of their <code>EventCount</code> attribute</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L1505-L1534" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L1508-L1537" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GroupedEvent(Event):
     &#34;&#34;&#34;
@@ -4503,7 +4517,7 @@ Used to dump groups of filters in the right format.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L1541-L1560" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L1544-L1563" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GroupFilter(_QueryFilter):
     &#34;&#34;&#34;
@@ -4576,7 +4590,7 @@ Exemple to filter by Signature ID.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L1563-L2029" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L1566-L2032" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FieldFilter(_QueryFilter):
     &#34;&#34;&#34;
@@ -5081,7 +5095,7 @@ Throws <code>AttributeError</code> if trying to set an unknown operator.</p></di
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L1904-L1909" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L1907-L1912" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def operator(self):
@@ -5105,7 +5119,7 @@ Setter iterate trough the list and call :</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L1923-L1936" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L1926-L1939" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def values(self):
@@ -5151,7 +5165,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L1963-L2023" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L1966-L2026" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_value(self, type=None, **kwargs):
     &#34;&#34;&#34;
@@ -5224,7 +5238,7 @@ Note : Filtering query with other type of filter than <code>EsmBasicValue</code>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/event.py#L2025-L2029" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/event.py#L2028-L2032" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_basic_value(self, value):
     &#34;&#34;&#34;

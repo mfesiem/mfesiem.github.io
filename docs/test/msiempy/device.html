@@ -29,7 +29,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L0-L1217" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L0-L1235" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Provide ESM, Receiver and Datasource management.
 &#34;&#34;&#34;
@@ -48,7 +48,10 @@ from .core.utils import dehexify
 
 
 class ESM(NitroObject):
-    &#34;&#34;&#34;Enterprise Security Manager interface&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Enterprise Security Manager interface.  
+    Object do not contain data, it&#39;s a simple interface to data structures / values returned by the SIEM or helper methods.  
+    &#34;&#34;&#34;
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -99,8 +102,11 @@ class ESM(NitroObject):
         - `backupLastTime`
         - `rulesAndSoftwareCheckEnabled`
         - `rulesAndSoftNextCheck`
-        - `rulesAndSoftLastCheck`
-        Other functions exist to return subsets of this data also.
+        - `rulesAndSoftLastCheck`  
+
+        Other functions exist to return subsets of this data also.  
+
+        .. note:: Uses internal API method `SYS_GETSYSINFO`
         &#34;&#34;&#34;
         status = self.nitro.request(&#34;get_sys_info&#34;)
         return self._map_status_int_fields(status)
@@ -137,7 +143,8 @@ class ESM(NitroObject):
 
     def backup_status(self):
         &#34;&#34;&#34;
-        Returns: Backup status and timestamps.
+        Returns: Backup status and timestamps.  
+        Use `status()`.  
         Example :
         ```
             {&#39;autoBackupEnabled&#39;: True,
@@ -158,14 +165,16 @@ class ESM(NitroObject):
 
     def callhome(self):
         &#34;&#34;&#34;
-        Returns: `True/False` if there is currently a callhome connection
+        Returns: `True/False` if there is currently a callhome connection.  
+        Use `status()`.  
         &#34;&#34;&#34;
         if self.status()[&#34;callHomeIp&#34;]:
             return True
 
     def rules_status(self):
         &#34;&#34;&#34;
-        Returns: Rules autocheck status and timestamps.
+        Returns: Rules autocheck status and timestamps.  
+        Use `status()`.  
         Example:
         ```
             { &#39;rulesAndSoftwareCheckEnabled&#39;: True
@@ -194,8 +203,10 @@ class ESM(NitroObject):
         - `flows`: (`bool`) Also get flows from the device (default: False)
 
         Returns: `None`
-        # TODO: add test method in tests/auth/test_device.py
+
+        .. note:: Uses internal API methods `IPS_GETALERTSNOW` and `IPS_GETFLOWSNOW`
         &#34;&#34;&#34;
+        # TODO add test method in `tests/auth/test_device.py`
         self.nitro.request(&#34;get_alerts_now&#34;, ds_id=ds_id)
         if flows:
             self.nitro.request(&#34;get_flows_now&#34;, ds_id=ds_id)
@@ -203,15 +214,14 @@ class ESM(NitroObject):
     @lru_cache(maxsize=None)
     def recs(self):
         &#34;&#34;&#34;
-        Returns: `list(tuple())`, List of receivers name and id
+        Returns: `list(tuple())`, List of receivers name and id.  
         &#34;&#34;&#34;
         rec_list = self.nitro.request(&#34;get_recs&#34;)
         return [(rec[&#34;name&#34;], rec[&#34;id&#34;][&#34;id&#34;]) for rec in rec_list]
 
     @lru_cache(maxsize=None)
     def _get_timezones(self):
-        &#34;&#34;&#34;Gets list of timezones from the ESM.
-        Returns: Raw `string` from ESM
+        &#34;&#34;&#34;Gets `list` of timezones from the ESM.  
         &#34;&#34;&#34;
         return self.nitro.request(&#34;time_zones&#34;)
 
@@ -292,6 +302,7 @@ class ESM(NitroObject):
 
         Returns: `str` Matching type_id or None if there is no match
         &#34;&#34;&#34;
+        # TODO Write a test method in `tests/auth/test_device.py`
         for venmod in self._get_ds_types():
             if vendor == venmod[1]:
                 if model == venmod[2]:
@@ -350,8 +361,15 @@ class DevTree(NitroList):
 
     Exemple:
     ```
+    # Quick python code to list all McAfee SIEM Datasources
+    from msiempy.device import DevTree
+    devtree = DevTree()
+    print(&#34;All Datasources&#34;)
+    print(devtree.get_text(fields=[&#34;parent_name&#34;, &#34;name&#34;, &#34;ds_id&#34;]))
     ```
 
+
+    .. note:: Uses internal API methods such as `GRP_GETVIRTUALGROUPIPSLISTDATA` to assemble `DevTree` object.  
     &#34;&#34;&#34;
 
     def __init__(self, *args, **kwargs):
@@ -1265,14 +1283,18 @@ class DataSource(NitroDict):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Enterprise Security Manager interface</p></div>
+<div class="desc"><p>Enterprise Security Manager interface.<br>
+Object do not contain data, it's a simple interface to data structures / values returned by the SIEM or helper methods.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L17-L308" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L17-L319" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ESM(NitroObject):
-    &#34;&#34;&#34;Enterprise Security Manager interface&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Enterprise Security Manager interface.  
+    Object do not contain data, it&#39;s a simple interface to data structures / values returned by the SIEM or helper methods.  
+    &#34;&#34;&#34;
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1323,8 +1345,11 @@ class DataSource(NitroDict):
         - `backupLastTime`
         - `rulesAndSoftwareCheckEnabled`
         - `rulesAndSoftNextCheck`
-        - `rulesAndSoftLastCheck`
-        Other functions exist to return subsets of this data also.
+        - `rulesAndSoftLastCheck`  
+
+        Other functions exist to return subsets of this data also.  
+
+        .. note:: Uses internal API method `SYS_GETSYSINFO`
         &#34;&#34;&#34;
         status = self.nitro.request(&#34;get_sys_info&#34;)
         return self._map_status_int_fields(status)
@@ -1361,7 +1386,8 @@ class DataSource(NitroDict):
 
     def backup_status(self):
         &#34;&#34;&#34;
-        Returns: Backup status and timestamps.
+        Returns: Backup status and timestamps.  
+        Use `status()`.  
         Example :
         ```
             {&#39;autoBackupEnabled&#39;: True,
@@ -1382,14 +1408,16 @@ class DataSource(NitroDict):
 
     def callhome(self):
         &#34;&#34;&#34;
-        Returns: `True/False` if there is currently a callhome connection
+        Returns: `True/False` if there is currently a callhome connection.  
+        Use `status()`.  
         &#34;&#34;&#34;
         if self.status()[&#34;callHomeIp&#34;]:
             return True
 
     def rules_status(self):
         &#34;&#34;&#34;
-        Returns: Rules autocheck status and timestamps.
+        Returns: Rules autocheck status and timestamps.  
+        Use `status()`.  
         Example:
         ```
             { &#39;rulesAndSoftwareCheckEnabled&#39;: True
@@ -1418,8 +1446,10 @@ class DataSource(NitroDict):
         - `flows`: (`bool`) Also get flows from the device (default: False)
 
         Returns: `None`
-        # TODO: add test method in tests/auth/test_device.py
+
+        .. note:: Uses internal API methods `IPS_GETALERTSNOW` and `IPS_GETFLOWSNOW`
         &#34;&#34;&#34;
+        # TODO add test method in `tests/auth/test_device.py`
         self.nitro.request(&#34;get_alerts_now&#34;, ds_id=ds_id)
         if flows:
             self.nitro.request(&#34;get_flows_now&#34;, ds_id=ds_id)
@@ -1427,15 +1457,14 @@ class DataSource(NitroDict):
     @lru_cache(maxsize=None)
     def recs(self):
         &#34;&#34;&#34;
-        Returns: `list(tuple())`, List of receivers name and id
+        Returns: `list(tuple())`, List of receivers name and id.  
         &#34;&#34;&#34;
         rec_list = self.nitro.request(&#34;get_recs&#34;)
         return [(rec[&#34;name&#34;], rec[&#34;id&#34;][&#34;id&#34;]) for rec in rec_list]
 
     @lru_cache(maxsize=None)
     def _get_timezones(self):
-        &#34;&#34;&#34;Gets list of timezones from the ESM.
-        Returns: Raw `string` from ESM
+        &#34;&#34;&#34;Gets `list` of timezones from the ESM.  
         &#34;&#34;&#34;
         return self.nitro.request(&#34;time_zones&#34;)
 
@@ -1516,6 +1545,7 @@ class DataSource(NitroDict):
 
         Returns: `str` Matching type_id or None if there is no match
         &#34;&#34;&#34;
+        # TODO Write a test method in `tests/auth/test_device.py`
         for venmod in self._get_ds_types():
             if vendor == venmod[1]:
                 if model == venmod[2]:
@@ -1580,7 +1610,7 @@ Example: <code>2017-07-06T12:21:59.0+0000</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L34-L38" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L37-L41" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def time(self):
     &#34;&#34;&#34;Returns: string of ESM time (GMT)
@@ -1598,7 +1628,7 @@ Example: <code>10.0.2 20170516001031</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L40-L44" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L43-L47" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def buildstamp(self):
     &#34;&#34;&#34;Returns: buildstamp string
@@ -1616,7 +1646,7 @@ Example: <code>10.1.0</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L46-L51" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L49-L54" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def version(self):
     &#34;&#34;&#34;
@@ -1649,12 +1679,17 @@ Size:
 <li><code>rulesAndSoftwareCheckEnabled</code></li>
 <li><code>rulesAndSoftNextCheck</code></li>
 <li><code>rulesAndSoftLastCheck</code>
-Other functions exist to return subsets of this data also.</li>
-</ul></div>
+</li>
+</ul>
+<p>Other functions exist to return subsets of this data also.
+</p>
+<div class="admonition note">
+<p class="admonition-title">Note:&ensp;Uses internal API method <code>SYS_GETSYSINFO</code></p>
+</div></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L53-L73" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L56-L79" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def status(self):
     &#34;&#34;&#34;
@@ -1672,8 +1707,11 @@ Other functions exist to return subsets of this data also.</li>
     - `backupLastTime`
     - `rulesAndSoftwareCheckEnabled`
     - `rulesAndSoftNextCheck`
-    - `rulesAndSoftLastCheck`
-    Other functions exist to return subsets of this data also.
+    - `rulesAndSoftLastCheck`  
+
+    Other functions exist to return subsets of this data also.  
+
+    .. note:: Uses internal API method `SYS_GETSYSINFO`
     &#34;&#34;&#34;
     status = self.nitro.request(&#34;get_sys_info&#34;)
     return self._map_status_int_fields(status)</code></pre>
@@ -1687,7 +1725,7 @@ Other functions exist to return subsets of this data also.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L97-L99" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L103-L105" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def disks(self):
     &#34;&#34;&#34;Returns: `self.status()[&#39;hdd&#39;]`&#34;&#34;&#34;
@@ -1702,7 +1740,7 @@ Other functions exist to return subsets of this data also.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L101-L103" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L107-L109" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def ram(self):
     &#34;&#34;&#34;Returns: `self.status()[&#39;ram&#39;]`&#34;&#34;&#34;
@@ -1713,7 +1751,8 @@ Other functions exist to return subsets of this data also.</li>
 <span>def <span class="ident">backup_status</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns: Backup status and timestamps.
+<div class="desc"><p>Returns: Backup status and timestamps.<br>
+Use <code>status()</code>.<br>
 Example :
 <code>{'autoBackupEnabled': True,
 'autoBackupDay': 7,
@@ -1723,11 +1762,12 @@ Example :
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L105-L124" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L111-L131" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def backup_status(self):
     &#34;&#34;&#34;
-    Returns: Backup status and timestamps.
+    Returns: Backup status and timestamps.  
+    Use `status()`.  
     Example :
     ```
         {&#39;autoBackupEnabled&#39;: True,
@@ -1751,15 +1791,17 @@ Example :
 <span>def <span class="ident">callhome</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns: <code>True/False</code> if there is currently a callhome connection</p></div>
+<div class="desc"><p>Returns: <code>True/False</code> if there is currently a callhome connection.<br>
+Use <code>status()</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L126-L131" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L133-L139" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def callhome(self):
     &#34;&#34;&#34;
-    Returns: `True/False` if there is currently a callhome connection
+    Returns: `True/False` if there is currently a callhome connection.  
+    Use `status()`.  
     &#34;&#34;&#34;
     if self.status()[&#34;callHomeIp&#34;]:
         return True</code></pre>
@@ -1769,7 +1811,8 @@ Example :
 <span>def <span class="ident">rules_status</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns: Rules autocheck status and timestamps.
+<div class="desc"><p>Returns: Rules autocheck status and timestamps.<br>
+Use <code>status()</code>.<br>
 Example:
 <code>{ 'rulesAndSoftwareCheckEnabled': True
 'rulesAndSoftLastCheck': '07/06/2017 10:28:43',
@@ -1777,11 +1820,12 @@ Example:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L133-L152" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L141-L161" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def rules_status(self):
     &#34;&#34;&#34;
-    Returns: Rules autocheck status and timestamps.
+    Returns: Rules autocheck status and timestamps.  
+    Use `status()`.  
     Example:
     ```
         { &#39;rulesAndSoftwareCheckEnabled&#39;: True
@@ -1812,11 +1856,13 @@ Example:
 <li><code>flows</code>: (<code>bool</code>) Also get flows from the device (default: False)</li>
 </ul>
 <p>Returns: <code>None</code></p>
-<h1 id="todo-add-test-method-in-testsauthtest_devicepy">TODO: add test method in tests/auth/test_device.py</h1></div>
+<div class="admonition note">
+<p class="admonition-title">Note:&ensp;Uses internal API methods <code>IPS_GETALERTSNOW</code> and <code>IPS_GETFLOWSNOW</code></p>
+</div></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L154-L168" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L163-L179" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_alerts(self, ds_id, flows=False):
     &#34;&#34;&#34;
@@ -1828,8 +1874,10 @@ Example:
     - `flows`: (`bool`) Also get flows from the device (default: False)
 
     Returns: `None`
-    # TODO: add test method in tests/auth/test_device.py
+
+    .. note:: Uses internal API methods `IPS_GETALERTSNOW` and `IPS_GETFLOWSNOW`
     &#34;&#34;&#34;
+    # TODO add test method in `tests/auth/test_device.py`
     self.nitro.request(&#34;get_alerts_now&#34;, ds_id=ds_id)
     if flows:
         self.nitro.request(&#34;get_flows_now&#34;, ds_id=ds_id)</code></pre>
@@ -1839,16 +1887,16 @@ Example:
 <span>def <span class="ident">recs</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns: <code>list(tuple())</code>, List of receivers name and id</p></div>
+<div class="desc"><p>Returns: <code>list(tuple())</code>, List of receivers name and id.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L170-L176" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L181-L187" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@lru_cache(maxsize=None)
 def recs(self):
     &#34;&#34;&#34;
-    Returns: `list(tuple())`, List of receivers name and id
+    Returns: `list(tuple())`, List of receivers name and id.  
     &#34;&#34;&#34;
     rec_list = self.nitro.request(&#34;get_recs&#34;)
     return [(rec[&#34;name&#34;], rec[&#34;id&#34;][&#34;id&#34;]) for rec in rec_list]</code></pre>
@@ -1868,7 +1916,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L185-L200" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L195-L210" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tz_offsets(self):
     &#34;&#34;&#34;
@@ -1897,7 +1945,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L202-L208" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L212-L218" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def timezones(self):
     &#34;&#34;&#34;
@@ -1920,7 +1968,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L210-L224" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L220-L234" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tz_name_to_id(self, tz_name):
     &#34;&#34;&#34;
@@ -1951,7 +1999,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L226-L237" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L236-L247" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tz_id_to_name(self, tz_id):
     &#34;&#34;&#34;
@@ -1979,7 +2027,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L239-L251" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L249-L261" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def type_id_to_venmod(self, type_id):
     &#34;&#34;&#34;
@@ -2009,7 +2057,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L253-L265" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L263-L276" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def venmod_to_type_id(self, vendor, model):
     &#34;&#34;&#34;
@@ -2020,6 +2068,7 @@ def recs(self):
 
     Returns: `str` Matching type_id or None if there is no match
     &#34;&#34;&#34;
+    # TODO Write a test method in `tests/auth/test_device.py`
     for venmod in self._get_ds_types():
         if vendor == venmod[1]:
             if model == venmod[2]:
@@ -2034,7 +2083,7 @@ def recs(self):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L267-L272" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L278-L283" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def rules_history(self):
     &#34;&#34;&#34;
@@ -2070,11 +2119,19 @@ ESM device tree interface.</p>
 (<code>bool</code>) <code>True/None</code> the name or IP matches the provided search term.</li>
 </ul>
 <p>Exemple:</p>
-<pre><code></code></pre></div>
+<pre><code># Quick python code to list all McAfee SIEM Datasources
+from msiempy.device import DevTree
+devtree = DevTree()
+print(&quot;All Datasources&quot;)
+print(devtree.get_text(fields=[&quot;parent_name&quot;, &quot;name&quot;, &quot;ds_id&quot;]))
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note:&ensp;Uses internal API methods such as <code>GRP_GETVIRTUALGROUPIPSLISTDATA</code> to assemble <code><a title="msiempy.device.DevTree" href="#msiempy.device.DevTree">DevTree</a></code> object.</p>
+</div></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L311-L1086" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L322-L1104" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DevTree(NitroList):
     &#34;&#34;&#34;
@@ -2085,8 +2142,15 @@ ESM device tree interface.</p>
 
     Exemple:
     ```
+    # Quick python code to list all McAfee SIEM Datasources
+    from msiempy.device import DevTree
+    devtree = DevTree()
+    print(&#34;All Datasources&#34;)
+    print(devtree.get_text(fields=[&#34;parent_name&#34;, &#34;name&#34;, &#34;ds_id&#34;]))
     ```
 
+
+    .. note:: Uses internal API methods such as `GRP_GETVIRTUALGROUPIPSLISTDATA` to assemble `DevTree` object.  
     &#34;&#34;&#34;
 
     def __init__(self, *args, **kwargs):
@@ -2882,7 +2946,7 @@ ESM device tree interface.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L356-L376" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L374-L394" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def search(self, term, zone_id=&#34;0&#34;):
     &#34;&#34;&#34;
@@ -2934,7 +2998,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L378-L402" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L396-L420" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def search_ds_group(self, field, term, zone_id=&#34;0&#34;):
     &#34;&#34;&#34;
@@ -2971,7 +3035,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L404-L407" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L422-L425" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self):
     &#34;&#34;&#34;Rebuilds the devtree&#34;&#34;&#34;
@@ -2987,7 +3051,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L409-L415" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L427-L433" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def recs(self):
     &#34;&#34;&#34;
@@ -3006,7 +3070,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L417-L439" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L435-L457" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def build_devtree(self):
     &#34;&#34;&#34;Coordinates assembly of the devtree object&#34;&#34;&#34;
@@ -3051,7 +3115,7 @@ Result must be iterated through.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L800-L822" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L818-L840" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def duplicate_datasource(self, ds_params):
     &#34;&#34;&#34;Check for duplicate dataname name or IP address.
@@ -3105,7 +3169,7 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L824-L892" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L842-L910" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add(self, attr):
     &#34;&#34;&#34;
@@ -3205,7 +3269,7 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L894-L941" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L912-L959" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def add_client(self, attr):
     &#34;&#34;&#34;Add a datasource client
@@ -3313,7 +3377,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L1089-L1218" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L1107-L1236" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DataSource(NitroDict):
     &#34;&#34;&#34;
@@ -3469,7 +3533,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L1128-L1134" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L1146-L1152" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def data_from_id(self, id):
     &#34;&#34;&#34;Gets full of the DataSource parameters&#34;&#34;&#34;
@@ -3488,7 +3552,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L1136-L1138" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L1154-L1156" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_details(self):
     &#34;&#34;&#34;DataSource object is lazy. This gets the rest of the parameters.&#34;&#34;&#34;
@@ -3503,7 +3567,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L1140-L1142" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L1158-L1160" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def refresh(self):
     &#34;&#34;&#34;Gets the detailed parameters.&#34;&#34;&#34;
@@ -3518,7 +3582,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L1144-L1164" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L1162-L1182" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def delete(self):
     &#34;&#34;&#34;This deletes the datasource and all the data. Be careful.&#34;&#34;&#34;
@@ -3551,7 +3615,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L1166-L1174" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L1184-L1192" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def delete_client(self):
     &#34;&#34;&#34;This deletes the datasource&#39;s clients and all the data. Be careful.&#34;&#34;&#34;
@@ -3572,7 +3636,7 @@ or
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/mfesiem/msiempy/blob/4aadb5ed35d224699a0d99e4248ae71f62ede9f0/msiempy/device.py#L1214-L1218" class="git-link">Browse git</a>
+<a href="https://github.com/mfesiem/msiempy/blob/2e66d7c7facdfe5bc3c04552f576a76b5c5a9288/msiempy/device.py#L1232-L1236" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_id(self):
     &#34;&#34;&#34;

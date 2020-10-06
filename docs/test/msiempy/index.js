@@ -1065,6 +1065,12 @@ INDEX=[
 "func":1
 },
 {
+"ref":"msiempy.core.session.NitroSession.esm_request",
+"url":9,
+"doc":"Same as  msiempy.core.session.NitroSession.api_request ",
+"func":1
+},
+{
 "ref":"msiempy.core.session.NitroSession.version",
 "url":9,
 "doc":"Returns:  str ESM short version. Example: '10.0.2'",

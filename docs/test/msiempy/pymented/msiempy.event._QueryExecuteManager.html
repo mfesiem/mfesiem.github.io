@@ -84,7 +84,7 @@ Only Events query are currently supported.</div>
     
     <td>Method</td>
     <td><a href="msiempy.event._QueryExecuteManager.html#_close_query" class="code" data-type="Method">_close_query</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td><span></span></td>
   </tr><tr class="method private">
     
     <td>Method</td>
@@ -293,7 +293,7 @@ Only Events query are currently supported.</div>
   </a>
   <div class="functionHeader">
     _TYPE =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L29">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L30">
       
       (source)
     </a>
@@ -314,7 +314,7 @@ Only Events query are currently supported.</div>
     
     def
     __init__(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L32">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L33">
       
       (source)
     </a>
@@ -334,7 +334,7 @@ Only Events query are currently supported.</div>
   </a>
   <div class="functionHeader">
     _filters =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L35">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L36">
       
       (source)
     </a>
@@ -355,7 +355,7 @@ Only Events query are currently supported.</div>
     
     def
     _get_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L40">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L41">
       
       (source)
     </a>
@@ -378,7 +378,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     def
     add_filter(self, afilter):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L47">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L49">
       
       (source)
     </a>
@@ -387,7 +387,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#add_filter" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.add_filter</a></div>
     
     <div>Add a filter to the query.
-Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</code> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a>.</div>
+Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</code> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">afilter</td><td></td></tr></table></div>
   </div>
 </div><div class="basemethod private">
   
@@ -401,7 +401,7 @@ Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</
     
     def
     _close_query(self, resultID):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L65">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L69">
       
       (source)
     </a>
@@ -409,7 +409,7 @@ Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</
   <div class="docstring functionBody">
     
     
-    <div class="undocumented">Undocumented</div>
+    <div><table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">resultID</td><td></td></tr></table></div>
   </div>
 </div><div class="basemethod private">
   
@@ -423,7 +423,7 @@ Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</
     
     def
     _wait_for(self, resultID, wait_timeout_sec, sleep_time=0.2):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L68">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L77">
       
       (source)
     </a>
@@ -435,12 +435,11 @@ Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</
 Wait and sleep - for `sleep_time` duration in seconds -
     until the query is completed or retry countdown arrives at zero.
 
-Return: `True`
-
-Raises:
-
-- `msiempy.NitroError`: 'ResultUnavailable' error some times...
-- `TimeoutError`: Query wait timeout</p></div>
+:param resultID: 
+:param wait_timeout_sec: 
+:param sleep_time:  (Default value = 0.2)
+:raises msiempy.NitroError: ResultUnavailable
+:raises TimeoutError: Query wait timeout</p></div>
   </div>
 </div><div class="basemethod private">
   
@@ -454,7 +453,7 @@ Raises:
     
     def
     _get_events(self, resultID, startPos=0, numRows=500):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L101">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L109">
       
       (source)
     </a>
@@ -464,7 +463,11 @@ Raises:
     
     <div><p class="pre">Internal method that will get the query events,
     called by qry_load_data
-by default, numRows correspond to limit</p></div>
+by default, numRows correspond to limit
+
+:param resultID: 
+:param startPos:  (Default value = 0)
+:param numRows:  (Default value = 500)</p></div>
   </div>
 </div><div class="basestaticmethod">
   
@@ -478,7 +481,7 @@ by default, numRows correspond to limit</p></div>
     @staticmethod<br />
     def
     get_field_nickname(field):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L128">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L140">
       
       (source)
     </a>
@@ -487,13 +490,13 @@ by default, numRows correspond to limit</p></div>
     
     
     <div>Resolve SIEM events field nickname base on <a href="msiempy.event.Event.html#SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME"><code>Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</code></a> mapping.
-Returns the valid query field nickname if found else the initial value.</div>
+Returns the valid query field nickname if found else the initial value.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">field</td><td></td></tr></table></div>
   </div>
 </div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 02:08:36.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 02:14:12.
       </address>
 
     </div>

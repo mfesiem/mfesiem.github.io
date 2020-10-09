@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>msiempy.event.FieldFilter : API documentation</title>
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">
+            msiempy API Documentation
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div id="showPrivate">
+      <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+    </div>
+
+    <div class="container">
+
+      <div class="page-header">
+        <h1 class="class"><code>msiempy.event.FieldFilter(<a href="msiempy.event._QueryFilter.html" class="code" data-type="Class">_QueryFilter</a>)</code> <small>class documentation</small></h1>
+
+        <span id="partOf">
+          Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.event.html" class="code" data-type="Module">event</a></code>
+          <a href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L1576">View Source</a>
+          <a href="classIndex.html#msiempy.event.FieldFilter">(View In Hierarchy)</a>
+        </span>
+      </div>
+
+      <div class="extrasDocstring">
+        
+      </div>
+
+      <div class="moduleDocstring">
+        <div><p class="pre">Based on EsmFieldFilter SIEM api doc.
+
+This class is automatically used when instanciating `EventManager` objects to dump filters in the right `dict` format if tuples are gave as the `filters` argument like:
+
+```
+e = EventManager(time_range='LAST_MINUTE', filters=[ ('SrcIP', ['10.5.0.0/16']) ])
+```
+
+Default operator is `"IN"`.
+
+To change the operator, create a `FieldFilter`:
+Exemple to filter by Signature ID.
+
+```
+e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', ["49190-4294967295"], operator='EQUALS') ])
+```
+
+.. note:: Make sure the filter name is valid by checking the result of `msiempy.event.EventManager.get_possible_filters` or use the provided script in the sample folder
+
+Arguments:
+
+    - `name` : field name as string. Field name property. Example : `SrcIP`. See full list here: https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json
+    - `values` : list of values the field is going to be tested againts with the specified orperator.
+    - `orperator` : `IN`,
+    `NOT_IN`,
+    `GREATER_THAN`,
+    `LESS_THAN`,
+    `GREATER_OR_EQUALS_THAN`,
+    `LESS_OR_EQUALS_THAN`,
+    `NUMERIC_EQUALS`,
+    `NUMERIC_NOT_EQUALS`,
+    `DOES_NOT_EQUAL`,
+    `EQUALS`,
+    `CONTAINS`,
+    `DOES_NOT_CONTAIN`,
+    `REGEX`.</p></div>
+      </div>
+
+      <div id="splitTables">
+        <table class="children sortable" id="id59">
+  
+  <tr class="classvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.event.FieldFilter.html#DOCUMENTED_FILTERS" class="code" data-type="Class Variable">DOCUMENTED_FILTERS</a></td>
+    <td><span>List fo documented filter names, show a warning if trying to filter on a unknown filter name</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.FieldFilter.html#__init__" class="code" data-type="Method">__init__</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.FieldFilter.html#operator" class="code" data-type="Method">operator</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.FieldFilter.html#values" class="code" data-type="Method">values</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.FieldFilter.html#name" class="code" data-type="Instance Variable">name</a></td>
+    <td><span>Name of the field</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.FieldFilter.html#data" class="code" data-type="Instance Variable">data</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="classvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.event.FieldFilter.html#POSSIBLE_OPERATORS" class="code" data-type="Class Variable">POSSIBLE_OPERATORS</a></td>
+    <td><span>List of possibles operators</span></td>
+  </tr><tr class="classvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.event.FieldFilter.html#POSSIBLE_VALUE_TYPES" class="code" data-type="Class Variable">POSSIBLE_VALUE_TYPES</a></td>
+    <td><span>List of possible value type. See <a href="msiempy.event.FieldFilter.html#add_value"><code>msiempy.event.FieldFilter.add_value</code></a>.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.FieldFilter.html#add_value" class="code" data-type="Method">add_value</a></td>
+    <td><span>Add a new value to the filter.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.FieldFilter.html#add_basic_value" class="code" data-type="Method">add_basic_value</a></td>
+    <td><span>Wrapper arround <a href="msiempy.event.FieldFilter.html#add_value"><code>add_value</code></a> method to simply add a <code>EsmBasicValue</code>.</span></td>
+  </tr><tr class="instancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.FieldFilter.html#_operator" class="code" data-type="Instance Variable">_operator</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.FieldFilter.html#_values" class="code" data-type="Instance Variable">_values</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr>
+</table>
+        
+
+          
+      </div>
+
+      <div id="childList">
+
+        <div class="baseclassvariable">
+  
+  <a name="msiempy.event.FieldFilter.DOCUMENTED_FILTERS">
+    
+  </a>
+  <a name="DOCUMENTED_FILTERS">
+    
+  </a>
+  <div class="functionHeader">
+    DOCUMENTED_FILTERS =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L1620">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div>List fo documented filter names, show a warning if trying to filter on a unknown filter name</div> (type: <code>List[str]</code>)
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.FieldFilter.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    __init__(self, name, values, operator="""IN"""):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L1860">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="baseinstancevariable private">
+  
+  <a name="msiempy.event.FieldFilter._operator">
+    
+  </a>
+  <a name="_operator">
+    
+  </a>
+  <div class="functionHeader">
+    _operator =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L1864">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="baseinstancevariable private">
+  
+  <a name="msiempy.event.FieldFilter._values">
+    
+  </a>
+  <a name="_values">
+    
+  </a>
+  <div class="functionHeader">
+    _values =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L1865">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.FieldFilter.operator">
+    
+  </a>
+  <a name="operator">
+    
+  </a>
+  <div class="functionHeader">
+    @operator.setter<br />
+    def
+    operator(self, operator):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L1924">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.FieldFilter.values">
+    
+  </a>
+  <a name="values">
+    
+  </a>
+  <div class="functionHeader">
+    @values.setter<br />
+    def
+    values(self, values):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L1951">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  <a name="msiempy.event.FieldFilter.name">
+    
+  </a>
+  <a name="name">
+    
+  </a>
+  <div class="functionHeader">
+    name =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L1870">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div>Name of the field</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  <a name="msiempy.event.FieldFilter.data">
+    
+  </a>
+  <a name="data">
+    
+  </a>
+  <div class="functionHeader">
+    data =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L1875">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="baseclassvariable">
+  
+  <a name="msiempy.event.FieldFilter.POSSIBLE_OPERATORS">
+    
+  </a>
+  <a name="POSSIBLE_OPERATORS">
+    
+  </a>
+  <div class="functionHeader">
+    POSSIBLE_OPERATORS =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L1890">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div>List of possibles operators</div> (type: <code>List[str]</code>)
+  </div>
+</div><div class="baseclassvariable">
+  
+  <a name="msiempy.event.FieldFilter.POSSIBLE_VALUE_TYPES">
+    
+  </a>
+  <a name="POSSIBLE_VALUE_TYPES">
+    
+  </a>
+  <div class="functionHeader">
+    POSSIBLE_VALUE_TYPES =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L1907">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div>List of possible value type. See <a href="msiempy.event.FieldFilter.html#add_value"><code>msiempy.event.FieldFilter.add_value</code></a>.</div> (type: <code>List</code>)
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.FieldFilter.add_value">
+    
+  </a>
+  <a name="add_value">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    add_value(self, type=None, **kwargs):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L1976">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Add a new value to the filter.</p>
+<p>Arguments (<code>**kwargs</code> depends on the value <a href="https://docs.python.org/3/library/stdtypes.html#type"><code>type</code></a>):</p>
+<ul class="rst-simple">
+<li><a href="https://docs.python.org/3/library/stdtypes.html#type"><code>type</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>) : Type of the value</li>
+</ul>
+<p>Dynamic arguments:</p>
+<ul class="rst-simple">
+<li><code>value</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>) : If <a href="https://docs.python.org/3/library/stdtypes.html#type"><code>type</code></a> is <code>EsmBasicValue</code></li>
+<li><a href="msiempy.watchlist.html"><code>watchlist</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>) : if <a href="https://docs.python.org/3/library/stdtypes.html#type"><code>type</code></a> is <code>EsmWatchlistValue</code></li>
+<li><code>variable</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>) if <a href="https://docs.python.org/3/library/stdtypes.html#type"><code>type</code></a> is <code>EsmVariableValue</code></li>
+<li><a href="msiempy.event.FieldFilter.html#values"><code>values</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a>) if <a href="https://docs.python.org/3/library/stdtypes.html#type"><code>type</code></a> is <code>EsmCompoundValue</code></li>
+</ul>
+<p>Raises : <a href="https://docs.python.org/3/library/exceptions.html#KeyError"><code>KeyError</code></a> or <a href="https://docs.python.org/3/library/exceptions.html#AttributeError"><code>AttributeError</code></a> if you don't respect the correct type/key/value combo.
+Note : Filtering query with other type of filter than <code>EsmBasicValue</code> is not tested.</p>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.FieldFilter.add_basic_value">
+    
+  </a>
+  <a name="add_basic_value">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    add_basic_value(self, value):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L2038">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Wrapper arround <a href="msiempy.event.FieldFilter.html#add_value"><code>add_value</code></a> method to simply add a <code>EsmBasicValue</code>.</div>
+  </div>
+</div>
+
+      </div>
+      <address>
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 02:08:36.
+      </address>
+
+    </div>
+
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>

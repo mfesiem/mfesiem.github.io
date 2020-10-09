@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>msiempy.core.utils : API documentation</title>
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">
+            msiempy API Documentation
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div id="showPrivate">
+      <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+    </div>
+
+    <div class="container">
+
+      <div class="page-header">
+        <h1 class="module"><code>msiempy.core.utils</code> <small>module documentation</small></h1>
+
+        <span id="partOf">
+          Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.core.html" class="code" data-type="Package">core</a></code>
+          <a href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py">View Source</a>
+          
+        </span>
+      </div>
+
+      <div class="extrasDocstring">
+        
+      </div>
+
+      <div class="moduleDocstring">
+        <div>A few quick static util methods.</div>
+      </div>
+
+      <div id="splitTables">
+        <table class="children sortable" id="id27">
+  
+  <tr class="variable">
+    
+    <td>Variable</td>
+    <td><a href="msiempy.core.utils.html#__pdoc__" class="code" data-type="Variable">__pdoc__</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><a href="msiempy.core.utils.html#dehexify" class="code" data-type="Function">dehexify</a></td>
+    <td><span>A URL and Hexadecimal Decoding Library. Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing with the pricate API calls.</span></td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><a href="msiempy.core.utils.html#tob64" class="code" data-type="Function">tob64</a></td>
+    <td><span>Encode a string to base64 almost like <code>echo '123' | base64</code> would do.</span></td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><a href="msiempy.core.utils.html#fromb64" class="code" data-type="Function">fromb64</a></td>
+    <td><span>Decode a string to base64 almost like <code>echo 'MTIzCg==' | base64 --decode</code> would do.</span></td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><a href="msiempy.core.utils.html#timerange_gettimes" class="code" data-type="Function">timerange_gettimes</a></td>
+    <td><span>Convert a string time range to a tuple of datetime objects. Only works for certain time ranges.</span></td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><a href="msiempy.core.utils.html#divide_times" class="code" data-type="Function">divide_times</a></td>
+    <td><span>Divide the time range based on a delta or on a number of slots or another time,. Return list of tuple</span></td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><a href="msiempy.core.utils.html#regex_match" class="code" data-type="Function">regex_match</a></td>
+    <td><span>Return True if the string match the regex.</span></td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><a href="msiempy.core.utils.html#format_esm_time" class="code" data-type="Function">format_esm_time</a></td>
+    <td><span>Converts time object to ESM time string.</span></td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><a href="msiempy.core.utils.html#convert_to_time_obj" class="code" data-type="Function">convert_to_time_obj</a></td>
+    <td><span>Converts given timestamp string to datetime object</span></td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><a href="msiempy.core.utils.html#parse_query_result" class="code" data-type="Function">parse_query_result</a></td>
+    <td><span>For input :</span></td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><a href="msiempy.core.utils.html#format_fields_for_query" class="code" data-type="Function">format_fields_for_query</a></td>
+    <td><span>Format fields names to cann query module.</span></td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><a href="msiempy.core.utils.html#parse_timedelta" class="code" data-type="Function">parse_timedelta</a></td>
+    <td><span>Parse a time string e.g. (<code>2h13m</code>) into a timedelta object.</span></td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><a href="msiempy.core.utils.html#nitro_tz" class="code" data-type="Function">nitro_tz</a></td>
+    <td><span class="undocumented">Broken description</span></td>
+  </tr>
+</table>
+        
+
+          
+      </div>
+
+      <div id="childList">
+
+        <div class="basevariable">
+  
+  <a name="msiempy.core.utils.__pdoc__">
+    
+  </a>
+  <a name="__pdoc__">
+    
+  </a>
+  <div class="functionHeader">
+    __pdoc__ =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L11">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div> (type: <code>Dict</code>)
+  </div>
+</div><div class="basefunction">
+  
+  <a name="msiempy.core.utils.dehexify">
+    
+  </a>
+  <a name="dehexify">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    dehexify(data):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L14">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>A URL and Hexadecimal Decoding Library.
+Credit: Larry Dewey. In the case of the SIEM API, this is used only when dealing with the pricate API calls.</div>
+  </div>
+</div><div class="basefunction">
+  
+  <a name="msiempy.core.utils.tob64">
+    
+  </a>
+  <a name="tob64">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    tob64(s):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L78">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Encode a string to base64 almost like <code>echo '123' | base64</code> would do.</div>
+  </div>
+</div><div class="basefunction">
+  
+  <a name="msiempy.core.utils.fromb64">
+    
+  </a>
+  <a name="fromb64">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    fromb64(s):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L86">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Decode a string to base64 almost like <code>echo 'MTIzCg==' | base64 --decode</code> would do.</div>
+  </div>
+</div><div class="basefunction">
+  
+  <a name="msiempy.core.utils.timerange_gettimes">
+    
+  </a>
+  <a name="timerange_gettimes">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    timerange_gettimes(time_range):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L110">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Convert a string time range to a tuple of datetime objects. Only works for certain time ranges.</div>
+  </div>
+</div><div class="basefunction">
+  
+  <a name="msiempy.core.utils.divide_times">
+    
+  </a>
+  <a name="divide_times">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    divide_times(first, last, slots=0, delta=0, time=0):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L174">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Divide the time range based on a delta or on a number of slots or another time,.
+Return list of tuple</div>
+  </div>
+</div><div class="basefunction">
+  
+  <a name="msiempy.core.utils.regex_match">
+    
+  </a>
+  <a name="regex_match">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    regex_match(regex, string):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L215">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Return True if the string match the regex.</div>
+  </div>
+</div><div class="basefunction">
+  
+  <a name="msiempy.core.utils.format_esm_time">
+    
+  </a>
+  <a name="format_esm_time">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    format_esm_time(esm_time):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L225">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Converts time object to ESM time string.</p>
+<p>Arguments:</p>
+<ul class="rst-simple">
+<li><code>time_obj</code> (<a href="https://docs.python.org/3/library/datetime.html#datetime.datetime.datetime"><code>datetime.datetime</code></a>)</li>
+</ul>
+<p>Returns: time string in format <code>2019-04-08T19:35:02.971Z</code></p>
+</div>
+  </div>
+</div><div class="basefunction">
+  
+  <a name="msiempy.core.utils.convert_to_time_obj">
+    
+  </a>
+  <a name="convert_to_time_obj">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    convert_to_time_obj(time_str):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L241">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Converts given timestamp string to datetime object</p>
+<dl class="rst-docutils">
+<dt>Args:</dt>
+<dd><dl class="rst-first rst-last rst-docutils">
+<dt>time_str: timestamp in format 'YYYY/MM/DD HH:MM:SS',</dt>
+<dd>'MM/DD/YYYY HH:MM:SS', or 'DD/MM/YYYY HH:MM:SS'</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>datetime object or None if no format matches</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basefunction">
+  
+  <a name="msiempy.core.utils.parse_query_result">
+    
+  </a>
+  <a name="parse_query_result">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    parse_query_result(columns, rows):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L255">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p class="pre">For input :
+
+    columns = [{'name': 'Alert.LastTime'}, {'name': 'Rule.msg'}, {'name': 'Alert.DstIP'}, {'name': 'Alert.IPSIDAlertID'}]
+    rows =
+        [
+            {'values': ['09/22/2020 15:51:14', 'Postfix Disconnect from host', '::', '144116287604260864|547123']},
+            {'values': ['09/22/2020 15:51:14', 'Postfix Lost connection from host', '::', '144116287604260864|547122']}
+        }
+
+Returns :
+
+    [
+        {
+            "Alert.LastTime":"09/22/2020 15:51:14",
+            "Rule.msg":"Postfix Disconnect from host",
+            "Alert.DstIP":"::",
+            "Alert.IPSIDAlertID":"144116287604260864|547123"
+        },
+        {
+            ...
+        },
+    ]</p></div>
+  </div>
+</div><div class="basefunction">
+  
+  <a name="msiempy.core.utils.format_fields_for_query">
+    
+  </a>
+  <a name="format_fields_for_query">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    format_fields_for_query(fields):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L292">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p class="pre">Format fields names to cann query module.
+
+Arguments:
+
+- `fields`: list of fields, i.e. `['field1','name','user']`
+
+Returns:
+
+    [
+        {'name':'field1'},
+        {'name':'name'},
+        {'name':'user'},
+    ]</p></div>
+  </div>
+</div><div class="basefunction">
+  
+  <a name="msiempy.core.utils.parse_timedelta">
+    
+  </a>
+  <a name="parse_timedelta">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    parse_timedelta(time_str):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L312">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p class="pre">Parse a time string e.g. (`2h13m`) into a timedelta object.
+
+Modified from virhilo's answer at https://stackoverflow.com/a/4628148/851699
+
+Arguments:
+
+- `time_str`: A string identifying a duration.  (eg. `2h13m`)
+
+
+Returns `datetime.timedelta`: A datetime.timedelta object</p></div>
+  </div>
+</div><div class="basefunction">
+  
+  <a name="msiempy.core.utils.nitro_tz">
+    
+  </a>
+  <a name="nitro_tz">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    nitro_tz(tz_id):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/utils.py#L369">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p class="pre">Maps McAfee SIEM/Nitro ESM internal timezone IDs to
+the tz database at: http://web.cs.ucla.edu/~eggert/tz/tz-link.htm
+
+Args:
+    tz_id (str/int): McAfee ESM internal timezone ID
+
+Returns:
+    timezone name (str)</p></div>
+  </div>
+</div>
+
+      </div>
+      <address>
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 02:08:36.
+      </address>
+
+    </div>
+
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>

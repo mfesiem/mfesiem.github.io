@@ -436,12 +436,12 @@
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li><a href="msiempy.event.EventManager.html#fields"><code>fields</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> of <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Query fields</li>
-<li><a href="msiempy.event.EventManager.html#order"><code>order</code></a> (<tt class="rst-docutils literal">tuple(direction, field)</tt>. Direction can be "ASCENDING" or "DESCENDING"): Query order direction and field</li>
+<li><a href="msiempy.event.EventManager.html#order"><code>order</code></a> (<code>tuple(direction, field)</code>. Direction can be "ASCENDING" or "DESCENDING"): Query order direction and field</li>
 <li><a href="msiempy.event.EventManager.html#limit"><code>limit</code></a> (int): Max number of rows per query result.</li>
-<li><code>filters</code> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> of <tt class="rst-docutils literal">tuple(field, [values])</tt> or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a>): Query filters</li>
+<li><code>filters</code> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> of <code>tuple(field, [values])</code> or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a>): Query filters</li>
 <li><code>time_range</code> (str): Query time range. No need to specify "CUSTOM" if <code>start_time</code> and <code>end_time</code> are set.</li>
-<li><code>start_time</code> ( <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> (Parsed with <tt class="rst-docutils literal">dateutil</tt>) or <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a>): Query start time</li>
-<li><code>end_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> (Parsed with <tt class="rst-docutils literal">dateutil</tt>) or <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a>): Query end time</li>
+<li><code>start_time</code> ( <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> (Parsed with <code>dateutil</code>) or <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a>): Query start time</li>
+<li><code>end_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> (Parsed with <code>dateutil</code>) or <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a>): Query end time</li>
 </ul>
 </dd>
 <dt>Note:</dt>
@@ -618,7 +618,7 @@ Acts like there is not filters.</div>
 </ul>
 </dd>
 </dl>
-<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">retry</td><td>int (Default value = 1)</td></tr><tr><td></td><td class="fieldArg">wait_timeout_sec</td><td>int (Default value = 120)</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2"><a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a>: (( <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a>, Query completed? <code>True/False</code> ))</td></tr><tr class="fieldStart"><td class="fieldName">Raises</td><td class="fieldArg">msiempy.core.session.NitroError</td><td>if any unhandled errors</td></tr><tr><td></td><td class="fieldArg">TimeoutError</td><td>if</td></tr></table></div>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">retry</td><td>int (Default value = 1)</td></tr><tr><td></td><td class="fieldArg">wait_timeout_sec</td><td>int (Default value = 120)</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2"><a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a>: ( <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a>, Query completed? <code>True/False</code> )</td></tr><tr class="fieldStart"><td class="fieldName">Raises</td><td class="fieldArg">msiempy.core.session.NitroError</td><td>if any unhandled errors</td></tr><tr><td></td><td class="fieldArg">TimeoutError</td><td>if</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -641,7 +641,7 @@ Acts like there is not filters.</div>
     <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#load_data" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.load_data</a></div>
     
     <div><strong>Load the events data into the list.</strong>
-Wraps around <a href="msiempy.event.EventManager.html#qry_load_data"><code>msiempy.event.EventManager.qry_load_data</code></a>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">max_query_depth</td><td>Positive value splits the query in differents time slots if the query apprears not to be completed (Default value = 0)</td></tr><tr><td></td><td class="fieldArg">Divisions</td><td>are reccursive</td></tr><tr><td></td><td class="fieldArg">Meaning</td><td>if</td></tr><tr><td></td><td class="fieldArg">the</td><td>list is</td></tr><tr><td></td><td class="fieldArg">slots</td><td>number of time slots the query can be divided (Default value = 10)</td></tr><tr><td></td><td class="fieldArg">divided</td><td>according to the number of slots</td></tr><tr><td></td><td class="fieldArg">delta</td><td>exemple (Default value = None)</td></tr><tr><td></td><td class="fieldArg">with</td><td>dateutil</td></tr><tr><td></td><td class="fieldArg">workers</td><td>numbre of parrallels tasks (Default value = 10)</td></tr><tr><td></td><td class="fieldArg">retry</td><td>int</td></tr><tr><td></td><td class="fieldArg">wait_timeout_sec</td><td>int</td></tr><tr><td></td><td class="fieldArg">Note</td><td></td></tr><tr><td></td><td class="fieldArg">Only</td><td>the first query is loaded asynchronously</td></tr><tr><td></td><td class="fieldArg">**kwargs</td><td></td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2"><a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a></td></tr></table></div>
+Wraps around <a href="msiempy.event.EventManager.html#qry_load_data"><code>msiempy.event.EventManager.qry_load_data</code></a>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">max_query_depth</td><td>int (Default value = 0)</td></tr><tr><td></td><td class="fieldArg">slots</td><td>int (Default value = 10)</td></tr><tr><td></td><td class="fieldArg">delta</td><td>str (Default value = None)</td></tr><tr><td></td><td class="fieldArg">workers</td><td>int (Default value = 10)</td></tr><tr><td></td><td class="fieldArg">retry</td><td>int</td></tr><tr><td></td><td class="fieldArg">wait_timeout_sec</td><td>int</td></tr><tr><td></td><td class="fieldArg">Notes</td><td></td></tr><tr><td></td><td class="fieldArg">Only</td><td>the first query is loaded asynchronously</td></tr><tr><td></td><td class="fieldArg">Clarification</td><td>of max_query_depth argument</td></tr><tr><td></td><td class="fieldArg">**kwargs</td><td></td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2"><a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a></td></tr></table></div>
   </div>
 </div><div class="baseinstancevariable">
   
@@ -653,7 +653,7 @@ Wraps around <a href="msiempy.event.EventManager.html#qry_load_data"><code>msiem
   </a>
   <div class="functionHeader">
     data =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L441">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L437">
       
       (source)
     </a>
@@ -674,7 +674,7 @@ Wraps around <a href="msiempy.event.EventManager.html#qry_load_data"><code>msiem
     @property<br />
     def
     _root_parent(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L444">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L440">
       
       (source)
     </a>
@@ -696,7 +696,7 @@ Wraps around <a href="msiempy.event.EventManager.html#qry_load_data"><code>msiem
     
     def
     get_possible_fields(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L452">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L448">
       
       (source)
     </a>
@@ -718,7 +718,7 @@ Wraps around <a href="msiempy.event.EventManager.html#qry_load_data"><code>msiem
     
     def
     get_possible_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L463">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L459">
       
       (source)
     </a>
@@ -732,7 +732,7 @@ Wraps around <a href="msiempy.event.EventManager.html#qry_load_data"><code>msiem
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 14:01:23.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 14:26:43.
       </address>
 
     </div>

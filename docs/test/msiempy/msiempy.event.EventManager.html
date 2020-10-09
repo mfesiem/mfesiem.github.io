@@ -436,12 +436,12 @@
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li><a href="msiempy.event.EventManager.html#fields"><code>fields</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> of <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Query fields</li>
-<li><a href="msiempy.event.EventManager.html#order"><code>order</code></a> (<tt class="rst-docutils literal">tuple(direction, field)</tt>. Direction can be "ASCENDING" or "DESCENDING"): Query order direction and field</li>
+<li><a href="msiempy.event.EventManager.html#order"><code>order</code></a> (<code>tuple(direction, field)</code>. Direction can be "ASCENDING" or "DESCENDING"): Query order direction and field</li>
 <li><a href="msiempy.event.EventManager.html#limit"><code>limit</code></a> (int): Max number of rows per query result.</li>
-<li><code>filters</code> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> of <tt class="rst-docutils literal">tuple(field, [values])</tt> or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a>): Query filters</li>
+<li><code>filters</code> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> of <code>tuple(field, [values])</code> or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a>): Query filters</li>
 <li><code>time_range</code> (str): Query time range. No need to specify "CUSTOM" if <code>start_time</code> and <code>end_time</code> are set.</li>
-<li><code>start_time</code> ( <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> (Parsed with <tt class="rst-docutils literal">dateutil</tt>) or <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a>): Query start time</li>
-<li><code>end_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> (Parsed with <tt class="rst-docutils literal">dateutil</tt>) or <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a>): Query end time</li>
+<li><code>start_time</code> ( <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> (Parsed with <code>dateutil</code>) or <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a>): Query start time</li>
+<li><code>end_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> (Parsed with <code>dateutil</code>) or <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a>): Query end time</li>
 </ul>
 </dd>
 <dt>Note:</dt>
@@ -619,16 +619,16 @@ Acts like there is not filters.</div>
 </dd>
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><code>retry</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): number of time the query can be failed and retried.  1 by default.</li>
+<li><code>retry</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): number of time the query can be failed and retried.</li>
 <li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): wait timeout in seconds. 120 by default.</li>
 </ul>
 </dd>
 <dt>Returns :</dt>
-<dd><a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a>: (( <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a>, Query completed? <code>True/False</code> ))</dd>
+<dd><a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a>: ( <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a>, Query completed? <code>True/False</code> )</dd>
 <dt>Raises:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li><a href="msiempy.core.session.NitroError.html"><code>msiempy.core.session.NitroError</code></a> if any unhandled errors.</li>
-<li><a href="https://docs.python.org/3/library/exceptions.html#TimeoutError"><code>TimeoutError</code></a> if <tt class="rst-docutils literal">wait_timeout_sec</tt> counter gets to 0.</li>
+<li><a href="https://docs.python.org/3/library/exceptions.html#TimeoutError"><code>TimeoutError</code></a> if <code>wait_timeout_sec</code> counter gets to 0.</li>
 </ul>
 </dd>
 </dl>
@@ -659,30 +659,20 @@ Wraps around <a href="msiempy.event.EventManager.html#qry_load_data"><code>msiem
 <dl class="rst-docutils">
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><dl class="rst-first rst-docutils">
-<dt><code>max_query_depth</code> <span class="classifier-delimiter">:</span> <span class="rst-classifier">Positive value splits the query in differents time slots if the query apprears not to be completed.</span></dt>
-<dd>Divisions are reccursive, <code>max_query_depth</code> is the maximum number of reccursive calls <code>load_data()</code> can apply to the query in order to load all events.
-Meaning, if <code>EventManager.limit=500</code>, <code>slots=10 `and `max_query_depth=2</code>, then the maximum capacity of
-the list is <code>(500*10)*(500*10)</code> = <code>25000000</code> (instead of <code>500</code> with <code>max_query_depth=0</code>).  Only works with custom times and a few time ranges...</dd>
-</dl>
-</li>
-<li><dl class="rst-first rst-docutils">
-<dt><code>slots</code> <span class="classifier-delimiter">:</span> <span class="rst-classifier">number of time slots the query can be divided. The loading bar is</span></dt>
-<dd>divided according to the number of slots. Applicable if max_query_depth&gt;0.</dd>
-</dl>
-</li>
-<li><dl class="rst-first rst-docutils">
-<dt><code>delta</code> <span class="classifier-delimiter">:</span> <span class="rst-classifier">exemple</span> <span class="classifier-delimiter">:</span> <span class="rst-classifier">'2h', the query will be firstly divided in chuncks according to the time delta read</span></dt>
-<dd>with dateutil. Applicable if max_query_depth&gt;0.</dd>
-</dl>
-</li>
-<li><code>workers</code> : numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if max_query_depth&gt;0.</li>
-<li><code>retry</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): number of time the query can be failed and retried.  1 by default.</li>
-<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): wait timeout in seconds. 120 by default.</li>
+<li><code>max_query_depth</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): Maximum number of reccursive divisions <code>load_data()</code> can apply to the query in order to load all events. Splits the query in differents time slots if the query apprears not to be completed.  Only works with custom times and some time ranges.</li>
+<li><code>slots</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): number of time slots the query can be divided. Loading bar is divided according to the number of slots. Applicable if <tt class="rst-docutils literal">max_query_depth&gt;0</tt>.</li>
+<li><code>delta</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): exemple : '2h', the query will be firstly divided in chuncks according to the time delta read with dateutil. Applicable if <tt class="rst-docutils literal">max_query_depth&gt;0</tt>.</li>
+<li><code>workers</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if <tt class="rst-docutils literal">max_query_depth&gt;0</tt>.</li>
+<li><code>retry</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): number of time the query can be failed and retried.  (Default value = 1)</li>
+<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): wait timeout in seconds. (Default value = 120)</li>
 </ul>
 </dd>
-<dt>Note:</dt>
-<dd>Only the first query is loaded asynchronously.</dd>
+<dt>Notes:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li>Only the first query is loaded asynchronously.</li>
+<li>Clarification of max_query_depth argument: If <tt class="rst-docutils literal">EventManager.limit=500</tt>, <tt class="rst-docutils literal">slots=10</tt> and <tt class="rst-docutils literal">max_query_depth=2</tt>, then the maximum capacity of the list is <tt class="rst-docutils literal"><span class="pre">(500*10)*(500*10)</span></tt> = <tt class="rst-docutils literal">25000000</tt> (instead of <tt class="rst-docutils literal">500</tt> with <tt class="rst-docutils literal">max_query_depth=0</tt>).</li>
+</ul>
+</dd>
 <dt>Returns:</dt>
 <dd><a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a></dd>
 </dl>
@@ -698,7 +688,7 @@ the list is <code>(500*10)*(500*10)</code> = <code>25000000</code> (instead of <
   </a>
   <div class="functionHeader">
     data =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L427">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L423">
       
       (source)
     </a>
@@ -719,7 +709,7 @@ the list is <code>(500*10)*(500*10)</code> = <code>25000000</code> (instead of <
     @property<br />
     def
     _root_parent(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L430">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L426">
       
       (source)
     </a>
@@ -741,7 +731,7 @@ the list is <code>(500*10)*(500*10)</code> = <code>25000000</code> (instead of <
     
     def
     get_possible_fields(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L440">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L436">
       
       (source)
     </a>
@@ -764,7 +754,7 @@ The list is loaded from the SIEM.</div>
     
     def
     get_possible_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L449">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L445">
       
       (source)
     </a>
@@ -779,7 +769,7 @@ The list is loaded from the SIEM.</div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 14:01:18.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 14:26:38.
       </address>
 
     </div>

@@ -43,33 +43,44 @@
 
       <div class="moduleDocstring">
         <div><p><strong>The pythonic way to deal with the McAfee SIEM API</strong>.</p>
-<p>Looking for a CLI tool? Checkout the msiem CLI <a class="rst-reference external" href="https://github.com/mfesiem/msiem" target="_top">https://github.com/mfesiem/msiem</a></p>
+<p>Looking for a CLI tool? Checkout the <a href="#id1"><span class="rst-problematic" id="rst-id2">`msiem CLI&lt;https://github.com/mfesiem/msiem&gt;`_</span></a></p>
 <p>Already know what you're looking for? Checkout the Class Hierarchy.</p>
 <p>Quick links:
-- GitHub&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy" target="_top">https://github.com/mfesiem/msiempy</a>&gt;,
-- PyPI&lt;<a class="rst-reference external" href="https://pypi.org/project/msiempy/" target="_top">https://pypi.org/project/msiempy/</a>&gt;,
-- Class diagram&lt;<a class="rst-reference external" href="https://mfesiem.github.io/docs/msiempy/classes.png" target="_top">https://mfesiem.github.io/docs/msiempy/classes.png</a>&gt;,
-- Packages diagram&lt;<a class="rst-reference external" href="https://mfesiem.github.io/docs/msiempy/packages.png" target="_top">https://mfesiem.github.io/docs/msiempy/packages.png</a>&gt;,
-- other SIEM API references&lt;<a class="rst-reference external" href="https://mfesiem.github.io" target="_top">https://mfesiem.github.io</a>&gt; (generated PDFs and other links)</p>
+- <a href="#id3"><span class="rst-problematic" id="rst-id4">`GitHub&lt;https://github.com/mfesiem/msiempy&gt;`_</span></a>,
+- <a href="#id5"><span class="rst-problematic" id="rst-id6">`PyPI&lt;https://pypi.org/project/msiempy/&gt;`_</span></a>,
+- <a href="#id7"><span class="rst-problematic" id="rst-id8">`Class diagram&lt;https://mfesiem.github.io/docs/msiempy/classes.png&gt;`_</span></a>,
+- <a href="#id9"><span class="rst-problematic" id="rst-id10">`Packages diagram&lt;https://mfesiem.github.io/docs/msiempy/packages.png&gt;`_</span></a>,
+- <a href="#id11"><span class="rst-problematic" id="rst-id12">`other SIEM API references&lt;https://mfesiem.github.io&gt;`_</span></a> (generated PDFs and other links)</p>
+<p>Table of content:
+- <a class="rst-reference internal" href="#rst-installation">Installation</a>
+- <a class="rst-reference internal" href="#rst-authentication-and-configuration-setup">Authentication and configuration setup</a>
+- <a class="rst-reference internal" href="#rst-a-few-usage-exemples">A few usage exemples</a>
+* <a class="rst-reference internal" href="#rst-execute-an-event-query">Execute an event query</a>
+* <a class="rst-reference internal" href="#rst-acknowledge-alarms">Acknowledge alarms</a>
+* <a class="rst-reference internal" href="#rst-make-direct-api-calls">Make direct API calls</a>
+* <a class="rst-reference internal" href="#rst-add-a-note-to-events">Add a note to events</a>
+* <a class="rst-reference internal" href="#rst-fetch-esm-infos">Fetch ESM infos</a>
+* <a class="rst-reference internal" href="#rst-add-a-datasource">Add a Datasource</a>
+* <a class="rst-reference internal" href="#rst-add-values-to-a-watchlist">Add values to a Watchlist</a></p>
 <div class="rst-section" id="rst-installation">
 <h1 class="heading">Installation</h1>
-<p>Run</p>
-<blockquote>
-python3 -m pip install msiempy</blockquote>
+<p>Run:</p>
+<pre class="rst-literal-block">
+python3 -m pip install msiempy
+</pre>
 </div>
 <div class="rst-section" id="rst-authentication-and-configuration-setup">
 <h1 class="heading">Authentication and configuration setup</h1>
-<p>The module offers a single point of authentication against your SIEM, so you don't have to worry about authentication when writting your scripts. This means that you need to preconfigure the authentication using the configuration file.</p>
+<p>The module offers a single point of authentication against your SIEM, so you don't have to worry about authentication when writting your scripts.
+This means that you need to preconfigure the authentication using the configuration file.</p>
 <p>The configuration file is located (by default) securely in your user directory since it contains credentials.</p>
-<blockquote>
 <ul class="rst-simple">
 <li>For Windows:  <tt class="rst-docutils literal"><span class="pre">%APPDATA%\.msiem\conf.ini</span></tt></li>
 <li>For Mac :     <tt class="rst-docutils literal"><span class="pre">$HOME/.msiem/conf.ini</span></tt></li>
 <li>For Linux :   <tt class="rst-docutils literal"><span class="pre">$XDG_CONFIG_HOME/.msiem/conf.ini</span></tt> or <tt class="rst-docutils literal"><span class="pre">$HOME/.msiem/conf.ini</span></tt></li>
 </ul>
-</blockquote>
-<p>Exemple</p>
-<blockquote>
+<p>Exemple:</p>
+<pre class="rst-literal-block">
 [esm]
 host = HOST
 user = USER
@@ -79,8 +90,9 @@ verbose = no
 quiet = no
 logfile = /home/user/.msiem/log.txt
 timeout = 60
-ssl_verify = no</blockquote>
-<p>To set the password, you can use the <a href="#id1"><span class="rst-problematic" id="rst-id2">``</span></a>msiempy_setup.py``&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py" target="_top">https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py</a>&gt; script.
+ssl_verify = no
+</pre>
+<p>To set the password, you can use the <a href="#id13"><span class="rst-problematic" id="rst-id14">`msiempy_setup.py&lt;https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py&gt;`_</span></a> script.
 You can also directly paste the password's base64 in the config file by doing:</p>
 <pre class="py-doctest">
 <span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">import</span> base64
@@ -90,11 +102,12 @@ You can also directly paste the password's base64 in the config file by doing:</
 </pre></div>
 <div class="rst-section" id="rst-a-few-usage-exemples">
 <h1 class="heading">A few usage exemples</h1>
-<blockquote>
 <dl class="rst-docutils">
 <dt>See also:</dt>
-<dd>The samples folder&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy/tree/master/samples" target="_top">https://github.com/mfesiem/msiempy/tree/master/samples</a>&gt; for more, and/or review the tests&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy/tree/master/tests" target="_top">https://github.com/mfesiem/msiempy/tree/master/tests</a>&gt;.</dd>
+<dd>The <a href="#id15"><span class="rst-problematic" id="rst-id16">`samples folder&lt;https://github.com/mfesiem/msiempy/tree/master/samples&gt;`_</span></a> for more, and/or review the <a href="#id17"><span class="rst-problematic" id="rst-id18">`tests&lt;https://github.com/mfesiem/msiempy/tree/master/tests&gt;`_</span></a>.</dd>
 </dl>
+<div class="rst-section" id="rst-execute-an-event-query">
+<h2 class="heading">Execute an event query</h2>
 <p>Query events according to destination IP and hostname filters, sorted by AlertID.</p>
 <pre class="py-doctest">
 <span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span>  msiempy <span class="py-keyword">import</span> EventManager, FieldFilter
@@ -113,12 +126,15 @@ You can also directly paste the password's base64 in the config file by doing:</
 <dt>Notes:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li>The <tt class="rst-docutils literal">limit</tt> argument should be increased to 500 or 1000 once finish testing for better performance.</li>
-<li>Dump full list of fields usable in query <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> with dump_all_fields.py&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py" target="_top">https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py</a>&gt; script.</li>
+<li>Dump full list of fields usable in query <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> with <a href="#id19"><span class="rst-problematic" id="rst-id20">`dump_all_fields.py&lt;https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py&gt;`_</span></a> script.</li>
 </ul>
 </dd>
 <dt>See:</dt>
 <dd>Objects <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a> and <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a></dd>
 </dl>
+</div>
+<div class="rst-section" id="rst-acknowledge-alarms">
+<h2 class="heading">Acknowledge alarms</h2>
 <p>Print all <tt class="rst-docutils literal">unacknowledged</tt> alarms filtered by alarm name and event message</p>
 <p>match} <tt class="rst-docutils literal">'Test alarm'</tt> and triggering event message match <tt class="rst-docutils literal">'Wordpress'</tt>.
 Then acknowledge the alarms.</p>
@@ -153,6 +169,9 @@ Then acknowledge the alarms.</p>
 <dt>See:</dt>
 <dd>Objects <a href="msiempy.alarm.AlarmManager.html"><code>msiempy.alarm.AlarmManager</code></a> and <a href="msiempy.alarm.Alarm.html"><code>msiempy.alarm.Alarm</code></a></dd>
 </dl>
+</div>
+<div class="rst-section" id="rst-make-direct-api-calls">
+<h2 class="heading">Make direct API calls</h2>
 <p>This is useful when dealing with features of the ESM API that are not explicitly implemented in this library yet (i.e. user managment).</p>
 <p><strong>Use the session object</strong> to make direct API calls with any data.</p>
 <pre class="py-doctest">
@@ -168,6 +187,9 @@ Then acknowledge the alarms.</p>
 <dt>See:</dt>
 <dd>Object <a href="msiempy.core.session.NitroSession.html"><code>msiempy.core.session.NitroSession</code></a></dd>
 </dl>
+</div>
+<div class="rst-section" id="rst-add-a-note-to-events">
+<h2 class="heading">Add a note to events</h2>
 <p>Set the note of 2 events and check if the note is well set.</p>
 <pre class="py-doctest">
 <span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span>  msiempy <span class="py-keyword">import</span> EventManager, Event
@@ -182,11 +204,14 @@ Then acknowledge the alarms.</p>
 </pre><dl class="rst-docutils">
 <dt>See:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li>add_wpsan_note.py&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py" target="_top">https://github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py</a>&gt; script for more on how to add notes to event that triggered alarms.</li>
+<li><a href="#id21"><span class="rst-problematic" id="rst-id22">`add_wpsan_note.py&lt;https://github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py&gt;`_</span></a> script for more on how to add notes to event that triggered alarms.</li>
 <li>Object <a href="msiempy.event.Event.html"><code>msiempy.event.Event</code></a></li>
 </ul>
 </dd>
 </dl>
+</div>
+<div class="rst-section" id="rst-fetch-esm-infos">
+<h2 class="heading">Fetch ESM infos</h2>
 <p>Print a few esm infos. ESM object has not state for it self, it's a simple interface to data structures / values returned by the SIEM.</p>
 <pre class="py-doctest">
 <span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> ESM
@@ -201,6 +226,9 @@ Then acknowledge the alarms.</p>
 <dt>See:</dt>
 <dd>Object <a href="msiempy.device.ESM.html"><code>msiempy.device.ESM</code></a></dd>
 </dl>
+</div>
+<div class="rst-section" id="rst-add-a-datasource">
+<h2 class="heading">Add a Datasource</h2>
 <pre class="py-doctest">
 <span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> DevTree
 <span class="py-prompt">&gt;&gt;&gt; </span>devtree = DevTree()
@@ -216,8 +244,12 @@ Then acknowledge the alarms.</p>
 <dt>See:</dt>
 <dd>Objects <a href="msiempy.device.DevTree.html"><code>msiempy.device.DevTree</code></a> and <a href="msiempy.device.DataSource.html"><code>msiempy.device.DataSource</code></a></dd>
 <dt>Note:</dt>
-<dd><a href="msiempy.device.DevTree.html#add"><code>msiempy.device.DevTree.add</code></a> do not ensure the Datasource is well added, the methods returns a <a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a> with the request ID fetched from the SIEM.  There is still place for improvment #82&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy/issues/82" target="_top">https://github.com/mfesiem/msiempy/issues/82</a>&gt;.</dd>
+<dd><a href="msiempy.device.DevTree.html#add"><code>msiempy.device.DevTree.add</code></a> do not ensure the Datasource is well added, the methods returns a <a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a> with the request ID fetched from the SIEM.
+There is still place for improvment <a href="#id23"><span class="rst-problematic" id="rst-id24">`#82&lt;https://github.com/mfesiem/msiempy/issues/82&gt;`_</span></a>.</dd>
 </dl>
+</div>
+<div class="rst-section" id="rst-add-values-to-a-watchlist">
+<h2 class="heading">Add values to a Watchlist</h2>
 <pre class="py-doctest">
 <span class="py-prompt">&gt;&gt;&gt; </span>wl_list = WatchlistManager()
 <span class="py-prompt">&gt;&gt;&gt; </span>wl = wl_list.search(<span class="py-string">'test_Watchlist'</span>)[0]
@@ -225,7 +257,7 @@ Then acknowledge the alarms.</p>
 <dt>See:</dt>
 <dd>Objects <a href="msiempy.watchlist.WatchlistManager.html"><code>msiempy.watchlist.WatchlistManager</code></a>, <a href="msiempy.watchlist.Watchlist.html"><code>msiempy.watchlist.Watchlist</code></a></dd>
 </dl>
-</blockquote>
+</div>
 </div>
 </div>
       </div>
@@ -281,7 +313,7 @@ Then acknowledge the alarms.</p>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 12:42:16.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 13:00:30.
       </address>
 
     </div>

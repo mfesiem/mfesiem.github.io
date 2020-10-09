@@ -1,0 +1,765 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>msiempy.core.query.FilteredQueryList : API documentation</title>
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">
+            msiempy API Documentation
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div id="showPrivate">
+      <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+    </div>
+
+    <div class="container">
+
+      <div class="page-header">
+        <h1 class="class"><code>msiempy.core.query.FilteredQueryList(<a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>)</code> <small>class documentation</small></h1>
+
+        <span id="partOf">
+          Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.core.html" class="code" data-type="Package">core</a>.<a href="msiempy.core.query.html" class="code" data-type="Module">query</a></code>
+          <a href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L18">View Source</a>
+          <a href="classIndex.html#msiempy.core.query.FilteredQueryList">(View In Hierarchy)</a>
+        </span>
+      </div>
+
+      <div class="extrasDocstring">
+        <p>Known subclasses: <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">msiempy.event._QueryExecuteManager</a></p>
+      </div>
+
+      <div class="moduleDocstring">
+        <div><p>Base class for query based managers : <a href="msiempy.alarm.AlarmManager.html"><code>msiempy.alarm.AlarmManager</code></a>, <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a>.
+FilteredQueryList object can handle time_ranges and time splitting.
+Abstract base class that provide time ranged filtered query wrapper.</p>
+<p>Arguments:</p>
+<blockquote>
+<ul class="rst-simple">
+<li><dl class="rst-first rst-docutils">
+<dt><a href="msiempy.core.query.FilteredQueryList.html#time_range"><code>time_range</code></a> <span class="classifier-delimiter">:</span> <span class="rst-classifier">Query time range. String representation of a time range.</span></dt>
+<dd>See <a href="msiempy.core.query.FilteredQueryList.html#POSSIBLE_TIME_RANGE"><code>msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE</code></a>.</dd>
+</dl>
+</li>
+<li><a href="msiempy.core.query.FilteredQueryList.html#start_time"><code>start_time</code></a> : Query starting time, can be a <a href="https://docs.python.org/3/library/string.html#string"><code>string</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a> object. Parsed with <code>dateutil</code>.</li>
+<li><a href="msiempy.core.query.FilteredQueryList.html#end_time"><code>end_time</code></a> : Query endding time, can be a <a href="https://docs.python.org/3/library/string.html#string"><code>string</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a> object. Parsed with <code>dateutil</code>.</li>
+<li><a href="msiempy.core.query.FilteredQueryList.html#filters"><code>filters</code></a> : List of filters applied to the query.</li>
+</ul>
+</blockquote>
+</div>
+      </div>
+
+      <div id="splitTables">
+        <table class="children sortable" id="id15">
+  
+  <tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#__init__" class="code" data-type="Method">__init__</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#not_completed" class="code" data-type="Instance Variable">not_completed</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#filters" class="code" data-type="Instance Variable">filters</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#start_time" class="code" data-type="Instance Variable">start_time</a></td>
+    <td><span class="undocumented">No summary</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#end_time" class="code" data-type="Instance Variable">end_time</a></td>
+    <td><span class="undocumented">No summary</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#time_range" class="code" data-type="Instance Variable">time_range</a></td>
+    <td><span>Query time range. Defaults to "CURRENT_DAY".</span></td>
+  </tr><tr class="classvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#DEFAULT_TIME_RANGE" class="code" data-type="Class Variable">DEFAULT_TIME_RANGE</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="classvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#POSSIBLE_TIME_RANGE" class="code" data-type="Class Variable">POSSIBLE_TIME_RANGE</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#add_filter" class="code" data-type="Method">add_filter</a></td>
+    <td><span>Add a filter to the query. Abstract declaration.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#clear_filters" class="code" data-type="Method">clear_filters</a></td>
+    <td><span>Remove all filters to the query. Abstract declaration.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#qry_load_data" class="code" data-type="Method">qry_load_data</a></td>
+    <td><span>Method to load the data from the SIEM. Rturns a <code>tuple ((items, completed))</code>. Abstract declaration.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#load_data" class="code" data-type="Method">load_data</a></td>
+    <td><span>Load the data from the SIEM into the list. Abstract declaration.</span></td>
+  </tr><tr class="instancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_time_range" class="code" data-type="Instance Variable">_time_range</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_start_time" class="code" data-type="Instance Variable">_start_time</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_end_time" class="code" data-type="Instance Variable">_end_time</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_get_time_range" class="code" data-type="Method">_get_time_range</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_set_time_range" class="code" data-type="Method">_set_time_range</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_get_start_time" class="code" data-type="Method">_get_start_time</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_set_start_time" class="code" data-type="Method">_set_start_time</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_get_end_time" class="code" data-type="Method">_get_end_time</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_set_end_time" class="code" data-type="Method">_set_end_time</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_get_filters" class="code" data-type="Method">_get_filters</a></td>
+    <td><span>Returns the filters in the right format. Abstract declaration.</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_set_filters" class="code" data-type="Method">_set_filters</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr>
+</table>
+        
+          <p class="inheritedFrom">
+            Inherited from <a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>:
+          </p>
+          <table class="children sortable" id="id16">
+  
+  <tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#__str__" class="code" data-type="Method">__str__</a></td>
+    <td><span>str(obj) -&gt; return text string.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#keys" class="code" data-type="Method">keys</a></td>
+    <td><span>List items keys. Every items should have the same set of keys.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#get_text" class="code" data-type="Method">get_text</a></td>
+    <td><span>Return a csv or table string representation of the list</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#text" class="code" data-type="Method">text</a></td>
+    <td><span>Defaut table string, a shorcut to <code>get_text()</code> with no arguments.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#json" class="code" data-type="Method">json</a></td>
+    <td><span>JSON list of dicts representing the list.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#search" class="code" data-type="Method">search</a></td>
+    <td><span class="undocumented">No summary</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#refresh" class="code" data-type="Method">refresh</a></td>
+    <td><span>Execute refresh function on all items.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#perform" class="code" data-type="Method">perform</a></td>
+    <td><span>Wrapper arround executable and the a list of elements, typically <a href="msiempy.core.types.NitroList.html"><code>msiempy.core.types.NitroList</code></a> object.</span></td>
+  </tr><tr class="basestaticmethod private">
+    
+    <td>Static Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#_confirm_func" class="code" data-type="Static Method">_confirm_func</a></td>
+    <td><span>Ask user inut to confirm the calling of <code>func</code> on <code>elements</code>.</span></td>
+  </tr>
+</table>
+          
+          <p class="inheritedFrom">
+            Inherited from <a href="msiempy.core.types.NitroObject.html" class="code" data-type="Class">NitroObject</a> (via <a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>):
+          </p>
+          <table class="children sortable" id="id17">
+  
+  <tr class="baseclass">
+    
+    <td>Class</td>
+    <td><a href="msiempy.core.types.NitroObject.NitroJSONEncoder.html" class="code" data-type="Class">NitroJSONEncoder</a></td>
+    <td><span>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject. TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict.</span></td>
+  </tr><tr class="baseinstancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.types.NitroObject.html#nitro" class="code" data-type="Instance Variable">nitro</a></td>
+    <td><span><a href="msiempy.core.session.NitroSession.html"><code>msiempy.core.session.NitroSession</code></a> object. Interface to the SIEM.</span></td>
+  </tr>
+</table>
+          
+
+          
+      </div>
+
+      <div id="childList">
+
+        <div class="basemethod">
+  
+  <a name="msiempy.core.query.FilteredQueryList.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    __init__(self, *arg, **kwargs):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L33">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroList.html#__init__" class="code" data-type="Method">msiempy.core.types.NitroList.__init__</a></div><div class="interfaceinfo">overridden in <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">msiempy.event._QueryExecuteManager</a></div>
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  <a name="msiempy.core.query.FilteredQueryList.not_completed">
+    
+  </a>
+  <a name="not_completed">
+    
+  </a>
+  <div class="functionHeader">
+    not_completed =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L62">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div> (type: <code>bool</code>)
+  </div>
+</div><div class="baseinstancevariable private">
+  
+  <a name="msiempy.core.query.FilteredQueryList._time_range">
+    
+  </a>
+  <a name="_time_range">
+    
+  </a>
+  <div class="functionHeader">
+    _time_range =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L65">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="baseinstancevariable private">
+  
+  <a name="msiempy.core.query.FilteredQueryList._start_time">
+    
+  </a>
+  <a name="_start_time">
+    
+  </a>
+  <div class="functionHeader">
+    _start_time =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L66">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="baseinstancevariable private">
+  
+  <a name="msiempy.core.query.FilteredQueryList._end_time">
+    
+  </a>
+  <a name="_end_time">
+    
+  </a>
+  <div class="functionHeader">
+    _end_time =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L67">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  <a name="msiempy.core.query.FilteredQueryList.filters">
+    
+  </a>
+  <a name="filters">
+    
+  </a>
+  <div class="functionHeader">
+    filters =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L69">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  <a name="msiempy.core.query.FilteredQueryList.start_time">
+    
+  </a>
+  <a name="start_time">
+    
+  </a>
+  <div class="functionHeader">
+    start_time =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L72">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div>Start time of the query in the right SIEM format.
+Use <a href="msiempy.core.query.FilteredQueryList.html#_start_time"><code>_start_time</code></a> to get the datetime object. You can set the <code>star_time</code> as a <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a>.
+If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a>, equivalent CURRENT_DAY start 00:00:00.
+Raises: <a href="https://docs.python.org/3/library/exceptions.html#ValueError"><code>ValueError</code></a> if not the right type.</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  <a name="msiempy.core.query.FilteredQueryList.end_time">
+    
+  </a>
+  <a name="end_time">
+    
+  </a>
+  <div class="functionHeader">
+    end_time =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L73">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div>End time of the query in the right SIEM format.
+Use <a href="msiempy.core.query.FilteredQueryList.html#_end_time"><code>_end_time</code></a> property to get the datetime object. You can set the <a href="msiempy.core.query.FilteredQueryList.html#end_time"><code>end_time</code></a> as a <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a>.
+If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a>, equivalent CURRENT_DAY.
+Raises <a href="https://docs.python.org/3/library/exceptions.html#ValueError"><code>ValueError</code></a> if not the right type.</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  <a name="msiempy.core.query.FilteredQueryList.time_range">
+    
+  </a>
+  <a name="time_range">
+    
+  </a>
+  <div class="functionHeader">
+    time_range =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L74">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>Query time range. Defaults to "CURRENT_DAY".</p>
+<p>@note: The time range is upper cased automatically.
+@raise: C{VallueError} if unrecognized time range is set or C{AttributeError} if not the right type.</p>
+</div>
+  </div>
+</div><div class="baseclassvariable">
+  
+  <a name="msiempy.core.query.FilteredQueryList.DEFAULT_TIME_RANGE">
+    
+  </a>
+  <a name="DEFAULT_TIME_RANGE">
+    
+  </a>
+  <div class="functionHeader">
+    DEFAULT_TIME_RANGE =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L78">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div> (type: <code>str</code>)
+  </div>
+</div><div class="baseclassvariable">
+  
+  <a name="msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE">
+    
+  </a>
+  <a name="POSSIBLE_TIME_RANGE">
+    
+  </a>
+  <div class="functionHeader">
+    POSSIBLE_TIME_RANGE =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L83">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div> (type: <code>List[str]</code>)
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.core.query.FilteredQueryList._get_time_range">
+    
+  </a>
+  <a name="_get_time_range">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _get_time_range(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L110">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.core.query.FilteredQueryList._set_time_range">
+    
+  </a>
+  <a name="_set_time_range">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _set_time_range(self, time_range):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L113">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.core.query.FilteredQueryList._get_start_time">
+    
+  </a>
+  <a name="_get_start_time">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _get_start_time(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L139">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.core.query.FilteredQueryList._set_start_time">
+    
+  </a>
+  <a name="_set_start_time">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _set_start_time(self, start_time):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L142">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.core.query.FilteredQueryList._get_end_time">
+    
+  </a>
+  <a name="_get_end_time">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _get_end_time(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L160">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.core.query.FilteredQueryList._set_end_time">
+    
+  </a>
+  <a name="_set_end_time">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _set_end_time(self, end_time):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L163">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.core.query.FilteredQueryList._get_filters">
+    
+  </a>
+  <a name="_get_filters">
+    
+  </a>
+  <div class="functionHeader">
+    @abc.abstractmethod<br />
+    def
+    _get_filters(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L209">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overridden in <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">msiempy.event._QueryExecuteManager</a></div>
+    
+    <div>Returns the filters in the right format.
+Abstract declaration.</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.core.query.FilteredQueryList._set_filters">
+    
+  </a>
+  <a name="_set_filters">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _set_filters(self, filters):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L191">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.query.FilteredQueryList.add_filter">
+    
+  </a>
+  <a name="add_filter">
+    
+  </a>
+  <div class="functionHeader">
+    @abc.abstractmethod<br />
+    def
+    add_filter(self, filter):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L217">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overridden in <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">msiempy.event._QueryExecuteManager</a></div>
+    
+    <div>Add a filter to the query.
+Abstract declaration.</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.query.FilteredQueryList.clear_filters">
+    
+  </a>
+  <a name="clear_filters">
+    
+  </a>
+  <div class="functionHeader">
+    @abc.abstractmethod<br />
+    def
+    clear_filters(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L224">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overridden in <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event.EventManager.html" class="code" data-type="Class">msiempy.event.EventManager</a>, <a href="msiempy.event.GroupedEventManager.html" class="code" data-type="Class">msiempy.event.GroupedEventManager</a></div>
+    
+    <div>Remove all filters to the query.
+Abstract declaration.</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.query.FilteredQueryList.qry_load_data">
+    
+  </a>
+  <a name="qry_load_data">
+    
+  </a>
+  <div class="functionHeader">
+    @abc.abstractmethod<br />
+    def
+    qry_load_data(self, *args, **kwargs):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L231">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overridden in <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event.EventManager.html" class="code" data-type="Class">msiempy.event.EventManager</a>, <a href="msiempy.event.GroupedEventManager.html" class="code" data-type="Class">msiempy.event.GroupedEventManager</a></div>
+    
+    <div>Method to load the data from the SIEM.
+Rturns a <code>tuple ((items, completed))</code>.
+Abstract declaration.</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.query.FilteredQueryList.load_data">
+    
+  </a>
+  <a name="load_data">
+    
+  </a>
+  <div class="functionHeader">
+    @abc.abstractmethod<br />
+    def
+    load_data(self, *args, **kwargs):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/core/query.py#L240">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overridden in <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event.EventManager.html" class="code" data-type="Class">msiempy.event.EventManager</a>, <a href="msiempy.event.GroupedEventManager.html" class="code" data-type="Class">msiempy.event.GroupedEventManager</a></div>
+    
+    <div>Load the data from the SIEM into the list.
+Abstract declaration.</div>
+  </div>
+</div>
+
+      </div>
+      <address>
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 00:36:58.
+      </address>
+
+    </div>
+
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>

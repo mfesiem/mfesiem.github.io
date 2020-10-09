@@ -32,7 +32,7 @@
 
         <span id="partOf">
           Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.event.html" class="code" data-type="Module">event</a></code>
-          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L592">View Source</a>
+          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L631">View Source</a>
           <a href="classIndex.html#msiempy.event.Event">(View In Hierarchy)</a>
         </span>
       </div>
@@ -49,60 +49,55 @@ This object handles events objects created with <a href="msiempy.event.EventMana
 and events objects created with <a href="msiempy.alarm.AlarmManager.html"><code>msiempy.alarm.AlarmManager</code></a> (From <code>ipsGetAlertData</code> api call or <code>notifyGetTriggeredNotificationDetail</code> depending of the value of <code>load_data(events_details=True/False)</code> ) .</blockquote>
 <p><em>Common</em> keys for alert data events (When loading from ID or with <code>AlarmManager.load_data()</code>:</p>
 <ul class="rst-simple">
-<li><code>ruleName</code></li>
-<li><code>srcIp</code></li>
-<li><code>destIp</code></li>
-<li><code>protocol</code></li>
-<li><code>lastTime</code></li>
-<li><code>subtype</code></li>
-<li><code>destPort</code></li>
-<li><code>destMac</code></li>
-<li><code>srcMac</code></li>
-<li><code>srcPort</code></li>
-<li><code>deviceName</code></li>
-<li><code>sigId</code></li>
-<li><code>normId</code></li>
-<li><code>srcUser</code></li>
-<li><code>destUser</code></li>
-<li><code>normMessage</code></li>
-<li><code>normDesc</code></li>
-<li><code>host</code></li>
-<li><code>domain</code></li>
-<li><code>ipsId</code></li>
+<li><tt class="rst-docutils literal">ruleName</tt></li>
+<li><tt class="rst-docutils literal">srcIp</tt></li>
+<li><tt class="rst-docutils literal">destIp</tt></li>
+<li><tt class="rst-docutils literal">protocol</tt></li>
+<li><tt class="rst-docutils literal">lastTime</tt></li>
+<li><tt class="rst-docutils literal">subtype</tt></li>
+<li><tt class="rst-docutils literal">destPort</tt></li>
+<li><tt class="rst-docutils literal">destMac</tt></li>
+<li><tt class="rst-docutils literal">srcMac</tt></li>
+<li><tt class="rst-docutils literal">srcPort</tt></li>
+<li><tt class="rst-docutils literal">deviceName</tt></li>
+<li><tt class="rst-docutils literal">sigId</tt></li>
+<li><tt class="rst-docutils literal">normId</tt></li>
+<li><tt class="rst-docutils literal">srcUser</tt></li>
+<li><tt class="rst-docutils literal">destUser</tt></li>
+<li><tt class="rst-docutils literal">normMessage</tt></li>
+<li><tt class="rst-docutils literal">normDesc</tt></li>
+<li><tt class="rst-docutils literal">host</tt></li>
+<li><tt class="rst-docutils literal">domain</tt></li>
+<li><tt class="rst-docutils literal">ipsId</tt></li>
 <li>And others</li>
 </ul>
 <p>All keys for triggered alarms events (When using <code>AlarmManager.load_data(events_details=False)</code>) (SIEM v11.x only):</p>
 <ul class="rst-simple">
-<li><code>ruleMessage</code></li>
-<li><code>eventId</code></li>
-<li><code>severity</code></li>
-<li><code>eventCount</code></li>
-<li><code>sourceIp</code></li>
-<li><code>destIp</code></li>
-<li><code>protocol</code></li>
-<li><code>lastTime</code></li>
-<li><code>eventSubType</code></li>
+<li><tt class="rst-docutils literal">ruleMessage</tt></li>
+<li><tt class="rst-docutils literal">eventId</tt></li>
+<li><tt class="rst-docutils literal">severity</tt></li>
+<li><tt class="rst-docutils literal">eventCount</tt></li>
+<li><tt class="rst-docutils literal">sourceIp</tt></li>
+<li><tt class="rst-docutils literal">destIp</tt></li>
+<li><tt class="rst-docutils literal">protocol</tt></li>
+<li><tt class="rst-docutils literal">lastTime</tt></li>
+<li><tt class="rst-docutils literal">eventSubType</tt></li>
 </ul>
 <p>Common keys for query events (When using <a href="msiempy.event.EventManager.html"><code>EventManager</code></a>):</p>
 <ul class="rst-simple">
-<li><code>Rule.msg</code></li>
-<li><code>Alert.LastTime</code></li>
-<li><code>Alert.IPSIDAlertID</code></li>
+<li><tt class="rst-docutils literal">Rule.msg</tt></li>
+<li><tt class="rst-docutils literal">Alert.LastTime</tt></li>
+<li><tt class="rst-docutils literal">Alert.IPSIDAlertID</tt></li>
 <li>And any other</li>
 </ul>
 <p>You can request more fields by passing a list of fields to the <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a> object.
 <a href="msiempy.event.Event.html#REGULAR_EVENT_FIELDS"><code>msiempy.event.Event.REGULAR_EVENT_FIELDS</code></a> offer a base list of regular fields that may be useful.
-See msiempy/static JSON files to browse complete list : <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json" target="_top">https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json</a>
-You can also use this script to dinamically print the available fields and filters : <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py" target="_top">https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py</a></p>
-<p>Arguments:</p>
-<ul class="rst-simple">
-<li><code>adict</code>: Event parameters</li>
-<li><a href="https://docs.python.org/3/library/functions.html#id"><code>id</code></a>: The event <code>IPSIDAlertID</code> to instanciate. Will load informations</li>
-</ul>
-<p><strong>For query events</strong>: We tried our best effort to match SIEM returned fields with initially requested fields.  Prefixes <code>Alert.</code>, <code>Rule.</code>, etc are optionnal, autocompletion is computed in any case.
+See msiempy/static JSON files to browse complete list: <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json" target="_top">https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json</a>
+You can also use this script to dinamically print the available fields and filters: <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py" target="_top">https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py</a></p>
+<p><strong>For query events</strong>: We tried our best effort to match SIEM returned fields with initially requested fields.  Prefixes <tt class="rst-docutils literal">Alert.</tt>, <tt class="rst-docutils literal">Rule.</tt>, etc are optionnal, autocompletion is computed in any case.
 <a href="msiempy.event.Event.html#__getitem__"><code>__getitem__</code></a>, <a href="msiempy.event.Event.html#__contains__"><code>__contains__</code></a>, <a href="msiempy.event.Event.html#__setitem__"><code>__setitem__</code></a> and <a href="msiempy.event.Event.html#__delitem__"><code>__delitem__</code></a> method have been rewrote in order to offer more straight-forward <a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a> usage.
-For exemple, if the SIEM returns results with keys like  <code>Alert.65613</code>, <code>Alert.BIN(7)</code> or <code>Alert.SrcIP</code>: you'll be able to use <a href="msiempy.event.Event.html"><code>Event</code></a> dict with your initial
-queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <code>Event['SrcIP']</code>. (You can still use internal keys if you want).</p>
+For exemple, if the SIEM returns results with keys like  <tt class="rst-docutils literal">Alert.65613</tt>, <tt class="rst-docutils literal">Alert.BIN(7)</tt> or <tt class="rst-docutils literal">Alert.SrcIP</tt>: you'll be able to use <a href="msiempy.event.Event.html"><code>Event</code></a> dict with your initial
+queried keys like <tt class="rst-docutils literal"><span class="pre">Event['Web_Doamin']</span></tt>, <tt class="rst-docutils literal"><span class="pre">Event['UserIDSrc']</span></tt> or <tt class="rst-docutils literal"><span class="pre">Event['SrcIP']</span></tt>. (You can still use internal keys if you want).</p>
 </div>
       </div>
 
@@ -134,6 +129,11 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     <td>Class Variable</td>
     <td><a href="msiempy.event.Event.html#SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME" class="code" data-type="Class Variable">SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME</a></td>
     <td><span>Fields name mapping (reversed).</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.Event.html#__init__" class="code" data-type="Method">__init__</a></td>
+    <td><span>" Args:</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
@@ -192,12 +192,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
           </p>
           <table class="children sortable" id="id53">
   
-  <tr class="basemethod">
-    
-    <td>Method</td>
-    <td><a href="msiempy.core.types.NitroDict.html#__init__" class="code" data-type="Method">__init__</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
-  </tr><tr class="baseinstancevariable">
+  <tr class="baseinstancevariable">
     
     <td>Instance Variable</td>
     <td><a href="msiempy.core.types.NitroDict.html#data" class="code" data-type="Instance Variable">data</a></td>
@@ -259,7 +254,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
   </a>
   <div class="functionHeader">
     FIELDS_TABLES =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L660">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L694">
       
       (source)
     </a>
@@ -278,7 +273,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
   </a>
   <div class="functionHeader">
     DEFAULTS_EVENT_FIELDS =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L700">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L734">
       
       (source)
     </a>
@@ -300,7 +295,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
   </a>
   <div class="functionHeader">
     REGULAR_EVENT_FIELDS =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L707">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L741">
       
       (source)
     </a>
@@ -333,7 +328,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
   </a>
   <div class="functionHeader">
     SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L740">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L774">
       
       (source)
     </a>
@@ -352,7 +347,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
   </a>
   <div class="functionHeader">
     SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1024">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1058">
       
       (source)
     </a>
@@ -360,6 +355,34 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
   <div class="functionBody">
     
     <div>Fields name mapping (reversed).</div> (type: <code>Dict[str, str]</code>)
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.Event.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    __init__(*args, **kwargs):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1363">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroDict.html#__init__" class="code" data-type="Method">msiempy.core.types.NitroDict.__init__</a></div>
+    
+    <div><p>"
+Args:</p>
+<blockquote>
+<p>adict (dict): Event parameters</p>
+<p>id (str): The event <tt class="rst-docutils literal">IPSIDAlertID</tt> to instanciate. Will load informations.</p>
+</blockquote>
+</div>
   </div>
 </div><div class="basemethod private">
   
@@ -373,7 +396,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     
     def
     _find_key(self, key):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1329">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1373">
       
       (source)
     </a>
@@ -395,7 +418,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     
     def
     __getitem__(self, key):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1348">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1392">
       
       (source)
     </a>
@@ -417,7 +440,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     
     def
     __delitem__(self, key):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1351">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1395">
       
       (source)
     </a>
@@ -439,7 +462,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     
     def
     __contains__(self, key):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1354">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1398">
       
       (source)
     </a>
@@ -461,7 +484,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     
     def
     __setitem__(self, key, value):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1360">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1404">
       
       (source)
     </a>
@@ -483,7 +506,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     
     def
     get_id(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1366">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1410">
       
       (source)
     </a>
@@ -507,7 +530,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     
     def
     clear_notes(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1386">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1430">
       
       (source)
     </a>
@@ -529,7 +552,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     
     def
     set_note(self, note, no_date=(False)):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1392">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1436">
       
       (source)
     </a>
@@ -553,7 +576,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     
     def
     data_from_id(self, id, use_query=(False), extra_fields=[]):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1423">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1467">
       
       (source)
     </a>
@@ -562,7 +585,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroDict.html#data_from_id" class="code" data-type="Method">msiempy.core.types.NitroDict.data_from_id</a></div>
     
     <div><p>Load event's data.</p>
-<p>Arguments:</p>
+<p>Args:</p>
 <ul class="rst-simple">
 <li><a href="https://docs.python.org/3/library/functions.html#id"><code>id</code></a> : The event ID. (i.e. : <code>144128388087414784|747122896</code>)</li>
 <li><code>use_query</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): Uses the query module to retreive common event data. Only works with SIEM 11.2 or greater.</li>
@@ -583,7 +606,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     
     def
     refresh(self, use_query=None, extra_fields=None):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1468">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1512">
       
       (source)
     </a>
@@ -593,7 +616,7 @@ queried keys like <code>Event['Web_Doamin'] `, `Event['UserIDSrc']</code> or <co
     
     <div><p class="pre">Re-load event's data.
 
-Arguments:
+Args:
 - `use_query` (`bool`): Force the use of the query module to retreive the event data.
 In contrario, if explicitely `False`, force the use of `ipsGetAlertData` to get the details.
 The default behaviour will figure out the event type/load method based on the existence if 'Alert.IPSIDAlertID' keys
@@ -607,7 +630,7 @@ Raise `AttributeError` if the event ID has not been found.</p></div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 14:26:38.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 18:58:58.
       </address>
 
     </div>

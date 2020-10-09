@@ -32,7 +32,7 @@
 
         <span id="partOf">
           Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.event.html" class="code" data-type="Module">event</a></code>
-          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L453">View Source</a>
+          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L477">View Source</a>
           <a href="classIndex.html#msiempy.event.GroupedEventManager">(View In Hierarchy)</a>
         </span>
       </div>
@@ -44,14 +44,14 @@
       <div class="moduleDocstring">
         <div><p>List-Like object.
 Interface to execute a grouped event query.</p>
-<p>Arguments:</p>
-<ul class="rst-simple">
-<li><a href="msiempy.event.GroupedEventManager.html#field"><code>field</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): The field that will be selected when this query is executed.</li>
-<li><code>filters</code> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a>): list of filters. A filter can be a <code>tuple(field, [values])</code> or it can be a <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> if you wish to use advanced filtering.</li>
-<li><code>time_range</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Query time range. String representation of a time range. Not need to specify 'CUSTOM' if <code>start_time</code> and <code>end_time</code> are set.</li>
-<li><code>start_time</code> : Query start time, can be a <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a> object. Parsed with <code>dateutil</code>.</li>
-<li><code>end_time</code> : Query end time, can be a <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a> object. Parsed with <code>dateutil</code>.</li>
-</ul>
+<p>Args:</p>
+<blockquote>
+<p>field (str): The field that will be selected when this query is executed.</p>
+<p>filters (list): list of filters. A filter can be a <code>tuple(field, [values])</code> or it can be a <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> if you wish to use advanced filtering.</p>
+<p>time_range (str): Query time range. String representation of a time range. Not need to specify <tt class="rst-docutils literal">"CUSTOM"</tt> if <code>start_time</code> and <code>end_time</code> are set.</p>
+<p>start_time : Query start time, can be a <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a> object. Parsed with <code>dateutil</code>.</p>
+<p>end_time : Query end time, can be a <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a> object. Parsed with <code>dateutil</code>.</p>
+</blockquote>
 </div>
       </div>
 
@@ -321,7 +321,7 @@ Interface to execute a grouped event query.</p>
     
     def
     __init__(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L468">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L496">
       
       (source)
     </a>
@@ -341,7 +341,7 @@ Interface to execute a grouped event query.</p>
   </a>
   <div class="functionHeader">
     field =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L473">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L501">
       
       (source)
     </a>
@@ -362,7 +362,7 @@ Interface to execute a grouped event query.</p>
     
     def
     load_data(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L493">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L521">
       
       (source)
     </a>
@@ -371,13 +371,16 @@ Interface to execute a grouped event query.</p>
     <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#load_data" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.load_data</a></div>
     
     <div><p>Load the data into the list.</p>
-<p>Arguments:</p>
-<ul class="rst-simple">
-<li><code>num_rows</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): Maximum number of rows to load.</li>
-<li><code>retry</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): number of time the query can be failed and retried.</li>
-<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): wait timeout in seconds.</li>
-</ul>
-<p>Returns <a href="msiempy.event.GroupedEventManager.html"><code>GroupedEventManager</code></a></p>
+<p>Args:</p>
+<blockquote>
+<p>num_rows (int): Maximum number of rows to load.</p>
+<p>retry (int): number of time the query can be failed and retried.</p>
+<p>wait_timeout_sec (int): wait timeout in seconds.</p>
+</blockquote>
+<dl class="rst-docutils">
+<dt>Returns:</dt>
+<dd><a href="msiempy.event.GroupedEventManager.html"><code>GroupedEventManager</code></a></dd>
+</dl>
 </div>
   </div>
 </div><div class="baseinstancevariable">
@@ -390,7 +393,7 @@ Interface to execute a grouped event query.</p>
   </a>
   <div class="functionHeader">
     data =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L508">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L539">
       
       (source)
     </a>
@@ -411,7 +414,7 @@ Interface to execute a grouped event query.</p>
     
     def
     clear_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L511">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L542">
       
       (source)
     </a>
@@ -432,7 +435,7 @@ Acts like there is no filters.</div>
   </a>
   <div class="functionHeader">
     _filters =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L521">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L552">
       
       (source)
     </a>
@@ -453,7 +456,7 @@ Acts like there is no filters.</div>
     
     def
     qry_load_data(self, num_rows=500, retry=1, wait_timeout_sec=120):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L530">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L561">
       
       (source)
     </a>
@@ -462,28 +465,36 @@ Acts like there is no filters.</div>
     <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#qry_load_data" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.qry_load_data</a></div>
     
     <div><dl class="rst-docutils">
-<dt>Helper method to execute the grouped query and load the data :</dt>
-<dd>-&gt; Submit the query
--&gt; Wait the query to be executed
--&gt; Get and parse the events</dd>
-</dl>
-<p>Arguments:</p>
-<ul class="rst-simple">
-<li><code>num_rows</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): Maximum number of rows to load.</li>
-<li><code>retry</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): number of time the query can be failed and retried.</li>
-<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): wait timeout in seconds.</li>
+<dt>Helper method to execute the grouped query and load the data:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li>Submit the query</li>
+<li>Wait the query to be executed</li>
+<li>Get and parse the events</li>
 </ul>
-<p>Returns : <a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a> : (( <a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a>, Query completed? <code>True/False</code> ))</p>
-<p>Raises <a href="msiempy.core.session.NitroError.html"><code>msiempy.core.session.NitroError</code></a> if any unhandled errors.
-Raises <a href="https://docs.python.org/3/library/exceptions.html#TimeoutError"><code>TimeoutError</code></a> if wait_timeout_sec counter gets to 0.
-Raises <a href="https://docs.python.org/3/library/exceptions.html#ValueError"><code>ValueError</code></a> if an <code>IPSID</code> filter is not present.</p>
+</dd>
+</dl>
+<p>Args:</p>
+<blockquote>
+<p>num_rows (int): Maximum number of rows to load.</p>
+<p>retry (int): number of time the query can be failed and retried.</p>
+<p>wait_timeout_sec (int): wait timeout in seconds.</p>
+</blockquote>
+<p>Returns:</p>
+<blockquote>
+tuple : ( <a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a>, Query completed? <a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a> )</blockquote>
+<p>Raises:</p>
+<blockquote>
+<p><a href="msiempy.core.session.NitroError.html"><code>msiempy.core.session.NitroError</code></a> if any unhandled errors.</p>
+<p><a href="https://docs.python.org/3/library/exceptions.html#TimeoutError"><code>TimeoutError</code></a> if <tt class="rst-docutils literal">wait_timeout_sec</tt> counter gets to 0.</p>
+<p><a href="https://docs.python.org/3/library/exceptions.html#ValueError"><code>ValueError</code></a> if an <code>IPSID</code> filter is not present.</p>
+</blockquote>
 </div>
   </div>
 </div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 14:26:38.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 18:58:58.
       </address>
 
     </div>

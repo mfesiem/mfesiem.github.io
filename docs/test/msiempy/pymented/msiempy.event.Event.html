@@ -32,7 +32,7 @@
 
         <span id="partOf">
           Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.event.html" class="code" data-type="Module">event</a></code>
-          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L598">View Source</a>
+          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L631">View Source</a>
           <a href="classIndex.html#msiempy.event.Event">(View In Hierarchy)</a>
         </span>
       </div>
@@ -49,52 +49,56 @@ This object handles events objects created with <a href="msiempy.event.EventMana
 and events objects created with <a href="msiempy.alarm.AlarmManager.html"><code>msiempy.alarm.AlarmManager</code></a> (From <code>ipsGetAlertData</code> api call or <code>notifyGetTriggeredNotificationDetail</code> depending of the value of <code>load_data(events_details=True/False)</code> ) .</blockquote>
 <p><em>Common</em> keys for alert data events (When loading from ID or with <code>AlarmManager.load_data()</code>:</p>
 <ul class="rst-simple">
-<li><code>ruleName</code></li>
-<li><code>srcIp</code></li>
-<li><code>destIp</code></li>
-<li><code>protocol</code></li>
-<li><code>lastTime</code></li>
-<li><code>subtype</code></li>
-<li><code>destPort</code></li>
-<li><code>destMac</code></li>
-<li><code>srcMac</code></li>
-<li><code>srcPort</code></li>
-<li><code>deviceName</code></li>
-<li><code>sigId</code></li>
-<li><code>normId</code></li>
-<li><code>srcUser</code></li>
-<li><code>destUser</code></li>
-<li><code>normMessage</code></li>
-<li><code>normDesc</code></li>
-<li><code>host</code></li>
-<li><code>domain</code></li>
-<li><code>ipsId</code></li>
+<li><tt class="rst-docutils literal">ruleName</tt></li>
+<li><tt class="rst-docutils literal">srcIp</tt></li>
+<li><tt class="rst-docutils literal">destIp</tt></li>
+<li><tt class="rst-docutils literal">protocol</tt></li>
+<li><tt class="rst-docutils literal">lastTime</tt></li>
+<li><tt class="rst-docutils literal">subtype</tt></li>
+<li><tt class="rst-docutils literal">destPort</tt></li>
+<li><tt class="rst-docutils literal">destMac</tt></li>
+<li><tt class="rst-docutils literal">srcMac</tt></li>
+<li><tt class="rst-docutils literal">srcPort</tt></li>
+<li><tt class="rst-docutils literal">deviceName</tt></li>
+<li><tt class="rst-docutils literal">sigId</tt></li>
+<li><tt class="rst-docutils literal">normId</tt></li>
+<li><tt class="rst-docutils literal">srcUser</tt></li>
+<li><tt class="rst-docutils literal">destUser</tt></li>
+<li><tt class="rst-docutils literal">normMessage</tt></li>
+<li><tt class="rst-docutils literal">normDesc</tt></li>
+<li><tt class="rst-docutils literal">host</tt></li>
+<li><tt class="rst-docutils literal">domain</tt></li>
+<li><tt class="rst-docutils literal">ipsId</tt></li>
 <li>And others</li>
 </ul>
 <p>All keys for triggered alarms events (When using <code>AlarmManager.load_data(events_details=False)</code>) (SIEM v11.x only):</p>
 <ul class="rst-simple">
-<li><code>ruleMessage</code></li>
-<li><code>eventId</code></li>
-<li><code>severity</code></li>
-<li><code>eventCount</code></li>
-<li><code>sourceIp</code></li>
-<li><code>destIp</code></li>
-<li><code>protocol</code></li>
-<li><code>lastTime</code></li>
-<li><code>eventSubType</code></li>
+<li><tt class="rst-docutils literal">ruleMessage</tt></li>
+<li><tt class="rst-docutils literal">eventId</tt></li>
+<li><tt class="rst-docutils literal">severity</tt></li>
+<li><tt class="rst-docutils literal">eventCount</tt></li>
+<li><tt class="rst-docutils literal">sourceIp</tt></li>
+<li><tt class="rst-docutils literal">destIp</tt></li>
+<li><tt class="rst-docutils literal">protocol</tt></li>
+<li><tt class="rst-docutils literal">lastTime</tt></li>
+<li><tt class="rst-docutils literal">eventSubType</tt></li>
 </ul>
 <p>Common keys for query events (When using <a href="msiempy.event.EventManager.html"><code>EventManager</code></a>):</p>
 <ul class="rst-simple">
-<li><code>Rule.msg</code></li>
-<li><code>Alert.LastTime</code></li>
-<li><code>Alert.IPSIDAlertID</code></li>
+<li><tt class="rst-docutils literal">Rule.msg</tt></li>
+<li><tt class="rst-docutils literal">Alert.LastTime</tt></li>
+<li><tt class="rst-docutils literal">Alert.IPSIDAlertID</tt></li>
 <li>And any other</li>
 </ul>
 <p>You can request more fields by passing a list of fields to the <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a> object.
 <a href="msiempy.event.Event.html#REGULAR_EVENT_FIELDS"><code>msiempy.event.Event.REGULAR_EVENT_FIELDS</code></a> offer a base list of regular fields that may be useful.
-See msiempy/static JSON files to browse complete list : <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json" target="_top">https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json</a>
-You can also use this script to dinamically print the available fields and filters : <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py" target="_top">https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py</a></p>
-<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">adict</td><td>Event parameters</td></tr><tr><td></td><td class="fieldArg">id</td><td>The event</td></tr><tr><td></td><td class="fieldArg">For</td><td>query events</td></tr><tr><td></td><td class="fieldArg">__getitem__</td><td>__contains__</td></tr><tr><td></td><td class="fieldArg">For</td><td>exemple</td></tr><tr><td></td><td class="fieldArg">queried</td><td>keys like</td></tr></table></div>
+See msiempy/static JSON files to browse complete list: <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json" target="_top">https://github.com/mfesiem/msiempy/blob/master/static/all_fields.json</a>
+You can also use this script to dinamically print the available fields and filters: <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py" target="_top">https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py</a></p>
+<p><strong>For query events</strong>: We tried our best effort to match SIEM returned fields with initially requested fields.  Prefixes <tt class="rst-docutils literal">Alert.</tt>, <tt class="rst-docutils literal">Rule.</tt>, etc are optionnal, autocompletion is computed in any case.
+<a href="msiempy.event.Event.html#__getitem__"><code>__getitem__</code></a>, <a href="msiempy.event.Event.html#__contains__"><code>__contains__</code></a>, <a href="msiempy.event.Event.html#__setitem__"><code>__setitem__</code></a> and <a href="msiempy.event.Event.html#__delitem__"><code>__delitem__</code></a> method have been rewrote in order to offer more straight-forward <a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a> usage.
+For exemple, if the SIEM returns results with keys like  <tt class="rst-docutils literal">Alert.65613</tt>, <tt class="rst-docutils literal">Alert.BIN(7)</tt> or <tt class="rst-docutils literal">Alert.SrcIP</tt>: you'll be able to use <a href="msiempy.event.Event.html"><code>Event</code></a> dict with your initial
+queried keys like <tt class="rst-docutils literal"><span class="pre">Event['Web_Doamin']</span></tt>, <tt class="rst-docutils literal"><span class="pre">Event['UserIDSrc']</span></tt> or <tt class="rst-docutils literal"><span class="pre">Event['SrcIP']</span></tt>. (You can still use internal keys if you want).</p>
+</div>
       </div>
 
       <div id="splitTables">
@@ -125,6 +129,11 @@ You can also use this script to dinamically print the available fields and filte
     <td>Class Variable</td>
     <td><a href="msiempy.event.Event.html#SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME" class="code" data-type="Class Variable">SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME</a></td>
     <td><span>Fields name mapping (reversed).</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.Event.html#__init__" class="code" data-type="Method">__init__</a></td>
+    <td><span>" Args:</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
@@ -174,7 +183,7 @@ You can also use this script to dinamically print the available fields and filte
     
     <td>Method</td>
     <td><a href="msiempy.event.Event.html#_find_key" class="code" data-type="Method">_find_key</a></td>
-    <td><span></span></td>
+    <td><span class="undocumented">Undocumented</span></td>
   </tr>
 </table>
         
@@ -183,12 +192,7 @@ You can also use this script to dinamically print the available fields and filte
           </p>
           <table class="children sortable" id="id53">
   
-  <tr class="basemethod">
-    
-    <td>Method</td>
-    <td><a href="msiempy.core.types.NitroDict.html#__init__" class="code" data-type="Method">__init__</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
-  </tr><tr class="baseinstancevariable">
+  <tr class="baseinstancevariable">
     
     <td>Instance Variable</td>
     <td><a href="msiempy.core.types.NitroDict.html#data" class="code" data-type="Instance Variable">data</a></td>
@@ -250,7 +254,7 @@ You can also use this script to dinamically print the available fields and filte
   </a>
   <div class="functionHeader">
     FIELDS_TABLES =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L662">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L694">
       
       (source)
     </a>
@@ -269,7 +273,7 @@ You can also use this script to dinamically print the available fields and filte
   </a>
   <div class="functionHeader">
     DEFAULTS_EVENT_FIELDS =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L702">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L734">
       
       (source)
     </a>
@@ -291,7 +295,7 @@ You can also use this script to dinamically print the available fields and filte
   </a>
   <div class="functionHeader">
     REGULAR_EVENT_FIELDS =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L709">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L741">
       
       (source)
     </a>
@@ -324,7 +328,7 @@ You can also use this script to dinamically print the available fields and filte
   </a>
   <div class="functionHeader">
     SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L742">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L774">
       
       (source)
     </a>
@@ -343,7 +347,7 @@ You can also use this script to dinamically print the available fields and filte
   </a>
   <div class="functionHeader">
     SIEM_FIELDS_MAP_NICKNAME_TO_INTERNAL_NAME =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1026">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1058">
       
       (source)
     </a>
@@ -351,6 +355,34 @@ You can also use this script to dinamically print the available fields and filte
   <div class="functionBody">
     
     <div>Fields name mapping (reversed).</div> (type: <code>Dict[str, str]</code>)
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.Event.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    __init__(*args, **kwargs):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1363">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroDict.html#__init__" class="code" data-type="Method">msiempy.core.types.NitroDict.__init__</a></div>
+    
+    <div><p>"
+Args:</p>
+<blockquote>
+<p>adict (dict): Event parameters</p>
+<p>id (str): The event <tt class="rst-docutils literal">IPSIDAlertID</tt> to instanciate. Will load informations.</p>
+</blockquote>
+</div>
   </div>
 </div><div class="basemethod private">
   
@@ -364,7 +396,7 @@ You can also use this script to dinamically print the available fields and filte
     
     def
     _find_key(self, key):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1331">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1373">
       
       (source)
     </a>
@@ -372,7 +404,7 @@ You can also use this script to dinamically print the available fields and filte
   <div class="docstring functionBody">
     
     
-    <div><table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">key</td><td></td></tr></table></div>
+    <div class="undocumented">Undocumented</div>
   </div>
 </div><div class="basemethod">
   
@@ -386,7 +418,7 @@ You can also use this script to dinamically print the available fields and filte
     
     def
     __getitem__(self, key):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1355">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1392">
       
       (source)
     </a>
@@ -408,7 +440,7 @@ You can also use this script to dinamically print the available fields and filte
     
     def
     __delitem__(self, key):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1358">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1395">
       
       (source)
     </a>
@@ -430,7 +462,7 @@ You can also use this script to dinamically print the available fields and filte
     
     def
     __contains__(self, key):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1361">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1398">
       
       (source)
     </a>
@@ -452,7 +484,7 @@ You can also use this script to dinamically print the available fields and filte
     
     def
     __setitem__(self, key, value):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1367">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1404">
       
       (source)
     </a>
@@ -474,7 +506,7 @@ You can also use this script to dinamically print the available fields and filte
     
     def
     get_id(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1373">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1410">
       
       (source)
     </a>
@@ -482,7 +514,9 @@ You can also use this script to dinamically print the available fields and filte
   <div class="docstring functionBody">
     <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroDict.html#get_id" class="code" data-type="Method">msiempy.core.types.NitroDict.get_id</a></div>
     
-    <div>Get the event ID.</div>
+    <div><p>Get the event ID.</p>
+<p>Return the full event ID or <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a>.</p>
+</div>
   </div>
 </div><div class="basemethod">
   
@@ -496,7 +530,7 @@ You can also use this script to dinamically print the available fields and filte
     
     def
     clear_notes(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1389">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1430">
       
       (source)
     </a>
@@ -518,7 +552,7 @@ You can also use this script to dinamically print the available fields and filte
     
     def
     set_note(self, note, no_date=(False)):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1393">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1436">
       
       (source)
     </a>
@@ -526,12 +560,9 @@ You can also use this script to dinamically print the available fields and filte
   <div class="docstring functionBody">
     
     
-    <div><p class="pre">Set the event's note. Desctructive action.
+    <div><p class="pre">Set the event's note. Desctructive action.  
 
-.. note:: Uses the internal API method `IPS_ADDALERTNOTE`
-
-:param note: 
-:param no_date:  (Default value = False)</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">note</td><td></td></tr><tr><td></td><td class="fieldArg">no_date</td><td>(Default value = False)</td></tr></table></div>
+.. note:: Uses the internal API method `IPS_ADDALERTNOTE`</p></div>
   </div>
 </div><div class="basemethod">
   
@@ -545,7 +576,7 @@ You can also use this script to dinamically print the available fields and filte
     
     def
     data_from_id(self, id, use_query=(False), extra_fields=[]):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1427">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1467">
       
       (source)
     </a>
@@ -553,7 +584,15 @@ You can also use this script to dinamically print the available fields and filte
   <div class="docstring functionBody">
     <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroDict.html#data_from_id" class="code" data-type="Method">msiempy.core.types.NitroDict.data_from_id</a></div>
     
-    <div>Load event's data.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">id</td><td>The event ID</td></tr><tr><td></td><td class="fieldArg">use_query</td><td>bool (Default value = False)</td></tr><tr><td></td><td class="fieldArg">Default</td><td>behaviour will call</td></tr><tr><td></td><td class="fieldArg">extra_fields</td><td>list (Default value = [])</td></tr></table></div>
+    <div><p>Load event's data.</p>
+<p>Args:</p>
+<ul class="rst-simple">
+<li><a href="https://docs.python.org/3/library/functions.html#id"><code>id</code></a> : The event ID. (i.e. : <code>144128388087414784|747122896</code>)</li>
+<li><code>use_query</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): Uses the query module to retreive common event data. Only works with SIEM 11.2 or greater.</li>
+</ul>
+<p>Default behaviour will call <code>ipsGetAlertData</code> to retreive the complete event definition.
+- <code>extra_fields</code> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a>): Only when <code>use_query=True</code>. Additionnal event fields to load in the query.</p>
+</div>
   </div>
 </div><div class="basemethod">
   
@@ -567,7 +606,7 @@ You can also use this script to dinamically print the available fields and filte
     
     def
     refresh(self, use_query=None, extra_fields=None):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1470">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1512">
       
       (source)
     </a>
@@ -575,13 +614,23 @@ You can also use this script to dinamically print the available fields and filte
   <div class="docstring functionBody">
     <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroObject.html#refresh" class="code" data-type="Method">msiempy.core.types.NitroObject.refresh</a></div>
     
-    <div>Re-load event's data.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">use_query</td><td>bool (Default value = None)</td></tr><tr><td></td><td class="fieldArg">In</td><td>contrario</td></tr><tr><td></td><td class="fieldArg">The</td><td>default behaviour will figure out the event type</td></tr><tr><td></td><td class="fieldArg">extra_fields</td><td>list (Default value = None)</td></tr><tr><td></td><td class="fieldArg">Warning</td><td>Enforce</td></tr></table></div>
+    <div><p class="pre">Re-load event's data.
+
+Args:
+- `use_query` (`bool`): Force the use of the query module to retreive the event data.
+In contrario, if explicitely `False`, force the use of `ipsGetAlertData` to get the details.
+The default behaviour will figure out the event type/load method based on the existence if 'Alert.IPSIDAlertID' keys
+- `extra_fields` (`list`): Only when `use_query=True` or the Event is already a query event. Additionnal event fields to load in the query.
+
+.. Warning:: Enforce `use_query=True` will reset the Events fields to whatever is passed to `extra_fields`
+
+Raise `AttributeError` if the event ID has not been found.</p></div>
   </div>
 </div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 14:26:43.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 18:59:03.
       </address>
 
     </div>

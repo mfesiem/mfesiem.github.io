@@ -32,7 +32,7 @@
 
         <span id="partOf">
           Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.event.html" class="code" data-type="Module">event</a></code>
-          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1568">View Source</a>
+          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1619">View Source</a>
           <a href="classIndex.html#msiempy.event.FieldFilter">(View In Hierarchy)</a>
         </span>
       </div>
@@ -42,40 +42,17 @@
       </div>
 
       <div class="moduleDocstring">
-        <div><p class="pre">Based on EsmFieldFilter SIEM api doc.
-
-This class is automatically used when instanciating `EventManager` objects to dump filters in the right `dict` format if tuples are gave as the `filters` argument like:
-
-```
-e = EventManager(time_range='LAST_MINUTE', filters=[ ('SrcIP', ['10.5.0.0/16']) ])
-```
-
-Default operator is `"IN"`.
-
-To change the operator, create a `FieldFilter`:
-Exemple to filter by Signature ID.
-
-```
-e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', ["49190-4294967295"], operator='EQUALS') ])
-```
-
-.. note:: Make sure the filter name is valid by checking the result of `msiempy.event.EventManager.get_possible_filters` or use the provided script in the sample folder
-
-:param name: field name as string
-:param values: list of values the field is going to be tested againts with the specified orperator
-:param orperator: IN
-:param NOT_IN: 
-:param GREATER_THAN: 
-:param LESS_THAN: 
-:param GREATER_OR_EQUALS_THAN: 
-:param LESS_OR_EQUALS_THAN: 
-:param NUMERIC_EQUALS: 
-:param NUMERIC_NOT_EQUALS: 
-:param DOES_NOT_EQUAL: 
-:param EQUALS: 
-:param CONTAINS: 
-:param DOES_NOT_CONTAIN: 
-:param REGEX: </p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">name</td><td>field name as string</td></tr><tr><td></td><td class="fieldArg">values</td><td>list of values the field is going to be tested againts with the specified orperator</td></tr><tr><td></td><td class="fieldArg">orperator</td><td>IN</td></tr><tr><td></td><td class="fieldArg">NOT_IN</td><td></td></tr><tr><td></td><td class="fieldArg">GREATER_THAN</td><td></td></tr><tr><td></td><td class="fieldArg">LESS_THAN</td><td></td></tr><tr><td></td><td class="fieldArg">GREATER_OR_EQUALS_THAN</td><td></td></tr><tr><td></td><td class="fieldArg">LESS_OR_EQUALS_THAN</td><td></td></tr><tr><td></td><td class="fieldArg">NUMERIC_EQUALS</td><td></td></tr><tr><td></td><td class="fieldArg">NUMERIC_NOT_EQUALS</td><td></td></tr><tr><td></td><td class="fieldArg">DOES_NOT_EQUAL</td><td></td></tr><tr><td></td><td class="fieldArg">EQUALS</td><td></td></tr><tr><td></td><td class="fieldArg">CONTAINS</td><td></td></tr><tr><td></td><td class="fieldArg">DOES_NOT_CONTAIN</td><td></td></tr><tr><td></td><td class="fieldArg">REGEX</td><td></td></tr></table></div>
+        <div><p>Based on EsmFieldFilter SIEM api doc.</p>
+<p>This class is automatically used when instanciating <a href="msiempy.event.EventManager.html"><code>EventManager</code></a> objects to dump filters in the right <a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a> format if tuples are gave as the <code>filters</code> argument like:</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span>e = EventManager(time_range=<span class="py-string">'LAST_MINUTE'</span>, filters=[ (<span class="py-string">'SrcIP'</span>, [<span class="py-string">'10.5.0.0/16'</span>]) ])</pre><p>Default operator is <code>"IN"</code>.</p>
+<p>To change the operator, create a <a href="msiempy.event.FieldFilter.html"><code>FieldFilter</code></a>:
+Exemple to filter by Signature ID.</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span>e = EventManager(time_range=<span class="py-string">'LAST_24_HOURS'</span>, filters=[ FieldFilter(<span class="py-string">'DSIDSigID'</span>, [<span class="py-string">"49190-4294967295"</span>], operator=<span class="py-string">'EQUALS'</span>) ])</pre><p>Note:</p>
+<blockquote>
+Make sure the filter name is valid by checking the result of <a href="msiempy.event.EventManager.html#get_possible_filters"><code>msiempy.event.EventManager.get_possible_filters</code></a> or use the provided script in the sample folder</blockquote>
+</div>
       </div>
 
       <div id="splitTables">
@@ -90,17 +67,17 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
     
     <td>Method</td>
     <td><a href="msiempy.event.FieldFilter.html#__init__" class="code" data-type="Method">__init__</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td><span>Args:</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><a href="msiempy.event.FieldFilter.html#operator" class="code" data-type="Method">operator</a></td>
-    <td><span></span></td>
+    <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><a href="msiempy.event.FieldFilter.html#values" class="code" data-type="Method">values</a></td>
-    <td><span></span></td>
+    <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="instancevariable">
     
     <td>Instance Variable</td>
@@ -130,7 +107,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
     
     <td>Method</td>
     <td><a href="msiempy.event.FieldFilter.html#add_basic_value" class="code" data-type="Method">add_basic_value</a></td>
-    <td><span>Wrapper arround <a href="msiempy.event.FieldFilter.html#add_value"><code>add_value</code></a> method to simply add a <code>EsmBasicValue</code>.</span></td>
+    <td><span>Wrapper arround <a href="msiempy.event.FieldFilter.html#add_value"><code>add_value</code></a> method to simply add a <tt class="rst-docutils literal">EsmBasicValue</tt>.</span></td>
   </tr><tr class="instancevariable private">
     
     <td>Instance Variable</td>
@@ -160,7 +137,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
   </a>
   <div class="functionHeader">
     DOCUMENTED_FILTERS =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1610">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1648">
       
       (source)
     </a>
@@ -181,7 +158,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
     
     def
     __init__(self, name, values, operator="""IN"""):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1850">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1888">
       
       (source)
     </a>
@@ -189,7 +166,27 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
   <div class="docstring functionBody">
     
     
-    <div class="undocumented">Undocumented</div>
+    <div><p>Args:</p>
+<blockquote>
+<p>name (str): field name as string. Field name property. Example : <code>SrcIP</code>. See full list here: <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json" target="_top">https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json</a></p>
+<p>values (list): list of values the field is going to be tested againts with the specified orperator.</p>
+<dl class="rst-docutils">
+<dt>orperator (str): <tt class="rst-docutils literal">IN</tt>,</dt>
+<dd><tt class="rst-docutils literal">NOT_IN</tt>,
+<tt class="rst-docutils literal">GREATER_THAN</tt>,
+<tt class="rst-docutils literal">LESS_THAN</tt>,
+<tt class="rst-docutils literal">GREATER_OR_EQUALS_THAN</tt>,
+<tt class="rst-docutils literal">LESS_OR_EQUALS_THAN</tt>,
+<tt class="rst-docutils literal">NUMERIC_EQUALS</tt>,
+<tt class="rst-docutils literal">NUMERIC_NOT_EQUALS</tt>,
+<tt class="rst-docutils literal">DOES_NOT_EQUAL</tt>,
+<tt class="rst-docutils literal">EQUALS</tt>,
+<tt class="rst-docutils literal">CONTAINS</tt>,
+<tt class="rst-docutils literal">DOES_NOT_CONTAIN</tt>,
+<tt class="rst-docutils literal">REGEX</tt></dd>
+</dl>
+</blockquote>
+</div>
   </div>
 </div><div class="baseinstancevariable private">
   
@@ -201,7 +198,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
   </a>
   <div class="functionHeader">
     _operator =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1854">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1913">
       
       (source)
     </a>
@@ -220,7 +217,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
   </a>
   <div class="functionHeader">
     _values =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1855">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1914">
       
       (source)
     </a>
@@ -241,7 +238,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
     @operator.setter<br />
     def
     operator(self, operator):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1916">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1973">
       
       (source)
     </a>
@@ -249,7 +246,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
   <div class="docstring functionBody">
     
     
-    <div><table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">operator</td><td></td></tr></table></div>
+    <div class="undocumented">Undocumented</div>
   </div>
 </div><div class="basemethod">
   
@@ -263,7 +260,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
     @values.setter<br />
     def
     values(self, values):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1950">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L2001">
       
       (source)
     </a>
@@ -271,7 +268,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
   <div class="docstring functionBody">
     
     
-    <div><table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">values</td><td></td></tr></table></div>
+    <div class="undocumented">Undocumented</div>
   </div>
 </div><div class="baseinstancevariable">
   
@@ -283,7 +280,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
   </a>
   <div class="functionHeader">
     name =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1860">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1919">
       
       (source)
     </a>
@@ -302,7 +299,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
   </a>
   <div class="functionHeader">
     data =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1865">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1924">
       
       (source)
     </a>
@@ -321,7 +318,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
   </a>
   <div class="functionHeader">
     POSSIBLE_OPERATORS =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1880">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1939">
       
       (source)
     </a>
@@ -340,7 +337,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
   </a>
   <div class="functionHeader">
     POSSIBLE_VALUE_TYPES =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1897">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1956">
       
       (source)
     </a>
@@ -361,7 +358,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
     
     def
     add_value(self, type=None, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1980">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L2026">
       
       (source)
     </a>
@@ -369,7 +366,22 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
   <div class="docstring functionBody">
     
     
-    <div>Add a new value to the filter.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">type</td><td>str (Default value = None)</td></tr><tr><td></td><td class="fieldArg">Dynamic</td><td>arguments</td></tr><tr><td></td><td class="fieldArg">value</td><td>str</td></tr><tr><td></td><td class="fieldArg">watchlist</td><td>int</td></tr><tr><td></td><td class="fieldArg">variable</td><td>int</td></tr><tr><td></td><td class="fieldArg">values</td><td>list</td></tr><tr><td></td><td class="fieldArg">**kwargs</td><td></td></tr><tr class="fieldStart"><td class="fieldName">Raises</td><td class="fieldArg">Note</td><td>Filtering query with other type of filter than</td></tr></table></div>
+    <div><p>Add a new value to the filter.</p>
+<p>Args:</p>
+<blockquote>
+<p>type (str): Type of the value</p>
+<p>value (str): If <tt class="rst-docutils literal">type</tt> is <tt class="rst-docutils literal">"EsmBasicValue"</tt></p>
+<p>watchlist (int): If <tt class="rst-docutils literal">type</tt> is <tt class="rst-docutils literal">"EsmWatchlistValue"</tt></p>
+<p>variable (int): If <tt class="rst-docutils literal">type</tt> is <tt class="rst-docutils literal">"EsmVariableValue"</tt></p>
+<p>values (list): If <tt class="rst-docutils literal">type</tt> is <tt class="rst-docutils literal">"EsmCompoundValue"</tt></p>
+</blockquote>
+<p>Raises:</p>
+<blockquote>
+<a href="https://docs.python.org/3/library/exceptions.html#KeyError"><code>KeyError</code></a> or <a href="https://docs.python.org/3/library/exceptions.html#AttributeError"><code>AttributeError</code></a> if you don't respect the correct type/key/value combo.</blockquote>
+<p>Note:</p>
+<blockquote>
+Filtering query with other type of filter than <code>EsmBasicValue</code> is not tested.</blockquote>
+</div>
   </div>
 </div><div class="basemethod">
   
@@ -383,7 +395,7 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
     
     def
     add_basic_value(self, value):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L2037">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L2094">
       
       (source)
     </a>
@@ -391,13 +403,13 @@ e = EventManager(time_range='LAST_24_HOURS', filters=[ FieldFilter('DSIDSigID', 
   <div class="docstring functionBody">
     
     
-    <div>Wrapper arround <a href="msiempy.event.FieldFilter.html#add_value"><code>add_value</code></a> method to simply add a <code>EsmBasicValue</code>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">value</td><td></td></tr></table></div>
+    <div>Wrapper arround <a href="msiempy.event.FieldFilter.html#add_value"><code>add_value</code></a> method to simply add a <tt class="rst-docutils literal">EsmBasicValue</tt>.</div>
   </div>
 </div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 14:26:43.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 18:59:03.
       </address>
 
     </div>

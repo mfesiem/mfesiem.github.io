@@ -1,0 +1,790 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>msiempy.event.EventManager : API documentation</title>
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">
+            msiempy API Documentation
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div id="showPrivate">
+      <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+    </div>
+
+    <div class="container">
+
+      <div class="page-header">
+        <h1 class="class"><code>msiempy.event.EventManager(<a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">_QueryExecuteManager</a>)</code> <small>class documentation</small></h1>
+
+        <span id="partOf">
+          Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.event.html" class="code" data-type="Module">event</a></code>
+          <a href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L140">View Source</a>
+          <a href="classIndex.html#msiempy.event.EventManager">(View In Hierarchy)</a>
+        </span>
+      </div>
+
+      <div class="extrasDocstring">
+        
+      </div>
+
+      <div class="moduleDocstring">
+        <div><p>List-Like object.</p>
+<p>Interface to execute a event query.</p>
+<table class="fieldTable"></table></div>
+      </div>
+
+      <div id="splitTables">
+        <table class="children sortable" id="id42">
+  
+  <tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.EventManager.html#order" class="code" data-type="Method">order</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="classvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.event.EventManager.html#POSSBILE_ROW_ORDER" class="code" data-type="Class Variable">POSSBILE_ROW_ORDER</a></td>
+    <td><span><code>ASCENDING</code> or <code>DESCENDING</code></span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.EventManager.html#__init__" class="code" data-type="Method">__init__</a></td>
+    <td><span>Create a new event query.</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.EventManager.html#fields" class="code" data-type="Instance Variable">fields</a></td>
+    <td><span>List of query fields</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.EventManager.html#limit" class="code" data-type="Instance Variable">limit</a></td>
+    <td><span>Maximum number of rows per query.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.EventManager.html#clear_filters" class="code" data-type="Method">clear_filters</a></td>
+    <td><span>Replace all filters by a non filtering rule. Acts like there is not filters.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.EventManager.html#qry_load_data" class="code" data-type="Method">qry_load_data</a></td>
+    <td><span>Internal</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.EventManager.html#load_data" class="code" data-type="Method">load_data</a></td>
+    <td><span><strong>Load the events data into the list.</strong> Wraps around <a href="msiempy.event.EventManager.html#qry_load_data"><code>msiempy.event.EventManager.qry_load_data</code></a>.</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.EventManager.html#data" class="code" data-type="Instance Variable">data</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.EventManager.html#get_possible_fields" class="code" data-type="Method">get_possible_fields</a></td>
+    <td><span>Return the list of possible fields that you can request in a Events query. The list is loaded from the SIEM.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.EventManager.html#get_possible_filters" class="code" data-type="Method">get_possible_filters</a></td>
+    <td><span>Return the list of possible fields that you can use as a filter in a query. The list is loaded from the SIEM.</span></td>
+  </tr><tr class="classvariable private">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.event.EventManager.html#_GROUPTYPE" class="code" data-type="Class Variable">_GROUPTYPE</a></td>
+    <td><span><code>NO_GROUP</code>: EventManager handles only events see <a href="msiempy.event.GroupedEventManager.html"><code>GroupedEventManager</code></a> for grouped queries</span></td>
+  </tr><tr class="instancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.EventManager.html#_parent" class="code" data-type="Instance Variable">_parent</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.EventManager.html#_order_direction" class="code" data-type="Instance Variable">_order_direction</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.EventManager.html#_order_field" class="code" data-type="Instance Variable">_order_field</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.EventManager.html#_filters" class="code" data-type="Instance Variable">_filters</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.EventManager.html#_root_parent" class="code" data-type="Method">_root_parent</a></td>
+    <td><span>Internal method that return the first query of the query tree.</span></td>
+  </tr>
+</table>
+        
+          <p class="inheritedFrom">
+            Inherited from <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">_QueryExecuteManager</a>:
+          </p>
+          <table class="children sortable" id="id43">
+  
+  <tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event._QueryExecuteManager.html#add_filter" class="code" data-type="Method">add_filter</a></td>
+    <td><span>Add a filter to the query. Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</code> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a>.</span></td>
+  </tr><tr class="basestaticmethod">
+    
+    <td>Static Method</td>
+    <td><a href="msiempy.event._QueryExecuteManager.html#get_field_nickname" class="code" data-type="Static Method">get_field_nickname</a></td>
+    <td><span>Resolve SIEM events field nickname base on <a href="msiempy.event.Event.html#SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME"><code>Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</code></a> mapping. Returns the valid query field nickname if found else the initial value.</span></td>
+  </tr><tr class="baseclassvariable private">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.event._QueryExecuteManager.html#_TYPE" class="code" data-type="Class Variable">_TYPE</a></td>
+    <td><span><code>EVENT</code>: Flow queries are not implemented (yet)</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event._QueryExecuteManager.html#_get_filters" class="code" data-type="Method">_get_filters</a></td>
+    <td><span>Returns SIEM formatted filters for the query structured from <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> and/or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.core.query.FilteredQueryList.filters</code></a>.</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event._QueryExecuteManager.html#_close_query" class="code" data-type="Method">_close_query</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event._QueryExecuteManager.html#_wait_for" class="code" data-type="Method">_wait_for</a></td>
+    <td><span>Internal method called by qry_load_data Wait and sleep - for <code>sleep_time</code> duration in seconds - until the query is completed or retry countdown arrives at zero.</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event._QueryExecuteManager.html#_get_events" class="code" data-type="Method">_get_events</a></td>
+    <td><span>Internal method that will get the query events, called by qry_load_data by default, numRows correspond to limit</span></td>
+  </tr>
+</table>
+          
+          <p class="inheritedFrom">
+            Inherited from <a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a> (via <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">_QueryExecuteManager</a>):
+          </p>
+          <table class="children sortable" id="id44">
+  
+  <tr class="baseinstancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#not_completed" class="code" data-type="Instance Variable">not_completed</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="baseinstancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#filters" class="code" data-type="Instance Variable">filters</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="baseinstancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#start_time" class="code" data-type="Instance Variable">start_time</a></td>
+    <td><span class="undocumented">No summary</span></td>
+  </tr><tr class="baseinstancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#end_time" class="code" data-type="Instance Variable">end_time</a></td>
+    <td><span class="undocumented">No summary</span></td>
+  </tr><tr class="baseinstancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#time_range" class="code" data-type="Instance Variable">time_range</a></td>
+    <td><span>Query time range. Defaults to "CURRENT_DAY".</span></td>
+  </tr><tr class="baseclassvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#DEFAULT_TIME_RANGE" class="code" data-type="Class Variable">DEFAULT_TIME_RANGE</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="baseclassvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#POSSIBLE_TIME_RANGE" class="code" data-type="Class Variable">POSSIBLE_TIME_RANGE</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="baseinstancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_time_range" class="code" data-type="Instance Variable">_time_range</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="baseinstancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_start_time" class="code" data-type="Instance Variable">_start_time</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="baseinstancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_end_time" class="code" data-type="Instance Variable">_end_time</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_get_time_range" class="code" data-type="Method">_get_time_range</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_set_time_range" class="code" data-type="Method">_set_time_range</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_get_start_time" class="code" data-type="Method">_get_start_time</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_set_start_time" class="code" data-type="Method">_set_start_time</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_get_end_time" class="code" data-type="Method">_get_end_time</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_set_end_time" class="code" data-type="Method">_set_end_time</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_set_filters" class="code" data-type="Method">_set_filters</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr>
+</table>
+          
+          <p class="inheritedFrom">
+            Inherited from <a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a> (via <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">_QueryExecuteManager</a>, <a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>):
+          </p>
+          <table class="children sortable" id="id45">
+  
+  <tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#__str__" class="code" data-type="Method">__str__</a></td>
+    <td><span>str(obj) -&gt; return text string.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#keys" class="code" data-type="Method">keys</a></td>
+    <td><span>List items keys. Every items should have the same set of keys.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#get_text" class="code" data-type="Method">get_text</a></td>
+    <td><span>Return a csv or table string representation of the list</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#text" class="code" data-type="Method">text</a></td>
+    <td><span>Defaut table string, a shorcut to <code>get_text()</code> with no arguments.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#json" class="code" data-type="Method">json</a></td>
+    <td><span>JSON list of dicts representing the list.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#search" class="code" data-type="Method">search</a></td>
+    <td><span class="undocumented">No summary</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#refresh" class="code" data-type="Method">refresh</a></td>
+    <td><span>Execute refresh function on all items.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#perform" class="code" data-type="Method">perform</a></td>
+    <td><span>Wrapper arround executable and the a list of elements, typically <a href="msiempy.core.types.NitroList.html"><code>msiempy.core.types.NitroList</code></a> object.</span></td>
+  </tr><tr class="basestaticmethod private">
+    
+    <td>Static Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#_confirm_func" class="code" data-type="Static Method">_confirm_func</a></td>
+    <td><span>Ask user inut to confirm the calling of <code>func</code> on <code>elements</code>.</span></td>
+  </tr>
+</table>
+          
+          <p class="inheritedFrom">
+            Inherited from <a href="msiempy.core.types.NitroObject.html" class="code" data-type="Class">NitroObject</a> (via <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">_QueryExecuteManager</a>, <a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>, <a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>):
+          </p>
+          <table class="children sortable" id="id46">
+  
+  <tr class="baseclass">
+    
+    <td>Class</td>
+    <td><a href="msiempy.core.types.NitroObject.NitroJSONEncoder.html" class="code" data-type="Class">NitroJSONEncoder</a></td>
+    <td><span>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject. TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict.</span></td>
+  </tr><tr class="baseinstancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.types.NitroObject.html#nitro" class="code" data-type="Instance Variable">nitro</a></td>
+    <td><span><a href="msiempy.core.session.NitroSession.html"><code>msiempy.core.session.NitroSession</code></a> object. Interface to the SIEM.</span></td>
+  </tr>
+</table>
+          
+
+          
+      </div>
+
+      <div id="childList">
+
+        <div class="basemethod">
+  
+  <a name="msiempy.event.EventManager.order">
+    
+  </a>
+  <a name="order">
+    
+  </a>
+  <div class="functionHeader">
+    @order.setter<br />
+    def
+    order(self, order):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L229">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="baseclassvariable private">
+  
+  <a name="msiempy.event.EventManager._GROUPTYPE">
+    
+  </a>
+  <a name="_GROUPTYPE">
+    
+  </a>
+  <div class="functionHeader">
+    _GROUPTYPE =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L150">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><code>NO_GROUP</code>: EventManager handles only events see <a href="msiempy.event.GroupedEventManager.html"><code>GroupedEventManager</code></a> for grouped queries</div> (type: <code>str</code>)
+  </div>
+</div><div class="baseclassvariable">
+  
+  <a name="msiempy.event.EventManager.POSSBILE_ROW_ORDER">
+    
+  </a>
+  <a name="POSSBILE_ROW_ORDER">
+    
+  </a>
+  <div class="functionHeader">
+    POSSBILE_ROW_ORDER =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L152">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><code>ASCENDING</code> or <code>DESCENDING</code></div> (type: <code>List[str]</code>)
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.EventManager.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    __init__(self, *args, **kwargs):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L155">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.event._QueryExecuteManager.html#__init__" class="code" data-type="Method">msiempy.event._QueryExecuteManager.__init__</a></div>
+    
+    <div><p>Create a new event query.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><a href="msiempy.event.EventManager.html#fields"><code>fields</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> of <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Query fields</li>
+<li><a href="msiempy.event.EventManager.html#order"><code>order</code></a> (<tt class="rst-docutils literal">tuple(direction, field)</tt>. Direction can be "ASCENDING" or "DESCENDING"): Query order direction and field</li>
+<li><a href="msiempy.event.EventManager.html#limit"><code>limit</code></a> (int): Max number of rows per query result.</li>
+<li><code>filters</code> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> of <tt class="rst-docutils literal">tuple(field, [values])</tt> or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a>): Query filters</li>
+<li><code>time_range</code> (str): Query time range. No need to specify "CUSTOM" if <code>start_time</code> and <code>end_time</code> are set.</li>
+<li><code>start_time</code> ( <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> (Parsed with <tt class="rst-docutils literal">dateutil</tt>) or <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a>): Query start time</li>
+<li><code>end_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> (Parsed with <tt class="rst-docutils literal">dateutil</tt>) or <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime"><code>datetime</code></a>): Query end time</li>
+</ul>
+</dd>
+<dt>Note:</dt>
+<dd>Some minimal fields will always be present. Get the list of possible fields with <a href="msiempy.event.EventManager.html#get_possible_fields"><code>msiempy.event.EventManager.get_possible_fields</code></a></dd>
+<dt>See:</dt>
+<dd><a href="msiempy.event.Event.html"><code>msiempy.event.Event</code></a></dd>
+</dl>
+</div>
+  </div>
+</div><div class="baseinstancevariable private">
+  
+  <a name="msiempy.event.EventManager._parent">
+    
+  </a>
+  <a name="_parent">
+    
+  </a>
+  <div class="functionHeader">
+    _parent =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L181">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  <a name="msiempy.event.EventManager.fields">
+    
+  </a>
+  <a name="fields">
+    
+  </a>
+  <div class="functionHeader">
+    fields =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L184">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div>List of query fields</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  <a name="msiempy.event.EventManager.limit">
+    
+  </a>
+  <a name="limit">
+    
+  </a>
+  <div class="functionHeader">
+    limit =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L202">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div>Maximum number of rows per query.</div>
+  </div>
+</div><div class="baseinstancevariable private">
+  
+  <a name="msiempy.event.EventManager._order_direction">
+    
+  </a>
+  <a name="_order_direction">
+    
+  </a>
+  <div class="functionHeader">
+    _order_direction =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L238">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div> (type: <code>str</code>)
+  </div>
+</div><div class="baseinstancevariable private">
+  
+  <a name="msiempy.event.EventManager._order_field">
+    
+  </a>
+  <a name="_order_field">
+    
+  </a>
+  <div class="functionHeader">
+    _order_field =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L239">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div> (type: <code>str</code>)
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.EventManager.clear_filters">
+    
+  </a>
+  <a name="clear_filters">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    clear_filters(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L246">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#clear_filters" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.clear_filters</a></div>
+    
+    <div>Replace all filters by a non filtering rule.
+Acts like there is not filters.</div>
+  </div>
+</div><div class="baseinstancevariable private">
+  
+  <a name="msiempy.event.EventManager._filters">
+    
+  </a>
+  <a name="_filters">
+    
+  </a>
+  <div class="functionHeader">
+    _filters =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L251">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.event._QueryExecuteManager.html#_filters" class="code" data-type="Instance Variable">msiempy.event._QueryExecuteManager._filters</a></div>
+    <div class="undocumented">Undocumented</div> (type: <code>List[Dict]</code>)
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.EventManager.qry_load_data">
+    
+  </a>
+  <a name="qry_load_data">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    qry_load_data(self, retry=1, wait_timeout_sec=120):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L260">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#qry_load_data" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.qry_load_data</a></div>
+    
+    <div><p>Internal</p>
+<dl class="rst-docutils">
+<dt>Helper method to execute the query and load the data:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li>Submit the query</li>
+<li>Wait the query to be executed</li>
+<li>Get and parse the events</li>
+</ul>
+</dd>
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>retry</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): number of time the query can be failed and retried.  1 by default.</li>
+<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): wait timeout in seconds. 120 by default.</li>
+</ul>
+</dd>
+<dt>Returns :</dt>
+<dd><a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a>: (( <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a>, Query completed? <code>True/False</code> ))</dd>
+<dt>Raises:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><a href="msiempy.core.session.NitroError.html"><code>msiempy.core.session.NitroError</code></a> if any unhandled errors.</li>
+<li><a href="https://docs.python.org/3/library/exceptions.html#TimeoutError"><code>TimeoutError</code></a> if <tt class="rst-docutils literal">wait_timeout_sec</tt> counter gets to 0.</li>
+</ul>
+</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.EventManager.load_data">
+    
+  </a>
+  <a name="load_data">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L328">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#load_data" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.load_data</a></div>
+    
+    <div><p><strong>Load the events data into the list.</strong>
+Wraps around <a href="msiempy.event.EventManager.html#qry_load_data"><code>msiempy.event.EventManager.qry_load_data</code></a>.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><dl class="rst-first rst-docutils">
+<dt><code>max_query_depth</code> <span class="classifier-delimiter">:</span> <span class="rst-classifier">Positive value splits the query in differents time slots if the query apprears not to be completed.</span></dt>
+<dd>Divisions are reccursive, <code>max_query_depth</code> is the maximum number of reccursive calls <code>load_data()</code> can apply to the query in order to load all events.
+Meaning, if <code>EventManager.limit=500</code>, <code>slots=10 `and `max_query_depth=2</code>, then the maximum capacity of
+the list is <code>(500*10)*(500*10)</code> = <code>25000000</code> (instead of <code>500</code> with <code>max_query_depth=0</code>).  Only works with custom times and a few time ranges...</dd>
+</dl>
+</li>
+<li><dl class="rst-first rst-docutils">
+<dt><code>slots</code> <span class="classifier-delimiter">:</span> <span class="rst-classifier">number of time slots the query can be divided. The loading bar is</span></dt>
+<dd>divided according to the number of slots. Applicable if max_query_depth&gt;0.</dd>
+</dl>
+</li>
+<li><dl class="rst-first rst-docutils">
+<dt><code>delta</code> <span class="classifier-delimiter">:</span> <span class="rst-classifier">exemple</span> <span class="classifier-delimiter">:</span> <span class="rst-classifier">'2h', the query will be firstly divided in chuncks according to the time delta read</span></dt>
+<dd>with dateutil. Applicable if max_query_depth&gt;0.</dd>
+</dl>
+</li>
+<li><code>workers</code> : numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if max_query_depth&gt;0.</li>
+<li><code>retry</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): number of time the query can be failed and retried.  1 by default.</li>
+<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): wait timeout in seconds. 120 by default.</li>
+</ul>
+</dd>
+<dt>Note:</dt>
+<dd>Only the first query is loaded asynchronously.</dd>
+<dt>Returns:</dt>
+<dd><a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a></dd>
+</dl>
+</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  <a name="msiempy.event.EventManager.data">
+    
+  </a>
+  <a name="data">
+    
+  </a>
+  <div class="functionHeader">
+    data =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L427">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.event.EventManager._root_parent">
+    
+  </a>
+  <a name="_root_parent">
+    
+  </a>
+  <div class="functionHeader">
+    @property<br />
+    def
+    _root_parent(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L430">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Internal method that return the first query of the query tree.</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.EventManager.get_possible_fields">
+    
+  </a>
+  <a name="get_possible_fields">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    get_possible_fields(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L440">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Return the list of possible fields that you can request in a Events query.
+The list is loaded from the SIEM.</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.event.EventManager.get_possible_filters">
+    
+  </a>
+  <a name="get_possible_filters">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    get_possible_filters(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L449">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Return the list of possible fields that you can use as a filter in a query.
+The list is loaded from the SIEM.</div>
+  </div>
+</div>
+
+      </div>
+      <address>
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 00:42:03.
+      </address>
+
+    </div>
+
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>

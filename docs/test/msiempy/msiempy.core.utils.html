@@ -112,7 +112,7 @@
     
     <td>Function</td>
     <td><a href="msiempy.core.utils.html#nitro_tz" class="code" data-type="Function">nitro_tz</a></td>
-    <td><span class="undocumented">Broken description</span></td>
+    <td><span>Maps McAfee SIEM/Nitro ESM internal timezone IDs to the tz database at: <a class="rst-reference external" href="http://web.cs.ucla.edu/~eggert/tz/tz-link.htm" target="_top">http://web.cs.ucla.edu/~eggert/tz/tz-link.htm</a></span></td>
   </tr>
 </table>
         
@@ -356,28 +356,40 @@ Return list of tuple</div>
   <div class="docstring functionBody">
     
     
-    <div><p class="pre">For input :
-
-    columns = [{'name': 'Alert.LastTime'}, {'name': 'Rule.msg'}, {'name': 'Alert.DstIP'}, {'name': 'Alert.IPSIDAlertID'}]
-    rows =
-        [
-            {'values': ['09/22/2020 15:51:14', 'Postfix Disconnect from host', '::', '144116287604260864|547123']},
-            {'values': ['09/22/2020 15:51:14', 'Postfix Lost connection from host', '::', '144116287604260864|547122']}
-        }
-
-Returns :
-
-    [
-        {
-            "Alert.LastTime":"09/22/2020 15:51:14",
-            "Rule.msg":"Postfix Disconnect from host",
-            "Alert.DstIP":"::",
-            "Alert.IPSIDAlertID":"144116287604260864|547123"
-        },
-        {
-            ...
-        },
-    ]</p></div>
+    <div><p>For input :</p>
+<blockquote>
+<p>columns = [{'name': 'Alert.LastTime'}, {'name': 'Rule.msg'}, {'name': 'Alert.DstIP'}, {'name': 'Alert.IPSIDAlertID'}]
+rows =</p>
+<blockquote>
+<dl class="rst-docutils">
+<dt>[</dt>
+<dd>{'values': ['09/22/2020 15:51:14', 'Postfix Disconnect from host', '::', '144116287604260864|547123']},
+{'values': ['09/22/2020 15:51:14', 'Postfix Lost connection from host', '::', '144116287604260864|547122']}</dd>
+</dl>
+<p>}</p>
+</blockquote>
+</blockquote>
+<p>Returns :</p>
+<blockquote>
+<dl class="rst-docutils">
+<dt>[</dt>
+<dd><dl class="rst-first rst-docutils">
+<dt>{</dt>
+<dd>"Alert.LastTime":"09/22/2020 15:51:14",
+"Rule.msg":"Postfix Disconnect from host",
+"Alert.DstIP":"::",
+"Alert.IPSIDAlertID":"144116287604260864|547123"</dd>
+</dl>
+<p>},
+{</p>
+<blockquote>
+...</blockquote>
+<p class="rst-last">},</p>
+</dd>
+</dl>
+<p>]</p>
+</blockquote>
+</div>
   </div>
 </div><div class="basefunction">
   
@@ -399,19 +411,22 @@ Returns :
   <div class="docstring functionBody">
     
     
-    <div><p class="pre">Format fields names to cann query module.
-
-Arguments:
-
-- `fields`: list of fields, i.e. `['field1','name','user']`
-
-Returns:
-
-    [
-        {'name':'field1'},
-        {'name':'name'},
-        {'name':'user'},
-    ]</p></div>
+    <div><p>Format fields names to cann query module.</p>
+<p>Arguments:</p>
+<ul class="rst-simple">
+<li><code>fields</code>: list of fields, i.e. <code>['field1','name','user']</code></li>
+</ul>
+<p>Returns:</p>
+<blockquote>
+<dl class="rst-docutils">
+<dt>[</dt>
+<dd>{'name':'field1'},
+{'name':'name'},
+{'name':'user'},</dd>
+</dl>
+<p>]</p>
+</blockquote>
+</div>
   </div>
 </div><div class="basefunction">
   
@@ -433,16 +448,14 @@ Returns:
   <div class="docstring functionBody">
     
     
-    <div><p class="pre">Parse a time string e.g. (`2h13m`) into a timedelta object.
-
-Modified from virhilo's answer at https://stackoverflow.com/a/4628148/851699
-
-Arguments:
-
-- `time_str`: A string identifying a duration.  (eg. `2h13m`)
-
-
-Returns `datetime.timedelta`: A datetime.timedelta object</p></div>
+    <div><p>Parse a time string e.g. (<code>2h13m</code>) into a timedelta object.</p>
+<p>Modified from virhilo's answer at <a class="rst-reference external" href="https://stackoverflow.com/a/4628148/851699" target="_top">https://stackoverflow.com/a/4628148/851699</a></p>
+<p>Arguments:</p>
+<ul class="rst-simple">
+<li><code>time_str</code>: A string identifying a duration.  (eg. <code>2h13m</code>)</li>
+</ul>
+<p>Returns <a href="https://docs.python.org/3/library/datetime.html#datetime.datetime.timedelta"><code>datetime.timedelta</code></a>: A datetime.timedelta object</p>
+</div>
   </div>
 </div><div class="basefunction">
   
@@ -464,20 +477,21 @@ Returns `datetime.timedelta`: A datetime.timedelta object</p></div>
   <div class="docstring functionBody">
     
     
-    <div><p class="pre">Maps McAfee SIEM/Nitro ESM internal timezone IDs to
-the tz database at: http://web.cs.ucla.edu/~eggert/tz/tz-link.htm
-
-Args:
-    tz_id (str/int): McAfee ESM internal timezone ID
-
-Returns:
-    timezone name (str)</p></div>
+    <div><p>Maps McAfee SIEM/Nitro ESM internal timezone IDs to
+the tz database at: <a class="rst-reference external" href="http://web.cs.ucla.edu/~eggert/tz/tz-link.htm" target="_top">http://web.cs.ucla.edu/~eggert/tz/tz-link.htm</a></p>
+<dl class="rst-docutils">
+<dt>Args:</dt>
+<dd>tz_id (str/int): McAfee ESM internal timezone ID</dd>
+<dt>Returns:</dt>
+<dd>timezone name (str)</dd>
+</dl>
+</div>
   </div>
 </div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 02:14:06.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 12:42:16.
       </address>
 
     </div>

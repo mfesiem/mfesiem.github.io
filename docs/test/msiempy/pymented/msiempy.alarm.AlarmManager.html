@@ -42,23 +42,23 @@
       </div>
 
       <div class="moduleDocstring">
-        <div><p class="pre">Interface to query and manage Alarms.
-Inherits from `msiempy.core.query.FilteredQueryList`.
-
-Arguments:
-
-- `status_filter` : status of the alarms to query. `status_filter` is not a filter like other cause it's computed on the SIEM side.
-Accepted values : `acknowledged`, `unacknowledged`, `all`, `` or `None` (default is ``).
-`filters` are computed locally - Unlike `msiempy.event.EventManager` filters.
-- `page_size` : max number of rows per query.
-- `page_number` : defaulted to 1.
-- `filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.alarm.Alarm` objects. A single `tuple` is also accepted.
-- `event_filters` : `[(field, [values]), (field, [values])]` Filters applied to `msiempy.event.Event` objects. A single `tuple` is also accepted.
-- `time_range` : Query time range. String representation of a time range.
-- `start_time` : Query starting time, can be a `string` or a `datetime` object. Parsed with `dateutil`.
-- `end_time` : Query endding time, can be a `string` or a `datetime` object. Parsed with `dateutil`.
-
-**Unlike `EventManager`, filters are computed after the data loaded with regex matching.**</p></div>
+        <div><p>Interface to query and manage Alarms.
+Inherits from <a href="msiempy.core.query.FilteredQueryList.html"><code>msiempy.core.query.FilteredQueryList</code></a>.</p>
+<p>Arguments:</p>
+<ul class="rst-simple">
+<li><a href="msiempy.alarm.AlarmManager.html#status_filter"><code>status_filter</code></a> : status of the alarms to query. <a href="msiempy.alarm.AlarmManager.html#status_filter"><code>status_filter</code></a> is not a filter like other cause it's computed on the SIEM side.</li>
+</ul>
+<p>Accepted values : <code>acknowledged</code>, <code>unacknowledged</code>, <a href="https://docs.python.org/3/library/functions.html#all"><code>all</code></a>, `` or <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a> (default is <a href="#id1"><span class="rst-problematic" id="rst-id2">``</span></a>).
+<code>filters</code> are computed locally - Unlike <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a> filters.
+- <a href="msiempy.alarm.AlarmManager.html#page_size"><code>page_size</code></a> : max number of rows per query.
+- <code>page_number</code> : defaulted to 1.
+- <code>filters</code> : <code>[(field, [values]), (field, [values])]</code> Filters applied to <a href="msiempy.alarm.Alarm.html"><code>msiempy.alarm.Alarm</code></a> objects. A single <a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a> is also accepted.
+- <a href="msiempy.alarm.AlarmManager.html#event_filters"><code>event_filters</code></a> : <code>[(field, [values]), (field, [values])]</code> Filters applied to <a href="msiempy.event.Event.html"><code>msiempy.event.Event</code></a> objects. A single <a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a> is also accepted.
+- <code>time_range</code> : Query time range. String representation of a time range.
+- <code>start_time</code> : Query starting time, can be a <a href="https://docs.python.org/3/library/string.html#string"><code>string</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a> object. Parsed with <code>dateutil</code>.
+- <code>end_time</code> : Query endding time, can be a <a href="https://docs.python.org/3/library/string.html#string"><code>string</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a> object. Parsed with <code>dateutil</code>.</p>
+<p><strong>Unlike `EventManager`, filters are computed after the data loaded with regex matching.</strong></p>
+</div>
       </div>
 
       <div id="splitTables">
@@ -580,26 +580,26 @@ Accepted values : `acknowledged`, `unacknowledged`, `all`, `` or `None` (default
   <div class="docstring functionBody">
     <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#load_data" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.load_data</a></div>
     
-    <div><p class="pre">Load the data into the list.
-Implements automatic paging over `msiempy.alarm.AlarmManager.qry_load_data`.
+    <div><p>Load the data into the list.
+Implements automatic paging over <a href="msiempy.alarm.AlarmManager.html#qry_load_data"><code>msiempy.alarm.AlarmManager.qry_load_data</code></a>.
 Default behaviour is to load all alarms informations. Meaning that foreach alarms,
-the full details is loaded, then the trigerring event details is loaded.
-
-Arguments :
-
-- `pages` : Number of pages to load (not asynchronous).
-
-Arguments passed to `msiempy.alarm.AlarmManager.qry_load_data` :
-
-- `workers` : Number of asynchronous workers
-- `alarms_details` : Load detailed alarms infos. If `False`, only a couple values are loaded, no `events` infos.
-- `events_details` : Load detailed events infos. If `False`, no detailed `events` will be loaded. Only `str` representation for SIEM 10.x and minimal events records from SIEM 11.x.
-- `use_query` : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.
-Default behaviour will call `ipsGetAlertData` to retreive the complete event definition.
-- `extra_fields` :  Only when `use_query=True`. Additionnal event fields to load in the query. See : `msiempy.event.EventManager`
-- `page_number` : Page number, default to 1. Do not touch if you're using `pages` parameter
-
-Returns : `msiempy.alarm.AlarmManager`</p></div>
+the full details is loaded, then the trigerring event details is loaded.</p>
+<p>Arguments :</p>
+<ul class="rst-simple">
+<li><code>pages</code> : Number of pages to load (not asynchronous).</li>
+</ul>
+<p>Arguments passed to <a href="msiempy.alarm.AlarmManager.html#qry_load_data"><code>msiempy.alarm.AlarmManager.qry_load_data</code></a> :</p>
+<ul class="rst-simple">
+<li><code>workers</code> : Number of asynchronous workers</li>
+<li><code>alarms_details</code> : Load detailed alarms infos. If <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>, only a couple values are loaded, no <code>events</code> infos.</li>
+<li><code>events_details</code> : Load detailed events infos. If <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>, no detailed <code>events</code> will be loaded. Only <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> representation for SIEM 10.x and minimal events records from SIEM 11.x.</li>
+<li><code>use_query</code> : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.</li>
+</ul>
+<p>Default behaviour will call <code>ipsGetAlertData</code> to retreive the complete event definition.
+- <code>extra_fields</code> :  Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a>
+- <code>page_number</code> : Page number, default to 1. Do not touch if you're using <code>pages</code> parameter</p>
+<p>Returns : <a href="msiempy.alarm.AlarmManager.html"><code>msiempy.alarm.AlarmManager</code></a></p>
+</div>
   </div>
 </div><div class="baseinstancevariable">
   
@@ -705,7 +705,7 @@ Returns : `msiempy.alarm.AlarmManager`</p></div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 02:14:12.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 12:42:21.
       </address>
 
     </div>

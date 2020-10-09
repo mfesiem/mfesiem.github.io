@@ -42,21 +42,18 @@
       </div>
 
       <div class="moduleDocstring">
-        <div><p class="pre">Base class for list objects.
-
-It offers search and other data list actions.
-
-This classe and subclasses fully implements `list` interface and is suitable for list operations, see: https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range
-
-Concrete classes have to cast the list items in their `__init__` method !
-
-Subclassing requirements: Subclasses of UserList are expected to offer a constructor which can be called with either no arguments or one argument. List operations which return a new sequence attempt to create an instance of the actual implementation class. To do so, it assumes that the constructor can be called with a single parameter, which is a sequence object used as a data source.
+        <div><p>Base class for list objects.</p>
+<p>It offers search and other data list actions.</p>
+<p>This classe and subclasses fully implements <a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> interface and is suitable for list operations, see: <a class="rst-reference external" href="https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range" target="_top">https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range</a></p>
+<p>Concrete classes have to cast the list items in their <a href="msiempy.core.types.NitroList.html#__init__"><code>__init__</code></a> method !</p>
+<p>Subclassing requirements: Subclasses of UserList are expected to offer a constructor which can be called with either no arguments or one argument. List operations which return a new sequence attempt to create an instance of the actual implementation class. To do so, it assumes that the constructor can be called with a single parameter, which is a sequence object used as a data source.
 If a derived class does not wish to comply with this requirement, all of the special methods supported by this class will need to be overridden; please consult the sources for information about the methods which need to be provided in that case.
-See: https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects
-
-Arguments:
-
-- `alist`: list object to wrap.</p></div>
+See: <a class="rst-reference external" href="https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects" target="_top">https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects</a></p>
+<p>Arguments:</p>
+<ul class="rst-simple">
+<li><code>alist</code>: list object to wrap.</li>
+</ul>
+</div>
       </div>
 
       <div id="splitTables">
@@ -304,19 +301,24 @@ csv: Returns data with header and comma separated values.</dd>
   <div class="docstring functionBody">
     <div class="interfaceinfo">overridden in <a href="msiempy.device.DevTree.html" class="code" data-type="Class">msiempy.device.DevTree</a></div>
     
-    <div><p class="pre">Return a list of elements that matches one or more regex patterns.
-Use `|` inside patterns to search with logic OR.
+    <div><p>Return a list of elements that matches one or more regex patterns.
+Use <code>|</code> inside patterns to search with logic OR.
 This method will return a new list with matching data. NitroDicts in the returned NitroList do not
-references the items in the original NitroList.
-
-Arguments:
-    - `pattern`: String regex pattern to look for. More on regex https://docs.python.org/3/library/re.html#re.Pattern.search
-    - `invert`: Weither or not to invert the search and return elements that doesn't not match search.
-    - `fields`: Dictionnary fields to consider in the search, all keys are considered by default.  Patterns are compared to `str` representation of values.  
-
-If you wish to apply more specific filters to list, please
-use filter() or list comprehension.
-    i.e. : `[e for e in events if int(e['severity']) &gt; 50]`</p></div>
+references the items in the original NitroList.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>pattern</code>: String regex pattern to look for. More on regex <a class="rst-reference external" href="https://docs.python.org/3/library/re.html#re.Pattern.search" target="_top">https://docs.python.org/3/library/re.html#re.Pattern.search</a></li>
+<li><code>invert</code>: Weither or not to invert the search and return elements that doesn't not match search.</li>
+<li><code>fields</code>: Dictionnary fields to consider in the search, all keys are considered by default.  Patterns are compared to <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> representation of values.</li>
+</ul>
+</dd>
+</dl>
+<p>If you wish to apply more specific filters to list, please
+use filter() or list comprehension.</p>
+<blockquote>
+i.e. : <code>[e for e in events if int(e['severity']) &gt; 50]</code></blockquote>
+</div>
   </div>
 </div><div class="basemethod">
   
@@ -360,35 +362,42 @@ use filter() or list comprehension.
   <div class="docstring functionBody">
     
     
-    <div><p class="pre">Wrapper arround executable and the a list of elements, typically `msiempy.core.types.NitroList` object.
-
-Arguments:
-
-- `func`: callable function. `func` is going to be called like `func(item, **func_args)` on all items in data.  This function can be stateless (static) or statefull (first argument is `self`),
-it doesn't really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
+    <div><p>Wrapper arround executable and the a list of elements, typically <a href="msiempy.core.types.NitroList.html"><code>msiempy.core.types.NitroList</code></a> object.</p>
+<p>Arguments:</p>
+<ul class="rst-simple">
+<li><code>func</code>: callable function. <code>func</code> is going to be called like <code>func(item, **func_args)</code> on all items in data.  This function can be stateless (static) or statefull (first argument is <code>self</code>),</li>
+</ul>
+<p>it doesn't really matter as the element will always be passed as the first argument of the function. On thing really important, the function must not
 set/delete/change any global variable, as a result, you'll see your varible beeing potentially corrupted or chalenged with conccurent accesses.
-- `data`: if stays `None`, will perform the action on itself (`list(self)`) else it will perfom the action on the `data` list.
-- `func_args`: arguments that will be passed by default to `func` in all calls.
-- `confirm`: will ask interactively confirmation.
-- `asynch`: execute the task asynchronously with `concurrent.futures.ThreadPoolExecutor`. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
+- <a href="msiempy.core.types.NitroDict.html#data"><code>data</code></a>: if stays <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a>, will perform the action on itself (<code>list(self)</code>) else it will perfom the action on the <a href="msiempy.core.types.NitroDict.html#data"><code>data</code></a> list.
+- <code>func_args</code>: arguments that will be passed by default to <code>func</code> in all calls.
+- <code>confirm</code>: will ask interactively confirmation.
+- <code>asynch</code>: execute the task asynchronously with <a href="https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor"><code>concurrent.futures.ThreadPoolExecutor</code></a>. It will create a new executor object, so be carefull not to nest 2 asynchronous executions within eachother,
 it will be a mess.
-- `workers`: number of parrallel tasks, mandatory if asynch is true.
-- `progress`: to show progress bar with ETA (tqdm).
-- `message` : To show to the user.
-
-This method is where the core of asynchronous tasks resides. `func` will be executed on all `data` elements.
-Basically, if `asynch==True`, will return :
-
-    returned=list(concurrent.futures.ThreadPoolExecutor(
-                max_workers=workers ).map(
-                    func, data))
-
-if `asynch==False`, will iterate and return :
-
-    for index_or_item in data:
-        returned.append(func(index_or_item))
-
-Returns a list of returned results.</p></div>
+- <code>workers</code>: number of parrallel tasks, mandatory if asynch is true.
+- <code>progress</code>: to show progress bar with ETA (tqdm).
+- <code>message</code> : To show to the user.</p>
+<p>This method is where the core of asynchronous tasks resides. <code>func</code> will be executed on all <a href="msiempy.core.types.NitroDict.html#data"><code>data</code></a> elements.
+Basically, if <code>asynch==True</code>, will return :</p>
+<blockquote>
+<dl class="rst-docutils">
+<dt>returned=list(concurrent.futures.ThreadPoolExecutor(</dt>
+<dd><dl class="rst-first rst-last rst-docutils">
+<dt>max_workers=workers ).map(</dt>
+<dd>func, data))</dd>
+</dl>
+</dd>
+</dl>
+</blockquote>
+<p>if <code>asynch==False</code>, will iterate and return :</p>
+<blockquote>
+<dl class="rst-docutils">
+<dt>for index_or_item in data:</dt>
+<dd>returned.append(func(index_or_item))</dd>
+</dl>
+</blockquote>
+<p>Returns a list of returned results.</p>
+</div>
   </div>
 </div><div class="basestaticmethod private">
   
@@ -416,7 +425,7 @@ Returns a list of returned results.</p></div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 02:14:12.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 12:42:21.
       </address>
 
     </div>

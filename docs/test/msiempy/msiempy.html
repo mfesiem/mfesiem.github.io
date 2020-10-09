@@ -42,215 +42,192 @@
       </div>
 
       <div class="moduleDocstring">
-        <div><p class="pre">**The pythonic way to deal with the McAfee SIEM API**.  
-
-Looking for a CLI tool? Checkout the msiem CLI https://github.com/mfesiem/msiem  
-
-Already know what you're looking for? Checkout the Class Hierarchy.    
-
-Quick links: 
-- GitHub&lt;https://github.com/mfesiem/msiempy&gt;, 
-- PyPI&lt;https://pypi.org/project/msiempy/&gt;, 
-- Class diagram&lt;https://mfesiem.github.io/docs/msiempy/classes.png&gt;, 
-- Packages diagram&lt;https://mfesiem.github.io/docs/msiempy/packages.png&gt;,
-- other SIEM API references&lt;https://mfesiem.github.io&gt; (generated PDFs and other links)  
-
-Installation
-============
-Run
-
-        python3 -m pip install msiempy
-
-Authentication and configuration setup
-======================================
-
-The module offers a single point of authentication against your SIEM, so you don't have to worry about authentication when writting your scripts. This means that you need to preconfigure the authentication using the configuration file.
-
-The configuration file is located (by default) securely in your user directory since it contains credentials.  
-
-        - For Windows:  ``%APPDATA%\.msiem\conf.ini``
-        - For Mac :     ``$HOME/.msiem/conf.ini``  
-        - For Linux :   ``$XDG_CONFIG_HOME/.msiem/conf.ini`` or ``$HOME/.msiem/conf.ini``
-
-Exemple
-
-        [esm]
-        host = HOST
-        user = USER
-        passwd = PASSWORD's BASE64
-        [general]
-        verbose = no
-        quiet = no
-        logfile = /home/user/.msiem/log.txt
-        timeout = 60
-        ssl_verify = no
-
-
-To set the password, you can use the ``msiempy_setup.py``&lt;https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py&gt; script.  
-You can also directly paste the password's base64 in the config file by doing:  
-
-&gt;&gt;&gt; import base64
-&gt;&gt;&gt; passwd = 'P@assW0rd'
-&gt;&gt;&gt; print(base64.b64encode(passwd.encode('utf-8')).decode())
-UEBhc3NXMHJk
-
-A few usage exemples
-====================
-
-        See also: 
-                The samples folder&lt;https://github.com/mfesiem/msiempy/tree/master/samples&gt; for more, and/or review the tests&lt;https://github.com/mfesiem/msiempy/tree/master/tests&gt;.     
-
-        Execute an event query 
-        ----------------------
-
-        Query events according to destination IP and hostname filters, sorted by AlertID.  
-
-        &gt;&gt;&gt; from  msiempy import EventManager, FieldFilter
-        &gt;&gt;&gt; print('Simple event query sorted by AlertID')
-        &gt;&gt;&gt; events = EventManager(
-                time_range='CURRENT_YEAR',
-                fields=['SrcIP', 'AlertID'], # SrcIP and AlertID are not queried by default
-                filters=[
-                        FieldFilter('DstIP', ['0.0.0.0/0',]),
-                        FieldFilter('HostID', ['mail'], operator='CONTAINS')], # Replace "mail" by a test hostname
-                order=(('ASCENDING', 'AlertID')),
-                limit=10) # Will only load 10 events (per query)
-        &gt;&gt;&gt; events.load_data()
-        &gt;&gt;&gt; print(events)
-        &gt;&gt;&gt; print(events.get_text(fields=['AlertID','LastTime','SrcIP', 'Rule.msg']))
-        
-        Notes: 
-                - The ``limit`` argument should be increased to 500 or 1000 once finish testing for better performance.  
-                - Dump full list of fields usable in query `msiempy.event.FieldFilter` with dump_all_fields.py&lt;https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py&gt; script.  
-        
-        See: 
-                Objects `msiempy.event.EventManager` and `msiempy.event.FieldFilter`
-        
-        Acknowledge alarms
-        ------------------
-
-        Print all ``unacknowledged`` alarms filtered by alarm name and event message
-        
-        match} ``'Test alarm'`` and triggering event message match ``'Wordpress'``.  
-        Then acknowledge the alarms.  
-
-        &gt;&gt;&gt; from msiempy import AlarmManager, Alarm
-        # Make an alarm query
-        &gt;&gt;&gt; alarms=AlarmManager(
-                time_range='CURRENT_YEAR',
-                status_filter='unacknowledged', # passed to alarmGetTriggeredAlarms
-                filters=[('alarmName', 'Test alarm')], # Regex  
-                event_filters=[('ruleName','Wordpress')], # Regex  
-                page_size=5 # Will only load 5 alarms (per page)  
-        ) 
-        # Load the data into the list
-        &gt;&gt;&gt; alarms.load_data() 
-        # Print results
-        &gt;&gt;&gt; print("Alarm list: ")
-        &gt;&gt;&gt; print(alarms)
-        &gt;&gt;&gt; print(alarms.get_text(
-                fields=['id','triggeredDate','acknowledgedDate', 'alarmName', 'acknowledgedUsername']))
-        # Acknowledge alarms
-        &gt;&gt;&gt; print("Acknowledge alarms")
-        &gt;&gt;&gt; for alarm in alarms:
-                alarm.acknowledge()
-        
-        Notes: 
-                - The ``page_size`` argument should be increased to 500 or 1000 once finish testing for better performance.  
-
-                - The `msiempy.alarm.AlarmManager` filtering feature is an addon to what the SIEM API offers, filters are applied locally as regular expressions.  
-
-        See: 
-                Objects `msiempy.alarm.AlarmManager` and `msiempy.alarm.Alarm`
-        
-        Make direct API calls
-        ---------------------
-
-        This is useful when dealing with features of the ESM API that are not explicitly implemented in this library yet (i.e. user managment).  
-
-        **Use the session object** to make direct API calls with any data. 
-
-        &gt;&gt;&gt; from msiempy import NitroSession
-        &gt;&gt;&gt; s = NitroSession()
-        &gt;&gt;&gt; s.login()
-        # Get all last 24h alarms details with ESM API v2 (not supported yet)  
-        &gt;&gt;&gt; alarms = s.api_request('v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1')
-        &gt;&gt;&gt; for a in alarms:
-                a.update(s.api_request('v2/notifyGetTriggeredNotificationDetail', {'id':a['id']}))
-        
-        The session object will handle authentication and intermittent (but annoying) SIEM errors.  
-
-        See: 
-                Object `msiempy.core.session.NitroSession`
-
-        Add a note to events
-        --------------------
-
-        Set the note of 2 events and check if the note is well set.  
-        
-        &gt;&gt;&gt; from  msiempy import EventManager, Event
-        &gt;&gt;&gt; events = EventManager(
-                time_range='CURRENT_YEAR',
-                limit=2 )
-        &gt;&gt;&gt; events.load_data()
-        &gt;&gt;&gt; for event in events :
-                event.set_note("Test note")
-                event.refresh(use_query=False) # Event data will be loaded with ipsGetAlertData API method
-                assert "Test note" in genuine_event['note'], "Error, the note hasn't been added"
-
-        See: 
-                - add_wpsan_note.py&lt;https://github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py&gt; script for more on how to add notes to event that triggered alarms.   
-
-                - Object `msiempy.event.Event`
-
-        Fetch ESM infos
-        ---------------
-
-        Print a few esm infos. ESM object has not state for it self, it's a simple interface to data structures / values returned by the SIEM.  
-        
-        &gt;&gt;&gt; from msiempy import ESM
-        &gt;&gt;&gt; esm=ESM()
-        &gt;&gt;&gt; esm.version()
-        '11.2.1'
-        &gt;&gt;&gt; esm.recs()
-        [('ERC-1', 144116287587483648)]
-        &gt;&gt;&gt; esm.buildstamp()
-        '11.2.1 20190725050014'
-
-        See: 
-                Object `msiempy.device.ESM`
-
-        Add a Datasource 
-        ----------------
-
-        &gt;&gt;&gt; from msiempy import DevTree
-        &gt;&gt;&gt; devtree = DevTree()
-        &gt;&gt;&gt; devtree.add({
-                "name": "Test DS",
-                "parent_id": "144116287587483648",
-                "ds_ip": "10.2.2.2",
-                "hostname": "testds.domain.ca",
-                "type_id": "65"
-        }) 
-        {'value': 1385420} # Wait a bit for the request
-        &gt;&gt;&gt; devtree.refresh() # Refresh the DevTree
-
-        See: 
-                Objects `msiempy.device.DevTree` and `msiempy.device.DataSource`
-        
-        Note: 
-                `msiempy.device.DevTree.add` do not ensure the Datasource is well added, the methods returns a `dict` with the request ID fetched from the SIEM.  There is still place for improvment #82&lt;https://github.com/mfesiem/msiempy/issues/82&gt;.  
-
-        Add values to a Watchlist
-        -------------------------
-
-        &gt;&gt;&gt; wl_list = WatchlistManager()
-        &gt;&gt;&gt; wl = wl_list.search('test_Watchlist')[0]
-        &gt;&gt;&gt; wl.add_values(['1.1.1.2', '2.2.2.1', '3.3.3.1'])
-
-        See: 
-                Objects `msiempy.watchlist.WatchlistManager`, `msiempy.watchlist.Watchlist`
-        </p></div>
+        <div><p><strong>The pythonic way to deal with the McAfee SIEM API</strong>.</p>
+<p>Looking for a CLI tool? Checkout the msiem CLI <a class="rst-reference external" href="https://github.com/mfesiem/msiem" target="_top">https://github.com/mfesiem/msiem</a></p>
+<p>Already know what you're looking for? Checkout the Class Hierarchy.</p>
+<p>Quick links:
+- GitHub&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy" target="_top">https://github.com/mfesiem/msiempy</a>&gt;,
+- PyPI&lt;<a class="rst-reference external" href="https://pypi.org/project/msiempy/" target="_top">https://pypi.org/project/msiempy/</a>&gt;,
+- Class diagram&lt;<a class="rst-reference external" href="https://mfesiem.github.io/docs/msiempy/classes.png" target="_top">https://mfesiem.github.io/docs/msiempy/classes.png</a>&gt;,
+- Packages diagram&lt;<a class="rst-reference external" href="https://mfesiem.github.io/docs/msiempy/packages.png" target="_top">https://mfesiem.github.io/docs/msiempy/packages.png</a>&gt;,
+- other SIEM API references&lt;<a class="rst-reference external" href="https://mfesiem.github.io" target="_top">https://mfesiem.github.io</a>&gt; (generated PDFs and other links)</p>
+<div class="rst-section" id="rst-installation">
+<h1 class="heading">Installation</h1>
+<p>Run</p>
+<blockquote>
+python3 -m pip install msiempy</blockquote>
+</div>
+<div class="rst-section" id="rst-authentication-and-configuration-setup">
+<h1 class="heading">Authentication and configuration setup</h1>
+<p>The module offers a single point of authentication against your SIEM, so you don't have to worry about authentication when writting your scripts. This means that you need to preconfigure the authentication using the configuration file.</p>
+<p>The configuration file is located (by default) securely in your user directory since it contains credentials.</p>
+<blockquote>
+<ul class="rst-simple">
+<li>For Windows:  <tt class="rst-docutils literal"><span class="pre">%APPDATA%\.msiem\conf.ini</span></tt></li>
+<li>For Mac :     <tt class="rst-docutils literal"><span class="pre">$HOME/.msiem/conf.ini</span></tt></li>
+<li>For Linux :   <tt class="rst-docutils literal"><span class="pre">$XDG_CONFIG_HOME/.msiem/conf.ini</span></tt> or <tt class="rst-docutils literal"><span class="pre">$HOME/.msiem/conf.ini</span></tt></li>
+</ul>
+</blockquote>
+<p>Exemple</p>
+<blockquote>
+[esm]
+host = HOST
+user = USER
+passwd = PASSWORD's BASE64
+[general]
+verbose = no
+quiet = no
+logfile = /home/user/.msiem/log.txt
+timeout = 60
+ssl_verify = no</blockquote>
+<p>To set the password, you can use the <a href="#id1"><span class="rst-problematic" id="rst-id2">``</span></a>msiempy_setup.py``&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py" target="_top">https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py</a>&gt; script.
+You can also directly paste the password's base64 in the config file by doing:</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">import</span> base64
+<span class="py-prompt">&gt;&gt;&gt; </span>passwd = <span class="py-string">'P@assW0rd'</span>
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(base64.b64encode(passwd.encode(<span class="py-string">'utf-8'</span>)).decode())
+<span class="py-output">UEBhc3NXMHJk</span>
+</pre></div>
+<div class="rst-section" id="rst-a-few-usage-exemples">
+<h1 class="heading">A few usage exemples</h1>
+<blockquote>
+<dl class="rst-docutils">
+<dt>See also:</dt>
+<dd>The samples folder&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy/tree/master/samples" target="_top">https://github.com/mfesiem/msiempy/tree/master/samples</a>&gt; for more, and/or review the tests&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy/tree/master/tests" target="_top">https://github.com/mfesiem/msiempy/tree/master/tests</a>&gt;.</dd>
+</dl>
+<p>Query events according to destination IP and hostname filters, sorted by AlertID.</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span>  msiempy <span class="py-keyword">import</span> EventManager, FieldFilter
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(<span class="py-string">'Simple event query sorted by AlertID'</span>)
+<span class="py-prompt">&gt;&gt;&gt; </span>events = EventManager(
+<span class="py-output">        time_range='CURRENT_YEAR',</span>
+<span class="py-output">        fields=['SrcIP', 'AlertID'], # SrcIP and AlertID are not queried by default</span>
+<span class="py-output">        filters=[</span>
+<span class="py-output">                FieldFilter('DstIP', ['0.0.0.0/0',]),</span>
+<span class="py-output">                FieldFilter('HostID', ['mail'], operator='CONTAINS')], # Replace "mail" by a test hostname</span>
+<span class="py-output">        order=(('ASCENDING', 'AlertID')),</span>
+<span class="py-output">        limit=10) # Will only load 10 events (per query)</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>events.load_data()
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(events)
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(events.get_text(fields=[<span class="py-string">'AlertID'</span>,<span class="py-string">'LastTime'</span>,<span class="py-string">'SrcIP'</span>, <span class="py-string">'Rule.msg'</span>]))</pre><dl class="rst-docutils">
+<dt>Notes:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li>The <tt class="rst-docutils literal">limit</tt> argument should be increased to 500 or 1000 once finish testing for better performance.</li>
+<li>Dump full list of fields usable in query <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> with dump_all_fields.py&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py" target="_top">https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py</a>&gt; script.</li>
+</ul>
+</dd>
+<dt>See:</dt>
+<dd>Objects <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a> and <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a></dd>
+</dl>
+<p>Print all <tt class="rst-docutils literal">unacknowledged</tt> alarms filtered by alarm name and event message</p>
+<p>match} <tt class="rst-docutils literal">'Test alarm'</tt> and triggering event message match <tt class="rst-docutils literal">'Wordpress'</tt>.
+Then acknowledge the alarms.</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> AlarmManager, Alarm
+<span class="py-output"># Make an alarm query</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>alarms=AlarmManager(
+<span class="py-output">        time_range='CURRENT_YEAR',</span>
+<span class="py-output">        status_filter='unacknowledged', # passed to alarmGetTriggeredAlarms</span>
+<span class="py-output">        filters=[('alarmName', 'Test alarm')], # Regex</span>
+<span class="py-output">        event_filters=[('ruleName','Wordpress')], # Regex</span>
+<span class="py-output">        page_size=5 # Will only load 5 alarms (per page)</span>
+<span class="py-output">)</span>
+<span class="py-output"># Load the data into the list</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>alarms.load_data()
+<span class="py-output"># Print results</span>
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(<span class="py-string">"Alarm list: "</span>)
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(alarms)
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(alarms.get_text(
+<span class="py-output">        fields=['id','triggeredDate','acknowledgedDate', 'alarmName', 'acknowledgedUsername']))</span>
+<span class="py-output"># Acknowledge alarms</span>
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(<span class="py-string">"Acknowledge alarms"</span>)
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">for</span> alarm <span class="py-keyword">in</span> alarms:
+<span class="py-output">        alarm.acknowledge()</span>
+</pre><dl class="rst-docutils">
+<dt>Notes:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li>The <tt class="rst-docutils literal">page_size</tt> argument should be increased to 500 or 1000 once finish testing for better performance.</li>
+<li>The <a href="msiempy.alarm.AlarmManager.html"><code>msiempy.alarm.AlarmManager</code></a> filtering feature is an addon to what the SIEM API offers, filters are applied locally as regular expressions.</li>
+</ul>
+</dd>
+<dt>See:</dt>
+<dd>Objects <a href="msiempy.alarm.AlarmManager.html"><code>msiempy.alarm.AlarmManager</code></a> and <a href="msiempy.alarm.Alarm.html"><code>msiempy.alarm.Alarm</code></a></dd>
+</dl>
+<p>This is useful when dealing with features of the ESM API that are not explicitly implemented in this library yet (i.e. user managment).</p>
+<p><strong>Use the session object</strong> to make direct API calls with any data.</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> NitroSession
+<span class="py-prompt">&gt;&gt;&gt; </span>s = NitroSession()
+<span class="py-prompt">&gt;&gt;&gt; </span>s.login()
+<span class="py-output"># Get all last 24h alarms details with ESM API v2 (not supported yet)</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>alarms = s.api_request(<span class="py-string">'v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1'</span>)
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">for</span> a <span class="py-keyword">in</span> alarms:
+<span class="py-output">        a.update(s.api_request('v2/notifyGetTriggeredNotificationDetail', {'id':a['id']}))</span>
+</pre><p>The session object will handle authentication and intermittent (but annoying) SIEM errors.</p>
+<dl class="rst-docutils">
+<dt>See:</dt>
+<dd>Object <a href="msiempy.core.session.NitroSession.html"><code>msiempy.core.session.NitroSession</code></a></dd>
+</dl>
+<p>Set the note of 2 events and check if the note is well set.</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span>  msiempy <span class="py-keyword">import</span> EventManager, Event
+<span class="py-prompt">&gt;&gt;&gt; </span>events = EventManager(
+<span class="py-output">        time_range='CURRENT_YEAR',</span>
+<span class="py-output">        limit=2 )</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>events.load_data()
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">for</span> event <span class="py-keyword">in</span> events :
+<span class="py-output">        event.set_note("Test note")</span>
+<span class="py-output">        event.refresh(use_query=False) # Event data will be loaded with ipsGetAlertData API method</span>
+<span class="py-output">        assert "Test note" in genuine_event['note'], "Error, the note hasn't been added"</span>
+</pre><dl class="rst-docutils">
+<dt>See:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li>add_wpsan_note.py&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py" target="_top">https://github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py</a>&gt; script for more on how to add notes to event that triggered alarms.</li>
+<li>Object <a href="msiempy.event.Event.html"><code>msiempy.event.Event</code></a></li>
+</ul>
+</dd>
+</dl>
+<p>Print a few esm infos. ESM object has not state for it self, it's a simple interface to data structures / values returned by the SIEM.</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> ESM
+<span class="py-prompt">&gt;&gt;&gt; </span>esm=ESM()
+<span class="py-prompt">&gt;&gt;&gt; </span>esm.version()
+<span class="py-output">'11.2.1'</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>esm.recs()
+<span class="py-output">[('ERC-1', 144116287587483648)]</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>esm.buildstamp()
+<span class="py-output">'11.2.1 20190725050014'</span>
+</pre><dl class="rst-docutils">
+<dt>See:</dt>
+<dd>Object <a href="msiempy.device.ESM.html"><code>msiempy.device.ESM</code></a></dd>
+</dl>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> DevTree
+<span class="py-prompt">&gt;&gt;&gt; </span>devtree = DevTree()
+<span class="py-prompt">&gt;&gt;&gt; </span>devtree.add({
+<span class="py-output">        "name": "Test DS",</span>
+<span class="py-output">        "parent_id": "144116287587483648",</span>
+<span class="py-output">        "ds_ip": "10.2.2.2",</span>
+<span class="py-output">        "hostname": "testds.domain.ca",</span>
+<span class="py-output">        "type_id": "65"</span>
+<span class="py-output">})</span>
+<span class="py-output">{'value': 1385420} # Wait a bit for the request</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>devtree.refresh() <span class="py-comment"># Refresh the DevTree</span></pre><dl class="rst-docutils">
+<dt>See:</dt>
+<dd>Objects <a href="msiempy.device.DevTree.html"><code>msiempy.device.DevTree</code></a> and <a href="msiempy.device.DataSource.html"><code>msiempy.device.DataSource</code></a></dd>
+<dt>Note:</dt>
+<dd><a href="msiempy.device.DevTree.html#add"><code>msiempy.device.DevTree.add</code></a> do not ensure the Datasource is well added, the methods returns a <a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a> with the request ID fetched from the SIEM.  There is still place for improvment #82&lt;<a class="rst-reference external" href="https://github.com/mfesiem/msiempy/issues/82" target="_top">https://github.com/mfesiem/msiempy/issues/82</a>&gt;.</dd>
+</dl>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span>wl_list = WatchlistManager()
+<span class="py-prompt">&gt;&gt;&gt; </span>wl = wl_list.search(<span class="py-string">'test_Watchlist'</span>)[0]
+<span class="py-prompt">&gt;&gt;&gt; </span>wl.add_values([<span class="py-string">'1.1.1.2'</span>, <span class="py-string">'2.2.2.1'</span>, <span class="py-string">'3.3.3.1'</span>])</pre><dl class="rst-docutils">
+<dt>See:</dt>
+<dd>Objects <a href="msiempy.watchlist.WatchlistManager.html"><code>msiempy.watchlist.WatchlistManager</code></a>, <a href="msiempy.watchlist.Watchlist.html"><code>msiempy.watchlist.Watchlist</code></a></dd>
+</dl>
+</blockquote>
+</div>
+</div>
       </div>
 
       <div id="splitTables">
@@ -304,7 +281,7 @@ A few usage exemples
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 02:14:06.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 12:42:16.
       </address>
 
     </div>

@@ -32,7 +32,7 @@
 
         <span id="partOf">
           Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.core.html" class="code" data-type="Package">core</a>.<a href="msiempy.core.session.html" class="code" data-type="Module">session</a></code>
-          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L470">View Source</a>
+          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L20">View Source</a>
           <a href="classIndex.html#msiempy.core.session.NitroSession">(View In Hierarchy)</a>
         </span>
       </div>
@@ -42,9 +42,9 @@
       </div>
 
       <div class="moduleDocstring">
-        <div><p><a href="msiempy.core.session.NitroSession.html"><code>msiempy.core.session.NitroSession</code></a> is the point of convergence of every requests that goes to the ESM.
-It provides easier dialogue with the ESM by doing argument interpolation with <a href="msiempy.core.session.html#_PARAMS"><code>msiempy.core.session.NitroSession.PARAMS</code></a>.</p>
-<p>See <a href="msiempy.core.session.NitroSession.html#api_request"><code>msiempy.core.session.NitroSession.api_request</code></a> and <a href="msiempy.core.session.NitroSession.html#request"><code>msiempy.core.session.NitroSession.request</code></a> for usage.</p>
+        <div><p>Single session handler and HTTP interface.</p>
+<p>It provides easier dialogue with the ESM by doing argument interpolation with <a href="msiempy.core.session.NitroSession.html#PARAMS"><code>NitroSession.PARAMS</code></a>.</p>
+<p>See <a href="msiempy.core.session.NitroSession.html#api_request"><code>api_request</code></a> and <a href="msiempy.core.session.NitroSession.html#request"><code>request</code></a> for usage.</p>
 <table class="fieldTable"></table></div>
       </div>
 
@@ -60,7 +60,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
     
     <td>Instance Variable</td>
     <td><a href="msiempy.core.session.NitroSession.html#config" class="code" data-type="Instance Variable">config</a></td>
-    <td><span><a href="msiempy.core.config.NitroConfig.html"><code>msiempy.core.config.NitroConfig</code></a> object.</span></td>
+    <td><span><a href="msiempy.core.config.NitroConfig.html"><code>NitroConfig</code></a> object.</span></td>
   </tr><tr class="instancevariable">
     
     <td>Instance Variable</td>
@@ -106,6 +106,11 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
     <td>Class Variable</td>
     <td><a href="msiempy.core.session.NitroSession.html#__unique_state__" class="code" data-type="Class Variable">__unique_state__</a></td>
     <td><span>The singleton unique state.</span></td>
+  </tr><tr class="classvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.core.session.NitroSession.html#PARAMS" class="code" data-type="Class Variable">PARAMS</a></td>
+    <td><span>SIEM API methos/parameters mapping. This structure provide a central place to aggregate API methods and parameters.</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
@@ -139,11 +144,6 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </tr><tr class="method">
     
     <td>Method</td>
-    <td><a href="msiempy.core.session.NitroSession.html#esm_request" class="code" data-type="Method">esm_request</a></td>
-    <td><span>Same as <a href="msiempy.core.session.NitroSession.html#api_request"><code>msiempy.core.session.NitroSession.api_request</code></a></span></td>
-  </tr><tr class="method">
-    
-    <td>Method</td>
     <td><a href="msiempy.core.session.NitroSession.html#version" class="code" data-type="Method">version</a></td>
     <td><span>Returns: <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> ESM short version. Example: '10.0.2'</span></td>
   </tr><tr class="method">
@@ -160,7 +160,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
     
     <td>Method</td>
     <td><a href="msiempy.core.session.NitroSession.html#request" class="code" data-type="Method">request</a></td>
-    <td><span>Interface to make ESM API calls more simple by interpolating <code>**kwargs</code> arguments with <a href="msiempy.core.session.html#_PARAMS"><code>msiempy.core.session.NitroSession.PARAMS</code></a> docstrings and build a valid datastructure for the HTTP data.</span></td>
+    <td><span>Interface to make ESM API calls more simple by interpolating <code>**kwargs</code> arguments with <a href="msiempy.core.session.NitroSession.html#PARAMS"><code>msiempy.core.session.NitroSession.PARAMS</code></a> docstrings and build a valid datastructure for the HTTP data.</span></td>
   </tr><tr class="staticmethod private">
     
     <td>Static Method</td>
@@ -200,7 +200,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </a>
   <div class="functionHeader">
     session =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L477">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L28">
       
       (source)
     </a>
@@ -219,14 +219,14 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </a>
   <div class="functionHeader">
     config =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L478">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L29">
       
       (source)
     </a>
   </div>
   <div class="functionBody">
     
-    <div><a href="msiempy.core.config.NitroConfig.html"><code>msiempy.core.config.NitroConfig</code></a> object.</div>
+    <div><a href="msiempy.core.config.NitroConfig.html"><code>NitroConfig</code></a> object.</div>
   </div>
 </div><div class="baseinstancevariable">
   
@@ -238,7 +238,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </a>
   <div class="functionHeader">
     login_info =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L479">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L30">
       
       (source)
     </a>
@@ -259,7 +259,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
     
     def
     __init__(self, config=None):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L482">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L33">
       
       (source)
     </a>
@@ -287,7 +287,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </a>
   <div class="functionHeader">
     __dict__ =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L490">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L41">
       
       (source)
     </a>
@@ -306,7 +306,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </a>
   <div class="functionHeader">
     api_v =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L516">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L67">
       
       (source)
     </a>
@@ -325,7 +325,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </a>
   <div class="functionHeader">
     logged_in =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L517">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L68">
       
       (source)
     </a>
@@ -344,7 +344,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </a>
   <div class="functionHeader">
     BASE_URL =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L529">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L80">
       
       (source)
     </a>
@@ -363,7 +363,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </a>
   <div class="functionHeader">
     BASE_URL_PRIV =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L532">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L83">
       
       (source)
     </a>
@@ -382,7 +382,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </a>
   <div class="functionHeader">
     __initiated__ =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L535">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L86">
       
       (source)
     </a>
@@ -401,7 +401,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </a>
   <div class="functionHeader">
     __unique_state__ =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L539">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L90">
       
       (source)
     </a>
@@ -409,6 +409,48 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   <div class="functionBody">
     
     <div>The singleton unique state.</div> (type: <code>Dict</code>)
+  </div>
+</div><div class="baseclassvariable">
+  
+  <a name="msiempy.core.session.NitroSession.PARAMS">
+    
+  </a>
+  <a name="PARAMS">
+    
+  </a>
+  <div class="functionHeader">
+    PARAMS =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L95">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>SIEM API methos/parameters mapping.
+This structure provide a central place to aggregate API methods and parameters.</p>
+<p>Usage:</p>
+<pre class="rst-literal-block">
+NitroSession.PARAMS.get("method")
+</pre>
+<dl class="rst-docutils">
+<dt>Returns:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><dl class="rst-first rst-docutils">
+<dt><a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a>: (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or <a href="https://docs.python.org/3/library/string.html#string.Template"><code>Template</code></a>, <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or <a href="https://docs.python.org/3/library/string.html#string.Template"><code>Template</code></a>) :</dt>
+<dd>The first item is the SIEM API endpoint name.
+The second item is the JSON string data parameters required for the enpoint call.
+If the string is <a href="https://docs.python.org/3/library/string.html#string.Template"><code>Template</code></a> string, it needs to be interpolate with paramaters.</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>See:</dt>
+<dd><a href="msiempy.core.session.NitroSession.html#request"><code>NitroSession.request</code></a> for a list of all possible calls and usage.</dd>
+<dt>Important note :</dt>
+<dd>Do not use sigle quotes (<tt class="rst-docutils literal">'</tt>) to delimit data into the interpolated strings !</dd>
+</dl>
+</div>
   </div>
 </div><div class="basemethod">
   
@@ -422,7 +464,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
     
     def
     __str__(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L561">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L556">
       
       (source)
     </a>
@@ -444,7 +486,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
     
     def
     login(self, retry=1):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L564">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L559">
       
       (source)
     </a>
@@ -469,7 +511,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </a>
   <div class="functionHeader">
     user_tz_id =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L593">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L588">
       
       (source)
     </a>
@@ -488,7 +530,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   </a>
   <div class="functionHeader">
     esm_v =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L598">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L593">
       
       (source)
     </a>
@@ -509,7 +551,7 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
     
     def
     logout(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L621">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L616">
       
       (source)
     </a>
@@ -530,8 +572,8 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
   <div class="functionHeader">
     
     def
-    api_request(self, method, data=None, http="""post""", callback=None, raw=False, secure=False, retry=1):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L633">
+    api_request(self, method, data=None, http="""post""", callback=None, raw=(False), secure=(False), retry=1):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L628">
       
       (source)
     </a>
@@ -566,44 +608,22 @@ It provides easier dialogue with the ESM by doing argument interpolation with <a
 <li><a href="msiempy.core.session.NitroError.html"><code>msiempy.core.session.NitroError</code></a> if any <code>HTTPError</code></li>
 </ul>
 </dd>
+<dt>Note:</dt>
+<dd>Private API is under <tt class="rst-docutils literal">/ess/</tt> and public api is under <tt class="rst-docutils literal">/rs/esm</tt></dd>
 </dl>
-<p>Note : Private API is under /ess/ and public api is under /rs/esm</p>
 <p>Exemple:</p>
-<blockquote>
-<p>from msiempy import NitroSession
+<pre class="rst-literal-block">
+from msiempy import NitroSession
 s = NitroSession()
 s.login()
 # qryGetFilterFields
 s.api_request('qryGetFilterFields')
 # Get all last 24h alarms details with ESM API v2.
 alarms = s.api_request('v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1', None)
-for a in alarms:</p>
-<blockquote>
-a.update(s.api_request('v2/notifyGetTriggeredNotificationDetail', {'id':a['id']}))</blockquote>
-</blockquote>
+for a in alarms:
+    a.update(s.api_request('v2/notifyGetTriggeredNotificationDetail', {'id':a['id']}))
+</pre>
 </div>
-  </div>
-</div><div class="basemethod">
-  
-  <a name="msiempy.core.session.NitroSession.esm_request">
-    
-  </a>
-  <a name="esm_request">
-    
-  </a>
-  <div class="functionHeader">
-    
-    def
-    esm_request(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L820">
-      
-      (source)
-    </a>
-  </div>
-  <div class="docstring functionBody">
-    
-    
-    <div>Same as <a href="msiempy.core.session.NitroSession.html#api_request"><code>msiempy.core.session.NitroSession.api_request</code></a></div>
   </div>
 </div><div class="basemethod">
   
@@ -617,7 +637,7 @@ a.update(s.api_request('v2/notifyGetTriggeredNotificationDetail', {'id':a['id']}
     
     def
     version(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L824">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L817">
       
       (source)
     </a>
@@ -640,7 +660,7 @@ Example: '10.0.2'</div>
     
     def
     buildstamp(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L831">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L824">
       
       (source)
     </a>
@@ -663,7 +683,7 @@ Example: '10.0.2 20170516001031'</div>
     
     def
     get_internal_file(self, file_token):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L838">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L831">
       
       (source)
     </a>
@@ -690,7 +710,7 @@ Example: '10.0.2 20170516001031'</div>
     
     def
     request(self, request, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L869">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L862">
       
       (source)
     </a>
@@ -698,13 +718,13 @@ Example: '10.0.2 20170516001031'</div>
   <div class="docstring functionBody">
     
     
-    <div><p>Interface to make ESM API calls more simple by interpolating <code>**kwargs</code> arguments with <a href="msiempy.core.session.html#_PARAMS"><code>msiempy.core.session.NitroSession.PARAMS</code></a> docstrings and build a valid datastructure for the HTTP data.</p>
+    <div><p>Interface to make ESM API calls more simple by interpolating <code>**kwargs</code> arguments with <a href="msiempy.core.session.NitroSession.html#PARAMS"><code>msiempy.core.session.NitroSession.PARAMS</code></a> docstrings and build a valid datastructure for the HTTP data.</p>
 <p>Then call the <a href="msiempy.core.session.NitroSession.html#api_request"><code>msiempy.core.session.NitroSession.api_request</code></a> method with the built data.</p>
 <p>Also handles auto-login.</p>
 <dl class="rst-docutils">
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><a href="msiempy.core.session.NitroSession.html#request"><code>request</code></a>: Name keyword corresponding to the request name in <a href="msiempy.core.session.html#_PARAMS"><code>msiempy.core.session.NitroSession.PARAMS</code></a> mapping.</li>
+<li><a href="msiempy.core.session.NitroSession.html#request"><code>request</code></a>: Name keyword corresponding to the request name in <a href="msiempy.core.session.NitroSession.html#PARAMS"><code>msiempy.core.session.NitroSession.PARAMS</code></a> mapping.</li>
 <li><a href="https://docs.python.org/3/library/http.html#http"><code>http</code></a>: HTTP method.</li>
 <li><code>callback</code> : function to apply afterwards</li>
 <li><code>raw</code> : If true will return the Response object from requests module.</li>
@@ -714,7 +734,7 @@ Example: '10.0.2 20170516001031'</div>
 </dd>
 <dt>Interpolation parameters :</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><tt class="rst-docutils literal">**kwargs</tt> : Interpolation parameters that will be match to <a href="msiempy.core.session.html#_PARAMS"><code>msiempy.core.session.NitroSession.PARAMS</code></a> templates. Dynamic keyword arguments.</li>
+<li><tt class="rst-docutils literal">**kwargs</tt> : Interpolation parameters that will be match to <a href="msiempy.core.session.NitroSession.html#PARAMS"><code>msiempy.core.session.NitroSession.PARAMS</code></a> templates. Dynamic keyword arguments.</li>
 </ul>
 </dd>
 <dt>Returns:</dt>
@@ -727,18 +747,82 @@ Example: '10.0.2 20170516001031'</div>
 </dd>
 </dl>
 <p>Exemple:</p>
-<blockquote>
-<p>from msiempy import NitroSession
+<pre class="rst-literal-block">
+from msiempy import NitroSession
 s = NitroSession()
 s.login()
 # Get all last 24h alarms details
 alarms = s.request('get_alarms', time_range='LAST_24_HOURS',  status='', page_size=500, page_number=0)
-for a in alarms:</p>
-<blockquote>
-a.update(s.request('get_notification_detail', id=a['id']))</blockquote>
-</blockquote>
-<p>If you're reading this thom an IDE, all possible requests are listed on the documentation webpage:
-<a class="rst-reference external" href="https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request" target="_top">https://mfesiem.github.io/docs/msiempy/core/session.html#msiempy.core.session.NitroSession.request</a></p>
+for a in alarms:
+    a.update(s.request('get_notification_detail', id=a['id']))
+</pre>
+<dl class="rst-docutils">
+<dt>All requests currently supported:</dt>
+<dd><p class="rst-first">All upper cases method names signals to use the private API methods.</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"login"</span>, username, password) <span class="py-comment"># Call login</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_devtree"</span>, ) <span class="py-comment"># Call GRP_GETVIRTUALGROUPIPSLISTDATA</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_zones_devtree"</span>, ) <span class="py-comment"># Call GRP_GETVIRTUALGROUPIPSLISTDATA</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"req_client_str"</span>, ds_id) <span class="py-comment"># Call DS_GETDSCLIENTLIST</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_rfile"</span>, ftoken) <span class="py-comment"># Call MISC_READFILE</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"del_rfile"</span>, ftoken) <span class="py-comment"># Call ESSMGT_DELETEFILE</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_rfile2"</span>, ftoken, pos, nbytes) <span class="py-comment"># Call MISC_READFILE</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_wfile"</span>, ds_id) <span class="py-comment"># Call MISC_WRITEFILE</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_rule_history"</span>, ) <span class="py-comment"># Call PLCY_GETRULECHANGEINFO</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"add_ds_11_1_3"</span>, parent_id, name, ds_ip, type_id, zone_id, enabled, url, ds_id, child_enabled, child_count, child_type, idm_id, parameters) <span class="py-comment"># Call dsAddDataSource</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"add_ds_11_2_1"</span>, parent_id, name, ds_ip, type_id, zone_id, enabled, url, parameters) <span class="py-comment"># Call dsAddDataSources</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"add_client1"</span>, parent_id, name, enabled, ds_ip, hostname, type_id, tz_id, dorder, maskflag, port, require_tls) <span class="py-comment"># Call DS_ADDDSCLIENT</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_recs"</span>, ) <span class="py-comment"># Call devGetDeviceList</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_dstypes"</span>, rec_id) <span class="py-comment"># Call dsGetDataSourceTypes</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"del_ds1"</span>, parent_id, ds_id) <span class="py-comment"># Call dsDeleteDataSource</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"del_ds2"</span>, parent_id, ds_id) <span class="py-comment"># Call dsDeleteDataSources</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"del_client"</span>, parent_id, ftoken) <span class="py-comment"># Call DS_DELETEDSCLIENTS</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_job_status"</span>, job_id) <span class="py-comment"># Call MISC_JOBSTATUS</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"ds_last_times"</span>, ) <span class="py-comment"># Call QRY_GETDEVICELASTALERTTIME</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"zonetree"</span>, ) <span class="py-comment"># Call zoneGetZoneTree</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"ds_by_type"</span>, ) <span class="py-comment"># Call QRY_GETDEVICECOUNTBYTYPE</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"ds_details1"</span>, ds_id) <span class="py-comment"># Call dsGetDataSourceDetail</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"ds_details2"</span>, ds_id) <span class="py-comment"># Call dsGetDataSourceDetail</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_alarms_custom_time"</span>, time_range, start_time, end_time, status, page_size, page_number) <span class="py-comment"># Call alarmGetTriggeredAlarms</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_alarms"</span>, time_range, status, page_size, page_number) <span class="py-comment"># Call alarmGetTriggeredAlarms</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_notification_detail"</span>, <span class="py-builtin">id</span>) <span class="py-comment"># Call notifyGetTriggeredNotificationDetail</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_alarm_details"</span>, <span class="py-builtin">id</span>) <span class="py-comment"># Call notifyGetTriggeredNotification</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_alarm_details_int"</span>, <span class="py-builtin">id</span>) <span class="py-comment"># Call NOTIFY_GETTRIGGEREDNOTIFICATIONDETAIL</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"ack_alarms"</span>, ids) <span class="py-comment"># Call alarmAcknowledgeTriggeredAlarm</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"ack_alarms_11_2_1"</span>, ids) <span class="py-comment"># Call alarmAcknowledgeTriggeredAlarm</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"unack_alarms"</span>, ids) <span class="py-comment"># Call alarmUnacknowledgeTriggeredAlarm</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"unack_alarms_11_2_1"</span>, ids) <span class="py-comment"># Call alarmUnacknowledgeTriggeredAlarm</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"delete_alarms"</span>, ids) <span class="py-comment"># Call alarmDeleteTriggeredAlarm</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"delete_alarms_11_2_1"</span>, ids) <span class="py-comment"># Call alarmDeleteTriggeredAlarm</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_alerts_now"</span>, ds_id) <span class="py-comment"># Call IPS_GETALERTSNOW</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_flows_now"</span>, ds_id) <span class="py-comment"># Call IPS_GETFLOWSNOW</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_possible_filters"</span>, ) <span class="py-comment"># Call v2/qryGetFilterFields</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_possible_fields"</span>, <span class="py-builtin">type</span>, groupType) <span class="py-comment"># Call v2/qryGetSelectFields</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"event_query_custom_time"</span>, time_range, start_time, end_time, fields, filters, limit, offset, order_field, order_direction) <span class="py-comment"># Call v2/qryExecuteDetail</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"event_query"</span>, time_range, fields, filters, limit, offset, order_field, order_direction) <span class="py-comment"># Call v2/qryExecuteDetail</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"query_status"</span>, resultID) <span class="py-comment"># Call v2/qryGetStatus</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"query_result"</span>, startPos, numRows, resultID) <span class="py-comment"># Call v2/qryGetResults</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"grouped_event_query"</span>, filters, field, time_range) <span class="py-comment"># Call v2/qryExecuteGrouped</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"grouped_event_query_custom_time"</span>, filters, field, time_range, start_time, end_time) <span class="py-comment"># Call v2/qryExecuteGrouped</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"close_query"</span>, resultID) <span class="py-comment"># Call v2/qryClose</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_alert_data"</span>, <span class="py-builtin">id</span>) <span class="py-comment"># Call ipsGetAlertData</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"add_note_to_event"</span>, <span class="py-builtin">id</span>, note) <span class="py-comment"># Call ipsAddAlertNote</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"add_note_to_event_int"</span>, <span class="py-builtin">id</span>, note) <span class="py-comment"># Call IPS_ADDALERTNOTE</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_wl_types"</span>, ) <span class="py-comment"># Call sysGetWatchlistFields</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_watchlists_no_filters"</span>, hidden, dynamic, writeOnly, indexedOnly) <span class="py-comment"># Call sysGetWatchlists</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_watchlist_details"</span>, <span class="py-builtin">id</span>) <span class="py-comment"># Call sysGetWatchlistDetails</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"add_watchlist"</span>, name, wl_type) <span class="py-comment"># Call sysAddWatchlist</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"add_watchlist_values"</span>, watchlist, values) <span class="py-comment"># Call sysAddWatchlistValues</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"remove_watchlist_values"</span>, watchlist, values) <span class="py-comment"># Call sysRemoveWatchlistValues</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_watchlist_values"</span>, <span class="py-builtin">id</span>) <span class="py-comment"># Call SYS_GETWATCHLISTDETAILS</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"remove_watchlists"</span>, wl_id_list) <span class="py-comment"># Call sysRemoveWatchlist</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_user_locale"</span>, ) <span class="py-comment"># Call getUserLocale</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"time_zones"</span>, ) <span class="py-comment"># Call userGetTimeZones</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"logout"</span>, ) <span class="py-comment"># Call logout</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_sys_info"</span>, ) <span class="py-comment"># Call SYS_GETSYSINFO</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"get_esm_time"</span>, ) <span class="py-comment"># Call essmgtGetESSTime</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>s.request(<span class="py-string">"build_stamp"</span>, ) <span class="py-comment"># Call essmgtGetBuildStamp</span></pre></dd>
+</dl>
 </div>
   </div>
 </div><div class="basestaticmethod private">
@@ -752,8 +836,8 @@ a.update(s.request('get_notification_detail', id=a['id']))</blockquote>
   <div class="functionHeader">
     @staticmethod<br />
     def
-    _init_log(verbose=False, quiet=False, logfile=None):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L947">
+    _init_log(verbose=(False), quiet=(False), logfile=None):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L941">
       
       (source)
     </a>
@@ -776,7 +860,7 @@ All objects should be able to log stuff, so the logger is globaly accessible</di
     @staticmethod<br />
     def
     _format_params(cmd, **params):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L988">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L982">
       
       (source)
     </a>
@@ -798,7 +882,7 @@ All objects should be able to log stuff, so the logger is globaly accessible</di
     @staticmethod<br />
     def
     _format_priv_resp(resp):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L1002">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L996">
       
       (source)
     </a>
@@ -820,7 +904,7 @@ All objects should be able to log stuff, so the logger is globaly accessible</di
     @staticmethod<br />
     def
     _unpack_resp(response):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L1022">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/core/session.py#L1016">
       
       (source)
     </a>
@@ -845,7 +929,7 @@ Should not be necessary with API v2.</p>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 20:15:08.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-12 16:28:09.
       </address>
 
     </div>

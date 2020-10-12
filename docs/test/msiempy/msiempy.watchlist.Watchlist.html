@@ -32,7 +32,7 @@
 
         <span id="partOf">
           Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.watchlist.html" class="code" data-type="Module">watchlist</a></code>
-          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L99">View Source</a>
+          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L97">View Source</a>
           <a href="classIndex.html#msiempy.watchlist.Watchlist">(View In Hierarchy)</a>
         </span>
       </div>
@@ -42,33 +42,27 @@
       </div>
 
       <div class="moduleDocstring">
-        <div><p>Dict-Like object.</p>
-<p>Represent a ESM Watchlist.</p>
-<p>Dictionary keys:</p>
-<ul class="rst-simple">
-<li>"name": The name of the watchlist</li>
-<li>"type": The watchlist type</li>
-<li>"customType": The watchlist custom type (custom field)</li>
-<li>"dynamic": Whether this watchlist is dynamic</li>
-<li>"hidden":  Whether this watchlist is hidden</li>
-<li>"scored": Whether this watchlist has a scoring component (GTI for example)</li>
-<li>"valueCount": The number of values in this watchlist</li>
-<li>"active": Whether this watchlist is a active</li>
-<li>"errorMsg": The error message, if there is one associated with this watchlist</li>
-<li>"source": source</li>
-<li>"id": The id of the watchlist</li>
-<li><dl class="rst-first rst-docutils">
-<dt>"values": values</dt>
-<dd><ul class="rst-first rst-last">
-<li>And others...</li>
+        <div><p>Dict-Like object. Represent a ESM Watchlist.</p>
+<dl class="rst-docutils">
+<dt>Dictionary keys:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><tt class="rst-docutils literal">name</tt>: The name of the watchlist</li>
+<li><tt class="rst-docutils literal">type</tt>: The watchlist type</li>
+<li><tt class="rst-docutils literal">customType</tt>: The watchlist custom type (custom field)</li>
+<li><tt class="rst-docutils literal">dynamic</tt>: Whether this watchlist is dynamic</li>
+<li><tt class="rst-docutils literal">hidden</tt>:  Whether this watchlist is hidden</li>
+<li><tt class="rst-docutils literal">scored</tt>: Whether this watchlist has a scoring component (GTI for example)</li>
+<li><tt class="rst-docutils literal">valueCount</tt>: The number of values in this watchlist</li>
+<li><tt class="rst-docutils literal">active</tt>: Whether this watchlist is a active</li>
+<li><tt class="rst-docutils literal">errorMsg</tt>: The error message, if there is one associated with this watchlist</li>
+<li><tt class="rst-docutils literal">source</tt>: source</li>
+<li><tt class="rst-docutils literal">id</tt>: The id of the watchlist</li>
+<li><tt class="rst-docutils literal">values</tt>: values</li>
+<li>And others, see SIEM API docs</li>
 </ul>
 </dd>
-</dl>
-</li>
-</ul>
-<dl class="rst-docutils">
 <dt>Note:</dt>
-<dd>Complete list of watchlist fields once loaded with C{load_details()}</dd>
+<dd>Complete list of watchlist fields is loaded once <a href="msiempy.watchlist.Watchlist.html#load_details"><code>load_details</code></a> is called.</dd>
 </dl>
 </div>
       </div>
@@ -115,7 +109,7 @@
     
     <td>Method</td>
     <td><a href="msiempy.watchlist.Watchlist.html#get_id" class="code" data-type="Method">get_id</a></td>
-    <td><span>Returns: int: The Watchlist ID.</span></td>
+    <td><span>Returns: <a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>: The Watchlist ID.</span></td>
   </tr>
 </table>
         
@@ -128,7 +122,7 @@
     
     <td>Instance Variable</td>
     <td><a href="msiempy.core.types.NitroDict.html#data" class="code" data-type="Instance Variable">data</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td><span>Underlying <a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a> object</span></td>
   </tr><tr class="basemethod">
     
     <td>Method</td>
@@ -188,7 +182,7 @@
     
     def
     __init__(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L126">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L121">
       
       (source)
     </a>
@@ -200,8 +194,8 @@
 <dl class="rst-docutils">
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><code>adict</code> (dict): Watchlist dict parameters</li>
-<li><a href="https://docs.python.org/3/library/functions.html#id"><code>id</code></a> (str): The watchlist ID to instanciate. Will load informations for the SIEM.</li>
+<li><code>adict</code> (<a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>): Watchlist dict parameters</li>
+<li><a href="https://docs.python.org/3/library/functions.html#id"><code>id</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): The watchlist ID to instanciate. Will load informations for the SIEM.</li>
 </ul>
 </dd>
 </dl>
@@ -219,7 +213,7 @@
     
     def
     add_values(self, values):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L137">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L132">
       
       (source)
     </a>
@@ -249,7 +243,7 @@
     
     def
     remove_values(self, values):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L146">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L141">
       
       (source)
     </a>
@@ -279,7 +273,7 @@
     
     def
     data_from_id(self, id):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L157">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L152">
       
       (source)
     </a>
@@ -294,6 +288,8 @@
 <li><a href="https://docs.python.org/3/library/functions.html#id"><code>id</code></a> (str): watchlist ID</li>
 </ul>
 </dd>
+<dt>Returns:</dt>
+<dd><a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>: The watchlist paramaters</dd>
 </dl>
 </div>
   </div>
@@ -309,7 +305,7 @@
     
     def
     load_details(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L167">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L165">
       
       (source)
     </a>
@@ -331,7 +327,7 @@
     
     def
     refresh(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L173">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L171">
       
       (source)
     </a>
@@ -353,7 +349,7 @@
     
     def
     load_values(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L179">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L177">
       
       (source)
     </a>
@@ -382,7 +378,7 @@
     
     def
     get_id(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L199">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/watchlist.py#L197">
       
       (source)
     </a>
@@ -392,7 +388,7 @@
     
     <div><dl class="rst-docutils">
 <dt>Returns:</dt>
-<dd>int: The Watchlist ID.</dd>
+<dd><a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>: The Watchlist ID.</dd>
 </dl>
 </div>
   </div>
@@ -400,7 +396,7 @@
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 20:15:08.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-12 16:28:09.
       </address>
 
     </div>

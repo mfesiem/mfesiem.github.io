@@ -32,7 +32,7 @@
 
         <span id="partOf">
           Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.event.html" class="code" data-type="Module">event</a></code>
-          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1619">View Source</a>
+          <a href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1610">View Source</a>
           <a href="classIndex.html#msiempy.event.FieldFilter">(View In Hierarchy)</a>
         </span>
       </div>
@@ -42,16 +42,17 @@
       </div>
 
       <div class="moduleDocstring">
-        <div><p>Based on EsmFieldFilter SIEM api doc.</p>
-<p>This class is automatically used when instanciating <a href="msiempy.event.EventManager.html"><code>EventManager</code></a> objects to dump filters in the right <a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a> format if tuples are gave as the <code>filters</code> argument like:</p>
+        <div><p>Query field filter</p>
+<p>Based on <tt class="rst-docutils literal">EsmFieldFilter</tt> SIEM API object.</p>
+<p>This class is automatically used when instanciating <a href="msiempy.event.EventManager.html"><code>EventManager</code></a> objects. It automatically creates filters in the right <a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a> format from <tt class="rst-docutils literal">tuples</tt> passed to the filter argument of <a href="msiempy.event.EventManager.html"><code>EventManager</code></a>:</p>
 <pre class="py-doctest">
-<span class="py-prompt">&gt;&gt;&gt; </span>e = EventManager(time_range=<span class="py-string">'LAST_MINUTE'</span>, filters=[ (<span class="py-string">'SrcIP'</span>, [<span class="py-string">'10.5.0.0/16'</span>]) ])</pre><p>Default operator is <code>"IN"</code>.</p>
-<p>To change the operator, create a <a href="msiempy.event.FieldFilter.html"><code>FieldFilter</code></a>:
-Exemple to filter by Signature ID.</p>
+<span class="py-prompt">&gt;&gt;&gt; </span>e = EventManager(time_range=<span class="py-string">'LAST_MINUTE'</span>, filters=[ (<span class="py-string">'SrcIP'</span>, [<span class="py-string">'10.5.0.0/16'</span>]) ])</pre><p>Default operator is <tt class="rst-docutils literal">"IN"</tt>. To change the operator, create s custom <a href="msiempy.event.FieldFilter.html"><code>FieldFilter</code></a>.</p>
+<p>Exemple to filter by Signature ID:</p>
 <pre class="py-doctest">
-<span class="py-prompt">&gt;&gt;&gt; </span>e = EventManager(time_range=<span class="py-string">'LAST_24_HOURS'</span>, filters=[ FieldFilter(<span class="py-string">'DSIDSigID'</span>, [<span class="py-string">"49190-4294967295"</span>], operator=<span class="py-string">'EQUALS'</span>) ])</pre><p>Note:</p>
-<blockquote>
-Make sure the filter name is valid by checking the result of <a href="msiempy.event.EventManager.html#get_possible_filters"><code>msiempy.event.EventManager.get_possible_filters</code></a> or use the provided script in the sample folder</blockquote>
+<span class="py-prompt">&gt;&gt;&gt; </span>e = EventManager(time_range=<span class="py-string">'LAST_24_HOURS'</span>, filters=[ FieldFilter(<span class="py-string">'DSIDSigID'</span>, [<span class="py-string">"49190-4294967295"</span>], operator=<span class="py-string">'EQUALS'</span>) ])</pre><dl class="rst-docutils">
+<dt>Note:</dt>
+<dd>Make sure the filter name is valid by checking the result of <a href="msiempy.event.EventManager.html#get_possible_filters"><code>EventManager.get_possible_filters</code></a> or use the provided script in the sample folder</dd>
+</dl>
 </div>
       </div>
 
@@ -67,17 +68,17 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
     
     <td>Method</td>
     <td><a href="msiempy.event.FieldFilter.html#__init__" class="code" data-type="Method">__init__</a></td>
-    <td><span>Args:</span></td>
-  </tr><tr class="method">
+    <td><span>Create a new field filter for a query.</span></td>
+  </tr><tr class="instancevariable">
     
-    <td>Method</td>
-    <td><a href="msiempy.event.FieldFilter.html#operator" class="code" data-type="Method">operator</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
-  </tr><tr class="method">
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.FieldFilter.html#operator" class="code" data-type="Instance Variable">operator</a></td>
+    <td><span>Filter operator. Throws <a href="https://docs.python.org/3/library/exceptions.html#AttributeError"><code>AttributeError</code></a> if trying to set an unknown operator.</span></td>
+  </tr><tr class="instancevariable">
     
-    <td>Method</td>
-    <td><a href="msiempy.event.FieldFilter.html#values" class="code" data-type="Method">values</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Instance Variable</td>
+    <td><a href="msiempy.event.FieldFilter.html#values" class="code" data-type="Instance Variable">values</a></td>
+    <td><span>List of values of the filter.</span></td>
   </tr><tr class="instancevariable">
     
     <td>Instance Variable</td>
@@ -97,7 +98,7 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
     
     <td>Class Variable</td>
     <td><a href="msiempy.event.FieldFilter.html#POSSIBLE_VALUE_TYPES" class="code" data-type="Class Variable">POSSIBLE_VALUE_TYPES</a></td>
-    <td><span>List of possible value type. See <a href="msiempy.event.FieldFilter.html#add_value"><code>msiempy.event.FieldFilter.add_value</code></a>.</span></td>
+    <td><span>List of possible value type. See <a href="msiempy.event.FieldFilter.html#add_value"><code>add_value</code></a>.</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
@@ -118,6 +119,26 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
     <td>Instance Variable</td>
     <td><a href="msiempy.event.FieldFilter.html#_values" class="code" data-type="Instance Variable">_values</a></td>
     <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.FieldFilter.html#_get_operator" class="code" data-type="Method">_get_operator</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.FieldFilter.html#_set_operator" class="code" data-type="Method">_set_operator</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.FieldFilter.html#_get_values" class="code" data-type="Method">_get_values</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.event.FieldFilter.html#_set_values" class="code" data-type="Method">_set_values</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
   </tr>
 </table>
         
@@ -137,7 +158,7 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
   </a>
   <div class="functionHeader">
     DOCUMENTED_FILTERS =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1648">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1635">
       
       (source)
     </a>
@@ -158,7 +179,7 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
     
     def
     __init__(self, name, values, operator="""IN"""):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1888">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1875">
       
       (source)
     </a>
@@ -166,26 +187,16 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
   <div class="docstring functionBody">
     
     
-    <div><p>Args:</p>
-<blockquote>
-<p>name (str): field name as string. Field name property. Example : <code>SrcIP</code>. See full list here: <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json" target="_top">https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json</a></p>
-<p>values (list): list of values the field is going to be tested againts with the specified orperator.</p>
+    <div><p>Create a new field filter for a query.</p>
 <dl class="rst-docutils">
-<dt>orperator (str): <tt class="rst-docutils literal">IN</tt>,</dt>
-<dd><tt class="rst-docutils literal">NOT_IN</tt>,
-<tt class="rst-docutils literal">GREATER_THAN</tt>,
-<tt class="rst-docutils literal">LESS_THAN</tt>,
-<tt class="rst-docutils literal">GREATER_OR_EQUALS_THAN</tt>,
-<tt class="rst-docutils literal">LESS_OR_EQUALS_THAN</tt>,
-<tt class="rst-docutils literal">NUMERIC_EQUALS</tt>,
-<tt class="rst-docutils literal">NUMERIC_NOT_EQUALS</tt>,
-<tt class="rst-docutils literal">DOES_NOT_EQUAL</tt>,
-<tt class="rst-docutils literal">EQUALS</tt>,
-<tt class="rst-docutils literal">CONTAINS</tt>,
-<tt class="rst-docutils literal">DOES_NOT_CONTAIN</tt>,
-<tt class="rst-docutils literal">REGEX</tt></dd>
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><a href="msiempy.event.FieldFilter.html#name"><code>name</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): field name as string. Field name property. Example : <tt class="rst-docutils literal">"SrcIP"</tt>. See full list here: <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json" target="_top">https://github.com/mfesiem/msiempy/blob/master/static/all_filters.json</a></li>
+<li><a href="msiempy.event.FieldFilter.html#values"><code>values</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a>): list of values the field is going to be tested againts with the specified orperator.</li>
+<li><code>orperator</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): One of: <tt class="rst-docutils literal">IN</tt>, <tt class="rst-docutils literal">NOT_IN</tt>, <tt class="rst-docutils literal">GREATER_THAN</tt>, <tt class="rst-docutils literal">LESS_THAN</tt>, <tt class="rst-docutils literal">GREATER_OR_EQUALS_THAN</tt>, <tt class="rst-docutils literal">LESS_OR_EQUALS_THAN</tt>, <tt class="rst-docutils literal">NUMERIC_EQUALS</tt>, <tt class="rst-docutils literal">NUMERIC_NOT_EQUALS</tt>, <tt class="rst-docutils literal">DOES_NOT_EQUAL</tt>, <tt class="rst-docutils literal">EQUALS</tt>, <tt class="rst-docutils literal">CONTAINS</tt>, <tt class="rst-docutils literal">DOES_NOT_CONTAIN</tt>, <tt class="rst-docutils literal">REGEX</tt></li>
+</ul>
+</dd>
 </dl>
-</blockquote>
 </div>
   </div>
 </div><div class="baseinstancevariable private">
@@ -198,7 +209,7 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
   </a>
   <div class="functionHeader">
     _operator =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1913">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1887">
       
       (source)
     </a>
@@ -217,7 +228,7 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
   </a>
   <div class="functionHeader">
     _values =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1914">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1888">
       
       (source)
     </a>
@@ -226,7 +237,7 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
     
     <div class="undocumented">Undocumented</div>
   </div>
-</div><div class="basemethod">
+</div><div class="baseinstancevariable">
   
   <a name="msiempy.event.FieldFilter.operator">
     
@@ -235,20 +246,18 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
     
   </a>
   <div class="functionHeader">
-    @operator.setter<br />
-    def
-    operator(self, operator):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1973">
+    operator =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1890">
       
       (source)
     </a>
   </div>
-  <div class="docstring functionBody">
+  <div class="functionBody">
     
-    
-    <div class="undocumented">Undocumented</div>
+    <div>Filter operator.
+Throws <a href="https://docs.python.org/3/library/exceptions.html#AttributeError"><code>AttributeError</code></a> if trying to set an unknown operator.</div>
   </div>
-</div><div class="basemethod">
+</div><div class="baseinstancevariable">
   
   <a name="msiempy.event.FieldFilter.values">
     
@@ -257,18 +266,26 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
     
   </a>
   <div class="functionHeader">
-    @values.setter<br />
-    def
-    values(self, values):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L2001">
+    values =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1891">
       
       (source)
     </a>
   </div>
-  <div class="docstring functionBody">
+  <div class="functionBody">
     
-    
-    <div class="undocumented">Undocumented</div>
+    <div><p>List of values of the filter.</p>
+<p>Values will be added with:</p>
+<ul class="rst-simple">
+<li><a href="msiempy.event.FieldFilter.html#add_value"><code>add_value</code></a> if value is a <a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a></li>
+<li><a href="msiempy.event.FieldFilter.html#add_basic_value"><code>add_basic_value</code></a> if value type is <a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>, <a href="https://docs.python.org/3/library/stdtypes.html#float"><code>float</code></a> or <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>.</li>
+</ul>
+<p>Values will always be added to the filter. To remove values, handle directly the <a href="msiempy.event.FieldFilter.html#_values"><code>_values</code></a> property.</p>
+<p>Example:</p>
+<pre class="rst-literal-block">
+filter = FieldFilter(name='DstIP', values=[{'type':'EsmWatchlistValue', 'watchlist':42}], operator='IN')
+</pre>
+</div>
   </div>
 </div><div class="baseinstancevariable">
   
@@ -280,7 +297,7 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
   </a>
   <div class="functionHeader">
     name =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1919">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1893">
       
       (source)
     </a>
@@ -299,7 +316,7 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
   </a>
   <div class="functionHeader">
     data =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1924">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1898">
       
       (source)
     </a>
@@ -318,7 +335,7 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
   </a>
   <div class="functionHeader">
     POSSIBLE_OPERATORS =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1939">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1913">
       
       (source)
     </a>
@@ -337,14 +354,102 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
   </a>
   <div class="functionHeader">
     POSSIBLE_VALUE_TYPES =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1956">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1930">
       
       (source)
     </a>
   </div>
   <div class="functionBody">
     
-    <div>List of possible value type. See <a href="msiempy.event.FieldFilter.html#add_value"><code>msiempy.event.FieldFilter.add_value</code></a>.</div> (type: <code>List</code>)
+    <div>List of possible value type. See <a href="msiempy.event.FieldFilter.html#add_value"><code>add_value</code></a>.</div> (type: <code>List</code>)
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.event.FieldFilter._get_operator">
+    
+  </a>
+  <a name="_get_operator">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _get_operator(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1940">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.event.FieldFilter._set_operator">
+    
+  </a>
+  <a name="_set_operator">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _set_operator(self, operator):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1943">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.event.FieldFilter._get_values">
+    
+  </a>
+  <a name="_get_values">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _get_values(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1959">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.event.FieldFilter._set_values">
+    
+  </a>
+  <a name="_set_values">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _set_values(self, values):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L1963">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
   </div>
 </div><div class="basemethod">
   
@@ -358,7 +463,7 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
     
     def
     add_value(self, type=None, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L2026">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L2003">
       
       (source)
     </a>
@@ -367,20 +472,21 @@ Make sure the filter name is valid by checking the result of <a href="msiempy.ev
     
     
     <div><p>Add a new value to the filter.</p>
-<p>Args:</p>
-<blockquote>
-<p>type (str): Type of the value</p>
-<p>value (str): If <tt class="rst-docutils literal">type</tt> is <tt class="rst-docutils literal">"EsmBasicValue"</tt></p>
-<p>watchlist (int): If <tt class="rst-docutils literal">type</tt> is <tt class="rst-docutils literal">"EsmWatchlistValue"</tt></p>
-<p>variable (int): If <tt class="rst-docutils literal">type</tt> is <tt class="rst-docutils literal">"EsmVariableValue"</tt></p>
-<p>values (list): If <tt class="rst-docutils literal">type</tt> is <tt class="rst-docutils literal">"EsmCompoundValue"</tt></p>
-</blockquote>
-<p>Raises:</p>
-<blockquote>
-<a href="https://docs.python.org/3/library/exceptions.html#KeyError"><code>KeyError</code></a> or <a href="https://docs.python.org/3/library/exceptions.html#AttributeError"><code>AttributeError</code></a> if you don't respect the correct type/key/value combo.</blockquote>
-<p>Note:</p>
-<blockquote>
-Filtering query with other type of filter than <code>EsmBasicValue</code> is not tested.</blockquote>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><a href="https://docs.python.org/3/library/stdtypes.html#type"><code>type</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Type of the value</li>
+<li><code>value</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): If <tt class="rst-docutils literal">type</tt> is <tt class="rst-docutils literal">"EsmBasicValue"</tt></li>
+<li><a href="msiempy.watchlist.html"><code>watchlist</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): If <tt class="rst-docutils literal">type</tt> is <tt class="rst-docutils literal">"EsmWatchlistValue"</tt></li>
+<li><code>variable</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): If <tt class="rst-docutils literal">type</tt> is <tt class="rst-docutils literal">"EsmVariableValue"</tt></li>
+<li><a href="msiempy.event.FieldFilter.html#values"><code>values</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a>): If <tt class="rst-docutils literal">type</tt> is <tt class="rst-docutils literal">"EsmCompoundValue"</tt></li>
+</ul>
+</dd>
+<dt>Raises:</dt>
+<dd><a href="https://docs.python.org/3/library/exceptions.html#KeyError"><code>KeyError</code></a> or <a href="https://docs.python.org/3/library/exceptions.html#AttributeError"><code>AttributeError</code></a> if you don't respect the correct type/key/value combo.</dd>
+<dt>Note:</dt>
+<dd>Filtering query with other type of filter than <tt class="rst-docutils literal">EsmBasicValue</tt> is not tested.</dd>
+</dl>
 </div>
   </div>
 </div><div class="basemethod">
@@ -395,7 +501,7 @@ Filtering query with other type of filter than <code>EsmBasicValue</code> is not
     
     def
     add_basic_value(self, value):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L2094">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L2064">
       
       (source)
     </a>
@@ -409,7 +515,7 @@ Filtering query with other type of filter than <code>EsmBasicValue</code> is not
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 20:15:08.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-12 16:28:09.
       </address>
 
     </div>

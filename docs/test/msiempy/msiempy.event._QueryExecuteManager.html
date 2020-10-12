@@ -42,9 +42,10 @@
       </div>
 
       <div class="moduleDocstring">
-        <div><em>Abstract</em> class to handle common <code>filters</code> properties that grouped and non-grouped queries share.
-As well as providing helper functions to wait the query and get the results (see source code).
-Only Events query are currently supported.</div>
+        <div><p><em>Abstract</em> class to handle common <code>filters</code> properties that grouped and non-grouped queries share.</p>
+<p>Also provide helper functions to wait the query and get the results (see source code).
+Only Events query are currently supported.</p>
+</div>
       </div>
 
       <div id="splitTables">
@@ -54,12 +55,12 @@ Only Events query are currently supported.</div>
     
     <td>Method</td>
     <td><a href="msiempy.event._QueryExecuteManager.html#__init__" class="code" data-type="Method">__init__</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td><span>Create a query list</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><a href="msiempy.event._QueryExecuteManager.html#add_filter" class="code" data-type="Method">add_filter</a></td>
-    <td><span>Add a filter to the query. Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</code> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a>.</span></td>
+    <td><span>Add a filter to the query.</span></td>
   </tr><tr class="staticmethod">
     
     <td>Static Method</td>
@@ -84,17 +85,17 @@ Only Events query are currently supported.</div>
     
     <td>Method</td>
     <td><a href="msiempy.event._QueryExecuteManager.html#_close_query" class="code" data-type="Method">_close_query</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td><span>Close the query</span></td>
   </tr><tr class="method private">
     
     <td>Method</td>
     <td><a href="msiempy.event._QueryExecuteManager.html#_wait_for" class="code" data-type="Method">_wait_for</a></td>
-    <td><span>Internal method called by qry_load_data Wait and sleep - for <code>sleep_time</code> duration in seconds - until the query is completed or retry countdown arrives at zero.</span></td>
+    <td><span>Wait and sleep for the query.</span></td>
   </tr><tr class="method private">
     
     <td>Method</td>
     <td><a href="msiempy.event._QueryExecuteManager.html#_get_events" class="code" data-type="Method">_get_events</a></td>
-    <td><span>Internal method that will get the query events, called by qry_load_data by default, numRows correspond to limit</span></td>
+    <td><span>Internal method that will get the query events. Called by <code>qry_load_data</code>. By default, <tt class="rst-docutils literal">numRows</tt> correspond to <tt class="rst-docutils literal">limit</tt>.</span></td>
   </tr>
 </table>
         
@@ -107,37 +108,37 @@ Only Events query are currently supported.</div>
     
     <td>Instance Variable</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#not_completed" class="code" data-type="Instance Variable">not_completed</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td><span>Boolean signals the query is not completed</span></td>
   </tr><tr class="baseinstancevariable">
     
     <td>Instance Variable</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#filters" class="code" data-type="Instance Variable">filters</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td><span>Query filters</span></td>
   </tr><tr class="baseinstancevariable">
     
     <td>Instance Variable</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#start_time" class="code" data-type="Instance Variable">start_time</a></td>
-    <td><span class="undocumented">No summary</span></td>
+    <td><span>Start time of the query in the right SIEM format.</span></td>
   </tr><tr class="baseinstancevariable">
     
     <td>Instance Variable</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#end_time" class="code" data-type="Instance Variable">end_time</a></td>
-    <td><span class="undocumented">No summary</span></td>
+    <td><span>End time of the query in the right SIEM format.</span></td>
   </tr><tr class="baseinstancevariable">
     
     <td>Instance Variable</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#time_range" class="code" data-type="Instance Variable">time_range</a></td>
-    <td><span>Query time range. Defaults to "CURRENT_DAY".</span></td>
+    <td><span>Query time range. Defaults to <tt class="rst-docutils literal">"CURRENT_DAY"</tt>.</span></td>
   </tr><tr class="baseclassvariable">
     
     <td>Class Variable</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#DEFAULT_TIME_RANGE" class="code" data-type="Class Variable">DEFAULT_TIME_RANGE</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td><span>Default time range : <tt class="rst-docutils literal">"CURRENT_DAY"</tt></span></td>
   </tr><tr class="baseclassvariable">
     
     <td>Class Variable</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#POSSIBLE_TIME_RANGE" class="code" data-type="Class Variable">POSSIBLE_TIME_RANGE</a></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td><span class="undocumented">No summary</span></td>
   </tr><tr class="basemethod">
     
     <td>Method</td>
@@ -211,7 +212,12 @@ Only Events query are currently supported.</div>
           </p>
           <table class="children sortable" id="id40">
   
-  <tr class="basemethod">
+  <tr class="baseinstancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.types.NitroList.html#data" class="code" data-type="Instance Variable">data</a></td>
+    <td><span>Underlying <a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> object</span></td>
+  </tr><tr class="basemethod">
     
     <td>Method</td>
     <td><a href="msiempy.core.types.NitroList.html#__str__" class="code" data-type="Method">__str__</a></td>
@@ -240,7 +246,7 @@ Only Events query are currently supported.</div>
     
     <td>Method</td>
     <td><a href="msiempy.core.types.NitroList.html#search" class="code" data-type="Method">search</a></td>
-    <td><span class="undocumented">No summary</span></td>
+    <td><span>Search elements in the list with a regex pattern</span></td>
   </tr><tr class="basemethod">
     
     <td>Method</td>
@@ -250,7 +256,7 @@ Only Events query are currently supported.</div>
     
     <td>Method</td>
     <td><a href="msiempy.core.types.NitroList.html#perform" class="code" data-type="Method">perform</a></td>
-    <td><span>Wrapper arround executable and the a list of elements, typically <a href="msiempy.core.types.NitroList.html"><code>msiempy.core.types.NitroList</code></a> object.</span></td>
+    <td><span>Wrapper to execute a function on the list of elements</span></td>
   </tr><tr class="basestaticmethod private">
     
     <td>Static Method</td>
@@ -293,7 +299,7 @@ Only Events query are currently supported.</div>
   </a>
   <div class="functionHeader">
     _TYPE =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L29">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L30">
       
       (source)
     </a>
@@ -314,7 +320,7 @@ Only Events query are currently supported.</div>
     
     def
     __init__(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L32">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L33">
       
       (source)
     </a>
@@ -322,7 +328,22 @@ Only Events query are currently supported.</div>
   <div class="docstring functionBody">
     <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#__init__" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.__init__</a></div><div class="interfaceinfo">overridden in <a href="msiempy.event.EventManager.html" class="code" data-type="Class">msiempy.event.EventManager</a>, <a href="msiempy.event.GroupedEventManager.html" class="code" data-type="Class">msiempy.event.GroupedEventManager</a></div>
     
-    <div class="undocumented">Undocumented</div>
+    <div><p>Create a query list</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><dl class="rst-first rst-docutils">
+<dt><a href="msiempy.core.query.FilteredQueryList.html#time_range"><code>time_range</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Query time range. String representation of a time range.</dt>
+<dd>See <a href="msiempy.core.query.FilteredQueryList.html#POSSIBLE_TIME_RANGE"><code>msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE</code></a>.</dd>
+</dl>
+</li>
+<li><a href="msiempy.core.query.FilteredQueryList.html#start_time"><code>start_time</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a>): Query start time.</li>
+<li><a href="msiempy.core.query.FilteredQueryList.html#end_time"><code>end_time</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a>): Query end time.</li>
+<li><a href="msiempy.core.query.FilteredQueryList.html#filters"><code>filters</code></a>: List of filters applied to the query.</li>
+</ul>
+</dd>
+</dl>
+</div>
   </div>
 </div><div class="baseinstancevariable private">
   
@@ -334,7 +355,7 @@ Only Events query are currently supported.</div>
   </a>
   <div class="functionHeader">
     _filters =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L35">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L36">
       
       (source)
     </a>
@@ -355,7 +376,7 @@ Only Events query are currently supported.</div>
     
     def
     _get_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L40">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L41">
       
       (source)
     </a>
@@ -378,7 +399,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     def
     add_filter(self, afilter):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L47">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L48">
       
       (source)
     </a>
@@ -386,8 +407,16 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
   <div class="docstring functionBody">
     <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#add_filter" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.add_filter</a></div>
     
-    <div>Add a filter to the query.
-Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</code> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a>.</div>
+    <div><p>Add a filter to the query.</p>
+<p>Called by the <code>filters</code> property setter.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>afilter</code> (<code>tuple(field, [values])</code> or <code>tuple(field, value)</code> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a>): The filter</li>
+</ul>
+</dd>
+</dl>
+</div>
   </div>
 </div><div class="basemethod private">
   
@@ -401,7 +430,7 @@ Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</
     
     def
     _close_query(self, resultID):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L65">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L70">
       
       (source)
     </a>
@@ -409,7 +438,9 @@ Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</
   <div class="docstring functionBody">
     
     
-    <div class="undocumented">Undocumented</div>
+    <div><p>Close the query</p>
+<p>Internal method called by qry_load_data</p>
+</div>
   </div>
 </div><div class="basemethod private">
   
@@ -423,7 +454,7 @@ Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</
     
     def
     _wait_for(self, resultID, wait_timeout_sec, sleep_time=0.2):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L68">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L78">
       
       (source)
     </a>
@@ -431,16 +462,25 @@ Argument must be a <code>tuple(field, [values])</code> or <code>(field, value)</
   <div class="docstring functionBody">
     
     
-    <div><p>Internal method called by qry_load_data
-Wait and sleep - for <code>sleep_time</code> duration in seconds -</p>
-<blockquote>
-until the query is completed or retry countdown arrives at zero.</blockquote>
-<p>Return: <a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a></p>
-<p>Raises:</p>
-<blockquote>
-<p><a href="msiempy.core.session.NitroError.html"><code>msiempy.NitroError</code></a>: 'ResultUnavailable' error some times...</p>
-<p><a href="https://docs.python.org/3/library/exceptions.html#TimeoutError"><code>TimeoutError</code></a>: Query wait timeout</p>
-</blockquote>
+    <div><p>Wait and sleep for the query.</p>
+<p>Internal method called by qry_load_data</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>resultID</code>: Query result ID</li>
+<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): Duration in seconds until the query is completed or countdown arrives at zero.</li>
+<li><code>sleep_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#float"><code>float</code></a>): Time to sleep in the waiting loop</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a></dd>
+<dt>Raises:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><a href="msiempy.core.session.NitroError.html"><code>msiempy.NitroError</code></a>: 'ResultUnavailable' error some times...</li>
+<li><a href="https://docs.python.org/3/library/exceptions.html#TimeoutError"><code>TimeoutError</code></a>: Query wait timeout</li>
+</ul>
+</dd>
+</dl>
 </div>
   </div>
 </div><div class="basemethod private">
@@ -455,7 +495,7 @@ until the query is completed or retry countdown arrives at zero.</blockquote>
     
     def
     _get_events(self, resultID, startPos=0, numRows=500):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L102">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L116">
       
       (source)
     </a>
@@ -463,12 +503,9 @@ until the query is completed or retry countdown arrives at zero.</blockquote>
   <div class="docstring functionBody">
     
     
-    <div><dl class="rst-docutils">
-<dt>Internal method that will get the query events,</dt>
-<dd>called by qry_load_data</dd>
-</dl>
-<p>by default, numRows correspond to limit</p>
-</div>
+    <div>Internal method that will get the query events.
+Called by <code>qry_load_data</code>.
+By default, <tt class="rst-docutils literal">numRows</tt> correspond to <tt class="rst-docutils literal">limit</tt>.</div>
   </div>
 </div><div class="basestaticmethod">
   
@@ -482,7 +519,7 @@ until the query is completed or retry countdown arrives at zero.</blockquote>
     @staticmethod<br />
     def
     get_field_nickname(field):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L129">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/develop//msiempy/event.py#L143">
       
       (source)
     </a>
@@ -497,7 +534,7 @@ Returns the valid query field nickname if found else the initial value.</div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-09 20:15:08.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-12 16:28:09.
       </address>
 
     </div>

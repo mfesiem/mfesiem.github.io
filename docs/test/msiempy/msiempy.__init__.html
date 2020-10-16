@@ -124,19 +124,19 @@ You can also directly paste the password's base64 in the config file by doing:</
 <h2 class="heading"><a class="rst-toc-backref" href="#rst-id4">Execute an event query</a></h2>
 <p>Query events according to destination IP and hostname filters, sorted by AlertID.</p>
 <pre class="py-doctest">
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span>  msiempy <span class="py-keyword">import</span> EventManager, FieldFilter
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(<span class="py-string">'Simple event query sorted by AlertID'</span>)
-<span class="py-prompt">&gt;&gt;&gt; </span>events = EventManager(
-<span class="py-output">        time_range='CURRENT_YEAR',</span>
-<span class="py-output">        fields=['SrcIP', 'AlertID'], # SrcIP and AlertID are not queried by default</span>
-<span class="py-output">        filters=[</span>
-<span class="py-output">                FieldFilter('DstIP', ['0.0.0.0/0',]),</span>
-<span class="py-output">                FieldFilter('HostID', ['mail'], operator='CONTAINS')], # Replace "mail" by a test hostname</span>
-<span class="py-output">        order=(('ASCENDING', 'AlertID')),</span>
-<span class="py-output">        limit=10) # Will only load 10 events (per query)</span>
-<span class="py-prompt">&gt;&gt;&gt; </span>events.load_data()
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(events)
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(events.get_text(fields=[<span class="py-string">'AlertID'</span>,<span class="py-string">'LastTime'</span>,<span class="py-string">'SrcIP'</span>, <span class="py-string">'Rule.msg'</span>]))</pre><dl class="rst-docutils">
+<span class="py-keyword">from</span>  msiempy <span class="py-keyword">import</span> EventManager, FieldFilter
+<span class="py-builtin">print</span>(<span class="py-string">'Simple event query sorted by AlertID'</span>)
+events = EventManager(
+        time_range=<span class="py-string">'CURRENT_YEAR'</span>,
+        fields=[<span class="py-string">'SrcIP'</span>, <span class="py-string">'AlertID'</span>], <span class="py-comment"># SrcIP and AlertID are not queried by default</span>
+        filters=[
+                FieldFilter(<span class="py-string">'DstIP'</span>, [<span class="py-string">'0.0.0.0/0'</span>,]),
+                FieldFilter(<span class="py-string">'HostID'</span>, [<span class="py-string">'mail'</span>], operator=<span class="py-string">'CONTAINS'</span>)], <span class="py-comment"># Replace "mail" by a test hostname</span>
+        order=((<span class="py-string">'ASCENDING'</span>, <span class="py-string">'AlertID'</span>)),
+        limit=10) <span class="py-comment"># Will only load 10 events (per query)</span>
+events.load_data()
+<span class="py-builtin">print</span>(events)
+<span class="py-builtin">print</span>(events.get_text(fields=[<span class="py-string">'AlertID'</span>,<span class="py-string">'LastTime'</span>,<span class="py-string">'SrcIP'</span>, <span class="py-string">'Rule.msg'</span>]))</pre><dl class="rst-docutils">
 <dt>Notes:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li>The <tt class="rst-docutils literal">limit</tt> argument should be increased to 500 or 1000 once finish testing for better performance.</li>
@@ -152,27 +152,26 @@ You can also directly paste the password's base64 in the config file by doing:</
 <p>Print all <tt class="rst-docutils literal">unacknowledged</tt> alarms filtered by alarm name and event message, then acknowledge the alarms.</p>
 <p>Filter with alarm match <tt class="rst-docutils literal">'Test alarm'</tt> and triggering event message match <tt class="rst-docutils literal">'Wordpress'</tt>.</p>
 <pre class="py-doctest">
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> AlarmManager, Alarm
-<span class="py-output"># Make an alarm query</span>
-<span class="py-prompt">&gt;&gt;&gt; </span>alarms=AlarmManager(
-<span class="py-output">        time_range='CURRENT_YEAR',</span>
-<span class="py-output">        status_filter='unacknowledged', # passed to alarmGetTriggeredAlarms</span>
-<span class="py-output">        filters=[('alarmName', 'Test alarm')], # Regex</span>
-<span class="py-output">        event_filters=[('ruleName','Wordpress')], # Regex</span>
-<span class="py-output">        page_size=5 # Will only load 5 alarms (per page)</span>
-<span class="py-output">)</span>
-<span class="py-output"># Load the data into the list</span>
-<span class="py-prompt">&gt;&gt;&gt; </span>alarms.load_data()
-<span class="py-output"># Print results</span>
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(<span class="py-string">"Alarm list: "</span>)
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(alarms)
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(alarms.get_text(
-<span class="py-output">        fields=['id','triggeredDate','acknowledgedDate', 'alarmName', 'acknowledgedUsername']))</span>
-<span class="py-output"># Acknowledge alarms</span>
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(<span class="py-string">"Acknowledge alarms"</span>)
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">for</span> alarm <span class="py-keyword">in</span> alarms:
-<span class="py-output">        alarm.acknowledge()</span>
-</pre><dl class="rst-docutils">
+<span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> AlarmManager, Alarm
+<span class="py-comment"># Make an alarm query</span>
+alarms=AlarmManager(
+        time_range=<span class="py-string">'CURRENT_YEAR'</span>,
+        status_filter=<span class="py-string">'unacknowledged'</span>, <span class="py-comment"># passed to alarmGetTriggeredAlarms</span>
+        filters=[(<span class="py-string">'alarmName'</span>, <span class="py-string">'Test alarm'</span>)], <span class="py-comment"># Regex</span>
+        event_filters=[(<span class="py-string">'ruleName'</span>,<span class="py-string">'Wordpress'</span>)], <span class="py-comment"># Regex</span>
+        page_size=5 <span class="py-comment"># Will only load 5 alarms (per page)</span>
+)
+<span class="py-comment"># Load the data into the list</span>
+alarms.load_data()
+<span class="py-comment"># Print results</span>
+<span class="py-builtin">print</span>(<span class="py-string">"Alarm list: "</span>)
+<span class="py-builtin">print</span>(alarms)
+<span class="py-builtin">print</span>(alarms.get_text(
+        fields=[<span class="py-string">'id'</span>,<span class="py-string">'triggeredDate'</span>,<span class="py-string">'acknowledgedDate'</span>, <span class="py-string">'alarmName'</span>, <span class="py-string">'acknowledgedUsername'</span>]))
+<span class="py-comment"># Acknowledge alarms</span>
+<span class="py-builtin">print</span>(<span class="py-string">"Acknowledge alarms"</span>)
+<span class="py-keyword">for</span> alarm <span class="py-keyword">in</span> alarms:
+        alarm.acknowledge()</pre><dl class="rst-docutils">
 <dt>Notes:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li>The <tt class="rst-docutils literal">page_size</tt> argument should be increased to 500 or 1000 once finish testing for better performance.</li>
@@ -188,14 +187,13 @@ You can also directly paste the password's base64 in the config file by doing:</
 <p>This is useful when dealing with features of the ESM API that are not explicitly implemented in this library yet (i.e. user managment).</p>
 <p><strong>Use the session object</strong> to make direct API calls with any data.</p>
 <pre class="py-doctest">
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> NitroSession
-<span class="py-prompt">&gt;&gt;&gt; </span>s = NitroSession()
-<span class="py-prompt">&gt;&gt;&gt; </span>s.login()
-<span class="py-output"># Get all last 24h alarms details with ESM API v2 (not supported yet)</span>
-<span class="py-prompt">&gt;&gt;&gt; </span>alarms = s.api_request(<span class="py-string">'v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1'</span>)
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">for</span> a <span class="py-keyword">in</span> alarms:
-<span class="py-output">        a.update(s.api_request('v2/notifyGetTriggeredNotificationDetail', {'id':a['id']}))</span>
-</pre><p>The session object will handle authentication and intermittent (but annoying) SIEM errors.</p>
+<span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> NitroSession
+s = NitroSession()
+s.login()
+<span class="py-comment"># Get all last 24h alarms details with ESM API v2 (not supported yet)</span>
+alarms = s.api_request(<span class="py-string">'v2/alarmGetTriggeredAlarms?triggeredTimeRange=LAST_24_HOURS&amp;status=&amp;pageSize=500&amp;pageNumber=1'</span>)
+<span class="py-keyword">for</span> a <span class="py-keyword">in</span> alarms:
+        a.update(s.api_request(<span class="py-string">'v2/notifyGetTriggeredNotificationDetail'</span>, {<span class="py-string">'id'</span>:a[<span class="py-string">'id'</span>]}))</pre><p>The session object will handle authentication and intermittent (but annoying) SIEM errors.</p>
 <dl class="rst-docutils">
 <dt>See:</dt>
 <dd>Object <a href="msiempy.core.session.NitroSession.html"><code>NitroSession</code></a></dd>
@@ -205,16 +203,15 @@ You can also directly paste the password's base64 in the config file by doing:</
 <h2 class="heading"><a class="rst-toc-backref" href="#rst-id7">Add a note to events</a></h2>
 <p>Set the note of 2 events and check if the note is well set.</p>
 <pre class="py-doctest">
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span>  msiempy <span class="py-keyword">import</span> EventManager, Event
-<span class="py-prompt">&gt;&gt;&gt; </span>events = EventManager(
-<span class="py-output">        time_range='CURRENT_YEAR',</span>
-<span class="py-output">        limit=2 )</span>
-<span class="py-prompt">&gt;&gt;&gt; </span>events.load_data()
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">for</span> event <span class="py-keyword">in</span> events :
-<span class="py-output">        event.set_note("Test note")</span>
-<span class="py-output">        event.refresh(use_query=False) # Event data will be loaded with ipsGetAlertData API method</span>
-<span class="py-output">        assert "Test note" in genuine_event['note'], "Error, the note hasn't been added"</span>
-</pre><dl class="rst-docutils">
+<span class="py-keyword">from</span>  msiempy <span class="py-keyword">import</span> EventManager, Event
+events = EventManager(
+        time_range=<span class="py-string">'CURRENT_YEAR'</span>,
+        limit=2 )
+events.load_data()
+<span class="py-keyword">for</span> event <span class="py-keyword">in</span> events :
+        event.set_note(<span class="py-string">"Test note"</span>)
+        event.refresh(use_query=<span class="py-builtin">False</span>) <span class="py-comment"># Event data will be loaded with ipsGetAlertData API method</span>
+        <span class="py-keyword">assert</span> <span class="py-string">"Test note"</span> <span class="py-keyword">in</span> genuine_event[<span class="py-string">'note'</span>], <span class="py-string">"Error, the note hasn't been added"</span></pre><dl class="rst-docutils">
 <dt>See:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li><a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py" target="_top">add_wpsan_note.py</a> script for more on how to add notes to event that triggered alarms.</li>
@@ -246,12 +243,11 @@ You can also directly paste the password's base64 in the config file by doing:</
 <span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> DevTree
 <span class="py-prompt">&gt;&gt;&gt; </span>devtree = DevTree()
 <span class="py-prompt">&gt;&gt;&gt; </span>devtree.add({
-<span class="py-output">        "name": "Test DS",</span>
-<span class="py-output">        "parent_id": "144116287587483648",</span>
-<span class="py-output">        "ds_ip": "10.2.2.2",</span>
-<span class="py-output">        "hostname": "testds.domain.ca",</span>
-<span class="py-output">        "type_id": "65"</span>
-<span class="py-output">})</span>
+<span class="py-more">... </span>    <span class="py-string">"name"</span>: <span class="py-string">"Test DS"</span>,
+<span class="py-more">... </span>    <span class="py-string">"parent_id"</span>: <span class="py-string">"144116287587483648"</span>,
+<span class="py-more">... </span>    <span class="py-string">"ds_ip"</span>: <span class="py-string">"10.2.2.2"</span>,
+<span class="py-more">... </span>    <span class="py-string">"hostname"</span>: <span class="py-string">"testds.domain.ca"</span>,
+<span class="py-more">... </span>    <span class="py-string">"type_id"</span>: <span class="py-string">"65"</span> })
 <span class="py-output">{'value': 1385420} # Wait a bit for the request</span>
 <span class="py-prompt">&gt;&gt;&gt; </span>devtree.refresh() <span class="py-comment"># Refresh the DevTree</span></pre><dl class="rst-docutils">
 <dt>See:</dt>
@@ -261,6 +257,7 @@ You can also directly paste the password's base64 in the config file by doing:</
 <div class="rst-section" id="rst-add-values-to-a-watchlist">
 <h2 class="heading"><a class="rst-toc-backref" href="#rst-id10">Add values to a Watchlist</a></h2>
 <pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> WatchlistManager
 <span class="py-prompt">&gt;&gt;&gt; </span>wl_list = WatchlistManager()
 <span class="py-prompt">&gt;&gt;&gt; </span>wl = wl_list.search(<span class="py-string">'test_Watchlist'</span>)[0]
 <span class="py-prompt">&gt;&gt;&gt; </span>wl.add_values([<span class="py-string">'1.1.1.2'</span>, <span class="py-string">'2.2.2.1'</span>, <span class="py-string">'3.3.3.1'</span>])</pre><dl class="rst-docutils">
@@ -272,18 +269,18 @@ You can also directly paste the password's base64 in the config file by doing:</
 <h2 class="heading"><a class="rst-toc-backref" href="#rst-id11">Execute a grouped event query</a></h2>
 <p>Query the curent day events filtered by <code>IPSID</code> grouped by <code>ScrIP</code>.</p>
 <pre class="py-doctest">
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> GroupedEventManager
-<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">import</span> pprint
-<span class="py-prompt">&gt;&gt;&gt; </span>query = GroupedEventManager(
-<span class="py-output">                time_range='LAST_3_DAYS',</span>
-<span class="py-output">                field='SrcIP',</span>
-<span class="py-output">                filters=[('IPSID', '144116287587483648')])</span>
-<span class="py-prompt">&gt;&gt;&gt; </span>query.load_data()
-<span class="py-output"># Sort the results by total count</span>
-<span class="py-prompt">&gt;&gt;&gt; </span>results = <span class="py-builtin">list</span>(<span class="py-builtin">reversed</span>(<span class="py-builtin">sorted</span>(query, key=<span class="py-keyword">lambda</span> k: <span class="py-builtin">int</span>(k[<span class="py-string">'SUM(Alert.EventCount)'</span>]))))
-<span class="py-output"># Display top 10</span>
-<span class="py-prompt">&gt;&gt;&gt; </span>top10=results[:10]
-<span class="py-prompt">&gt;&gt;&gt; </span>pprint.pprint(top10)</pre><dl class="rst-docutils">
+<span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> GroupedEventManager
+<span class="py-keyword">import</span> pprint
+query = GroupedEventManager(
+                time_range=<span class="py-string">'LAST_3_DAYS'</span>,
+                field=<span class="py-string">'SrcIP'</span>,
+                filters=[(<span class="py-string">'IPSID'</span>, <span class="py-string">'144116287587483648'</span>)])
+query.load_data()
+<span class="py-comment"># Sort the results by total count</span>
+results = <span class="py-builtin">list</span>(<span class="py-builtin">reversed</span>(<span class="py-builtin">sorted</span>(query, key=<span class="py-keyword">lambda</span> k: <span class="py-builtin">int</span>(k[<span class="py-string">'SUM(Alert.EventCount)'</span>]))))
+<span class="py-comment"># Display top 10</span>
+top10=results[:10]
+pprint.pprint(top10)</pre><dl class="rst-docutils">
 <dt>See:</dt>
 <dd>Objects <a href="msiempy.event.GroupedEventManager.html"><code>GroupedEventManager</code></a> and <a href="msiempy.event.GroupedEvent.html"><code>GroupedEvent</code></a>.</dd>
 <dt>Tip:</dt>
@@ -342,7 +339,7 @@ cat /path/to/your/log/file | grep -i error | sort | uniq
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-12 18:56:56.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-16 20:53:34.
       </address>
 
     </div>

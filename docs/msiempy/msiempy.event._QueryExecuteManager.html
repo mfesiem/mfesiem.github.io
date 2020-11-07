@@ -15,7 +15,7 @@
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="index.html">
-            msiempy API Documentation
+            <a href="https://github.com/mfesiem/msiempy">McAfee SIEM Python Library</a> API Documentation
           </a>
         </div>
       </div>
@@ -32,7 +32,7 @@
 
         <span id="partOf">
           Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.event.html" class="code" data-type="Module">event</a></code>
-          <a href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L22">View Source</a>
+          <a href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/event.py#L22">View Source</a>
           <a href="classIndex.html#msiempy.event._QueryExecuteManager">(View In Hierarchy)</a>
         </span>
       </div>
@@ -95,7 +95,7 @@ Only Events query are currently supported.</p>
     
     <td>Method</td>
     <td><a href="msiempy.event._QueryExecuteManager.html#_get_events" class="code" data-type="Method">_get_events</a></td>
-    <td><span>Internal method that will get the query events. Called by <code>qry_load_data</code>. By default, <tt class="rst-docutils literal">numRows</tt> correspond to <tt class="rst-docutils literal">limit</tt>.</span></td>
+    <td><span>Internal method that will get the query events. Called by <code>_qry_load_data</code>. By default, <tt class="rst-docutils literal">numRows</tt> correspond to <tt class="rst-docutils literal">limit</tt>.</span></td>
   </tr>
 </table>
         
@@ -144,11 +144,6 @@ Only Events query are currently supported.</p>
     <td>Method</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#clear_filters" class="code" data-type="Method">clear_filters</a></td>
     <td><span>Remove all filters to the query. Abstract declaration.</span></td>
-  </tr><tr class="basemethod">
-    
-    <td>Method</td>
-    <td><a href="msiempy.core.query.FilteredQueryList.html#qry_load_data" class="code" data-type="Method">qry_load_data</a></td>
-    <td><span>Method to load the data from the SIEM. Rturns a <code>tuple ((items, completed))</code>. Abstract declaration.</span></td>
   </tr><tr class="basemethod">
     
     <td>Method</td>
@@ -204,6 +199,11 @@ Only Events query are currently supported.</p>
     <td>Method</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#_set_filters" class="code" data-type="Method">_set_filters</a></td>
     <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_qry_load_data" class="code" data-type="Method">_qry_load_data</a></td>
+    <td><span>Method to load the data from the SIEM. Rturns a <code>tuple ((items, completed))</code>. Abstract declaration.</span></td>
   </tr>
 </table>
           
@@ -299,7 +299,7 @@ Only Events query are currently supported.</p>
   </a>
   <div class="functionHeader">
     _TYPE =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L30">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/event.py#L30">
       
       (source)
     </a>
@@ -320,7 +320,7 @@ Only Events query are currently supported.</p>
     
     def
     __init__(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L33">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/event.py#L33">
       
       (source)
     </a>
@@ -337,8 +337,8 @@ Only Events query are currently supported.</p>
 <dd>See <a href="msiempy.core.query.FilteredQueryList.html#POSSIBLE_TIME_RANGE"><code>msiempy.core.query.FilteredQueryList.POSSIBLE_TIME_RANGE</code></a>.</dd>
 </dl>
 </li>
-<li><a href="msiempy.core.query.FilteredQueryList.html#start_time"><code>start_time</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a>): Query start time.</li>
-<li><a href="msiempy.core.query.FilteredQueryList.html#end_time"><code>end_time</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a>): Query end time.</li>
+<li><a href="msiempy.core.query.FilteredQueryList.html#start_time"><code>start_time</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#module-datetime"><code>datetime</code></a>): Query start time.</li>
+<li><a href="msiempy.core.query.FilteredQueryList.html#end_time"><code>end_time</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#module-datetime"><code>datetime</code></a>): Query end time.</li>
 <li><a href="msiempy.core.query.FilteredQueryList.html#filters"><code>filters</code></a>: List of filters applied to the query.</li>
 </ul>
 </dd>
@@ -355,7 +355,7 @@ Only Events query are currently supported.</p>
   </a>
   <div class="functionHeader">
     _filters =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L36">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/event.py#L36">
       
       (source)
     </a>
@@ -376,7 +376,7 @@ Only Events query are currently supported.</p>
     
     def
     _get_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L41">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/event.py#L41">
       
       (source)
     </a>
@@ -399,7 +399,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     def
     add_filter(self, afilter):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L48">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/event.py#L48">
       
       (source)
     </a>
@@ -430,7 +430,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     def
     _close_query(self, resultID):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L70">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/event.py#L70">
       
       (source)
     </a>
@@ -439,7 +439,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     
     <div><p>Close the query</p>
-<p>Internal method called by qry_load_data</p>
+<p>Internal method called by _qry_load_data</p>
 </div>
   </div>
 </div><div class="basemethod private">
@@ -454,7 +454,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     def
     _wait_for(self, resultID, wait_timeout_sec, sleep_time=0.2):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L78">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/event.py#L78">
       
       (source)
     </a>
@@ -463,13 +463,13 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     
     <div><p>Wait and sleep for the query.</p>
-<p>Internal method called by qry_load_data</p>
+<p>Internal method called by _qry_load_data</p>
 <dl class="rst-docutils">
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li><code>resultID</code>: Query result ID</li>
-<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): Duration in seconds until the query is completed or countdown arrives at zero.</li>
-<li><code>sleep_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#float"><code>float</code></a>): Time to sleep in the waiting loop</li>
+<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): Duration in seconds until the query is completed or countdown arrives at zero.</li>
+<li><code>sleep_time</code> (<a href="https://docs.python.org/3/library/functions.html#float"><code>float</code></a>): Time to sleep in the waiting loop</li>
 </ul>
 </dd>
 <dt>Returns:</dt>
@@ -495,7 +495,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     def
     _get_events(self, resultID, startPos=0, numRows=500):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L116">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/event.py#L116">
       
       (source)
     </a>
@@ -504,7 +504,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     
     <div>Internal method that will get the query events.
-Called by <code>qry_load_data</code>.
+Called by <code>_qry_load_data</code>.
 By default, <tt class="rst-docutils literal">numRows</tt> correspond to <tt class="rst-docutils literal">limit</tt>.</div>
   </div>
 </div><div class="basestaticmethod">
@@ -519,7 +519,7 @@ By default, <tt class="rst-docutils literal">numRows</tt> correspond to <tt clas
     @staticmethod<br />
     def
     get_field_nickname(field):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/blob/master//msiempy/event.py#L143">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/event.py#L143">
       
       (source)
     </a>
@@ -534,7 +534,7 @@ Returns the valid query field nickname if found else the initial value.</div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-10-16 20:54:13.
+        <a href="index.html">API Documentation</a> for <a href="https://github.com/mfesiem/msiempy">McAfee SIEM Python Library</a>, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-07 01:27:00.
       </address>
 
     </div>

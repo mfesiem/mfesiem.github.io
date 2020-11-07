@@ -15,7 +15,7 @@
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="index.html">
-            <a href="https://github.com/mfesiem/msiempy">McAfee SIEM Python Library</a> API Documentation
+            McAfee SIEM Python Library API Documentation
           </a>
         </div>
       </div>
@@ -668,12 +668,12 @@ Acts like there is not filters.</div>
 </dd>
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><code>retry</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): number of time the query can be failed and retried.  (Default value = 1)</li>
-<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): wait timeout in seconds. (Default value = 120)</li>
+<li><code>retry</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): number of time the query can be failed and retried.  (Default value = 1)</li>
+<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): wait timeout in seconds. (Default value = 120)</li>
 </ul>
 </dd>
 <dt>Returns:</dt>
-<dd>tuple: ( <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a>, Query completed? <a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a> )</dd>
+<dd>tuple: ( <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a>, Query completed? <a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a> )</dd>
 <dt>Raises:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li><a href="msiempy.core.session.NitroError.html"><code>msiempy.core.session.NitroError</code></a>: If any unhandled errors.</li>
@@ -709,15 +709,15 @@ Wraps around <a href="msiempy.event.EventManager.html#_qry_load_data"><code>msie
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li><dl class="rst-first rst-docutils">
-<dt><code>max_query_depth</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): Maximum number of reccursive divisions <a href="msiempy.event.EventManager.html#load_data"><code>load_data</code></a> method can apply to the query in order to load all events. Splits the query in differents time slots if the query apprears not to be completed.  Only works with custom times and some time ranges.</dt>
+<dt><code>max_query_depth</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): Maximum number of reccursive divisions <a href="msiempy.event.EventManager.html#load_data"><code>load_data</code></a> method can apply to the query in order to load all events. Splits the query in differents time slots if the query apprears not to be completed.  Only works with custom times and some time ranges.</dt>
 <dd>If <tt class="rst-docutils literal">EventManager.limit=500</tt>, <tt class="rst-docutils literal">slots=10</tt> and <tt class="rst-docutils literal">max_query_depth=2</tt>, then the maximum capacity of the list is <tt class="rst-docutils literal"><span class="pre">(500*10)*(500*10)</span></tt> = <tt class="rst-docutils literal">25000000</tt> (instead of <tt class="rst-docutils literal">500</tt> with <tt class="rst-docutils literal">max_query_depth=0</tt>).</dd>
 </dl>
 </li>
-<li><code>slots</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): number of time slots the query can be divided. Loading bar is divided according to the number of slots. Applicable if <tt class="rst-docutils literal">max_query_depth&gt;0</tt>.</li>
+<li><a href="https://docs.python.org/3/reference/datamodel.html#slots"><code>slots</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): number of time slots the query can be divided. Loading bar is divided according to the number of slots. Applicable if <tt class="rst-docutils literal">max_query_depth&gt;0</tt>.</li>
 <li><code>delta</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): exemple : '2h', the query will be firstly divided in chuncks according to the time delta read with <code>dateutil</code>. Applicable if <tt class="rst-docutils literal">max_query_depth&gt;0</tt>.</li>
-<li><code>workers</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if <tt class="rst-docutils literal">max_query_depth&gt;0</tt>.</li>
-<li><code>retry</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): number of time the query can be failed and retried.  (Default value = 1)</li>
-<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): wait timeout in seconds. (Default value = 120)</li>
+<li><code>workers</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): numbre of parrallels tasks, should be equal or less than the number of slots. Applicable if <tt class="rst-docutils literal">max_query_depth&gt;0</tt>.</li>
+<li><code>retry</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): number of time the query can be failed and retried.  (Default value = 1)</li>
+<li><code>wait_timeout_sec</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): wait timeout in seconds. (Default value = 120)</li>
 </ul>
 </dd>
 <dt>Returns:</dt>
@@ -818,7 +818,7 @@ The list is loaded from the SIEM.</div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for <a href="https://github.com/mfesiem/msiempy">McAfee SIEM Python Library</a>, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-07 01:27:00.
+        <a href="index.html">API Documentation</a> for McAfee SIEM Python Library, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-11-06 21:07:37.
       </address>
 
     </div>

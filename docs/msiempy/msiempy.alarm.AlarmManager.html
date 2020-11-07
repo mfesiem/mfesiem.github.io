@@ -15,7 +15,7 @@
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="index.html">
-            <a href="https://github.com/mfesiem/msiempy">McAfee SIEM Python Library</a> API Documentation
+            McAfee SIEM Python Library API Documentation
           </a>
         </div>
       </div>
@@ -340,12 +340,12 @@
 <dd>Accepted values : <tt class="rst-docutils literal">"acknowledged"</tt>, <tt class="rst-docutils literal">"unacknowledged"</tt>, <tt class="rst-docutils literal">""</tt> or <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a> (Default value = <tt class="rst-docutils literal">""</tt>).</dd>
 </dl>
 </li>
-<li><a href="msiempy.alarm.AlarmManager.html#page_size"><code>page_size</code></a> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): max number of rows per query.</li>
+<li><a href="msiempy.alarm.AlarmManager.html#page_size"><code>page_size</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): max number of rows per query.</li>
 <li><code>filters</code> (<code>list[tuple(field, [values])]</code>):  Filters applied to <a href="msiempy.alarm.Alarm.html"><code>Alarm</code></a> objects. A single <a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a> is also accepted.</li>
 <li><a href="msiempy.alarm.AlarmManager.html#event_filters"><code>event_filters</code></a> (<code>list[tuple(field, [values])]</code>): Filters applied to <a href="msiempy.event.Event.html"><code>Event</code></a> objects. A single <a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a> is also accepted.</li>
 <li><code>time_range</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Query time range. String representation of a time range.</li>
-<li><code>start_time (`str</code> or a <a href="https://docs.python.org/3/library/datetime.html#module-datetime"><code>datetime</code></a>): Query start time</li>
-<li><code>end_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#module-datetime"><code>datetime</code></a>): Query end time</li>
+<li><code>start_time (`str</code> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a>): Query start time</li>
+<li><code>end_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a>): Query end time</li>
 </ul>
 </dd>
 <dt>Note:</dt>
@@ -653,12 +653,12 @@ the full details is loaded, then the trigerring event details is loaded.</p>
 <dl class="rst-docutils">
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><code>events_details</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): Load detailed events infos. (Default value = <a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a>). If <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>, no detailed <code>events</code> will be loaded. Only <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> representation for SIEM 10.x and minimal events records from SIEM 11.x.</li>
-<li><code>alarms_details</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): Load detailed alarms infos. (Default value = <a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a>). If <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>, only return <tt class="rst-docutils literal">alarmGetTriggeredAlarms</tt> infos, no information on trigerring events at all is present.</li>
-<li><code>pages</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): Number of pages to load. (Default value = 1)</li>
-<li><code>workers</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): Number of asynchronous workers. (Default value = 10)</li>
+<li><code>events_details</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): Load detailed events infos. (Default value = <a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a>). If <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>, no detailed <code>events</code> will be loaded. Only <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> representation for SIEM 10.x and minimal events records from SIEM 11.x.</li>
+<li><code>alarms_details</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): Load detailed alarms infos. (Default value = <a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a>). If <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>, only return <tt class="rst-docutils literal">alarmGetTriggeredAlarms</tt> infos, no information on trigerring events at all is present.</li>
+<li><code>pages</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): Number of pages to load. (Default value = 1)</li>
+<li><code>workers</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): Number of asynchronous workers. (Default value = 10)</li>
 <li><dl class="rst-first rst-docutils">
-<dt><code>use_query</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): <code>Uses</code> the query module to retreive event data. Only works with SIEM v11.2.1 or greater.</dt>
+<dt><code>use_query</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): <code>Uses</code> the query module to retreive event data. Only works with SIEM v11.2.1 or greater.</dt>
 <dd>Default behaviour will call <code>ipsGetAlertData</code> to retreive the complete event definition. (Default value = <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>)</dd>
 </dl>
 </li>
@@ -783,7 +783,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for <a href="https://github.com/mfesiem/msiempy">McAfee SIEM Python Library</a>, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-07 01:27:00.
+        <a href="index.html">API Documentation</a> for McAfee SIEM Python Library, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-11-06 21:07:37.
       </address>
 
     </div>

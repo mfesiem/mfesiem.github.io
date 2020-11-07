@@ -15,7 +15,7 @@
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="index.html">
-            <a href="https://github.com/mfesiem/msiempy">McAfee SIEM Python Library</a> API Documentation
+            McAfee SIEM Python Library API Documentation
           </a>
         </div>
       </div>
@@ -44,7 +44,7 @@
       <div class="moduleDocstring">
         <div><p>List-Like object. ESM device tree interface.</p>
 <ul class="rst-simple">
-<li><a href="msiempy.device.DevTree.html#__contains__"><code>__contains__</code></a> method returns:  (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>) <code>True/None</code> the name or IP matches the provided search term.</li>
+<li><a href="msiempy.device.DevTree.html#__contains__"><code>__contains__</code></a> method returns:  (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>) <code>True/None</code> the name or IP matches the provided search term.</li>
 </ul>
 <p>Exemple (list datasources):</p>
 <pre class="py-doctest">
@@ -75,7 +75,7 @@
     
     <td>Method</td>
     <td><a href="msiempy.device.DevTree.html#__contains__" class="code" data-type="Method">__contains__</a></td>
-    <td><span>Returns: (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>) <code>True/None</code> the name or IP matches the provided search term.</span></td>
+    <td><span>Returns: (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>) <code>True/None</code> the name or IP matches the provided search term.</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
@@ -210,7 +210,7 @@
     
     <td>Static Method</td>
     <td><a href="msiempy.device.DevTree.html#_normalize_bool_vals" class="code" data-type="Static Method">_normalize_bool_vals</a></td>
-    <td><span>Recursively changes strings 'T', 'F' to <a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a></span></td>
+    <td><span>Recursively changes strings 'T', 'F' to <a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a></span></td>
   </tr>
 </table>
         
@@ -350,7 +350,7 @@
   <div class="docstring functionBody">
     
     
-    <div>Returns: (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>) <code>True/None</code> the name or IP matches the provided search term.</div>
+    <div>Returns: (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>) <code>True/None</code> the name or IP matches the provided search term.</div>
   </div>
 </div><div class="basemethod">
   
@@ -376,8 +376,8 @@
 <dl class="rst-docutils">
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><code>term</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Datasource name, IP, hostname or ds_id. Matching the <code>name</code>, <code>IPv4/IPv6 address</code>, <code>hostname</code> or <code>device ID</code>.</li>
-<li><code>zone_id</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): Provide zone_id to limit search to a specific zone</li>
+<li><code>term</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Datasource name, IP, hostname or ds_id. Matching the <a href="https://docs.python.org/3/reference/introduction.html#grammar-token-name"><code>name</code></a>, <code>IPv4/IPv6 address</code>, <code>hostname</code> or <code>device ID</code>.</li>
+<li><code>zone_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): Provide zone_id to limit search to a specific zone</li>
 </ul>
 </dd>
 <dt>Returns:</dt>
@@ -427,7 +427,7 @@
 </ul>
 </dd>
 <dt>Returns:</dt>
-<dd><code>generator</code> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a>) containing any matching <a href="msiempy.device.DataSource.html"><code>DataSource</code></a> objects or <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a>.</dd>
+<dd><a href="https://docs.python.org/3/-1"><code>generator</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a>) containing any matching <a href="msiempy.device.DataSource.html"><code>DataSource</code></a> objects or <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a>.</dd>
 <dt>NOTE:</dt>
 <dd>Result must be iterated through.</dd>
 <dt>Raises:</dt>
@@ -961,7 +961,7 @@ Returns: dict (str: str) zone name : zone ids</div>
 </dd>
 <dt><code>ds_params</code> should contain following keys :</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><code>name</code> (str): datasource name</li>
+<li><a href="https://docs.python.org/3/reference/introduction.html#grammar-token-name"><code>name</code></a> (str): datasource name</li>
 <li><code>ds_ip</code> (str): datasource IP</li>
 <li><code>zone_id</code> (str): optional zone_id</li>
 </ul>
@@ -998,17 +998,17 @@ Returns: dict (str: str) zone name : zone ids</div>
 </dd>
 <dt><code>attr</code> should contain following keys :</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><code>client</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): designate a client datasource (not child)</li>
-<li><code>name</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): name of datasource (req)</li>
+<li><code>client</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): designate a client datasource (not child)</li>
+<li><a href="https://docs.python.org/3/reference/introduction.html#grammar-token-name"><code>name</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): name of datasource (req)</li>
 <li><code>parent_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): id of parent device (req)</li>
 <li><code>ds_ip</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): ip of datasource (ip or hostname required)</li>
 <li><code>hostname</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): hostname of datasource</li>
 <li><code>type_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): type of datasource (req)</li>
-<li><code>enabled</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): enabled or not (default: True)</li>
+<li><code>enabled</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): enabled or not (default: True)</li>
 <li><code>tz_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): timezone of datasource (default UTC: 8)</li>
 <li><code>zone_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): numberic ESM id for zone (default: 0)
 Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32</li>
-<li><code>require_tls</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): datasource uses syslog tls</li>
+<li><code>require_tls</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): datasource uses syslog tls</li>
 </ul>
 </dd>
 <dt>Returns:</dt>
@@ -1048,8 +1048,8 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32</li>
 <dt><code>attr</code> should contain following keys :</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li><code>parent_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): datasource id of the client group datasource</li>
-<li><code>name</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): name of the client</li>
-<li><code>enabled</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): enabled or not (default: <a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a>)</li>
+<li><a href="https://docs.python.org/3/reference/introduction.html#grammar-token-name"><code>name</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): name of the client</li>
+<li><code>enabled</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): enabled or not (default: <a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a>)</li>
 <li><code>ds_ip</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): IP address for client</li>
 <li><code>hostname</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): hostname for client</li>
 <li><code>type_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): numeric ESM type-id</li>
@@ -1057,7 +1057,7 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32</li>
 <li><code>dorder</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Date order</li>
 <li><code>maskflag</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>):</li>
 <li><code>port</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): IP port to use</li>
-<li><code>require_tls</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): use syslog-TLS (default: <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>)</li>
+<li><code>require_tls</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): use syslog-TLS (default: <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>)</li>
 </ul>
 </dd>
 <dt>Returns:</dt>
@@ -1089,7 +1089,7 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32</li>
 <dl class="rst-docutils">
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><code>p</code> (<a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>) : datasource parameters</li>
+<li><a href="https://docs.python.org/3/library/pdb.html#pdbcommand-p"><code>p</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>) : datasource parameters</li>
 </ul>
 </dd>
 <dt>Returns:</dt>
@@ -1121,7 +1121,7 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32</li>
 <dl class="rst-docutils">
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><code>p</code> (<a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>): datasource param</li>
+<li><a href="https://docs.python.org/3/library/pdb.html#pdbcommand-p"><code>p</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>): datasource param</li>
 </ul>
 </dd>
 <dt>Returns:</dt>
@@ -1149,7 +1149,7 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32</li>
   <div class="docstring functionBody">
     
     
-    <div><p>Recursively changes strings 'T', 'F' to <a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a></p>
+    <div><p>Recursively changes strings 'T', 'F' to <a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a></p>
 <dl class="rst-docutils">
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
@@ -1163,7 +1163,7 @@ Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32</li>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for <a href="https://github.com/mfesiem/msiempy">McAfee SIEM Python Library</a>, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-07 01:27:00.
+        <a href="index.html">API Documentation</a> for McAfee SIEM Python Library, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-11-06 21:07:37.
       </address>
 
     </div>

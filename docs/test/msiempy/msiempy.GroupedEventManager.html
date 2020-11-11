@@ -36,12 +36,40 @@
       </div>
 
       <div class="extrasDocstring">
-        <p><code><span class="py-keyword">class</span> msiempy.GroupedEventManager(<a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">_QueryExecuteManager</a>): <a href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L463">(source)</a></code></p>
+        <p><code><span class="py-keyword">class</span> msiempy.GroupedEventManager(<a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">_QueryExecuteManager</a>): <a href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L513">(source)</a></code></p>
         <p><a href="classIndex.html#msiempy.GroupedEventManager">View In Hierarchy</a></p>
       </div>
 
       <div class="moduleDocstring">
-        <div>List-Like object. Interface to execute a grouped event query.</div>
+        <div><p>List-Like object. Interface to execute a grouped event query.</p>
+<dl class="rst-docutils">
+<dt>Exemples:</dt>
+<dd><ul class="rst-first rst-last">
+<li><p class="rst-first">Execute a grouped event query:</p>
+<blockquote>
+<p>Query the curent day events filtered by <code>IPSID</code> grouped by <code>ScrIP</code>.</p>
+<pre class="py-doctest">
+<span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> GroupedEventManager
+<span class="py-keyword">import</span> pprint
+query = GroupedEventManager(
+                time_range=<span class="py-string">'LAST_3_DAYS'</span>,
+                field=<span class="py-string">'SrcIP'</span>,
+                filters=[(<span class="py-string">'IPSID'</span>, <span class="py-string">'144116287587483648'</span>)])
+query.load_data()
+<span class="py-comment"># Sort the results by total count</span>
+results = <span class="py-builtin">list</span>(<span class="py-builtin">reversed</span>(<span class="py-builtin">sorted</span>(query, key=<span class="py-keyword">lambda</span> k: <span class="py-builtin">int</span>(k[<span class="py-string">'SUM(Alert.EventCount)'</span>]))))
+<span class="py-comment"># Display top 10</span>
+top10=results[:10]
+pprint.pprint(top10)</pre></blockquote>
+</li>
+</ul>
+</dd>
+<dt>See:</dt>
+<dd>Object GroupedEvent`.</dd>
+<dt>Tip:</dt>
+<dd><a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/all_dev.py" target="_top">all_dev.py script</a> can help you list all your datasources IDs (for the required <tt class="rst-docutils literal">IPSID</tt> filter).</dd>
+</dl>
+</div>
       </div>
 
       <div id="splitTables">
@@ -310,7 +338,7 @@
     
     def
     __init__(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L468">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L547">
       
       (source)
     </a>
@@ -342,7 +370,7 @@
   </a>
   <div class="functionHeader">
     field =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L483">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L562">
       
       (source)
     </a>
@@ -363,7 +391,7 @@
     
     def
     load_data(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L503">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L582">
       
       (source)
     </a>
@@ -395,7 +423,7 @@
   </a>
   <div class="functionHeader">
     data =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L518">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L597">
       
       (source)
     </a>
@@ -416,7 +444,7 @@
     
     def
     clear_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L521">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L600">
       
       (source)
     </a>
@@ -437,7 +465,7 @@ Acts like there is no filters.</div>
   </a>
   <div class="functionHeader">
     _filters =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L531">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L610">
       
       (source)
     </a>
@@ -458,7 +486,7 @@ Acts like there is no filters.</div>
     
     def
     _qry_load_data(self, num_rows=500, retry=1, wait_timeout_sec=120):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L540">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L619">
       
       (source)
     </a>
@@ -497,7 +525,7 @@ Acts like there is no filters.</div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for McAfee SIEM Python Library, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-09 20:48:23.
+        <a href="index.html">API Documentation</a> for McAfee SIEM Python Library, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-11 02:01:20.
       </address>
 
     </div>

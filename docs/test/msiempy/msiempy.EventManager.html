@@ -36,12 +36,60 @@
       </div>
 
       <div class="extrasDocstring">
-        <p><code><span class="py-keyword">class</span> msiempy.EventManager(<a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">_QueryExecuteManager</a>): <a href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L155">(source)</a></code></p>
+        <p><code><span class="py-keyword">class</span> msiempy.EventManager(<a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">_QueryExecuteManager</a>): <a href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L158">(source)</a></code></p>
         <p><a href="classIndex.html#msiempy.EventManager">View In Hierarchy</a></p>
       </div>
 
       <div class="moduleDocstring">
-        <div>List-Like object. Interface to execute a event query.</div>
+        <div><p>List-Like object. Interface to execute a event query.</p>
+<dl class="rst-docutils">
+<dt>Exemples:</dt>
+<dd><ul class="rst-first rst-simple">
+<li>Execute an event query</li>
+</ul>
+<p>Query events according to destination IP and hostname filters, sorted by AlertID.</p>
+<pre class="py-doctest">
+<span class="py-keyword">from</span>  msiempy <span class="py-keyword">import</span> EventManager, FieldFilter
+<span class="py-builtin">print</span>(<span class="py-string">'Simple event query sorted by AlertID'</span>)
+events = EventManager(
+        time_range=<span class="py-string">'CURRENT_YEAR'</span>,
+        fields=[<span class="py-string">'SrcIP'</span>, <span class="py-string">'AlertID'</span>], <span class="py-comment"># SrcIP and AlertID are not queried by default</span>
+        filters=[
+                FieldFilter(<span class="py-string">'DstIP'</span>, [<span class="py-string">'0.0.0.0/0'</span>,]),
+                FieldFilter(<span class="py-string">'HostID'</span>, [<span class="py-string">'mail'</span>], operator=<span class="py-string">'CONTAINS'</span>)], <span class="py-comment"># Replace "mail" by a test hostname</span>
+        order=((<span class="py-string">'ASCENDING'</span>, <span class="py-string">'AlertID'</span>)),
+        limit=10) <span class="py-comment"># Should be increased to 500 or 1000 once finish testing for better performance</span>
+events.load_data()
+<span class="py-builtin">print</span>(events)
+<span class="py-builtin">print</span>(events.get_text(fields=[<span class="py-string">'AlertID'</span>,<span class="py-string">'LastTime'</span>,<span class="py-string">'SrcIP'</span>, <span class="py-string">'Rule.msg'</span>]))</pre><dl class="rst-docutils">
+<dt>Note:</dt>
+<dd>You can dump full list of fields usable in query <a href="msiempy.FieldFilter.html"><code>FieldFilter</code></a> with <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/dump_all_fields.py" target="_top">dump_all_fields.py</a> script.</dd>
+</dl>
+<ul class="rst-simple">
+<li>Add a note to events</li>
+</ul>
+<p>Set the note of some events and check if the note is well set.</p>
+<pre class="py-doctest">
+<span class="py-keyword">from</span>  msiempy <span class="py-keyword">import</span> EventManager, Event
+events = EventManager(
+        time_range=<span class="py-string">'CURRENT_YEAR'</span>,
+        limit=2 )
+events.load_data()
+<span class="py-keyword">for</span> event <span class="py-keyword">in</span> events :
+        event.set_note(<span class="py-string">"Test note"</span>)
+        event.refresh(use_query=<span class="py-builtin">False</span>) <span class="py-comment"># Event data will be loaded with ipsGetAlertData API method</span>
+        <span class="py-keyword">assert</span> <span class="py-string">"Test note"</span> <span class="py-keyword">in</span> genuine_event[<span class="py-string">'note'</span>], <span class="py-string">"Error, the note hasn't been added"</span></pre><dl class="rst-last rst-docutils">
+<dt>See:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/add_wpsan_note.py" target="_top">add_wpsan_note.py</a> script for more on how to add notes to event that triggered alarms.</li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>See:</dt>
+<dd>Objects <a href="msiempy.Event.html"><code>Event</code></a> and <a href="msiempy.FieldFilter.html"><code>FieldFilter</code></a></dd>
+</dl>
+</div>
       </div>
 
       <div id="splitTables">
@@ -368,7 +416,7 @@
   </a>
   <div class="functionHeader">
     _GROUPTYPE =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L161">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L211">
       
       (source)
     </a>
@@ -387,7 +435,7 @@
   </a>
   <div class="functionHeader">
     POSSBILE_ROW_ORDER =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L163">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L213">
       
       (source)
     </a>
@@ -408,7 +456,7 @@
     
     def
     __init__(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L166">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L216">
       
       (source)
     </a>
@@ -423,16 +471,16 @@
 <li><a href="msiempy.EventManager.html#fields"><code>fields</code></a> (<code>list[str]</code>): Query fields</li>
 <li><a href="msiempy.EventManager.html#order"><code>order</code></a> (<code>tuple(direction, field)</code>): Query order direction and field. Direction can be <tt class="rst-docutils literal">"ASCENDING"</tt> or <tt class="rst-docutils literal">"DESCENDING"</tt>.</li>
 <li><a href="msiempy.EventManager.html#limit"><code>limit</code></a> (int): Max number of rows per query result.</li>
-<li><code>filters</code> (<code>list[tuple(field, [values]) or msiempy.event.FieldFilter or msiempy.event.GroupFilter]</code>): Query filters</li>
+<li><code>filters</code> (list[<code>tuple(field, [values])</code> or <a href="msiempy.FieldFilter.html"><code>FieldFilter</code></a> or <a href="msiempy.GroupFilter.html"><code>GroupFilter</code></a>]): Query filters</li>
 <li><code>time_range</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Query time range. No need to specify <tt class="rst-docutils literal">"CUSTOM"</tt> if <tt class="rst-docutils literal">start_time</tt> and <tt class="rst-docutils literal">end_time</tt> are set.</li>
 <li><code>start_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or <a href="https://docs.python.org/3/library/datetime.html#module-datetime"><code>datetime</code></a>): Query start time</li>
 <li><code>end_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or <a href="https://docs.python.org/3/library/datetime.html#module-datetime"><code>datetime</code></a>): Query end time</li>
 </ul>
 </dd>
 <dt>Note:</dt>
-<dd>Some minimal fields will always be present. Get the list of possible fields with <a href="msiempy.EventManager.html#get_possible_fields"><code>msiempy.event.EventManager.get_possible_fields</code></a></dd>
+<dd>Some minimal fields will always be present. Get the list of possible fields with <a href="msiempy.EventManager.html#get_possible_fields"><code>EventManager.get_possible_fields</code></a></dd>
 <dt>See:</dt>
-<dd><a href="msiempy.Event.html"><code>msiempy.event.Event</code></a></dd>
+<dd><a href="msiempy.Event.html"><code>Event</code></a></dd>
 </dl>
 </div>
   </div>
@@ -446,7 +494,7 @@
   </a>
   <div class="functionHeader">
     _parent =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L192">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L242">
       
       (source)
     </a>
@@ -465,7 +513,7 @@
   </a>
   <div class="functionHeader">
     fields =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L195">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L245">
       
       (source)
     </a>
@@ -484,7 +532,7 @@
   </a>
   <div class="functionHeader">
     limit =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L213">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L263">
       
       (source)
     </a>
@@ -503,7 +551,7 @@
   </a>
   <div class="functionHeader">
     order =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L219">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L269">
       
       (source)
     </a>
@@ -525,7 +573,7 @@ Default value is <tt class="rst-docutils literal">("DESCENDING", "LastTime")</tt
     
     def
     _get_order(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L233">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L283">
       
       (source)
     </a>
@@ -547,7 +595,7 @@ Default value is <tt class="rst-docutils literal">("DESCENDING", "LastTime")</tt
     
     def
     _set_order(self, order):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L236">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L286">
       
       (source)
     </a>
@@ -567,7 +615,7 @@ Default value is <tt class="rst-docutils literal">("DESCENDING", "LastTime")</tt
   </a>
   <div class="functionHeader">
     _order_direction =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L244">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L294">
       
       (source)
     </a>
@@ -586,7 +634,7 @@ Default value is <tt class="rst-docutils literal">("DESCENDING", "LastTime")</tt
   </a>
   <div class="functionHeader">
     _order_field =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L245">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L295">
       
       (source)
     </a>
@@ -607,7 +655,7 @@ Default value is <tt class="rst-docutils literal">("DESCENDING", "LastTime")</tt
     
     def
     clear_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L258">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L308">
       
       (source)
     </a>
@@ -628,7 +676,7 @@ Acts like there is not filters.</div>
   </a>
   <div class="functionHeader">
     _filters =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L263">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L313">
       
       (source)
     </a>
@@ -649,7 +697,7 @@ Acts like there is not filters.</div>
     
     def
     _qry_load_data(self, retry=1, wait_timeout_sec=120):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L272">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L322">
       
       (source)
     </a>
@@ -694,7 +742,7 @@ Acts like there is not filters.</div>
     
     def
     load_data(self, workers=10, slots=10, delta=None, max_query_depth=0, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L338">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L388">
       
       (source)
     </a>
@@ -736,7 +784,7 @@ Wraps around <a href="msiempy.EventManager.html#_qry_load_data"><code>msiempy.ev
   </a>
   <div class="functionHeader">
     data =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L433">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L483">
       
       (source)
     </a>
@@ -757,7 +805,7 @@ Wraps around <a href="msiempy.EventManager.html#_qry_load_data"><code>msiempy.ev
     @property<br />
     def
     _root_parent(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L436">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L486">
       
       (source)
     </a>
@@ -779,7 +827,7 @@ Wraps around <a href="msiempy.EventManager.html#_qry_load_data"><code>msiempy.ev
     
     def
     get_possible_fields(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L446">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L496">
       
       (source)
     </a>
@@ -802,7 +850,7 @@ The list is loaded from the SIEM.</div>
     
     def
     get_possible_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/30ef964074ce77d0ffd7f53f3f3599c7611495da/msiempy/event.py#L455">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/fccc40e991547567bc626987ba5a3c134a277235/msiempy/event.py#L505">
       
       (source)
     </a>
@@ -817,7 +865,7 @@ The list is loaded from the SIEM.</div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for McAfee SIEM Python Library, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-09 20:48:23.
+        <a href="index.html">API Documentation</a> for McAfee SIEM Python Library, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-11 02:01:20.
       </address>
 
     </div>

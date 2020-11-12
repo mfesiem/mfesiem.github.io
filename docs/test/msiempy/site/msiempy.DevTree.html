@@ -1,0 +1,1195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>msiempy.DevTree : API documentation</title>
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">
+            msiempy API Documentation
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div id="showPrivate">
+      <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+    </div>
+
+    <div class="container">
+
+      <div class="page-header">
+        <h1 class="class"><code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.DevTree.html" class="code" data-type="Class">DevTree</a></code></h1>
+      </div>
+
+      <div class="categoryHeader">
+        class documentation
+      </div>
+
+      <div class="extrasDocstring">
+        <p><code><span class="py-keyword">class</span> msiempy.DevTree(<a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>): <a href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L388">(source)</a></code></p>
+        <p><a href="classIndex.html#msiempy.DevTree">View In Hierarchy</a></p>
+      </div>
+
+      <div class="moduleDocstring">
+        <div><p>List-Like object. ESM device tree interface.</p>
+<ul class="rst-simple">
+<li><a href="msiempy.DevTree.html#__contains__"><code>__contains__</code></a> method returns:  (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>) <code>True/None</code> the name or IP matches the provided search term.</li>
+</ul>
+<dl class="rst-docutils">
+<dt>Exemples:</dt>
+<dd><ul class="rst-first rst-simple">
+<li>List Datasources</li>
+</ul>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy.device <span class="py-keyword">import</span> DevTree
+<span class="py-prompt">&gt;&gt;&gt; </span>devtree = DevTree()
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(<span class="py-string">"All Datasources"</span>)
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(devtree.get_text(fields=[<span class="py-string">"parent_name"</span>, <span class="py-string">"name"</span>, <span class="py-string">"ds_id"</span>]))</pre><p>The script <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/all_dev.py" target="_top">all_dev.py</a> can help you list all your datasources.</p>
+<ul class="rst-simple">
+<li>Add a Datasource</li>
+</ul>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> DevTree
+<span class="py-prompt">&gt;&gt;&gt; </span>devtree = DevTree()
+<span class="py-prompt">&gt;&gt;&gt; </span>devtree.add({
+<span class="py-more">... </span>    <span class="py-string">"name"</span>: <span class="py-string">"Test DS"</span>,
+<span class="py-more">... </span>    <span class="py-string">"parent_id"</span>: <span class="py-string">"144116287587483648"</span>,
+<span class="py-more">... </span>    <span class="py-string">"ds_ip"</span>: <span class="py-string">"10.2.2.2"</span>,
+<span class="py-more">... </span>    <span class="py-string">"hostname"</span>: <span class="py-string">"testds.domain.ca"</span>,
+<span class="py-more">... </span>    <span class="py-string">"type_id"</span>: <span class="py-string">"65"</span> })
+<span class="py-output">{'value': 1385420} # Wait a bit for the request</span>
+<span class="py-prompt">&gt;&gt;&gt; </span>devtree.refresh() <span class="py-comment"># Refresh the DevTree</span></pre><dl class="rst-last rst-docutils">
+<dt>See:</dt>
+<dd>Object <a href="msiempy.DataSource.html"><code>DataSource</code></a></dd>
+</dl>
+</dd>
+<dt>Note:</dt>
+<dd>Uses internal API methods such as <code>GRP_GETVIRTUALGROUPIPSLISTDATA</code> to assemble <a href="msiempy.DevTree.html"><code>DevTree</code></a> object.</dd>
+</dl>
+</div>
+      </div>
+
+      <div id="splitTables">
+        <table class="children sortable" id="id14">
+  
+  <tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#__init__" class="code" data-type="Method">__init__</a></td>
+    <td><span>Create a new list</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.DevTree.html#data" class="code" data-type="Instance Variable">data</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#__contains__" class="code" data-type="Method">__contains__</a></td>
+    <td><span>Returns: (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>) <code>True/None</code> the name or IP matches the provided search term.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#search" class="code" data-type="Method">search</a></td>
+    <td><span>Search a datasource in the DevTree.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#search_ds_group" class="code" data-type="Method">search_ds_group</a></td>
+    <td><span>Search datasources in the DevTree.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#refresh" class="code" data-type="Method">refresh</a></td>
+    <td><span>Rebuilds the devtree</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#recs" class="code" data-type="Method">recs</a></td>
+    <td><span>Returns: <a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> of Receiver <a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a></span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#build_devtree" class="code" data-type="Method">build_devtree</a></td>
+    <td><span>Coordinates assembly of the devtree object</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#duplicate_datasource" class="code" data-type="Method">duplicate_datasource</a></td>
+    <td><span>Check for duplicate dataname name or IP address.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#add" class="code" data-type="Method">add</a></td>
+    <td><span>Adds a datasource.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#add_client" class="code" data-type="Method">add_client</a></td>
+    <td><span>Add a datasource client</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_get_devtree" class="code" data-type="Method">_get_devtree</a></td>
+    <td><span>Returns: ESM device tree; raw, but ordered, string.</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_format_devtree" class="code" data-type="Method">_format_devtree</a></td>
+    <td><span>Parse key fields from raw device strings into datasource dicts.</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_insert_rec_info" class="code" data-type="Method">_insert_rec_info</a></td>
+    <td><span>Adds parent_ids to datasources in the tree based upon the ordered list provided by the ESM. All the datasources below a Receiver row have it's id set as their parent ID.</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_get_client_containers" class="code" data-type="Method">_get_client_containers</a></td>
+    <td><span>Filters DevTree for datasources that have client datasources.</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_merge_clients" class="code" data-type="Method">_merge_clients</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_get_clients" class="code" data-type="Method">_get_clients</a></td>
+    <td><span>Get list of raw client strings.</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_format_clients" class="code" data-type="Method">_format_clients</a></td>
+    <td><span>Parse key fields from _get_clients() output. Returns: list of dicts</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_get_zonetree" class="code" data-type="Method">_get_zonetree</a></td>
+    <td><span>Retrieve zone data.</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_insert_zone_names" class="code" data-type="Method">_insert_zone_names</a></td>
+    <td><span>Arguments: - <code>zonetree</code> (str): Built by self._get_zonetree</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_get_zone_map" class="code" data-type="Method">_get_zone_map</a></td>
+    <td><span>Builds a table of zone names to zone ids. Returns: dict (str: str) zone name : zone ids</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_insert_zone_ids" class="code" data-type="Method">_insert_zone_ids</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_get_last_times" class="code" data-type="Method">_get_last_times</a></td>
+    <td><span>Returns: string with datasource names and last event times.</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_format_times" class="code" data-type="Method">_format_times</a></td>
+    <td><span>Formats the output of _get_last_times</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_insert_ds_last_times" class="code" data-type="Method">_insert_ds_last_times</a></td>
+    <td><span>Parse event times str and insert it into the _devtree</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_filter_bogus_ds" class="code" data-type="Method">_filter_bogus_ds</a></td>
+    <td><span>Filters objects that inaccurately show up as datasources sometimes.</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_cast_datasources" class="code" data-type="Method">_cast_datasources</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_validate_ds_params" class="code" data-type="Method">_validate_ds_params</a></td>
+    <td><span>Validate parameters for new datasource.</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.DevTree.html#_validate_ds_tz_id" class="code" data-type="Method">_validate_ds_tz_id</a></td>
+    <td><span>Validates datasource time zone id.</span></td>
+  </tr><tr class="staticmethod private">
+    
+    <td>Static Method</td>
+    <td><a href="msiempy.DevTree.html#_normalize_bool_vals" class="code" data-type="Static Method">_normalize_bool_vals</a></td>
+    <td><span>Recursively changes strings 'T', 'F' to <a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a></span></td>
+  </tr>
+</table>
+        
+          <p class="inheritedFrom">
+            Inherited from <a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>:
+          </p>
+          <table class="children sortable" id="id15">
+  
+  <tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#__str__" class="code" data-type="Method">__str__</a></td>
+    <td><span>str(obj) -&gt; return text string.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#keys" class="code" data-type="Method">keys</a></td>
+    <td><span>List items keys. Every items should have the same set of keys.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#get_text" class="code" data-type="Method">get_text</a></td>
+    <td><span>Return a csv or table string representation of the list</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#text" class="code" data-type="Method">text</a></td>
+    <td><span>Defaut table string, a shorcut to <code>get_text()</code> with no arguments.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#json" class="code" data-type="Method">json</a></td>
+    <td><span>JSON list of dicts representing the list.</span></td>
+  </tr><tr class="basemethod">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#perform" class="code" data-type="Method">perform</a></td>
+    <td><span>Wrapper to execute a function on the list of elements</span></td>
+  </tr><tr class="basestaticmethod private">
+    
+    <td>Static Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#_confirm_func" class="code" data-type="Static Method">_confirm_func</a></td>
+    <td><span>Ask user inut to confirm the calling of <code>func</code> on <code>elements</code>.</span></td>
+  </tr>
+</table>
+          
+          <p class="inheritedFrom">
+            Inherited from <a href="msiempy.core.types.NitroObject.html" class="code" data-type="Class">NitroObject</a> (via <a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>):
+          </p>
+          <table class="children sortable" id="id16">
+  
+  <tr class="baseclass">
+    
+    <td>Class</td>
+    <td><a href="msiempy.core.types.NitroObject.NitroJSONEncoder.html" class="code" data-type="Class">NitroJSONEncoder</a></td>
+    <td><span>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject. TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict.</span></td>
+  </tr><tr class="baseinstancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.types.NitroObject.html#nitro" class="code" data-type="Instance Variable">nitro</a></td>
+    <td><span><a href="msiempy.NitroSession.html"><code>msiempy.core.session.NitroSession</code></a> object. Interface to the SIEM.</span></td>
+  </tr>
+</table>
+          
+
+          
+      </div>
+
+      <div id="childList">
+
+        <div class="basemethod">
+  
+  <a name="msiempy.DevTree.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    __init__(self, *args, **kwargs):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L425">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroList.html#__init__" class="code" data-type="Method">msiempy.core.types.NitroList.__init__</a></div>
+    
+    <div><p>Create a new list</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>alist</code>: list object to wrap.</li>
+</ul>
+</dd>
+</dl>
+</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  <a name="msiempy.DevTree.data">
+    
+  </a>
+  <a name="data">
+    
+  </a>
+  <div class="functionHeader">
+    data =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L427">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroList.html#data" class="code" data-type="Instance Variable">msiempy.core.types.NitroList.data</a></div>
+    <div class="undocumented">Undocumented</div> (type: <code>List</code>)
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.DevTree.__contains__">
+    
+  </a>
+  <a name="__contains__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    __contains__(self, term):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L450">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Returns: (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>) <code>True/None</code> the name or IP matches the provided search term.</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.DevTree.search">
+    
+  </a>
+  <a name="search">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    search(self, term, zone_id="""0"""):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L457">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroList.html#search" class="code" data-type="Method">msiempy.core.types.NitroList.search</a></div>
+    
+    <div><p>Search a datasource in the DevTree.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>term</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Datasource name, IP, hostname or ds_id. Matching the <a href="msiempy.FieldFilter.html#name"><code>name</code></a>, <code>IPv4/IPv6 address</code>, <code>hostname</code> or <code>device ID</code>.</li>
+<li><code>zone_id</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): Provide zone_id to limit search to a specific zone</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><code>Datasource</code> object that matches the provided search term or <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a>.</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.DevTree.search_ds_group">
+    
+  </a>
+  <a name="search_ds_group">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    search_ds_group(self, field, term, zone_id="""0"""):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L481">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Search datasources in the DevTree.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><a href="msiempy.GroupedEventManager.html#field"><code>field</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Valid DS config field to search</li>
+<li><code>term</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Data to search for in specified field</li>
+</ul>
+</dd>
+<dt>Valid field options include:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><tt class="rst-docutils literal">parent_id</tt> = '144119615532826624'</li>
+<li><tt class="rst-docutils literal">type_id</tt> = '65'</li>
+<li><tt class="rst-docutils literal">vendor</tt> = 'Intersect Alliance'</li>
+<li><tt class="rst-docutils literal">model</tt> = 'Snare for Windows'</li>
+<li><tt class="rst-docutils literal">require_tls</tt> = 'T'</li>
+<li><tt class="rst-docutils literal">port</tt> = '514'</li>
+<li><tt class="rst-docutils literal">tz_id</tt> = '51'</li>
+<li><tt class="rst-docutils literal">tz_name</tt> = 'Darwin'</li>
+<li><tt class="rst-docutils literal">zone_id</tt> = '7'</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><code>generator</code> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a>) containing any matching <a href="msiempy.DataSource.html"><code>DataSource</code></a> objects or <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a>.</dd>
+<dt>NOTE:</dt>
+<dd>Result must be iterated through.</dd>
+<dt>Raises:</dt>
+<dd><a href="https://docs.python.org/3/library/exceptions.html#ValueError"><code>ValueError</code></a>: if field or term are None</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.DevTree.refresh">
+    
+  </a>
+  <a name="refresh">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    refresh(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L511">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroList.html#refresh" class="code" data-type="Method">msiempy.core.types.NitroList.refresh</a></div>
+    
+    <div>Rebuilds the devtree</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.DevTree.recs">
+    
+  </a>
+  <a name="recs">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    recs(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L516">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><dl class="rst-docutils">
+<dt>Returns:</dt>
+<dd><a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> of Receiver <a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a></dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.DevTree.build_devtree">
+    
+  </a>
+  <a name="build_devtree">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    build_devtree(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L525">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Coordinates assembly of the devtree object</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._get_devtree">
+    
+  </a>
+  <a name="_get_devtree">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _get_devtree(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L549">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><dl class="rst-docutils">
+<dt>Returns:</dt>
+<dd>ESM device tree; raw, but ordered, string.</dd>
+</dl>
+<p>Does not include client datasources.</p>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._format_devtree">
+    
+  </a>
+  <a name="_format_devtree">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _format_devtree(self, devtree):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L559">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Parse key fields from raw device strings into datasource dicts.</p>
+<dl class="rst-docutils">
+<dt>Returns:</dt>
+<dd>List of datasource dicts</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._insert_rec_info">
+    
+  </a>
+  <a name="_insert_rec_info">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _insert_rec_info(self, devtree):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L623">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Adds parent_ids to datasources in the tree based upon the
+ordered list provided by the ESM. All the datasources below
+a Receiver row have it's id set as their parent ID.</p>
+<dl class="rst-docutils">
+<dt>Returns:</dt>
+<dd>List of datasource dicts</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._get_client_containers">
+    
+  </a>
+  <a name="_get_client_containers">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _get_client_containers(self, devtree):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L673">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Filters DevTree for datasources that have client datasources.</p>
+<dl class="rst-docutils">
+<dt>Returns:</dt>
+<dd>List of datasource dicts that have clients</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._merge_clients">
+    
+  </a>
+  <a name="_merge_clients">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _merge_clients(self, containers, devtree):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L684">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._get_clients">
+    
+  </a>
+  <a name="_get_clients">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _get_clients(self, ds_id):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L707">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Get list of raw client strings.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>ds_id</code> (str): Parent ds_id(s) are collected on init</li>
+<li><code>ftoken</code> (str): Set and used after requesting clients for ds_id</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd>List of strings representing unparsed client datasources</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._format_clients">
+    
+  </a>
+  <a name="_format_clients">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _format_clients(self, clients):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L722">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Parse key fields from _get_clients() output.
+Returns: list of dicts</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._get_zonetree">
+    
+  </a>
+  <a name="_get_zonetree">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _get_zonetree(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L756">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Retrieve zone data.</p>
+<dl class="rst-docutils">
+<dt>Returns:</dt>
+<dd><a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> device tree string sorted by zones</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._insert_zone_names">
+    
+  </a>
+  <a name="_insert_zone_names">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _insert_zone_names(self, zonetree, devtree):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L766">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>zonetree</code> (str): Built by self._get_zonetree</li>
+</ul>
+</dd>
+</dl>
+<p>Returns: List of dicts (str: str) devices by zone</p>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._get_zone_map">
+    
+  </a>
+  <a name="_get_zone_map">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _get_zone_map(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L788">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Builds a table of zone names to zone ids.
+Returns: dict (str: str) zone name : zone ids</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._insert_zone_ids">
+    
+  </a>
+  <a name="_insert_zone_ids">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _insert_zone_ids(self, zone_map, devtree):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L804">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._get_last_times">
+    
+  </a>
+  <a name="_get_last_times">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _get_last_times(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L858">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><dl class="rst-docutils">
+<dt>Returns:</dt>
+<dd>string with datasource names and last event times.</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._format_times">
+    
+  </a>
+  <a name="_format_times">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _format_times(self, last_times):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L866">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Formats the output of _get_last_times</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>last_times</code> (str): string output from _get_last_times()</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><code>list[dict]</code>: [{'name', 'model', 'last_time'}]</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._insert_ds_last_times">
+    
+  </a>
+  <a name="_insert_ds_last_times">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _insert_ds_last_times(self, last_times, devtree):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L892">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Parse event times str and insert it into the _devtree</p>
+<dl class="rst-docutils">
+<dt>Returns:</dt>
+<dd>List of datasource dicts - the devtree</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._filter_bogus_ds">
+    
+  </a>
+  <a name="_filter_bogus_ds">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _filter_bogus_ds(self, devtree):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L906">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Filters objects that inaccurately show up as datasources sometimes.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>devtree</code> (list): the devtree</li>
+</ul>
+</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._cast_datasources">
+    
+  </a>
+  <a name="_cast_datasources">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _cast_datasources(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L915">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.DevTree.duplicate_datasource">
+    
+  </a>
+  <a name="duplicate_datasource">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    duplicate_datasource(self, ds_params):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L920">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Check for duplicate dataname name or IP address.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>ds_params</code> (dict) : datasource params</li>
+</ul>
+</dd>
+<dt><code>ds_params</code> should contain following keys :</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><a href="msiempy.FieldFilter.html#name"><code>name</code></a> (str): datasource name</li>
+<li><code>ds_ip</code> (str): datasource IP</li>
+<li><code>zone_id</code> (str): optional zone_id</li>
+</ul>
+</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.DevTree.add">
+    
+  </a>
+  <a name="add">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    add(self, attr):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L942">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Adds a datasource.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>attr</code> (<a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>): datasource attributes</li>
+</ul>
+</dd>
+<dt><code>attr</code> can contain following keys :</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>client</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): designate a client datasource (not child)</li>
+<li><a href="msiempy.FieldFilter.html#name"><code>name</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): name of datasource (required)</li>
+<li><code>parent_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): id of parent device (required)</li>
+<li><code>ds_ip</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): ip of datasource (ip or hostname required)</li>
+<li><code>hostname</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): hostname of datasource</li>
+<li><code>type_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): type of datasource (required)</li>
+<li><code>enabled</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): enabled or not (default: True)</li>
+<li><code>tz_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): timezone of datasource (default UTC: 8)</li>
+<li><code>zone_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): numberic ESM id for zone (default: 0)
+Examples (<code>tz_id</code> only): PST: 27, MST: 12, CST: 11, EST: 32</li>
+<li><code>require_tls</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): datasource uses syslog tls</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd>result id (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): id of the result. Not the ds_id as of 11.2.1 or <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a> on Error</dd>
+<dt>Note:</dt>
+<dd><a href="msiempy.DevTree.html#add"><code>DevTree.add</code></a> do not ensure the Datasource is well added. There is place for improvment: <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/issues/82" target="_top">#82</a>.</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.DevTree.add_client">
+    
+  </a>
+  <a name="add_client">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    add_client(self, attr):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L1014">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Add a datasource client</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>attr</code> (<a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>) : datasource attributes</li>
+</ul>
+</dd>
+<dt><code>attr</code> can contain following keys :</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>parent_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): datasource id of the client group datasource (required)</li>
+<li><a href="msiempy.FieldFilter.html#name"><code>name</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): name of the client (required)</li>
+<li><code>enabled</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): enabled or not (default: <a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a>)</li>
+<li><code>ds_ip</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): IP address for client (ip or hostname required)</li>
+<li><code>hostname</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): hostname for client</li>
+<li><code>type_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): numeric ESM type-id (required)</li>
+<li><code>tz_id</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): numeric ESM timezone id or GMT</li>
+<li><code>dorder</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Date order</li>
+<li><code>maskflag</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>):</li>
+<li><code>port</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): IP port to use</li>
+<li><code>require_tls</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): use syslog-TLS (default: <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>)</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd>result id (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>) or <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a> on Error</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._validate_ds_params">
+    
+  </a>
+  <a name="_validate_ds_params">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _validate_ds_params(self, p):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L1062">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Validate parameters for new datasource.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>p</code> (<a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>) : datasource parameters</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd>datasource dict with normalized values or <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a> if something is invalid.</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.DevTree._validate_ds_tz_id">
+    
+  </a>
+  <a name="_validate_ds_tz_id">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _validate_ds_tz_id(self, p):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L1159">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Validates datasource time zone id.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>p</code> (<a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>): datasource param</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a> of datasource params or None if invalid</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basestaticmethod private">
+  
+  <a name="msiempy.DevTree._normalize_bool_vals">
+    
+  </a>
+  <a name="_normalize_bool_vals">
+    
+  </a>
+  <div class="functionHeader">
+    @staticmethod<br />
+    def
+    _normalize_bool_vals(d):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/c9f3be6f7917db1d379177816ace7587c9385b0a/msiempy/device.py#L1186">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Recursively changes strings 'T', 'F' to <a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a></p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>d</code> (<a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>) : nested dicts and lists okay</li>
+</ul>
+</dd>
+</dl>
+</div>
+  </div>
+</div>
+
+      </div>
+      <address>
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-12 23:33:48.
+      </address>
+
+    </div>
+
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>

@@ -3,7 +3,7 @@
           "DTD/xhtml1-strict.dtd">
 <html>
   <head>
-    <title>msiempy.alarm.AlarmManager : API documentation</title>
+    <title>msiempy.AlarmManager : API documentation</title>
 
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
@@ -28,115 +28,154 @@
     <div class="container">
 
       <div class="page-header">
-        <h1 class="class"><code>msiempy.alarm.AlarmManager(<a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>)</code> <small>class documentation</small></h1>
+        <h1 class="class"><code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.AlarmManager.html" class="code" data-type="Class">AlarmManager</a></code></h1>
+      </div>
 
-        <span id="partOf">
-          Part of <code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.alarm.html" class="code" data-type="Module">alarm</a></code>
-          <a href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L13">View Source</a>
-          <a href="classIndex.html#msiempy.alarm.AlarmManager">(View In Hierarchy)</a>
-        </span>
+      <div class="categoryHeader">
+        class documentation
       </div>
 
       <div class="extrasDocstring">
-        
+        <p><code><span class="py-keyword">class</span> msiempy.AlarmManager(<a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>): <a href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L13">(source)</a></code></p>
+        <p><a href="classIndex.html#msiempy.AlarmManager">View In Hierarchy</a></p>
       </div>
 
       <div class="moduleDocstring">
-        <div>List-Like object. Interface to query and manage alarms.</div>
+        <div><p>List-Like object. Interface to query and manage alarms.</p>
+<dl class="rst-docutils">
+<dt>Exemples:</dt>
+<dd><ul class="rst-first rst-simple">
+<li>Acknowledge alarms:</li>
+</ul>
+<p>Print all <tt class="rst-docutils literal">unacknowledged</tt> alarms filtered by alarm name and event message, then acknowledge the alarms.
+Filter with alarm match <tt class="rst-docutils literal">'Test alarm'</tt> and triggering event message match <tt class="rst-docutils literal">'Wordpress'</tt>.
+.. python:</p>
+<pre class="rst-last rst-literal-block">
+from msiempy import AlarmManager, Alarm
+# Make an alarm query
+alarms=AlarmManager(
+        time_range='CURRENT_YEAR',
+        status_filter='unacknowledged', # passed to alarmGetTriggeredAlarms
+        filters=[('alarmName', 'Test alarm')], # Regex
+        event_filters=[('ruleName','Wordpress')], # Regex
+        page_size=5 # Should be increased to 500 or 1000 once finish testing for better performance.
+)
+# Load the data into the list
+alarms.load_data()
+# Print results
+print("Alarm list: ")
+print(alarms)
+print(alarms.get_text(
+        fields=['id','triggeredDate','acknowledgedDate', 'alarmName', 'acknowledgedUsername']))
+# Acknowledge alarms
+print("Acknowledge alarms")
+for alarm in alarms:
+        alarm.acknowledge()
+</pre>
+</dd>
+<dt>Notes:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li>The <a href="msiempy.AlarmManager.html"><code>AlarmManager</code></a> filtering feature is an addon to what the SIEM API offers, filters are applied locally as regular expressions.</li>
+</ul>
+</dd>
+<dt>See:</dt>
+<dd><a href="msiempy.Alarm.html"><code>Alarm</code></a></dd>
+</dl>
+</div>
       </div>
 
       <div id="splitTables">
-        <table class="children sortable" id="id4">
+        <table class="children sortable" id="id8">
   
   <tr class="method">
     
     <td>Method</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#__init__" class="code" data-type="Method">__init__</a></td>
+    <td><a href="msiempy.AlarmManager.html#__init__" class="code" data-type="Method">__init__</a></td>
     <td><span>Create a new alarm query</span></td>
   </tr><tr class="instancevariable">
     
     <td>Instance Variable</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#status_filter" class="code" data-type="Instance Variable">status_filter</a></td>
+    <td><a href="msiempy.AlarmManager.html#status_filter" class="code" data-type="Instance Variable">status_filter</a></td>
     <td><span>Status filter for the alarm query.</span></td>
   </tr><tr class="instancevariable">
     
     <td>Instance Variable</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#page_size" class="code" data-type="Instance Variable">page_size</a></td>
+    <td><a href="msiempy.AlarmManager.html#page_size" class="code" data-type="Instance Variable">page_size</a></td>
     <td><span>Maximum number of alarms per query</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#event_filters" class="code" data-type="Method">event_filters</a></td>
+    <td><a href="msiempy.AlarmManager.html#event_filters" class="code" data-type="Method">event_filters</a></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#add_filter" class="code" data-type="Method">add_filter</a></td>
+    <td><a href="msiempy.AlarmManager.html#add_filter" class="code" data-type="Method">add_filter</a></td>
     <td><span>Add a filter to the alarm query.</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#add_event_filter" class="code" data-type="Method">add_event_filter</a></td>
+    <td><a href="msiempy.AlarmManager.html#add_event_filter" class="code" data-type="Method">add_event_filter</a></td>
     <td><span>Add a event filter to the query.</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#clear_filters" class="code" data-type="Method">clear_filters</a></td>
+    <td><a href="msiempy.AlarmManager.html#clear_filters" class="code" data-type="Method">clear_filters</a></td>
     <td><span>Reset local alarm and event filters.</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#load_data" class="code" data-type="Method">load_data</a></td>
+    <td><a href="msiempy.AlarmManager.html#load_data" class="code" data-type="Method">load_data</a></td>
     <td><span>Load the data into the list. Default behaviour will load all alarms informations. Meaning that foreach alarms, the full details is loaded, then the trigerring event details is loaded.</span></td>
   </tr><tr class="instancevariable">
     
     <td>Instance Variable</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#data" class="code" data-type="Instance Variable">data</a></td>
+    <td><a href="msiempy.AlarmManager.html#data" class="code" data-type="Instance Variable">data</a></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="instancevariable private">
     
     <td>Instance Variable</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#_alarm_filters" class="code" data-type="Instance Variable">_alarm_filters</a></td>
+    <td><a href="msiempy.AlarmManager.html#_alarm_filters" class="code" data-type="Instance Variable">_alarm_filters</a></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="instancevariable private">
     
     <td>Instance Variable</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#_event_filters" class="code" data-type="Instance Variable">_event_filters</a></td>
+    <td><a href="msiempy.AlarmManager.html#_event_filters" class="code" data-type="Instance Variable">_event_filters</a></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="instancevariable private">
     
     <td>Instance Variable</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#_status_filter" class="code" data-type="Instance Variable">_status_filter</a></td>
+    <td><a href="msiempy.AlarmManager.html#_status_filter" class="code" data-type="Instance Variable">_status_filter</a></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="method private">
     
     <td>Method</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#_get_filters" class="code" data-type="Method">_get_filters</a></td>
+    <td><a href="msiempy.AlarmManager.html#_get_filters" class="code" data-type="Method">_get_filters</a></td>
     <td><span>The alarm related filters</span></td>
   </tr><tr class="method private">
     
     <td>Method</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#_get_status_filter" class="code" data-type="Method">_get_status_filter</a></td>
+    <td><a href="msiempy.AlarmManager.html#_get_status_filter" class="code" data-type="Method">_get_status_filter</a></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="method private">
     
     <td>Method</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#_set_status_filter" class="code" data-type="Method">_set_status_filter</a></td>
+    <td><a href="msiempy.AlarmManager.html#_set_status_filter" class="code" data-type="Method">_set_status_filter</a></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="method private">
     
     <td>Method</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#_qry_load_data" class="code" data-type="Method">_qry_load_data</a></td>
+    <td><a href="msiempy.AlarmManager.html#_qry_load_data" class="code" data-type="Method">_qry_load_data</a></td>
     <td><span class="undocumented">No summary</span></td>
   </tr><tr class="method private">
     
     <td>Method</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#_alarm_match" class="code" data-type="Method">_alarm_match</a></td>
+    <td><a href="msiempy.AlarmManager.html#_alarm_match" class="code" data-type="Method">_alarm_match</a></td>
     <td><span>Internal filter method that is going to return True if the passed alarm match all alarm related filters.</span></td>
   </tr><tr class="method private">
     
     <td>Method</td>
-    <td><a href="msiempy.alarm.AlarmManager.html#_event_match" class="code" data-type="Method">_event_match</a></td>
+    <td><a href="msiempy.AlarmManager.html#_event_match" class="code" data-type="Method">_event_match</a></td>
     <td><span>Internal filter method that is going to return True if any triggering event match all passed event filters.</span></td>
   </tr>
 </table>
@@ -144,7 +183,7 @@
           <p class="inheritedFrom">
             Inherited from <a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>:
           </p>
-          <table class="children sortable" id="id5">
+          <table class="children sortable" id="id9">
   
   <tr class="baseinstancevariable">
     
@@ -237,7 +276,7 @@
           <p class="inheritedFrom">
             Inherited from <a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a> (via <a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>):
           </p>
-          <table class="children sortable" id="id6">
+          <table class="children sortable" id="id10">
   
   <tr class="basemethod">
     
@@ -290,7 +329,7 @@
           <p class="inheritedFrom">
             Inherited from <a href="msiempy.core.types.NitroObject.html" class="code" data-type="Class">NitroObject</a> (via <a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>, <a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>):
           </p>
-          <table class="children sortable" id="id7">
+          <table class="children sortable" id="id11">
   
   <tr class="baseclass">
     
@@ -301,7 +340,7 @@
     
     <td>Instance Variable</td>
     <td><a href="msiempy.core.types.NitroObject.html#nitro" class="code" data-type="Instance Variable">nitro</a></td>
-    <td><span><a href="msiempy.core.session.NitroSession.html"><code>msiempy.core.session.NitroSession</code></a> object. Interface to the SIEM.</span></td>
+    <td><span><a href="msiempy.NitroSession.html"><code>msiempy.core.session.NitroSession</code></a> object. Interface to the SIEM.</span></td>
   </tr>
 </table>
           
@@ -313,7 +352,7 @@
 
         <div class="basemethod">
   
-  <a name="msiempy.alarm.AlarmManager.__init__">
+  <a name="msiempy.AlarmManager.__init__">
     
   </a>
   <a name="__init__">
@@ -323,7 +362,7 @@
     
     def
     __init__(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L18">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L54">
       
       (source)
     </a>
@@ -336,26 +375,26 @@
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li><dl class="rst-first rst-docutils">
-<dt><a href="msiempy.alarm.AlarmManager.html#status_filter"><code>status_filter</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): status of the alarms to query. <a href="msiempy.alarm.AlarmManager.html#status_filter"><code>status_filter</code></a> is not a filter like other cause it's computed on the SIEM side.</dt>
+<dt><a href="msiempy.AlarmManager.html#status_filter"><code>status_filter</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): status of the alarms to query. <a href="msiempy.AlarmManager.html#status_filter"><code>status_filter</code></a> is not a filter like other cause it's computed on the SIEM side.</dt>
 <dd>Accepted values : <tt class="rst-docutils literal">"acknowledged"</tt>, <tt class="rst-docutils literal">"unacknowledged"</tt>, <tt class="rst-docutils literal">""</tt> or <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a> (Default value = <tt class="rst-docutils literal">""</tt>).</dd>
 </dl>
 </li>
-<li><a href="msiempy.alarm.AlarmManager.html#page_size"><code>page_size</code></a> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): max number of rows per query.</li>
-<li><code>filters</code> (<code>list[tuple(field, [values])]</code>):  Filters applied to <a href="msiempy.alarm.Alarm.html"><code>Alarm</code></a> objects. A single <a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a> is also accepted.</li>
-<li><a href="msiempy.alarm.AlarmManager.html#event_filters"><code>event_filters</code></a> (<code>list[tuple(field, [values])]</code>): Filters applied to <a href="msiempy.event.Event.html"><code>Event</code></a> objects. A single <a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a> is also accepted.</li>
+<li><a href="msiempy.AlarmManager.html#page_size"><code>page_size</code></a> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): max number of rows per query.</li>
+<li><code>filters</code> (<code>list[tuple(field, [values])]</code>):  Filters applied to <a href="msiempy.Alarm.html"><code>Alarm</code></a> objects. A single <a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a> is also accepted.</li>
+<li><a href="msiempy.AlarmManager.html#event_filters"><code>event_filters</code></a> (<code>list[tuple(field, [values])]</code>): Filters applied to <a href="msiempy.Event.html"><code>Event</code></a> objects. A single <a href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a> is also accepted.</li>
 <li><code>time_range</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Query time range. String representation of a time range.</li>
-<li><code>start_time (`str</code> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a>): Query start time</li>
-<li><code>end_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#datetime"><code>datetime</code></a>): Query end time</li>
+<li><code>start_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#module-datetime"><code>datetime</code></a>): Query start time</li>
+<li><code>end_time</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> or a <a href="https://docs.python.org/3/library/datetime.html#module-datetime"><code>datetime</code></a>): Query end time</li>
 </ul>
 </dd>
 <dt>Note:</dt>
-<dd>Unlike <a href="msiempy.event.EventManager.html"><code>EventManager</code></a>, <code>filters</code> and <a href="msiempy.alarm.AlarmManager.html#event_filters"><code>event_filters</code></a> ** are computed after the data loaded with regex matching.**</dd>
+<dd>Unlike <a href="msiempy.EventManager.html"><code>EventManager</code></a>, <code>filters</code> and <a href="msiempy.AlarmManager.html#event_filters"><code>event_filters</code></a> ** are computed after the data loaded with regex matching.**</dd>
 </dl>
 </div>
   </div>
 </div><div class="baseinstancevariable private">
   
-  <a name="msiempy.alarm.AlarmManager._alarm_filters">
+  <a name="msiempy.AlarmManager._alarm_filters">
     
   </a>
   <a name="_alarm_filters">
@@ -363,7 +402,7 @@
   </a>
   <div class="functionHeader">
     _alarm_filters =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L39">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L75">
       
       (source)
     </a>
@@ -374,7 +413,7 @@
   </div>
 </div><div class="baseinstancevariable private">
   
-  <a name="msiempy.alarm.AlarmManager._event_filters">
+  <a name="msiempy.AlarmManager._event_filters">
     
   </a>
   <a name="_event_filters">
@@ -382,7 +421,7 @@
   </a>
   <div class="functionHeader">
     _event_filters =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L40">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L76">
       
       (source)
     </a>
@@ -393,7 +432,7 @@
   </div>
 </div><div class="baseinstancevariable private">
   
-  <a name="msiempy.alarm.AlarmManager._status_filter">
+  <a name="msiempy.AlarmManager._status_filter">
     
   </a>
   <a name="_status_filter">
@@ -401,7 +440,7 @@
   </a>
   <div class="functionHeader">
     _status_filter =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L44">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L80">
       
       (source)
     </a>
@@ -412,7 +451,7 @@
   </div>
 </div><div class="baseinstancevariable">
   
-  <a name="msiempy.alarm.AlarmManager.status_filter">
+  <a name="msiempy.AlarmManager.status_filter">
     
   </a>
   <a name="status_filter">
@@ -420,7 +459,7 @@
   </a>
   <div class="functionHeader">
     status_filter =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L47">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L83">
       
       (source)
     </a>
@@ -441,7 +480,7 @@
   </div>
 </div><div class="baseinstancevariable">
   
-  <a name="msiempy.alarm.AlarmManager.page_size">
+  <a name="msiempy.AlarmManager.page_size">
     
   </a>
   <a name="page_size">
@@ -449,7 +488,7 @@
   </a>
   <div class="functionHeader">
     page_size =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L52">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L88">
       
       (source)
     </a>
@@ -460,7 +499,7 @@
   </div>
 </div><div class="basemethod">
   
-  <a name="msiempy.alarm.AlarmManager.event_filters">
+  <a name="msiempy.AlarmManager.event_filters">
     
   </a>
   <a name="event_filters">
@@ -470,7 +509,7 @@
     @event_filters.setter<br />
     def
     event_filters(self, filters):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L149">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L185">
       
       (source)
     </a>
@@ -482,7 +521,7 @@
   </div>
 </div><div class="basemethod private">
   
-  <a name="msiempy.alarm.AlarmManager._get_filters">
+  <a name="msiempy.AlarmManager._get_filters">
     
   </a>
   <a name="_get_filters">
@@ -492,7 +531,7 @@
     
     def
     _get_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L70">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L106">
       
       (source)
     </a>
@@ -504,7 +543,7 @@
   </div>
 </div><div class="basemethod private">
   
-  <a name="msiempy.alarm.AlarmManager._get_status_filter">
+  <a name="msiempy.AlarmManager._get_status_filter">
     
   </a>
   <a name="_get_status_filter">
@@ -514,7 +553,7 @@
     
     def
     _get_status_filter(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L77">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L113">
       
       (source)
     </a>
@@ -526,7 +565,7 @@
   </div>
 </div><div class="basemethod private">
   
-  <a name="msiempy.alarm.AlarmManager._set_status_filter">
+  <a name="msiempy.AlarmManager._set_status_filter">
     
   </a>
   <a name="_set_status_filter">
@@ -536,7 +575,7 @@
     
     def
     _set_status_filter(self, status_filter):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L80">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L116">
       
       (source)
     </a>
@@ -548,7 +587,7 @@
   </div>
 </div><div class="basemethod">
   
-  <a name="msiempy.alarm.AlarmManager.add_filter">
+  <a name="msiempy.AlarmManager.add_filter">
     
   </a>
   <a name="add_filter">
@@ -558,7 +597,7 @@
     
     def
     add_filter(self, afilter):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L107">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L143">
       
       (source)
     </a>
@@ -567,17 +606,17 @@
     <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#add_filter" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.add_filter</a></div>
     
     <div><p>Add a filter to the alarm query.</p>
-<p>Some event related filters can be added with this method. See <a href="msiempy.alarm.Alarm.html#ALARM_EVENT_FILTER_FIELDS"><code>Alarm.ALARM_EVENT_FILTER_FIELDS</code></a>.</p>
+<p>Some event related filters can be added with this method. See <a href="msiempy.Alarm.html#ALARM_EVENT_FILTER_FIELDS"><code>Alarm.ALARM_EVENT_FILTER_FIELDS</code></a>.</p>
 <p>Arguments :</p>
 <ul class="rst-simple">
-<li><code>afilter</code> : Can be a a tuple <code>(field, [values])</code> or <code>(field, value)</code> or <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> 'field=value'</li>
+<li><code>afilter</code> : Can be a a tuple <code>(field, [values])</code> or <code>(field, value)</code> or <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> <tt class="rst-docutils literal">'field=value'</tt></li>
 </ul>
 <p>Filters format is <code>tuple(field, [values])</code>.</p>
 </div>
   </div>
 </div><div class="basemethod">
   
-  <a name="msiempy.alarm.AlarmManager.add_event_filter">
+  <a name="msiempy.AlarmManager.add_event_filter">
     
   </a>
   <a name="add_event_filter">
@@ -587,7 +626,7 @@
     
     def
     add_event_filter(self, afilter):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L166">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L202">
       
       (source)
     </a>
@@ -607,7 +646,7 @@
   </div>
 </div><div class="basemethod">
   
-  <a name="msiempy.alarm.AlarmManager.clear_filters">
+  <a name="msiempy.AlarmManager.clear_filters">
     
   </a>
   <a name="clear_filters">
@@ -617,7 +656,7 @@
     
     def
     clear_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L182">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L218">
       
       (source)
     </a>
@@ -629,7 +668,7 @@
   </div>
 </div><div class="basemethod">
   
-  <a name="msiempy.alarm.AlarmManager.load_data">
+  <a name="msiempy.AlarmManager.load_data">
     
   </a>
   <a name="load_data">
@@ -639,7 +678,7 @@
     
     def
     load_data(self, pages=1, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L189">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L225">
       
       (source)
     </a>
@@ -653,29 +692,29 @@ the full details is loaded, then the trigerring event details is loaded.</p>
 <dl class="rst-docutils">
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><code>events_details</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): Load detailed events infos. (Default value = <a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a>). If <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>, no detailed <code>events</code> will be loaded. Only <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> representation for SIEM 10.x and minimal events records from SIEM 11.x.</li>
-<li><code>alarms_details</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): Load detailed alarms infos. (Default value = <a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a>). If <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>, only return <tt class="rst-docutils literal">alarmGetTriggeredAlarms</tt> infos, no information on trigerring events at all is present.</li>
-<li><code>pages</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): Number of pages to load. (Default value = 1)</li>
-<li><code>workers</code> (<a href="https://docs.python.org/3/library/stdtypes.html#int"><code>int</code></a>): Number of asynchronous workers. (Default value = 10)</li>
+<li><code>events_details</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): Load detailed events infos. (Default value = <a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a>). If <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>, no detailed <code>events</code> will be loaded. Only <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> representation for SIEM 10.x and minimal events records from SIEM 11.x.</li>
+<li><code>alarms_details</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): Load detailed alarms infos. (Default value = <a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a>). If <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>, only return <tt class="rst-docutils literal">alarmGetTriggeredAlarms</tt> infos, no information on trigerring events at all is present.</li>
+<li><code>pages</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): Number of pages to load. (Default value = 1)</li>
+<li><code>workers</code> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): Number of asynchronous workers. (Default value = 10)</li>
 <li><dl class="rst-first rst-docutils">
-<dt><code>use_query</code> (<a href="https://docs.python.org/3/library/stdtypes.html#bool"><code>bool</code></a>): <code>Uses</code> the query module to retreive event data. Only works with SIEM v11.2.1 or greater.</dt>
+<dt><code>use_query</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): <code>Uses</code> the query module to retreive event data. Only works with SIEM v11.2.1 or greater.</dt>
 <dd>Default behaviour will call <code>ipsGetAlertData</code> to retreive the complete event definition. (Default value = <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>)</dd>
 </dl>
 </li>
-<li><code>extra_fields</code> (<code>list[str]</code>):  Applicable if <tt class="rst-docutils literal">use_query=True</tt>. Additionnal event fields to load in the query. See : <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a></li>
+<li><code>extra_fields</code> (<code>list[str]</code>):  Applicable if <tt class="rst-docutils literal">use_query=True</tt>. Additionnal event fields to load in the query. See : <a href="msiempy.EventManager.html"><code>msiempy.event.EventManager</code></a></li>
 </ul>
 </dd>
 </dl>
 <!-- - `page_number` (`int`): Page number. (Default value = 1). Do not touch if you're using `pages` parameter -->
 <dl class="rst-docutils">
 <dt>Returns:</dt>
-<dd><a href="msiempy.alarm.AlarmManager.html"><code>msiempy.alarm.AlarmManager</code></a></dd>
+<dd><a href="msiempy.AlarmManager.html"><code>msiempy.alarm.AlarmManager</code></a></dd>
 </dl>
 </div>
   </div>
 </div><div class="baseinstancevariable">
   
-  <a name="msiempy.alarm.AlarmManager.data">
+  <a name="msiempy.AlarmManager.data">
     
   </a>
   <a name="data">
@@ -683,7 +722,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
   </a>
   <div class="functionHeader">
     data =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L228">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L264">
       
       (source)
     </a>
@@ -694,7 +733,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
   </div>
 </div><div class="basemethod private">
   
-  <a name="msiempy.alarm.AlarmManager._qry_load_data">
+  <a name="msiempy.AlarmManager._qry_load_data">
     
   </a>
   <a name="_qry_load_data">
@@ -704,7 +743,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
     
     def
     _qry_load_data(self, workers=10, alarms_details=(True), events_details=(True), use_query=(False), extra_fields=[], page_number=1):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L231">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L267">
       
       (source)
     </a>
@@ -727,7 +766,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
 <li><code>alarms_details</code> : Load detailed alarms infos. If <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>, only a couple values are loaded, no <code>events</code> infos.</li>
 <li><code>events_details</code> : Load detailed events infos. If <a href="https://docs.python.org/3/library/constants.html#False"><code>False</code></a>, no detailed <code>events</code> will be loaded only <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> representation.</li>
 <li><code>use_query</code> : Uses the query module to retreive event data. Only works with SIEM v11.2.1 or greater.</li>
-<li><code>extra_fields</code> :  Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a href="msiempy.event.EventManager.html"><code>msiempy.event.EventManager</code></a></li>
+<li><code>extra_fields</code> :  Only when <code>use_query=True</code>. Additionnal event fields to load in the query. See : <a href="msiempy.EventManager.html"><code>msiempy.event.EventManager</code></a></li>
 <li><code>page_number</code> : Page number, default to 1. Do not touch if you're using <code>pages</code> parameter</li>
 </ul>
 </dd>
@@ -737,7 +776,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
   </div>
 </div><div class="basemethod private">
   
-  <a name="msiempy.alarm.AlarmManager._alarm_match">
+  <a name="msiempy.AlarmManager._alarm_match">
     
   </a>
   <a name="_alarm_match">
@@ -747,7 +786,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
     
     def
     _alarm_match(self, alarm):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L317">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L353">
       
       (source)
     </a>
@@ -759,7 +798,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
   </div>
 </div><div class="basemethod private">
   
-  <a name="msiempy.alarm.AlarmManager._event_match">
+  <a name="msiempy.AlarmManager._event_match">
     
   </a>
   <a name="_event_match">
@@ -769,7 +808,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
     
     def
     _event_match(self, alarm):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/d6a8a533f3a0cc8b5dd95d7717dfda9b7ecc6f26/msiempy/alarm.py#L336">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L372">
       
       (source)
     </a>
@@ -783,7 +822,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for McAfee SIEM Python Library, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> at 2020-11-06 21:07:37.
+        <a href="index.html">API Documentation</a> for McAfee SIEM Python Library, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-12 19:36:50.
       </address>
 
     </div>

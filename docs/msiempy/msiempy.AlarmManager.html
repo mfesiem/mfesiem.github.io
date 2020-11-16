@@ -15,7 +15,7 @@
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="index.html">
-            McAfee SIEM Python Library API Documentation
+            msiempy API Documentation
           </a>
         </div>
       </div>
@@ -36,7 +36,7 @@
       </div>
 
       <div class="extrasDocstring">
-        <p><code><span class="py-keyword">class</span> msiempy.AlarmManager(<a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>): <a href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L13">(source)</a></code></p>
+        <p><code><span class="py-keyword">class</span> msiempy.AlarmManager(<a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>): <a href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L13">(source)</a></code></p>
         <p><a href="classIndex.html#msiempy.AlarmManager">View In Hierarchy</a></p>
       </div>
 
@@ -48,31 +48,28 @@
 <li>Acknowledge alarms:</li>
 </ul>
 <p>Print all <tt class="rst-docutils literal">unacknowledged</tt> alarms filtered by alarm name and event message, then acknowledge the alarms.
-Filter with alarm match <tt class="rst-docutils literal">'Test alarm'</tt> and triggering event message match <tt class="rst-docutils literal">'Wordpress'</tt>.
-.. python:</p>
-<pre class="rst-last rst-literal-block">
-from msiempy import AlarmManager, Alarm
-# Make an alarm query
+Filter with alarm match <tt class="rst-docutils literal">'Test alarm'</tt> and triggering event message match <tt class="rst-docutils literal">'Wordpress'</tt>.</p>
+<pre class="py-doctest">
+<span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> AlarmManager, Alarm
+<span class="py-comment"># Make an alarm query</span>
 alarms=AlarmManager(
-        time_range='CURRENT_YEAR',
-        status_filter='unacknowledged', # passed to alarmGetTriggeredAlarms
-        filters=[('alarmName', 'Test alarm')], # Regex
-        event_filters=[('ruleName','Wordpress')], # Regex
-        page_size=5 # Should be increased to 500 or 1000 once finish testing for better performance.
+        time_range=<span class="py-string">'CURRENT_YEAR'</span>,
+        status_filter=<span class="py-string">'unacknowledged'</span>, <span class="py-comment"># passed to alarmGetTriggeredAlarms</span>
+        filters=[(<span class="py-string">'alarmName'</span>, <span class="py-string">'Test alarm'</span>)], <span class="py-comment"># Regex</span>
+        event_filters=[(<span class="py-string">'ruleName'</span>,<span class="py-string">'Wordpress'</span>)], <span class="py-comment"># Regex</span>
+        page_size=5 <span class="py-comment"># Should be increased to 500 or 1000 once finish testing for better performance.</span>
 )
-# Load the data into the list
+<span class="py-comment"># Load the data into the list</span>
 alarms.load_data()
-# Print results
-print("Alarm list: ")
-print(alarms)
-print(alarms.get_text(
-        fields=['id','triggeredDate','acknowledgedDate', 'alarmName', 'acknowledgedUsername']))
-# Acknowledge alarms
-print("Acknowledge alarms")
-for alarm in alarms:
-        alarm.acknowledge()
-</pre>
-</dd>
+<span class="py-comment"># Print results</span>
+<span class="py-builtin">print</span>(<span class="py-string">"Alarm list: "</span>)
+<span class="py-builtin">print</span>(alarms)
+<span class="py-builtin">print</span>(alarms.get_text(
+        fields=[<span class="py-string">'id'</span>,<span class="py-string">'triggeredDate'</span>,<span class="py-string">'acknowledgedDate'</span>, <span class="py-string">'alarmName'</span>, <span class="py-string">'acknowledgedUsername'</span>]))
+<span class="py-comment"># Acknowledge alarms</span>
+<span class="py-builtin">print</span>(<span class="py-string">"Acknowledge alarms"</span>)
+<span class="py-keyword">for</span> alarm <span class="py-keyword">in</span> alarms:
+        alarm.acknowledge()</pre></dd>
 <dt>Notes:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
 <li>The <a href="msiempy.AlarmManager.html"><code>AlarmManager</code></a> filtering feature is an addon to what the SIEM API offers, filters are applied locally as regular expressions.</li>
@@ -362,7 +359,7 @@ for alarm in alarms:
     
     def
     __init__(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L54">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L55">
       
       (source)
     </a>
@@ -402,7 +399,7 @@ for alarm in alarms:
   </a>
   <div class="functionHeader">
     _alarm_filters =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L75">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L76">
       
       (source)
     </a>
@@ -421,7 +418,7 @@ for alarm in alarms:
   </a>
   <div class="functionHeader">
     _event_filters =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L76">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L77">
       
       (source)
     </a>
@@ -440,7 +437,7 @@ for alarm in alarms:
   </a>
   <div class="functionHeader">
     _status_filter =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L80">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L81">
       
       (source)
     </a>
@@ -459,7 +456,7 @@ for alarm in alarms:
   </a>
   <div class="functionHeader">
     status_filter =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L83">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L84">
       
       (source)
     </a>
@@ -488,7 +485,7 @@ for alarm in alarms:
   </a>
   <div class="functionHeader">
     page_size =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L88">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L89">
       
       (source)
     </a>
@@ -509,7 +506,7 @@ for alarm in alarms:
     @event_filters.setter<br />
     def
     event_filters(self, filters):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L185">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L186">
       
       (source)
     </a>
@@ -531,7 +528,7 @@ for alarm in alarms:
     
     def
     _get_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L106">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L107">
       
       (source)
     </a>
@@ -553,7 +550,7 @@ for alarm in alarms:
     
     def
     _get_status_filter(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L113">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L114">
       
       (source)
     </a>
@@ -575,7 +572,7 @@ for alarm in alarms:
     
     def
     _set_status_filter(self, status_filter):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L116">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L117">
       
       (source)
     </a>
@@ -597,7 +594,7 @@ for alarm in alarms:
     
     def
     add_filter(self, afilter):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L143">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L144">
       
       (source)
     </a>
@@ -626,7 +623,7 @@ for alarm in alarms:
     
     def
     add_event_filter(self, afilter):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L202">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L203">
       
       (source)
     </a>
@@ -656,7 +653,7 @@ for alarm in alarms:
     
     def
     clear_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L218">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L219">
       
       (source)
     </a>
@@ -678,7 +675,7 @@ for alarm in alarms:
     
     def
     load_data(self, pages=1, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L225">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L226">
       
       (source)
     </a>
@@ -722,7 +719,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
   </a>
   <div class="functionHeader">
     data =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L264">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L265">
       
       (source)
     </a>
@@ -743,7 +740,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
     
     def
     _qry_load_data(self, workers=10, alarms_details=(True), events_details=(True), use_query=(False), extra_fields=[], page_number=1):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L267">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L268">
       
       (source)
     </a>
@@ -786,7 +783,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
     
     def
     _alarm_match(self, alarm):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L353">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L354">
       
       (source)
     </a>
@@ -808,7 +805,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
     
     def
     _event_match(self, alarm):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/48e76d515983085ee76ff111a73c777bd01cb08c/msiempy/alarm.py#L372">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9126fbd49373526581ffa367b7b74b6cf85594ef/msiempy/alarm.py#L373">
       
       (source)
     </a>
@@ -822,7 +819,7 @@ the full details is loaded, then the trigerring event details is loaded.</p>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for McAfee SIEM Python Library, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-12 19:36:50.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-16 20:45:44.
       </address>
 
     </div>

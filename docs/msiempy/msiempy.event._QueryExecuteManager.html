@@ -36,7 +36,7 @@
       </div>
 
       <div class="extrasDocstring">
-        <p><code><span class="py-keyword">class</span> msiempy.event._QueryExecuteManager(<a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>): <a href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/event.py#L22">(source)</a></code></p><p>Known subclasses: <a href="msiempy.event.EventManager.html" class="code" data-type="Class">msiempy.event.EventManager</a>, <a href="msiempy.event.GroupedEventManager.html" class="code" data-type="Class">msiempy.event.GroupedEventManager</a></p>
+        <p><code><span class="py-keyword">class</span> msiempy.event._QueryExecuteManager(<a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>): <a href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/event.py#L25">(source)</a></code></p><p>Known subclasses: <a href="msiempy.EventManager.html" class="code" data-type="Class">msiempy.EventManager</a>, <a href="msiempy.GroupedEventManager.html" class="code" data-type="Class">msiempy.GroupedEventManager</a></p>
         <p><a href="classIndex.html#msiempy.event._QueryExecuteManager">View In Hierarchy</a></p>
       </div>
 
@@ -48,7 +48,7 @@ Only Events query are currently supported.</p>
       </div>
 
       <div id="splitTables">
-        <table class="children sortable" id="id38">
+        <table class="children sortable" id="id63">
   
   <tr class="method">
     
@@ -64,7 +64,7 @@ Only Events query are currently supported.</p>
     
     <td>Static Method</td>
     <td><a href="msiempy.event._QueryExecuteManager.html#get_field_nickname" class="code" data-type="Static Method">get_field_nickname</a></td>
-    <td><span>Resolve SIEM events field nickname base on <a href="msiempy.event.Event.html#SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME"><code>Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</code></a> mapping. Returns the valid query field nickname if found else the initial value.</span></td>
+    <td><span>Resolve SIEM events field nickname base on <a href="msiempy.Event.html#SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME"><code>Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</code></a> mapping. Returns the valid query field nickname if found else the initial value.</span></td>
   </tr><tr class="classvariable private">
     
     <td>Class Variable</td>
@@ -79,7 +79,7 @@ Only Events query are currently supported.</p>
     
     <td>Method</td>
     <td><a href="msiempy.event._QueryExecuteManager.html#_get_filters" class="code" data-type="Method">_get_filters</a></td>
-    <td><span>Returns SIEM formatted filters for the query structured from <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> and/or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.core.query.FilteredQueryList.filters</code></a>.</span></td>
+    <td><span>Returns SIEM formatted filters for the query structured from <a href="msiempy.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> and/or <a href="msiempy.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a> See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.core.query.FilteredQueryList.filters</code></a>.</span></td>
   </tr><tr class="method private">
     
     <td>Method</td>
@@ -94,14 +94,14 @@ Only Events query are currently supported.</p>
     
     <td>Method</td>
     <td><a href="msiempy.event._QueryExecuteManager.html#_get_events" class="code" data-type="Method">_get_events</a></td>
-    <td><span>Internal method that will get the query events. Called by <code>qry_load_data</code>. By default, <tt class="rst-docutils literal">numRows</tt> correspond to <tt class="rst-docutils literal">limit</tt>.</span></td>
+    <td><span>Internal method that will get the query events. Called by <code>_qry_load_data</code>. By default, <tt class="rst-docutils literal">numRows</tt> correspond to <tt class="rst-docutils literal">limit</tt>.</span></td>
   </tr>
 </table>
         
           <p class="inheritedFrom">
             Inherited from <a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>:
           </p>
-          <table class="children sortable" id="id39">
+          <table class="children sortable" id="id64">
   
   <tr class="baseinstancevariable">
     
@@ -143,11 +143,6 @@ Only Events query are currently supported.</p>
     <td>Method</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#clear_filters" class="code" data-type="Method">clear_filters</a></td>
     <td><span>Remove all filters to the query. Abstract declaration.</span></td>
-  </tr><tr class="basemethod">
-    
-    <td>Method</td>
-    <td><a href="msiempy.core.query.FilteredQueryList.html#qry_load_data" class="code" data-type="Method">qry_load_data</a></td>
-    <td><span>Method to load the data from the SIEM. Rturns a <code>tuple ((items, completed))</code>. Abstract declaration.</span></td>
   </tr><tr class="basemethod">
     
     <td>Method</td>
@@ -203,13 +198,18 @@ Only Events query are currently supported.</p>
     <td>Method</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#_set_filters" class="code" data-type="Method">_set_filters</a></td>
     <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="basemethod private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_qry_load_data" class="code" data-type="Method">_qry_load_data</a></td>
+    <td><span>Method to load the data from the SIEM. Rturns a <code>tuple ((items, completed))</code>. Abstract declaration.</span></td>
   </tr>
 </table>
           
           <p class="inheritedFrom">
             Inherited from <a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a> (via <a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>):
           </p>
-          <table class="children sortable" id="id40">
+          <table class="children sortable" id="id65">
   
   <tr class="baseinstancevariable">
     
@@ -267,7 +267,7 @@ Only Events query are currently supported.</p>
           <p class="inheritedFrom">
             Inherited from <a href="msiempy.core.types.NitroObject.html" class="code" data-type="Class">NitroObject</a> (via <a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">FilteredQueryList</a>, <a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>):
           </p>
-          <table class="children sortable" id="id41">
+          <table class="children sortable" id="id66">
   
   <tr class="baseclass">
     
@@ -278,7 +278,7 @@ Only Events query are currently supported.</p>
     
     <td>Instance Variable</td>
     <td><a href="msiempy.core.types.NitroObject.html#nitro" class="code" data-type="Instance Variable">nitro</a></td>
-    <td><span><a href="msiempy.core.session.NitroSession.html"><code>msiempy.core.session.NitroSession</code></a> object. Interface to the SIEM.</span></td>
+    <td><span><a href="msiempy.NitroSession.html"><code>msiempy.core.session.NitroSession</code></a> object. Interface to the SIEM.</span></td>
   </tr>
 </table>
           
@@ -298,7 +298,7 @@ Only Events query are currently supported.</p>
   </a>
   <div class="functionHeader">
     _TYPE =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/event.py#L30">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/event.py#L33">
       
       (source)
     </a>
@@ -319,13 +319,13 @@ Only Events query are currently supported.</p>
     
     def
     __init__(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/event.py#L33">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/event.py#L36">
       
       (source)
     </a>
   </div>
   <div class="docstring functionBody">
-    <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#__init__" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.__init__</a></div><div class="interfaceinfo">overridden in <a href="msiempy.event.EventManager.html" class="code" data-type="Class">msiempy.event.EventManager</a>, <a href="msiempy.event.GroupedEventManager.html" class="code" data-type="Class">msiempy.event.GroupedEventManager</a></div>
+    <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#__init__" class="code" data-type="Method">msiempy.core.query.FilteredQueryList.__init__</a></div><div class="interfaceinfo">overridden in <a href="msiempy.EventManager.html" class="code" data-type="Class">msiempy.EventManager</a>, <a href="msiempy.GroupedEventManager.html" class="code" data-type="Class">msiempy.GroupedEventManager</a></div>
     
     <div><p>Create a query list</p>
 <dl class="rst-docutils">
@@ -354,13 +354,13 @@ Only Events query are currently supported.</p>
   </a>
   <div class="functionHeader">
     _filters =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/event.py#L36">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/event.py#L39">
       
       (source)
     </a>
   </div>
   <div class="functionBody">
-    <div class="interfaceinfo">overridden in <a href="msiempy.event.EventManager.html" class="code" data-type="Class">msiempy.event.EventManager</a>, <a href="msiempy.event.GroupedEventManager.html" class="code" data-type="Class">msiempy.event.GroupedEventManager</a></div>
+    <div class="interfaceinfo">overridden in <a href="msiempy.EventManager.html" class="code" data-type="Class">msiempy.EventManager</a>, <a href="msiempy.GroupedEventManager.html" class="code" data-type="Class">msiempy.GroupedEventManager</a></div>
     <div class="undocumented">Undocumented</div> (type: <code>List</code>)
   </div>
 </div><div class="basemethod private">
@@ -375,7 +375,7 @@ Only Events query are currently supported.</p>
     
     def
     _get_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/event.py#L41">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/event.py#L44">
       
       (source)
     </a>
@@ -383,7 +383,7 @@ Only Events query are currently supported.</p>
   <div class="docstring functionBody">
     <div class="interfaceinfo">overrides <a href="msiempy.core.query.FilteredQueryList.html#_get_filters" class="code" data-type="Method">msiempy.core.query.FilteredQueryList._get_filters</a></div>
     
-    <div>Returns SIEM formatted filters for the query structured from <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> and/or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a>
+    <div>Returns SIEM formatted filters for the query structured from <a href="msiempy.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> and/or <a href="msiempy.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a>
 See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.core.query.FilteredQueryList.filters</code></a>.</div>
   </div>
 </div><div class="basemethod">
@@ -398,7 +398,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     def
     add_filter(self, afilter):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/event.py#L48">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/event.py#L51">
       
       (source)
     </a>
@@ -411,7 +411,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
 <dl class="rst-docutils">
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><code>afilter</code> (<code>tuple(field, [values])</code> or <code>tuple(field, value)</code> or <a href="msiempy.event.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> or <a href="msiempy.event.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a>): The filter</li>
+<li><code>afilter</code> (<code>tuple(field, [values])</code> or <code>tuple(field, value)</code> or <a href="msiempy.GroupFilter.html"><code>msiempy.event.GroupFilter</code></a> or <a href="msiempy.FieldFilter.html"><code>msiempy.event.FieldFilter</code></a>): The filter</li>
 </ul>
 </dd>
 </dl>
@@ -429,7 +429,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     def
     _close_query(self, resultID):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/event.py#L70">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/event.py#L73">
       
       (source)
     </a>
@@ -438,7 +438,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     
     <div><p>Close the query</p>
-<p>Internal method called by qry_load_data</p>
+<p>Internal method called by _qry_load_data</p>
 </div>
   </div>
 </div><div class="basemethod private">
@@ -453,7 +453,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     def
     _wait_for(self, resultID, wait_timeout_sec, sleep_time=0.2):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/event.py#L78">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/event.py#L81">
       
       (source)
     </a>
@@ -462,7 +462,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     
     <div><p>Wait and sleep for the query.</p>
-<p>Internal method called by qry_load_data</p>
+<p>Internal method called by _qry_load_data</p>
 <dl class="rst-docutils">
 <dt>Arguments:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
@@ -475,7 +475,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
 <dd><a href="https://docs.python.org/3/library/constants.html#True"><code>True</code></a></dd>
 <dt>Raises:</dt>
 <dd><ul class="rst-first rst-last rst-simple">
-<li><a href="msiempy.core.session.NitroError.html"><code>msiempy.NitroError</code></a>: 'ResultUnavailable' error some times...</li>
+<li><a href="msiempy.NitroError.html"><code>msiempy.NitroError</code></a>: 'ResultUnavailable' error some times...</li>
 <li><a href="https://docs.python.org/3/library/exceptions.html#TimeoutError"><code>TimeoutError</code></a>: Query wait timeout</li>
 </ul>
 </dd>
@@ -494,7 +494,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     def
     _get_events(self, resultID, startPos=0, numRows=500):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/event.py#L116">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/event.py#L119">
       
       (source)
     </a>
@@ -503,7 +503,7 @@ See <a href="msiempy.core.query.FilteredQueryList.html#filters"><code>msiempy.co
     
     
     <div>Internal method that will get the query events.
-Called by <code>qry_load_data</code>.
+Called by <code>_qry_load_data</code>.
 By default, <tt class="rst-docutils literal">numRows</tt> correspond to <tt class="rst-docutils literal">limit</tt>.</div>
   </div>
 </div><div class="basestaticmethod">
@@ -518,7 +518,7 @@ By default, <tt class="rst-docutils literal">numRows</tt> correspond to <tt clas
     @staticmethod<br />
     def
     get_field_nickname(field):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/event.py#L143">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/event.py#L146">
       
       (source)
     </a>
@@ -526,14 +526,14 @@ By default, <tt class="rst-docutils literal">numRows</tt> correspond to <tt clas
   <div class="docstring functionBody">
     
     
-    <div>Resolve SIEM events field nickname base on <a href="msiempy.event.Event.html#SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME"><code>Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</code></a> mapping.
+    <div>Resolve SIEM events field nickname base on <a href="msiempy.Event.html#SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME"><code>Event.SIEM_FIELDS_MAP_INTERNAL_NAME_TO_NICKNAME</code></a> mapping.
 Returns the valid query field nickname if found else the initial value.</div>
   </div>
 </div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-17 04:28:54.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-17 04:34:06.
       </address>
 
     </div>

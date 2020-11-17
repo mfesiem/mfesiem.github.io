@@ -36,18 +36,18 @@
       </div>
 
       <div class="extrasDocstring">
-        <p><code><span class="py-keyword">class</span> msiempy.core.query.FilteredQueryList(<a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>): <a href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L16">(source)</a></code></p><p>Known subclasses: <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">msiempy.event._QueryExecuteManager</a></p>
+        <p><code><span class="py-keyword">class</span> msiempy.core.query.FilteredQueryList(<a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>): <a href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L16">(source)</a></code></p><p>Known subclasses: <a href="msiempy.AlarmManager.html" class="code" data-type="Class">msiempy.AlarmManager</a>, <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">msiempy.event._QueryExecuteManager</a></p>
         <p><a href="classIndex.html#msiempy.core.query.FilteredQueryList">View In Hierarchy</a></p>
       </div>
 
       <div class="moduleDocstring">
         <div><p>Abstract base class that provide time range handling and define the query filters.</p>
-<p>Base class for query based managers : <a href="msiempy.alarm.AlarmManager.html"><code>AlarmManager</code></a>, <a href="msiempy.event.EventManager.html"><code>EventManager</code></a> and <a href="msiempy.event.GroupedEventManager.html"><code>GroupedEventManager</code></a></p>
+<p>Base class for query based managers : <a href="msiempy.AlarmManager.html"><code>AlarmManager</code></a>, <a href="msiempy.EventManager.html"><code>EventManager</code></a> and <a href="msiempy.GroupedEventManager.html"><code>GroupedEventManager</code></a></p>
 </div>
       </div>
 
       <div id="splitTables">
-        <table class="children sortable" id="id15">
+        <table class="children sortable" id="id49">
   
   <tr class="method">
     
@@ -99,11 +99,6 @@
     <td>Method</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#clear_filters" class="code" data-type="Method">clear_filters</a></td>
     <td><span>Remove all filters to the query. Abstract declaration.</span></td>
-  </tr><tr class="method">
-    
-    <td>Method</td>
-    <td><a href="msiempy.core.query.FilteredQueryList.html#qry_load_data" class="code" data-type="Method">qry_load_data</a></td>
-    <td><span>Method to load the data from the SIEM. Rturns a <code>tuple ((items, completed))</code>. Abstract declaration.</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
@@ -164,13 +159,18 @@
     <td>Method</td>
     <td><a href="msiempy.core.query.FilteredQueryList.html#_set_filters" class="code" data-type="Method">_set_filters</a></td>
     <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.query.FilteredQueryList.html#_qry_load_data" class="code" data-type="Method">_qry_load_data</a></td>
+    <td><span>Method to load the data from the SIEM. Rturns a <code>tuple ((items, completed))</code>. Abstract declaration.</span></td>
   </tr>
 </table>
         
           <p class="inheritedFrom">
             Inherited from <a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>:
           </p>
-          <table class="children sortable" id="id16">
+          <table class="children sortable" id="id50">
   
   <tr class="baseinstancevariable">
     
@@ -228,7 +228,7 @@
           <p class="inheritedFrom">
             Inherited from <a href="msiempy.core.types.NitroObject.html" class="code" data-type="Class">NitroObject</a> (via <a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a>):
           </p>
-          <table class="children sortable" id="id17">
+          <table class="children sortable" id="id51">
   
   <tr class="baseclass">
     
@@ -239,7 +239,7 @@
     
     <td>Instance Variable</td>
     <td><a href="msiempy.core.types.NitroObject.html#nitro" class="code" data-type="Instance Variable">nitro</a></td>
-    <td><span><a href="msiempy.core.session.NitroSession.html"><code>msiempy.core.session.NitroSession</code></a> object. Interface to the SIEM.</span></td>
+    <td><span><a href="msiempy.NitroSession.html"><code>msiempy.core.session.NitroSession</code></a> object. Interface to the SIEM.</span></td>
   </tr>
 </table>
           
@@ -261,13 +261,13 @@
     
     def
     __init__(self, *arg, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L24">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L24">
       
       (source)
     </a>
   </div>
   <div class="docstring functionBody">
-    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroList.html#__init__" class="code" data-type="Method">msiempy.core.types.NitroList.__init__</a></div><div class="interfaceinfo">overridden in <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">msiempy.event._QueryExecuteManager</a></div>
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroList.html#__init__" class="code" data-type="Method">msiempy.core.types.NitroList.__init__</a></div><div class="interfaceinfo">overridden in <a href="msiempy.AlarmManager.html" class="code" data-type="Class">msiempy.AlarmManager</a>, <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">msiempy.event._QueryExecuteManager</a></div>
     
     <div><p>Create a query list</p>
 <dl class="rst-docutils">
@@ -296,7 +296,7 @@
   </a>
   <div class="functionHeader">
     not_completed =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L64">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L64">
       
       (source)
     </a>
@@ -315,7 +315,7 @@
   </a>
   <div class="functionHeader">
     _time_range =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L70">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L70">
       
       (source)
     </a>
@@ -334,7 +334,7 @@
   </a>
   <div class="functionHeader">
     _start_time =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L71">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L71">
       
       (source)
     </a>
@@ -353,7 +353,7 @@
   </a>
   <div class="functionHeader">
     _end_time =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L72">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L72">
       
       (source)
     </a>
@@ -372,7 +372,7 @@
   </a>
   <div class="functionHeader">
     filters =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L74">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L74">
       
       (source)
     </a>
@@ -399,7 +399,7 @@
   </a>
   <div class="functionHeader">
     start_time =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L77">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L77">
       
       (source)
     </a>
@@ -425,7 +425,7 @@ If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</c
   </a>
   <div class="functionHeader">
     end_time =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L78">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L78">
       
       (source)
     </a>
@@ -451,7 +451,7 @@ If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</c
   </a>
   <div class="functionHeader">
     time_range =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L79">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L79">
       
       (source)
     </a>
@@ -477,7 +477,7 @@ If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</c
   </a>
   <div class="functionHeader">
     DEFAULT_TIME_RANGE =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L83">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L83">
       
       (source)
     </a>
@@ -496,7 +496,7 @@ If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</c
   </a>
   <div class="functionHeader">
     POSSIBLE_TIME_RANGE =
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L86">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L86">
       
       (source)
     </a>
@@ -538,7 +538,7 @@ If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</c
     
     def
     _get_time_range(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L128">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L128">
       
       (source)
     </a>
@@ -560,7 +560,7 @@ If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</c
     
     def
     _set_time_range(self, time_range):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L130">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L130">
       
       (source)
     </a>
@@ -582,7 +582,7 @@ If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</c
     
     def
     _get_start_time(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L158">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L158">
       
       (source)
     </a>
@@ -604,7 +604,7 @@ If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</c
     
     def
     _set_start_time(self, start_time):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L160">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L160">
       
       (source)
     </a>
@@ -626,7 +626,7 @@ If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</c
     
     def
     _get_end_time(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L180">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L180">
       
       (source)
     </a>
@@ -648,7 +648,7 @@ If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</c
     
     def
     _set_end_time(self, end_time):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L183">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L183">
       
       (source)
     </a>
@@ -670,13 +670,13 @@ If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</c
     @abc.abstractmethod<br />
     def
     _get_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L234">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L234">
       
       (source)
     </a>
   </div>
   <div class="docstring functionBody">
-    <div class="interfaceinfo">overridden in <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">msiempy.event._QueryExecuteManager</a></div>
+    <div class="interfaceinfo">overridden in <a href="msiempy.AlarmManager.html" class="code" data-type="Class">msiempy.AlarmManager</a>, <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">msiempy.event._QueryExecuteManager</a></div>
     
     <div>Returns the filters in the right format.
 Abstract declaration.</div>
@@ -693,7 +693,7 @@ Abstract declaration.</div>
     
     def
     _set_filters(self, filters):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L206">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L206">
       
       (source)
     </a>
@@ -715,13 +715,13 @@ Abstract declaration.</div>
     @abc.abstractmethod<br />
     def
     add_filter(self, filter):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L242">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L242">
       
       (source)
     </a>
   </div>
   <div class="docstring functionBody">
-    <div class="interfaceinfo">overridden in <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">msiempy.event._QueryExecuteManager</a></div>
+    <div class="interfaceinfo">overridden in <a href="msiempy.AlarmManager.html" class="code" data-type="Class">msiempy.AlarmManager</a>, <a href="msiempy.event._QueryExecuteManager.html" class="code" data-type="Class">msiempy.event._QueryExecuteManager</a></div>
     
     <div>Add a filter to the query.
 Abstract declaration.</div>
@@ -738,36 +738,36 @@ Abstract declaration.</div>
     @abc.abstractmethod<br />
     def
     clear_filters(self):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L249">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L249">
       
       (source)
     </a>
   </div>
   <div class="docstring functionBody">
-    <div class="interfaceinfo">overridden in <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event.EventManager.html" class="code" data-type="Class">msiempy.event.EventManager</a>, <a href="msiempy.event.GroupedEventManager.html" class="code" data-type="Class">msiempy.event.GroupedEventManager</a></div>
+    <div class="interfaceinfo">overridden in <a href="msiempy.AlarmManager.html" class="code" data-type="Class">msiempy.AlarmManager</a>, <a href="msiempy.EventManager.html" class="code" data-type="Class">msiempy.EventManager</a>, <a href="msiempy.GroupedEventManager.html" class="code" data-type="Class">msiempy.GroupedEventManager</a></div>
     
     <div>Remove all filters to the query.
 Abstract declaration.</div>
   </div>
-</div><div class="basemethod">
+</div><div class="basemethod private">
   
-  <a name="msiempy.core.query.FilteredQueryList.qry_load_data">
+  <a name="msiempy.core.query.FilteredQueryList._qry_load_data">
     
   </a>
-  <a name="qry_load_data">
+  <a name="_qry_load_data">
     
   </a>
   <div class="functionHeader">
     @abc.abstractmethod<br />
     def
-    qry_load_data(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L256">
+    _qry_load_data(self, *args, **kwargs):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L256">
       
       (source)
     </a>
   </div>
   <div class="docstring functionBody">
-    <div class="interfaceinfo">overridden in <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event.EventManager.html" class="code" data-type="Class">msiempy.event.EventManager</a>, <a href="msiempy.event.GroupedEventManager.html" class="code" data-type="Class">msiempy.event.GroupedEventManager</a></div>
+    <div class="interfaceinfo">overridden in <a href="msiempy.AlarmManager.html" class="code" data-type="Class">msiempy.AlarmManager</a>, <a href="msiempy.EventManager.html" class="code" data-type="Class">msiempy.EventManager</a>, <a href="msiempy.GroupedEventManager.html" class="code" data-type="Class">msiempy.GroupedEventManager</a></div>
     
     <div>Method to load the data from the SIEM.
 Rturns a <code>tuple ((items, completed))</code>.
@@ -785,13 +785,13 @@ Abstract declaration.</div>
     @abc.abstractmethod<br />
     def
     load_data(self, *args, **kwargs):
-    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/query.py#L265">
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/1ccde00dffcb7fd65ce44c4068428fd6f60b2a5f/msiempy/core/query.py#L265">
       
       (source)
     </a>
   </div>
   <div class="docstring functionBody">
-    <div class="interfaceinfo">overridden in <a href="msiempy.alarm.AlarmManager.html" class="code" data-type="Class">msiempy.alarm.AlarmManager</a>, <a href="msiempy.event.EventManager.html" class="code" data-type="Class">msiempy.event.EventManager</a>, <a href="msiempy.event.GroupedEventManager.html" class="code" data-type="Class">msiempy.event.GroupedEventManager</a></div>
+    <div class="interfaceinfo">overridden in <a href="msiempy.AlarmManager.html" class="code" data-type="Class">msiempy.AlarmManager</a>, <a href="msiempy.EventManager.html" class="code" data-type="Class">msiempy.EventManager</a>, <a href="msiempy.GroupedEventManager.html" class="code" data-type="Class">msiempy.GroupedEventManager</a></div>
     
     <div>Load the data from the SIEM into the list.
 Abstract declaration.</div>
@@ -800,7 +800,7 @@ Abstract declaration.</div>
 
       </div>
       <address>
-        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-17 04:28:54.
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-17 04:34:06.
       </address>
 
     </div>

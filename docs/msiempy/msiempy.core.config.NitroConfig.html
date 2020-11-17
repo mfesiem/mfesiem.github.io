@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>msiempy.core.config.NitroConfig : API documentation</title>
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">
+            msiempy API Documentation
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div id="showPrivate">
+      <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+    </div>
+
+    <div class="container">
+
+      <div class="page-header">
+        <h1 class="class"><code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.core.html" class="code" data-type="Package">core</a>.<a href="msiempy.core.config.html" class="code" data-type="Module">config</a>.<a href="msiempy.core.config.NitroConfig.html" class="code" data-type="Class">NitroConfig</a></code></h1>
+      </div>
+
+      <div class="categoryHeader">
+        class documentation
+      </div>
+
+      <div class="extrasDocstring">
+        <p><code><span class="py-keyword">class</span> msiempy.core.config.NitroConfig(<span title="configparser.ConfigParser">configparser.ConfigParser</span>): <a href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L15">(source)</a></code></p>
+        <p><a href="classIndex.html#msiempy.core.config.NitroConfig">View In Hierarchy</a></p>
+      </div>
+
+      <div class="moduleDocstring">
+        <div><p><a href="https://docs.python.org/3/library/configparser.html#configparser.ConfigParser"><code>configparser.ConfigParser</code></a> parser object.</p>
+<p>Handles the configuration. Reads the config file <code>.msiem/conf.ini</code> and make accessible it's values throught object properties.
+Additionnal</p>
+<p>Default configuration file should look like this. Authentication is left empty:</p>
+<pre class="rst-literal-block">
+[esm]
+host =
+user =
+passwd =
+
+[general]
+verbose = False
+quiet = False
+logfile =
+timeout = 60
+ssl_verify = False
+</pre>
+<dl class="rst-docutils">
+<dt>It automatically look for the configuration file in the following places:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li>For Windows: <code>%APPDATA%.msiemconf.ini</code></li>
+<li>For Mac : <code>$HOME/.msiem/conf.ini</code></li>
+<li>For Linux : <code>$XDG_CONFIG_HOME/.msiem/conf.ini</code> or : <code>$HOME/.msiem/conf.ini</code></li>
+<li>If <code>.msiem</code> folder exists in your current directory : <code>./.msiem/conf.ini</code></li>
+</ul>
+</dd>
+</dl>
+<p>You can setup the configuration by command line with <a class="rst-reference external" href="https://github.com/mfesiem/msiempy/blob/master/samples/msiempy_setup.py" target="_top">msiempy_setup.py</a> script.</p>
+</div>
+      </div>
+
+      <div id="splitTables">
+        <table class="children sortable" id="id13">
+  
+  <tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#__init__" class="code" data-type="Method">__init__</a></td>
+    <td><span>Create the configuration parser</span></td>
+  </tr><tr class="classvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#CONFIG_FILE_NAME" class="code" data-type="Class Variable">CONFIG_FILE_NAME</a></td>
+    <td><span><code>.msiem/conf.ini</code></span></td>
+  </tr><tr class="classvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#CONF_DIR" class="code" data-type="Class Variable">CONF_DIR</a></td>
+    <td><span><code>.msiem/</code></span></td>
+  </tr><tr class="classvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#DEFAULT_CONF_DICT" class="code" data-type="Class Variable">DEFAULT_CONF_DICT</a></td>
+    <td><span>Default configuration values.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#__str__" class="code" data-type="Method">__str__</a></td>
+    <td><span>Custom str() method that lists all config fields.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#write" class="code" data-type="Method">write</a></td>
+    <td><span>Write the config file to the predetermined <code>path</code>.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#iset" class="code" data-type="Method">iset</a></td>
+    <td><span>Interactively set the specified section/option by asking the user the input.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#user" class="code" data-type="Method">user</a></td>
+    <td><span>Config value of:</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#host" class="code" data-type="Method">host</a></td>
+    <td><span>Config value of:</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#passwd" class="code" data-type="Method">passwd</a></td>
+    <td><span>Config value of:</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#verbose" class="code" data-type="Method">verbose</a></td>
+    <td><span>Config value of:</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#quiet" class="code" data-type="Method">quiet</a></td>
+    <td><span>Config value of:</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#logfile" class="code" data-type="Method">logfile</a></td>
+    <td><span>Config value of:</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#timeout" class="code" data-type="Method">timeout</a></td>
+    <td><span>Config value of:</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#ssl_verify" class="code" data-type="Method">ssl_verify</a></td>
+    <td><span>Config value of:</span></td>
+  </tr><tr class="staticmethod">
+    
+    <td>Static Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#find_ini_location" class="code" data-type="Static Method">find_ini_location</a></td>
+    <td><span class="undocumented">No summary</span></td>
+  </tr><tr class="instancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#_path" class="code" data-type="Instance Variable">_path</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.config.NitroConfig.html#_iset" class="code" data-type="Method">_iset</a></td>
+    <td><span>Internal method to interactively set  a option in a section.</span></td>
+  </tr>
+</table>
+        
+
+          
+      </div>
+
+      <div id="childList">
+
+        <div class="basemethod">
+  
+  <a name="msiempy.core.config.NitroConfig.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    __init__(self, *arg, path=None, config=None, **kwarg):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L45">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Create the configuration parser</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>path</code>: Config file special path, if path is left <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a>, will automatically look for it.</li>
+<li><a href="msiempy.core.config.html"><code>config</code></a>: Manual config dict. ex: <code>{'general':{'verbose':True}}</code>.</li>
+<li><code>*args, **kwargs</code> : Passed to <code>configparser.ConfigParser.__init__()</code> method.</li>
+</ul>
+</dd>
+</dl>
+</div>
+  </div>
+</div><div class="baseinstancevariable private">
+  
+  <a name="msiempy.core.config.NitroConfig._path">
+    
+  </a>
+  <a name="_path">
+    
+  </a>
+  <div class="functionHeader">
+    _path =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L56">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div>
+  </div>
+</div><div class="baseclassvariable">
+  
+  <a name="msiempy.core.config.NitroConfig.CONFIG_FILE_NAME">
+    
+  </a>
+  <a name="CONFIG_FILE_NAME">
+    
+  </a>
+  <div class="functionHeader">
+    CONFIG_FILE_NAME =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L72">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><code>.msiem/conf.ini</code></div> (type: <code>str</code>)
+  </div>
+</div><div class="baseclassvariable">
+  
+  <a name="msiempy.core.config.NitroConfig.CONF_DIR">
+    
+  </a>
+  <a name="CONF_DIR">
+    
+  </a>
+  <div class="functionHeader">
+    CONF_DIR =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L75">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><code>.msiem/</code></div> (type: <code>str</code>)
+  </div>
+</div><div class="baseclassvariable">
+  
+  <a name="msiempy.core.config.NitroConfig.DEFAULT_CONF_DICT">
+    
+  </a>
+  <a name="DEFAULT_CONF_DICT">
+    
+  </a>
+  <div class="functionHeader">
+    DEFAULT_CONF_DICT =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L78">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div>Default configuration values.</div> (type: <code>Dict</code>)
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.config.NitroConfig.__str__">
+    
+  </a>
+  <a name="__str__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    __str__(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L92">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Custom str() method that lists all config fields.</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.config.NitroConfig.write">
+    
+  </a>
+  <a name="write">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    write(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L103">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Write the config file to the predetermined <code>path</code>.</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.core.config.NitroConfig._iset">
+    
+  </a>
+  <a name="_iset">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _iset(self, section, option, secure=(False)):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L109">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Internal method to interactively set  a option in a section.</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.config.NitroConfig.iset">
+    
+  </a>
+  <a name="iset">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    iset(self, section, option=None, secure=(False)):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L132">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Interactively set the specified section/option by asking the user the input.</p>
+<dl class="rst-docutils">
+<dt>Arguments:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li><code>section</code> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Configuration's section. Exemple : 'esm' or 'general'.</li>
+<li><code>option</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): Configuraion's option. Leave to <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a> to set the whole section one after another. Exemple : 'user', 'timeout'.</li>
+<li><code>secure</code> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): Will use getpass to retreive the configuration value and won't print old value.</li>
+</ul>
+</dd>
+</dl>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.config.NitroConfig.user">
+    
+  </a>
+  <a name="user">
+    
+  </a>
+  <div class="functionHeader">
+    @property<br />
+    def
+    user(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L146">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Config value of:</p>
+<pre class="rst-literal-block">
+[esm]
+user=
+</pre>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.config.NitroConfig.host">
+    
+  </a>
+  <a name="host">
+    
+  </a>
+  <div class="functionHeader">
+    @property<br />
+    def
+    host(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L156">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Config value of:</p>
+<pre class="rst-literal-block">
+[esm]
+host=
+</pre>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.config.NitroConfig.passwd">
+    
+  </a>
+  <a name="passwd">
+    
+  </a>
+  <div class="functionHeader">
+    @property<br />
+    def
+    passwd(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L166">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Config value of:</p>
+<pre class="rst-literal-block">
+[esm]
+passwd=
+</pre>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.config.NitroConfig.verbose">
+    
+  </a>
+  <a name="verbose">
+    
+  </a>
+  <div class="functionHeader">
+    @property<br />
+    def
+    verbose(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L176">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Config value of:</p>
+<pre class="rst-literal-block">
+[general]
+verbose=
+</pre>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.config.NitroConfig.quiet">
+    
+  </a>
+  <a name="quiet">
+    
+  </a>
+  <div class="functionHeader">
+    @property<br />
+    def
+    quiet(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L186">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Config value of:</p>
+<pre class="rst-literal-block">
+[general]
+quiet=
+</pre>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.config.NitroConfig.logfile">
+    
+  </a>
+  <a name="logfile">
+    
+  </a>
+  <div class="functionHeader">
+    @property<br />
+    def
+    logfile(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L196">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Config value of:</p>
+<pre class="rst-literal-block">
+[general]
+logfile=
+</pre>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.config.NitroConfig.timeout">
+    
+  </a>
+  <a name="timeout">
+    
+  </a>
+  <div class="functionHeader">
+    @property<br />
+    def
+    timeout(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L206">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Config value of:</p>
+<pre class="rst-literal-block">
+[general]
+timeout=
+</pre>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.config.NitroConfig.ssl_verify">
+    
+  </a>
+  <a name="ssl_verify">
+    
+  </a>
+  <div class="functionHeader">
+    @property<br />
+    def
+    ssl_verify(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L216">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Config value of:</p>
+<pre class="rst-literal-block">
+[general]
+ssl_verify=
+</pre>
+</div>
+  </div>
+</div><div class="basestaticmethod">
+  
+  <a name="msiempy.core.config.NitroConfig.find_ini_location">
+    
+  </a>
+  <a name="find_ini_location">
+    
+  </a>
+  <div class="functionHeader">
+    @staticmethod<br />
+    def
+    find_ini_location():
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/5d9ca486dba3c75d57c44af32430d1cd10b3d911/msiempy/core/config.py#L226">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Returns the location of a supposed conf.ini file the <code>conf.ini</code> file.
+If <code>.msiem</code> folder exists in you local directory, assume the <code>conf.ini</code> file is in there.
+If the file doesn't exist, will still return the location.
+Do not create a file nor directory, you must call <a href="msiempy.core.config.NitroConfig.html#write"><code>msiempy.core.config.NitroConfig.write</code></a>.</div>
+  </div>
+</div>
+
+      </div>
+      <address>
+        <a href="index.html">API Documentation</a> for msiempy, generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-11-17 04:28:54.
+      </address>
+
+    </div>
+
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>

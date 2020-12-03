@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>msiempy.core.types.NitroList : API documentation</title>
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">
+            msiempy (dev) API Documentation
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div id="showPrivate">
+      <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+    </div>
+
+    <div class="container">
+
+      <div class="page-header">
+        <h1 class="class"><code><a href="msiempy.html" class="code" data-type="Package">msiempy</a>.<a href="msiempy.core.html" class="code" data-type="Package">core</a>.<a href="msiempy.core.types.html" class="code" data-type="Module">types</a>.<a href="msiempy.core.types.NitroList.html" class="code" data-type="Class">NitroList</a></code></h1>
+      </div>
+
+      <div class="categoryHeader">
+        class documentation
+      </div>
+
+      <div class="extrasDocstring">
+        <p><code><span class="py-keyword">class</span> msiempy.core.types.NitroList(<span title="collections.UserList">collections.UserList</span>, <a href="msiempy.core.types.NitroObject.html" class="code" data-type="Class">NitroObject</a>): <a href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L155">(source)</a></code></p><p>Known subclasses: <a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">msiempy.core.query.FilteredQueryList</a>, <a href="msiempy.DevTree.html" class="code" data-type="Class">msiempy.DevTree</a>, <a href="msiempy.WatchlistManager.html" class="code" data-type="Class">msiempy.WatchlistManager</a></p>
+        <p><a href="classIndex.html#msiempy.core.types.NitroList">View In Hierarchy</a></p>
+      </div>
+
+      <div class="moduleDocstring">
+        <div><p>Base class for list objects.</p>
+<p>It offers search and other data list actions.</p>
+<p>This classe and subclasses fully implements <a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> interface and is suitable for list operations, see: <a class="rst-reference external" href="https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range" target="_top">https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range</a></p>
+<p>Concrete classes have to cast the list items in their <a href="msiempy.core.types.NitroList.html#__init__"><code>__init__</code></a> method !</p>
+<p>Subclassing requirements: Subclasses of UserList are expected to offer a constructor which can be called with either no arguments or one argument. List operations which return a new sequence attempt to create an instance of the actual implementation class. To do so, it assumes that the constructor can be called with a single parameter, which is a sequence object used as a data source.
+If a derived class does not wish to comply with this requirement, all of the special methods supported by this class will need to be overridden; please consult the sources for information about the methods which need to be provided in that case.
+See: <a class="rst-reference external" href="https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects" target="_top">https://docs.python.org/3.8/library/collections.html?highlight=userdict#userlist-objects</a></p>
+</div>
+      </div>
+
+      <div id="splitTables">
+        <table class="children sortable" id="id60">
+  
+  <tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.types.NitroList.html#data" class="code" data-type="Instance Variable">data</a></td>
+    <td><span>Underlying <a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> object</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#__init__" class="code" data-type="Method">__init__</a></td>
+    <td><span>Create a new list</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#__str__" class="code" data-type="Method">__str__</a></td>
+    <td><span>str(obj) -&gt; return text string.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#keys" class="code" data-type="Method">keys</a></td>
+    <td><span>List items keys. Every items should have the same set of keys.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#get_text" class="code" data-type="Method">get_text</a></td>
+    <td><span>Return a csv or table string representation of the list</span></td>
+  </tr><tr class="classvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.core.types.NitroList.html#text" class="code" data-type="Class Variable">text</a></td>
+    <td><span>"Prettytable" representation of the list: Same as <a href="msiempy.core.types.NitroList.html#get_text"><code>get_text</code></a> with no arguments.</span></td>
+  </tr><tr class="classvariable">
+    
+    <td>Class Variable</td>
+    <td><a href="msiempy.core.types.NitroList.html#json" class="code" data-type="Class Variable">json</a></td>
+    <td><span>JSON string representation of the list of dicts.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#search" class="code" data-type="Method">search</a></td>
+    <td><span>Search elements in the list with a regex pattern</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#refresh" class="code" data-type="Method">refresh</a></td>
+    <td><span>Execute refresh function on all items.</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#perform" class="code" data-type="Method">perform</a></td>
+    <td><span>Wrapper to execute a function on the list of elements</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#_get_text" class="code" data-type="Method">_get_text</a></td>
+    <td><span>Defaut table string, a shorcut to <code>get_text()</code> with no arguments.</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#_get_json" class="code" data-type="Method">_get_json</a></td>
+    <td><span>JSON list of dicts representing the list.</span></td>
+  </tr><tr class="staticmethod private">
+    
+    <td>Static Method</td>
+    <td><a href="msiempy.core.types.NitroList.html#_confirm_func" class="code" data-type="Static Method">_confirm_func</a></td>
+    <td><span>Ask user inut to confirm the calling of <code>func</code> on <code>elements</code>.</span></td>
+  </tr>
+</table>
+        
+          <p class="inheritedFrom">
+            Inherited from <a href="msiempy.core.types.NitroObject.html" class="code" data-type="Class">NitroObject</a>:
+          </p>
+          <table class="children sortable" id="id61">
+  
+  <tr class="baseclass">
+    
+    <td>Class</td>
+    <td><a href="msiempy.core.types.NitroObject.NitroJSONEncoder.html" class="code" data-type="Class">NitroJSONEncoder</a></td>
+    <td><span>Custom JSON encoder that will use the approprtiate propertie depending of the type of NitroObject. TODO support json json dumping of QueryFilers, may be by making them inherits from NitroDict.</span></td>
+  </tr><tr class="baseinstancevariable">
+    
+    <td>Instance Variable</td>
+    <td><a href="msiempy.core.types.NitroObject.html#nitro" class="code" data-type="Instance Variable">nitro</a></td>
+    <td><span>Reference to the <a href="msiempy.NitroSession.html"><code>NitroSession</code></a>, interface to the SIEM.</span></td>
+  </tr>
+</table>
+          
+
+          
+      </div>
+
+      <div id="childList">
+
+        <div class="baseinstancevariable">
+  
+  <a name="msiempy.core.types.NitroList.data">
+    
+  </a>
+  <a name="data">
+    
+  </a>
+  <div class="functionHeader">
+    data =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L169">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    <div class="interfaceinfo">overridden in <a href="msiempy.DevTree.html" class="code" data-type="Class">msiempy.DevTree</a>, <a href="msiempy.WatchlistManager.html" class="code" data-type="Class">msiempy.WatchlistManager</a></div>
+    <div>Underlying <a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> object</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.types.NitroList.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def __init__(self, alist=None):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L172">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroObject.html#__init__" class="code" data-type="Method">msiempy.core.types.NitroObject.__init__</a></div><div class="interfaceinfo">overridden in <a href="msiempy.core.query.FilteredQueryList.html" class="code" data-type="Class">msiempy.core.query.FilteredQueryList</a>, <a href="msiempy.DevTree.html" class="code" data-type="Class">msiempy.DevTree</a>, <a href="msiempy.WatchlistManager.html" class="code" data-type="Class">msiempy.WatchlistManager</a></div>
+    
+    <div>Create a new list<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">alist</td><td>list object to wrap.</td></tr></table></div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.types.NitroList.__str__">
+    
+  </a>
+  <a name="__str__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def __str__(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L185">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>str(obj) -&gt; return text string.</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.types.NitroList.keys">
+    
+  </a>
+  <a name="keys">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def keys(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L191">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>List items keys. Every items should have the same set of keys.</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.types.NitroList.get_text">
+    
+  </a>
+  <a name="get_text">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def get_text(self, format='prettytable', fields=None, max_column_width=80, get_text_nest_attr={}):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L199">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Return a csv or table string representation of the list<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">format</td><td> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): Can be:
+* <tt class="rst-docutils literal">"prettytable"</tt>: Returns a table generated by prettytable use <tt class="rst-docutils literal">MSWORD_FRIENDLY</tt> format. OR.
+* <tt class="rst-docutils literal">"csv"</tt>: Returns data with header and comma separated values.</td></tr><tr><td></td><td class="fieldArg">fields</td><td> (<code>list[str]</code>): list of fields you want in the table. If <a href="https://docs.python.org/3/library/constants.html#None"><code>None</code></a> : default fields are returned by .keys attribute and sorted.</td></tr><tr><td></td><td class="fieldArg">max_column_width</td><td> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): when using prettytable only</td></tr><tr><td></td><td class="fieldArg">get_text_nest_attr</td><td> (<a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>): attributes passed to the nested <a href="msiempy.core.types.NitroList.html#get_text"><code>msiempy.core.types.NitroList.get_text</code></a> elements if any. Useful to control events appearence.</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2"><a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a></td></tr></table></div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.core.types.NitroList._get_text">
+    
+  </a>
+  <a name="_get_text">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def _get_text(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L278">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroObject.html#_get_text" class="code" data-type="Method">msiempy.core.types.NitroObject._get_text</a></div>
+    
+    <div>Defaut table string, a shorcut to <code>get_text()</code> with no arguments.</div>
+  </div>
+</div><div class="basemethod private">
+  
+  <a name="msiempy.core.types.NitroList._get_json">
+    
+  </a>
+  <a name="_get_json">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def _get_json(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L282">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroObject.html#_get_json" class="code" data-type="Method">msiempy.core.types.NitroObject._get_json</a></div>
+    
+    <div>JSON list of dicts representing the list.</div>
+  </div>
+</div><div class="baseclassvariable">
+  
+  <a name="msiempy.core.types.NitroList.text">
+    
+  </a>
+  <a name="text">
+    
+  </a>
+  <div class="functionHeader">
+    text =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L290">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroObject.html#text" class="code" data-type="Method">msiempy.core.types.NitroObject.text</a></div>
+    <div>"Prettytable" representation of the list: Same as <a href="msiempy.core.types.NitroList.html#get_text"><code>get_text</code></a> with no arguments.</div>
+  </div>
+</div><div class="baseclassvariable">
+  
+  <a name="msiempy.core.types.NitroList.json">
+    
+  </a>
+  <a name="json">
+    
+  </a>
+  <div class="functionHeader">
+    json =
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L294">
+      
+      (source)
+    </a>
+  </div>
+  <div class="functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroObject.html#json" class="code" data-type="Method">msiempy.core.types.NitroObject.json</a></div>
+    <div>JSON string representation of the list of dicts.</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.types.NitroList.search">
+    
+  </a>
+  <a name="search">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def search(self, term, fields=None, invert=False):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L299">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overridden in <a href="msiempy.DevTree.html" class="code" data-type="Class">msiempy.DevTree</a></div>
+    
+    <div><p>Search elements in the list with a regex pattern</p>
+<p>If you wish to apply non-regex filters to, use <code>filter()</code> or list comprehension:</p>
+<pre class="rst-literal-block">
+[e for e in events if int(e['severity']) &gt; 50]
+</pre>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">term</td><td> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): String regex pattern to look for in the list items values. More on regex <a class="rst-reference external" href="https://docs.python.org/3/library/re.html#re.Pattern.search" target="_top">https://docs.python.org/3/library/re.html#re.Pattern.search</a></td></tr><tr><td></td><td class="fieldArg">fields</td><td> (<code>list[str]</code>): Dictionnary fields to consider in the search, all keys are considered by default.  Patterns are compared to <a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a> representation of values.</td></tr><tr><td></td><td class="fieldArg">invert</td><td> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): Weither or not to invert the search and return elements that doesn't not match search.</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">List-Like object of matching items</td></tr><tr class="fieldStart"><td class="fieldName">Unknown Field: exemple</td><td colspan="2"><pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> msiempy <span class="py-keyword">import</span> WatchlistManager
+<span class="py-prompt">&gt;&gt;&gt; </span>wl_list = WatchlistManager()
+<span class="py-prompt">&gt;&gt;&gt; </span>wl_ip_list = wl_list.search(<span class="py-string">"IPAddress"</span>, fields=[<span class="py-string">"type"</span>])
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-builtin">print</span>(<span class="py-builtin">len</span>(wl_ip_list))
+<span class="py-output">2 # There is two "IPAddress" watchlists</span>
+</pre></td></tr></table></div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.types.NitroList.refresh">
+    
+  </a>
+  <a name="refresh">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def refresh(self):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L353">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    <div class="interfaceinfo">overrides <a href="msiempy.core.types.NitroObject.html#refresh" class="code" data-type="Method">msiempy.core.types.NitroObject.refresh</a></div><div class="interfaceinfo">overridden in <a href="msiempy.DevTree.html" class="code" data-type="Class">msiempy.DevTree</a>, <a href="msiempy.WatchlistManager.html" class="code" data-type="Class">msiempy.WatchlistManager</a></div>
+    
+    <div>Execute refresh function on all items.</div>
+  </div>
+</div><div class="basemethod">
+  
+  <a name="msiempy.core.types.NitroList.perform">
+    
+  </a>
+  <a name="perform">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def perform(self, func, data=None, func_args=None, confirm=False, asynch=False, workers=None, progress=False, message=None):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L359">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div><p>Wrapper to execute a function on the list of elements</p>
+<p>This method is where the core of asynchronous tasks resides. <code>func</code> will be executed on all <a href="msiempy.core.types.NitroList.html#data"><code>data</code></a> elements.
+Basically, if <code>asynch==True</code>, will return:</p>
+<pre class="rst-literal-block">
+returned=list(concurrent.futures.ThreadPoolExecutor(
+            max_workers=workers ).map(
+                func, data))
+</pre>
+<p>if <code>asynch==False</code>, will iterate and return:</p>
+<pre class="rst-literal-block">
+for index_or_item in data:
+    returned.append(func(index_or_item))
+</pre>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">func</td><td> (<a href="https://docs.python.org/3/library/functions.html#callable"><code>callable</code></a>): Function. <code>func</code> is going to be called like <code>func(item, **func_args)</code> on all items in data.</td></tr><tr><td></td><td class="fieldArg">data</td><td> (<a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a>): Choose a custom list to execute the function on (Default value = <code>list(self)</code>)</td></tr><tr><td></td><td class="fieldArg">func_args</td><td> (<a href="https://docs.python.org/3/library/stdtypes.html#dict"><code>dict</code></a>): arguments that will be passed by default to <code>func</code> in all calls.</td></tr><tr><td></td><td class="fieldArg">confirm</td><td> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): will ask interactively confirmation.</td></tr><tr><td></td><td class="fieldArg">asynch</td><td> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): execute the task asynchronously with <a href="https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor"><code>concurrent.futures.ThreadPoolExecutor</code></a>. Carefull not to nest 2 asynchronous executions within eachother, it will be a mess.</td></tr><tr><td></td><td class="fieldArg">workers</td><td> (<a href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a>): number of parrallel tasks, mandatory if asynch is true.</td></tr><tr><td></td><td class="fieldArg">progress</td><td> (<a href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a>): to show progress bar with ETA (<code>tqdm</code>).</td></tr><tr><td></td><td class="fieldArg">message</td><td> (<a href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a>): To show to the user.</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2"><a href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a> of returned results.</td></tr></table></div>
+  </div>
+</div><div class="basestaticmethod private">
+  
+  <a name="msiempy.core.types.NitroList._confirm_func">
+    
+  </a>
+  <a name="_confirm_func">
+    
+  </a>
+  <div class="functionHeader">
+    @staticmethod<br />
+    def _confirm_func(func, elements):
+    <a class="functionSourceLink" href="https://github.com/mfesiem/msiempy/tree/9983b6f72cc8f4f2d9a033ecf5b235edceef59d1/msiempy/core/types.py#L494">
+      
+      (source)
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    
+    <div>Ask user inut to confirm the calling of <code>func</code> on <code>elements</code>.</div>
+  </div>
+</div>
+
+      </div>
+      <address>
+        <a href="index.html">API Documentation</a> for msiempy (dev), generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a> 20.7.1 at 2020-12-03 21:37:55.
+      </address>
+
+    </div>
+
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>
